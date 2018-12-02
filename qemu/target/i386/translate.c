@@ -1426,6 +1426,23 @@ static void gen_helper_fp_arith_STN_ST0(DisasContext *s, int op, int opreg)
     }
 }
 
+static void gen_exception(DisasContext *s, int trapno, target_ulong cur_eip)
+{
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+
+    gen_update_cc_op(s);
+    gen_jmp_im(s, cur_eip);
+    gen_helper_raise_exception(tcg_ctx, tcg_ctx->cpu_env, tcg_const_i32(tcg_ctx, trapno));
+    s->base.is_jmp = DISAS_NORETURN;
+}
+
+/* Generate #UD for the current instruction.  The assumption here is that
+   the instruction is known, but it isn't allowed in the current cpu mode.  */
+static void gen_illegal_opcode(DisasContext *s)
+{
+    gen_exception(s, EXCP06_ILLOP, s->pc_start - s->cs_base);
+}
+
 /* if d == OR_TMP0, it means memory operand (address in A0) */
 static void gen_op(DisasContext *s, int op, TCGMemOp ot, int d)
 {
@@ -1434,6 +1451,11 @@ static void gen_op(DisasContext *s, int op, TCGMemOp ot, int d)
     TCGv cpu_cc_src = tcg_ctx->cpu_cc_src;
 
     if (d != OR_TMP0) {
+        if (s->prefix & PREFIX_LOCK) {
+            /* Lock prefix when destination is not memory.  */
+            gen_illegal_opcode(s);
+            return;
+        }
         gen_op_mov_v_reg(s, ot, s->T0, d);
     } else if (!(s->prefix & PREFIX_LOCK)) {
         gen_op_ld_v(s, ot, s->T0, s->A0);
@@ -2688,23 +2710,6 @@ static void gen_leave(DisasContext *s)
 
     gen_op_mov_reg_v(s, d_ot, R_EBP, s->T0);
     gen_op_mov_reg_v(s, a_ot, R_ESP, s->T1);
-}
-
-static void gen_exception(DisasContext *s, int trapno, target_ulong cur_eip)
-{
-    TCGContext *tcg_ctx = s->uc->tcg_ctx;
-
-    gen_update_cc_op(s);
-    gen_jmp_im(s, cur_eip);
-    gen_helper_raise_exception(tcg_ctx, tcg_ctx->cpu_env, tcg_const_i32(tcg_ctx, trapno));
-    s->base.is_jmp = DISAS_NORETURN;
-}
-
-/* Generate #UD for the current instruction.  The assumption here is that
-   the instruction is known, but it isn't allowed in the current cpu mode.  */
-static void gen_illegal_opcode(DisasContext *s)
-{
-    gen_exception(s, EXCP06_ILLOP, s->pc_start - s->cs_base);
 }
 
 /* Similarly, except that the assumption here is that we don't decode
