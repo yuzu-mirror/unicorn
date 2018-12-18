@@ -69,7 +69,6 @@ static union MSVC_FLOAT_HACK __NAN = {{0x00, 0x00, 0xC0, 0x7F}};
 #define QEMU_UNUSED_VAR __pragma(warning(suppress:4100))	// unused variables only
 #define QEMU_UNUSED_FUNC
 #define QEMU_WARN_UNUSED_RESULT
-#define QEMU_ARTIFICIAL
 #define QEMU_PACK( __Declaration__ ) __pragma( pack(push, 1) ) __Declaration__ __pragma( pack(pop) )
 
 #define QEMU_ALIGNED(A, B) __declspec(align(A)) B
@@ -135,12 +134,6 @@ static union MSVC_FLOAT_HACK __NAN = {{0x00, 0x00, 0xC0, 0x7F}};
 #define QEMU_UNUSED_FUNC __attribute__((unused))
 
 #define QEMU_WARN_UNUSED_RESULT __attribute__((warn_unused_result))
-
-#if QEMU_GNUC_PREREQ(4, 3)
-#define QEMU_ARTIFICIAL __attribute__((always_inline, artificial))
-#else
-#define QEMU_ARTIFICIAL
-#endif
 
 #if defined(_WIN32)
 # define QEMU_PACK( __Declaration__ ) __Declaration__ __attribute__((gcc_struct, packed))
