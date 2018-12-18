@@ -293,7 +293,7 @@ static inline int check_fit_i32(int32_t val, unsigned int bits)
 # define check_fit_ptr  check_fit_i32
 #endif
 
-static void patch_reloc(tcg_insn_unit *code_ptr, int type,
+static bool patch_reloc(tcg_insn_unit *code_ptr, int type,
                         intptr_t value, intptr_t addend)
 {
     uint32_t insn = *code_ptr;
@@ -319,6 +319,7 @@ static void patch_reloc(tcg_insn_unit *code_ptr, int type,
     }
 
     *code_ptr = insn;
+    return true;
 }
 
 /* parse target specific constraints */
