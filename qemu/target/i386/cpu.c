@@ -863,7 +863,7 @@ static FeatureWordInfo feature_word_info[FEATURE_WORDS] = {
             "avx512bitalg", NULL, "avx512-vpopcntdq", NULL,
             "la57", NULL, NULL, NULL,
             NULL, NULL, "rdpid", NULL,
-            NULL, "cldemote", NULL, NULL,
+            NULL, "cldemote", NULL, "movdiri",
             NULL, NULL, NULL, NULL,
         },
         .cpuid = {
