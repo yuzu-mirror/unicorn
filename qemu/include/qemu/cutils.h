@@ -134,6 +134,8 @@ int qemu_strtoi64(const char *nptr, const char **endptr, int base,
                   int64_t *result);
 int qemu_strtou64(const char *nptr, const char **endptr, int base,
                   uint64_t *result);
+int qemu_strtod(const char *nptr, const char **endptr, double *result);
+int qemu_strtod_finite(const char *nptr, const char **endptr, double *result);
 
 int qemu_strtosz(const char *nptr, char **end, uint64_t *result);
 int qemu_strtosz_MiB(const char *nptr, char **end, uint64_t *result);
