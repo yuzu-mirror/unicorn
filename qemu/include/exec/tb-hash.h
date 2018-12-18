@@ -21,7 +21,7 @@
 #define EXEC_TB_HASH_H
 
 #include "exec/exec-all.h"
-#include "exec/tb-hash-xx.h"
+#include "qemu/xxhash.h"
 
 #ifdef CONFIG_SOFTMMU
 
