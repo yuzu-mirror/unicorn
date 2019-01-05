@@ -240,6 +240,7 @@ void tcg_gen_brcond_i32(TCGContext *s, TCGCond cond, TCGv_i32 arg1, TCGv_i32 arg
     if (cond == TCG_COND_ALWAYS) {
         tcg_gen_br(s, l);
     } else if (cond != TCG_COND_NEVER) {
+        l->refs++;
         tcg_gen_op4ii_i32(s, INDEX_op_brcond_i32, arg1, arg2, cond, label_arg(s, l));
     }
 }
@@ -1412,6 +1413,7 @@ void tcg_gen_brcond_i64(TCGContext *s, TCGCond cond, TCGv_i64 arg1, TCGv_i64 arg
     if (cond == TCG_COND_ALWAYS) {
         tcg_gen_br(s, l);
     } else if (cond != TCG_COND_NEVER) {
+        l->refs++;
         if (TCG_TARGET_REG_BITS == 32) {
             tcg_gen_op6ii_i32(s, INDEX_op_brcond2_i32, TCGV_LOW(s, arg1),
                               TCGV_HIGH(s, arg1), TCGV_LOW(s, arg2),

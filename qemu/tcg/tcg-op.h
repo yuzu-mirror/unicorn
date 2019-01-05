@@ -273,6 +273,7 @@ static inline void gen_set_label(TCGContext *s, TCGLabel *l)
 
 static inline void tcg_gen_br(TCGContext *s, TCGLabel *l)
 {
+    l->refs++;
     tcg_gen_op1(s, INDEX_op_br, label_arg(s, l));
 }
 
