@@ -5105,7 +5105,7 @@ static void gen_muldiv(DisasContext *ctx, uint32_t opc,
  *
  * and
  *
- *     MADD[U]    rd, rs, rt
+ *     MADD[U][1] rd, rs, rt
  *
  * such that
  *
@@ -5168,6 +5168,9 @@ static void gen_mul_txx9(DisasContext *ctx, uint32_t opc,
             tcg_temp_free_i32(tcg_ctx, t3);
         }
         break;
+    case MMI_OPC_MADD1:
+        acc = 1;
+        /* Fall through */
     case MMI_OPC_MADD:
         {
             TCGv_i64 t2 = tcg_temp_new_i64(tcg_ctx);
@@ -5179,14 +5182,17 @@ static void gen_mul_txx9(DisasContext *ctx, uint32_t opc,
             tcg_gen_concat_tl_i64(tcg_ctx, t3, tcg_ctx->cpu_LO[acc], tcg_ctx->cpu_HI[acc]);
             tcg_gen_add_i64(tcg_ctx, t2, t2, t3);
             tcg_temp_free_i64(tcg_ctx, t3);
-            gen_move_low32(tcg_ctx, tcg_ctx->cpu_LO[acc], t2);
-            gen_move_high32(tcg_ctx, tcg_ctx->cpu_HI[acc], t2);
+            gen_move_low32(ctx, tcg_ctx->cpu_LO[acc], t2);
+            gen_move_high32(ctx, tcg_ctx->cpu_HI[acc], t2);
             if (rd) {
-                gen_move_low32(tcg_ctx, tcg_ctx->cpu_gpr[rd], t2);
+                gen_move_low32(ctx, tcg_ctx->cpu_gpr[rd], t2);
             }
             tcg_temp_free_i64(tcg_ctx, t2);
         }
         break;
+    case MMI_OPC_MADDU1:
+        acc = 1;
+        /* Fall through */
     case MMI_OPC_MADDU:
         {
             TCGv_i64 t2 = tcg_temp_new_i64(tcg_ctx);
@@ -5200,10 +5206,10 @@ static void gen_mul_txx9(DisasContext *ctx, uint32_t opc,
             tcg_gen_concat_tl_i64(tcg_ctx, t3, tcg_ctx->cpu_LO[acc], tcg_ctx->cpu_HI[acc]);
             tcg_gen_add_i64(tcg_ctx, t2, t2, t3);
             tcg_temp_free_i64(tcg_ctx, t3);
-            gen_move_low32(tcg_ctx, tcg_ctx->cpu_LO[acc], t2);
-            gen_move_high32(tcg_ctx, tcg_ctx->cpu_HI[acc], t2);
+            gen_move_low32(ctx, tcg_ctx->cpu_LO[acc], t2);
+            gen_move_high32(ctx, tcg_ctx->cpu_HI[acc], t2);
             if (rd) {
-                gen_move_low32(tcg_ctx, tcg_ctx->cpu_gpr[rd], t2);
+                gen_move_low32(ctx, tcg_ctx->cpu_gpr[rd], t2);
             }
             tcg_temp_free_i64(tcg_ctx, t2);
         }
@@ -27537,6 +27543,8 @@ static void decode_mmi(CPUMIPSState *env, DisasContext *ctx)
     case MMI_OPC_MULTU1:
     case MMI_OPC_MADD:
     case MMI_OPC_MADDU:
+    case MMI_OPC_MADD1:
+    case MMI_OPC_MADDU1:
         gen_mul_txx9(ctx, opc, rd, rs, rt);
         break;
     case MMI_OPC_DIV1:
@@ -27552,8 +27560,6 @@ static void decode_mmi(CPUMIPSState *env, DisasContext *ctx)
         gen_HILO1_tx79(ctx, opc, rd);
         break;
     case MMI_OPC_PLZCW:         /* TODO: MMI_OPC_PLZCW */
-    case MMI_OPC_MADD1:         /* TODO: MMI_OPC_MADD1 */
-    case MMI_OPC_MADDU1:        /* TODO: MMI_OPC_MADDU1 */
     case MMI_OPC_PMFHL:         /* TODO: MMI_OPC_PMFHL */
     case MMI_OPC_PMTHL:         /* TODO: MMI_OPC_PMTHL */
     case MMI_OPC_PSLLH:         /* TODO: MMI_OPC_PSLLH */
