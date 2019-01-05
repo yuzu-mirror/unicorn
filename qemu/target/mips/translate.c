@@ -1657,12 +1657,21 @@ enum {
  *          │                               20..18
  *          ├─ 100111 ─ OPC_MXU__POOL16 ─┬─ 000 ─ OPC_MXU_D32SARW
  *          │                            ├─ 001 ─ OPC_MXU_S32ALN
- *          ├─ 101000 ─ OPC_MXU_LXB      ├─ 010 ─ OPC_MXU_S32ALNI
- *          ├─ 101001 ─ <not assigned>   ├─ 011 ─ OPC_MXU_S32NOR
- *          ├─ 101010 ─ OPC_MXU_S16LDD   ├─ 100 ─ OPC_MXU_S32AND
- *          ├─ 101011 ─ OPC_MXU_S16STD   ├─ 101 ─ OPC_MXU_S32OR
- *          ├─ 101100 ─ OPC_MXU_S16LDI   ├─ 110 ─ OPC_MXU_S32XOR
- *          ├─ 101101 ─ OPC_MXU_S16SDI   └─ 111 ─ OPC_MXU_S32LUI
+ *          │                            ├─ 010 ─ OPC_MXU_S32ALNI
+ *          │                            ├─ 011 ─ OPC_MXU_S32NOR
+ *          │                            ├─ 100 ─ OPC_MXU_S32AND
+ *          │                            ├─ 101 ─ OPC_MXU_S32OR
+ *          │                            ├─ 110 ─ OPC_MXU_S32XOR
+ *          │                            └─ 111 ─ OPC_MXU_S32LUI
+ *          │
+ *          │                               7..5
+ *          ├─ 101000 ─ OPC_MXU__POOL17 ─┬─ 000 ─ OPC_MXU_LXB
+ *          │                            ├─ 001 ─ OPC_MXU_LXH
+ *          ├─ 101001 ─ <not assigned>   ├─ 011 ─ OPC_MXU_LXW
+ *          ├─ 101010 ─ OPC_MXU_S16LDD   ├─ 100 ─ OPC_MXU_LXBU
+ *          ├─ 101011 ─ OPC_MXU_S16STD   └─ 101 ─ OPC_MXU_LXHU
+ *          ├─ 101100 ─ OPC_MXU_S16LDI
+ *          ├─ 101101 ─ OPC_MXU_S16SDI
  *          ├─ 101110 ─ OPC_MXU_S32M2I
  *          ├─ 101111 ─ OPC_MXU_S32I2M
  *          ├─ 110000 ─ OPC_MXU_D32SLL
