@@ -1681,15 +1681,15 @@ enum {
  *          ├─ 110100 ─ OPC_MXU_Q16SLL   ├─ 010 ─ OPC_MXU_D32SARV
  *          ├─ 110101 ─ OPC_MXU_Q16SLR   ├─ 011 ─ OPC_MXU_Q16SLLV
  *          │                            ├─ 100 ─ OPC_MXU_Q16SLRV
- *          ├─ 110110 ─ OPC_MXU__POOL17 ─┴─ 101 ─ OPC_MXU_Q16SARV
+ *          ├─ 110110 ─ OPC_MXU__POOL18 ─┴─ 101 ─ OPC_MXU_Q16SARV
  *          │
  *          ├─ 110111 ─ OPC_MXU_Q16SAR
  *          │                               23..22
- *          ├─ 111000 ─ OPC_MXU__POOL18 ─┬─ 00 ─ OPC_MXU_Q8MUL
+ *          ├─ 111000 ─ OPC_MXU__POOL19 ─┬─ 00 ─ OPC_MXU_Q8MUL
  *          │                            └─ 01 ─ OPC_MXU_Q8MULSU
  *          │
  *          │                               20..18
- *          ├─ 111001 ─ OPC_MXU__POOL19 ─┬─ 000 ─ OPC_MXU_Q8MOVZ
+ *          ├─ 111001 ─ OPC_MXU__POOL20 ─┬─ 000 ─ OPC_MXU_Q8MOVZ
  *          │                            ├─ 001 ─ OPC_MXU_Q8MOVN
  *          │                            ├─ 010 ─ OPC_MXU_D16MOVZ
  *          │                            ├─ 011 ─ OPC_MXU_D16MOVN
@@ -1697,7 +1697,7 @@ enum {
  *          │                            └─ 101 ─ OPC_MXU_S32MOV
  *          │
  *          │                               23..22
- *          ├─ 111010 ─ OPC_MXU__POOL20 ─┬─ 00 ─ OPC_MXU_Q8MAC
+ *          ├─ 111010 ─ OPC_MXU__POOL21 ─┬─ 00 ─ OPC_MXU_Q8MAC
  *          │                            └─ 10 ─ OPC_MXU_Q8MACSU
  *          ├─ 111011 ─ OPC_MXU_Q16SCOP
  *          ├─ 111100 ─ OPC_MXU_Q8MADL
@@ -1753,7 +1753,7 @@ enum {
     OPC_MXU_S8SDI    = 0x25,
     OPC_MXU__POOL15  = 0x26,
     OPC_MXU__POOL16  = 0x27,
-    OPC_MXU_LXB      = 0x28,
+    OPC_MXU__POOL17  = 0x28,
     /* not assigned 0x29 */
     OPC_MXU_S16LDD   = 0x2A,
     OPC_MXU_S16STD   = 0x2B,
@@ -1767,11 +1767,11 @@ enum {
     OPC_MXU_D32SAR   = 0x33,
     OPC_MXU_Q16SLL   = 0x34,
     OPC_MXU_Q16SLR   = 0x35,
-    OPC_MXU__POOL17  = 0x36,
+    OPC_MXU__POOL18  = 0x36,
     OPC_MXU_Q16SAR   = 0x37,
-    OPC_MXU__POOL18  = 0x38,
-    OPC_MXU__POOL19  = 0x39,
-    OPC_MXU__POOL20  = 0x3A,
+    OPC_MXU__POOL19  = 0x38,
+    OPC_MXU__POOL20  = 0x39,
+    OPC_MXU__POOL21  = 0x3A,
     OPC_MXU_Q16SCOP  = 0x3B,
     OPC_MXU_Q8MADL   = 0x3C,
     OPC_MXU_S32SFL   = 0x3D,
@@ -1944,6 +1944,17 @@ enum {
  * MXU pool 17
  */
 enum {
+    OPC_MXU_LXB      = 0x00,
+    OPC_MXU_LXH      = 0x01,
+    OPC_MXU_LXW      = 0x03,
+    OPC_MXU_LXBU     = 0x04,
+    OPC_MXU_LXHU     = 0x05,
+};
+
+/*
+ * MXU pool 18
+ */
+enum {
     OPC_MXU_D32SLLV  = 0x00,
     OPC_MXU_D32SLRV  = 0x01,
     OPC_MXU_D32SARV  = 0x03,
@@ -1953,7 +1964,7 @@ enum {
 };
 
 /*
- * MXU pool 18
+ * MXU pool 19
  */
 enum {
     OPC_MXU_Q8MUL    = 0x00,
@@ -1961,7 +1972,7 @@ enum {
 };
 
 /*
- * MXU pool 19
+ * MXU pool 20
  */
 enum {
     OPC_MXU_Q8MOVZ   = 0x00,
@@ -1973,7 +1984,7 @@ enum {
 };
 
 /*
- * MXU pool 20
+ * MXU pool 21
  */
 enum {
     OPC_MXU_Q8MAC    = 0x00,
@@ -24383,6 +24394,11 @@ static void decode_opc_special(CPUMIPSState *env, DisasContext *ctx)
 #define MXU_EPTN2_SS    3
 
 /* MXU operand getting pattern 'optn2' */
+#define MXU_OPTN2_PTN0  0
+#define MXU_OPTN2_PTN1  1
+#define MXU_OPTN2_PTN2  2
+#define MXU_OPTN2_PTN3  3
+/* alternative naming scheme for 'optn2' */
 #define MXU_OPTN2_WW    0
 #define MXU_OPTN2_LW    1
 #define MXU_OPTN2_HW    2
@@ -25503,12 +25519,58 @@ static void decode_opc_mxu__pool16(CPUMIPSState *env, DisasContext *ctx)
  * Decode MXU pool17
  *
  *   1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
- *  +-----------+---------+-----+-------+-------+-------+-----------+
- *  |  SPECIAL2 |    rb   |x x x|  XRd  |  XRa  |0 0 0 0|MXU__POOL17|
- *  +-----------+---------+-----+-------+-------+-------+-----------+
+ *  +-----------+---------+---------+---+---------+-----+-----------+
+ *  |  SPECIAL2 |    rs   |    rt   |0 0|    rd   |x x x|MXU__POOL15|
+ *  +-----------+---------+---------+---+---------+-----+-----------+
  *
  */
 static void decode_opc_mxu__pool17(CPUMIPSState *env, DisasContext *ctx)
+{
+    uint32_t opcode = extract32(ctx->opcode, 6, 2);
+
+    switch (opcode) {
+    case OPC_MXU_LXW:
+        /* TODO: Implement emulation of LXW instruction. */
+        MIPS_INVAL("OPC_MXU_LXW");
+        generate_exception_end(ctx, EXCP_RI);
+        break;
+    case OPC_MXU_LXH:
+        /* TODO: Implement emulation of LXH instruction. */
+        MIPS_INVAL("OPC_MXU_LXH");
+        generate_exception_end(ctx, EXCP_RI);
+        break;
+    case OPC_MXU_LXHU:
+        /* TODO: Implement emulation of LXHU instruction. */
+        MIPS_INVAL("OPC_MXU_LXHU");
+        generate_exception_end(ctx, EXCP_RI);
+        break;
+    case OPC_MXU_LXB:
+        /* TODO: Implement emulation of LXB instruction. */
+        MIPS_INVAL("OPC_MXU_LXB");
+        generate_exception_end(ctx, EXCP_RI);
+        break;
+    case OPC_MXU_LXBU:
+        /* TODO: Implement emulation of LXBU instruction. */
+        MIPS_INVAL("OPC_MXU_LXBU");
+        generate_exception_end(ctx, EXCP_RI);
+        break;
+    default:
+        MIPS_INVAL("decode_opc_mxu");
+        generate_exception_end(ctx, EXCP_RI);
+        break;
+    }
+}
+/*
+ *
+ * Decode MXU pool18
+ *
+ *   1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
+ *  +-----------+---------+-----+-------+-------+-------+-----------+
+ *  |  SPECIAL2 |    rb   |x x x|  XRd  |  XRa  |0 0 0 0|MXU__POOL18|
+ *  +-----------+---------+-----+-------+-------+-------+-----------+
+ *
+ */
+static void decode_opc_mxu__pool18(CPUMIPSState *env, DisasContext *ctx)
 {
     uint32_t opcode = extract32(ctx->opcode, 18, 3);
 
@@ -25552,15 +25614,15 @@ static void decode_opc_mxu__pool17(CPUMIPSState *env, DisasContext *ctx)
 
 /*
  *
- * Decode MXU pool18
+ * Decode MXU pool19
  *
  *   1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
  *  +-----------+---+---+-------+-------+-------+-------+-----------+
- *  |  SPECIAL2 |0 0|x x|  XRd  |  XRc  |  XRb  |  XRa  |MXU__POOL18|
+ *  |  SPECIAL2 |0 0|x x|  XRd  |  XRc  |  XRb  |  XRa  |MXU__POOL19|
  *  +-----------+---+---+-------+-------+-------+-------+-----------+
  *
  */
-static void decode_opc_mxu__pool18(CPUMIPSState *env, DisasContext *ctx)
+static void decode_opc_mxu__pool19(CPUMIPSState *env, DisasContext *ctx)
 {
     uint32_t opcode = extract32(ctx->opcode, 22, 2);
 
@@ -25578,15 +25640,15 @@ static void decode_opc_mxu__pool18(CPUMIPSState *env, DisasContext *ctx)
 
 /*
  *
- * Decode MXU pool19
+ * Decode MXU pool20
  *
  *   1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
  *  +-----------+---------+-----+-------+-------+-------+-----------+
- *  |  SPECIAL2 |0 0 0 0 0|x x x|  XRc  |  XRb  |  XRa  |MXU__POOL19|
+ *  |  SPECIAL2 |0 0 0 0 0|x x x|  XRc  |  XRb  |  XRa  |MXU__POOL20|
  *  +-----------+---------+-----+-------+-------+-------+-----------+
  *
  */
-static void decode_opc_mxu__pool19(CPUMIPSState *env, DisasContext *ctx)
+static void decode_opc_mxu__pool20(CPUMIPSState *env, DisasContext *ctx)
 {
     uint32_t opcode = extract32(ctx->opcode, 18, 3);
 
@@ -25630,15 +25692,15 @@ static void decode_opc_mxu__pool19(CPUMIPSState *env, DisasContext *ctx)
 
 /*
  *
- * Decode MXU pool20
+ * Decode MXU pool21
  *
  *   1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
  *  +-----------+---+---+-------+-------+-------+-------+-----------+
- *  |  SPECIAL2 |an2|x x|  XRd  |  XRc  |  XRb  |  XRa  |MXU__POOL20|
+ *  |  SPECIAL2 |an2|x x|  XRd  |  XRc  |  XRb  |  XRa  |MXU__POOL21|
  *  +-----------+---+---+-------+-------+-------+-------+-----------+
  *
  */
-static void decode_opc_mxu__pool20(CPUMIPSState *env, DisasContext *ctx)
+static void decode_opc_mxu__pool21(CPUMIPSState *env, DisasContext *ctx)
 {
     uint32_t opcode = extract32(ctx->opcode, 22, 2);
 
@@ -25842,10 +25904,8 @@ static void decode_opc_mxu(CPUMIPSState *env, DisasContext *ctx)
         case OPC_MXU__POOL16:
             decode_opc_mxu__pool16(env, ctx);
             break;
-        case OPC_MXU_LXB:
-            /* TODO: Implement emulation of LXB instruction. */
-            MIPS_INVAL("OPC_MXU_LXB");
-            generate_exception_end(ctx, EXCP_RI);
+        case OPC_MXU__POOL17:
+            decode_opc_mxu__pool17(env, ctx);
             break;
         case OPC_MXU_S16LDD:
             /* TODO: Implement emulation of S16LDD instruction. */
@@ -25897,22 +25957,22 @@ static void decode_opc_mxu(CPUMIPSState *env, DisasContext *ctx)
             MIPS_INVAL("OPC_MXU_Q16SLR");
             generate_exception_end(ctx, EXCP_RI);
             break;
-        case OPC_MXU__POOL17:
-            decode_opc_mxu__pool17(env, ctx);
+        case OPC_MXU__POOL18:
+            decode_opc_mxu__pool18(env, ctx);
             break;
         case OPC_MXU_Q16SAR:
             /* TODO: Implement emulation of Q16SAR instruction. */
             MIPS_INVAL("OPC_MXU_Q16SAR");
             generate_exception_end(ctx, EXCP_RI);
             break;
-        case OPC_MXU__POOL18:
-            decode_opc_mxu__pool18(env, ctx);
-            break;
         case OPC_MXU__POOL19:
             decode_opc_mxu__pool19(env, ctx);
             break;
         case OPC_MXU__POOL20:
             decode_opc_mxu__pool20(env, ctx);
+            break;
+        case OPC_MXU__POOL21:
+            decode_opc_mxu__pool21(env, ctx);
             break;
         case OPC_MXU_Q16SCOP:
             /* TODO: Implement emulation of Q16SCOP instruction. */
