@@ -1873,10 +1873,8 @@ static void reachable_code_pass(TCGContext *s)
 
 /* liveness analysis: end of function: all temps are dead, and globals
    should be in memory. */
-static inline void tcg_la_func_end(TCGContext *s)
+static void la_func_end(TCGContext *s, int ng, int nt)
 {
-    int ng = s->nb_globals;
-    int nt = s->nb_temps;
     int i;
 
     for (i = 0; i < ng; ++i) {
@@ -1889,10 +1887,8 @@ static inline void tcg_la_func_end(TCGContext *s)
 
 /* liveness analysis: end of basic block: all temps are dead, globals
    and local temps should be in memory. */
-static void tcg_la_bb_end(TCGContext *s)
+static void la_bb_end(TCGContext *s, int ng, int nt)
 {
-    int ng = s->nb_globals;
-    int nt = s->nb_temps;
     int i;
 
     for (i = 0; i < ng; ++i) {
@@ -1928,9 +1924,10 @@ static inline void tcg_la_br_end(TCGContext *s)
 static void liveness_pass_1(TCGContext *s)
 {
     int nb_globals = s->nb_globals;
+    int nb_temps = s->nb_temps;
     TCGOp *op, *op_prev;
 
-    tcg_la_func_end(s);
+    la_func_end(s, nb_globals, nb_temps);
 
     QTAILQ_FOREACH_REVERSE_SAFE(op, &s->ops, TCGOpHead, link, op_prev) {
         int i, nb_iargs, nb_oargs;
@@ -2126,7 +2123,7 @@ static void liveness_pass_1(TCGContext *s)
                     // brcond instruction in the middle of the TB,
                     // which incorrectly flags end-of-block
                     if (opc != INDEX_op_brcond_i32) {
-                        tcg_la_bb_end(s);
+                        la_bb_end(s, nb_globals, nb_temps);
                     } else {
                         // Unicorn: we do not touch dead temps for brcond,
                         // but we should refresh TCG globals In-Memory states,
