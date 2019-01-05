@@ -1191,9 +1191,6 @@ static inline void *tcg_malloc(TCGContext *s, int size)
     }
 }
 
-/* only used for debugging purposes */
-void tcg_dump_ops(TCGContext *s);
-
 TCGv_i32 tcg_const_i32(TCGContext *s, int32_t val);
 TCGv_i64 tcg_const_i64(TCGContext *s, int64_t val);
 TCGv_i32 tcg_const_local_i32(TCGContext *s, int32_t val);

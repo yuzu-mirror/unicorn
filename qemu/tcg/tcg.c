@@ -1399,7 +1399,7 @@ static inline TCGReg tcg_regset_first(TCGRegSet d)
     }
 }
 
-void tcg_dump_ops(TCGContext *s)
+static void tcg_dump_ops(TCGContext *s, bool have_prefs)
 {
     char buf[128];
     TCGOp *op;
@@ -1534,12 +1534,15 @@ void tcg_dump_ops(TCGContext *s)
                 col += qemu_log("%s$0x%" TCG_PRIlx, k ? "," : "", op->args[k]);
             }
         }
-        if (op->life) {
-            unsigned life = op->life;
 
-            for (; col < 48; ++col) {
+        if (have_prefs || op->life) {
+            for (; col < 40; ++col) {
                 putc(' ', qemu_logfile);
             }
+        }
+
+        if (op->life) {
+            unsigned life = op->life;
 
             if (life & (SYNC_ARG * 3)) {
                 qemu_log("  sync:");
@@ -1559,6 +1562,33 @@ void tcg_dump_ops(TCGContext *s)
                 }
             }
         }
+
+        if (have_prefs) {
+            for (i = 0; i < nb_oargs; ++i) {
+                TCGRegSet set = op->output_pref[i];
+
+                if (i == 0) {
+                    qemu_log("  pref=");
+                } else {
+                    qemu_log(",");
+                }
+                if (set == 0) {
+                    qemu_log("none");
+                } else if (set == MAKE_64BIT_MASK(0, TCG_TARGET_NB_REGS)) {
+                    qemu_log("all");
+#ifdef CONFIG_DEBUG_TCG
+                } else if (tcg_regset_single(set)) {
+                    TCGReg reg = tcg_regset_first(set);
+                    qemu_log("%s", tcg_target_reg_names[reg]);
+#endif
+                } else if (TCG_TARGET_NB_REGS <= 32) {
+                    qemu_log("%#x", (uint32_t)set);
+                } else {
+                    qemu_log("%#" PRIx64, (uint64_t)set);
+                }
+            }
+        }
+
         qemu_log("\n");
     }
 }
@@ -3083,7 +3113,7 @@ int tcg_gen_code(TCGContext *s, TranslationBlock *tb)
     if (unlikely(qemu_loglevel_mask(CPU_LOG_TB_OP)
                  && qemu_log_in_addr_range(tb->pc))) {
         qemu_log("OP:\n");
-        tcg_dump_ops(s);
+        tcg_dump_ops(s, false);
         qemu_log("\n");
     }
 #endif
@@ -3109,7 +3139,7 @@ int tcg_gen_code(TCGContext *s, TranslationBlock *tb)
         if (unlikely(qemu_loglevel_mask(CPU_LOG_TB_OP_IND)
                      && qemu_log_in_addr_range(tb->pc))) {
             qemu_log("OP before indirect lowering:\n");
-            tcg_dump_ops(s);
+            tcg_dump_ops(s, false);
             qemu_log("\n");
         }
 #endif
@@ -3128,7 +3158,7 @@ int tcg_gen_code(TCGContext *s, TranslationBlock *tb)
     if (unlikely(qemu_loglevel_mask(CPU_LOG_TB_OP_OPT)
                  && qemu_log_in_addr_range(tb->pc))) {
         qemu_log("OP after optimization and liveness analysis:\n");
-        tcg_dump_ops(s);
+        tcg_dump_ops(s, false);
         qemu_log("\n");
     }
 #endif
