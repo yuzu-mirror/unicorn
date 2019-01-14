@@ -49,6 +49,11 @@ int qemu_thread_create(struct uc_struct *uc, QemuThread *thread, const char *nam
 
     /* Leave signal handling to the iothread.  */
     sigfillset(&set);
+    /* Blocking the signals can result in undefined behaviour. */
+    sigdelset(&set, SIGSEGV);
+    sigdelset(&set, SIGFPE);
+    sigdelset(&set, SIGILL);
+    /* TODO avoid SIGBUS loss on macOS */
     pthread_sigmask(SIG_SETMASK, &set, &oldset);
     err = pthread_create(&thread->thread, &attr, start_routine, arg);
     if (err) {
