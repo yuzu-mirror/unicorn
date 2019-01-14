@@ -63,8 +63,8 @@ typedef __float128 _Float128;
 
 #ifdef _WIN32
 /* as defined in sdkddkver.h */
-#ifndef WINVER
-#define WINVER 0x0501 /* XP */
+#ifndef _WIN32_WINNT
+#define _WIN32_WINNT 0x0600 /* Vista */
 #endif
 /* reduces the number of implicitly included headers */
 #ifndef WIN32_LEAN_AND_MEAN
