@@ -1639,7 +1639,7 @@ static const ARMCPRegInfo v7_cp_reginfo[] = {
       ARM_CP_NOP, PL1_W,  },
     /* Performance monitors are implementation defined in v7,
      * but with an ARM recommended set of registers, which we
-     * follow (although we don't actually implement any counters)
+     * follow.
      *
      * Performance registers fall into three categories:
      *  (a) always UNDEF in PL0, RW in PL1 (PMINTENSET, PMINTENCLR)
@@ -5027,10 +5027,10 @@ void register_cp_regs_for_features(ARMCPU *cpu)
     }
     if (arm_feature(env, ARM_FEATURE_V7)) {
         /* v7 performance monitor control register: same implementor
-         * field as main ID register, and we implement only the cycle
-         * count register.
+         * field as main ID register, and we implement four counters in
+         * addition to the cycle count register.
          */
-        unsigned int i, pmcrn = 0;
+        unsigned int i, pmcrn = 4;
         ARMCPRegInfo pmcr = {
             "PMCR", 15,9,12, 0,0,0, 0,
             ARM_CP_IO | ARM_CP_ALIAS, PL0_RW, 0, NULL, 0, offsetoflow32(CPUARMState, cp15.c9_pmcr), {0, 0},
@@ -5038,7 +5038,7 @@ void register_cp_regs_for_features(ARMCPU *cpu)
         };
         ARMCPRegInfo pmcr64 = {
             "PMCR_EL0", 0,9,12, 3,3,0, ARM_CP_STATE_AA64,
-            ARM_CP_IO, PL0_RW, 0, NULL, cpu->midr & 0xff000000, offsetof(CPUARMState, cp15.c9_pmcr), {0, 0},
+            ARM_CP_IO, PL0_RW, 0, NULL, (cpu->midr & 0xff000000) | (pmcrn << PMCRN_SHIFT), offsetof(CPUARMState, cp15.c9_pmcr), {0, 0},
             pmreg_access, NULL,pmcr_write, NULL,raw_write,
         };
         define_one_arm_cp_reg(cpu, &pmcr);
