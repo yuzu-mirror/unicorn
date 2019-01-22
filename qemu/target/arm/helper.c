@@ -1206,6 +1206,13 @@ static void pmovsr_write(CPUARMState *env, const ARMCPRegInfo *ri,
     env->cp15.c9_pmovsr &= ~value;
 }
 
+static void pmovsset_write(CPUARMState *env, const ARMCPRegInfo *ri,
+                         uint64_t value)
+{
+    value &= pmu_counter_mask(env);
+    env->cp15.c9_pmovsr |= value;
+}
+
 static void pmxevtyper_write(CPUARMState *env, const ARMCPRegInfo *ri,
                              uint64_t value)
 {
@@ -1530,6 +1537,17 @@ static const ARMCPRegInfo v7mp_cp_reginfo[] = {
     { "TLBIMVAAIS", 15,8,3, 0,0,3, 0,
       ARM_CP_NO_RAW, PL1_W, 0, NULL, 0, 0, {0, 0},
       NULL, NULL, tlbimvaa_is_write },
+    REGINFO_SENTINEL
+};
+
+static const ARMCPRegInfo pmovsset_cp_reginfo[] = {
+    /* PMOVSSET is not implemented in v7 before v7ve */
+    { "PMOVSSET", 15,9,14, 0,0,3, 0, ARM_CP_ALIAS, PL0_RW, 0,
+      NULL, 0, offsetoflow32(CPUARMState, cp15.c9_pmovsr), {0, 0},
+      pmreg_access, NULL, pmovsset_write, NULL, raw_write },
+    { "PMOVSSET_EL0", 0,9,14, 3,3,3, ARM_CP_STATE_AA64, ARM_CP_ALIAS, PL0_RW, 0,
+      NULL, 0, offsetof(CPUARMState, cp15.c9_pmovsr), {0, 0},
+      pmreg_access, NULL, pmovsset_write, NULL, raw_write },
     REGINFO_SENTINEL
 };
 
@@ -4729,6 +4747,9 @@ void register_cp_regs_for_features(ARMCPU *cpu)
     if (arm_feature(env, ARM_FEATURE_V7MP) &&
         !arm_feature(env, ARM_FEATURE_PMSA)) {
         define_arm_cp_regs(cpu, v7mp_cp_reginfo);
+    }
+    if (arm_feature(env, ARM_FEATURE_V7VE)) {
+        define_arm_cp_regs(cpu, pmovsset_cp_reginfo);
     }
     if (arm_feature(env, ARM_FEATURE_V7)) {
         /* v7 performance monitor control register: same implementor
