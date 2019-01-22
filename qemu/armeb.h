@@ -3271,6 +3271,8 @@
 #define xscale_cp_reginfo xscale_cp_reginfo_armeb
 #define xscale_cpar_write xscale_cpar_write_armeb
 #define aarch64_translator_ops aarch64_translator_ops_armeb
+#define arm_v7m_mmu_idx_for_secstate arm_v7m_mmu_idx_for_secstate_armeb
+#define arm_v7m_mmu_idx_for_secstate_and_priv arm_v7m_mmu_idx_for_secstate_and_priv_armeb
 #define ARM_REGS_STORAGE_SIZE ARM_REGS_STORAGE_SIZE_armeb
 #define arm_hcr_el2_eff arm_hcr_el2_eff_armeb
 #define arm_regime_tbi0 arm_regime_tbi0_armeb

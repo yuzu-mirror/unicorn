@@ -3280,6 +3280,8 @@ symbols = (
 
 arm_symbols = (
     'aarch64_translator_ops',
+    'arm_v7m_mmu_idx_for_secstate',
+    'arm_v7m_mmu_idx_for_secstate_and_priv',
     'ARM_REGS_STORAGE_SIZE',
     'arm_hcr_el2_eff',
     'arm_regime_tbi0',
@@ -3315,6 +3317,8 @@ aarch64_symbols = (
     'arm64_reg_reset',
     'arm64_reg_write',
     'arm64_release',
+    'arm_v7m_mmu_idx_for_secstate',
+    'arm_v7m_mmu_idx_for_secstate_and_priv',
     'arm_hcr_el2_eff',
     'arm_regime_tbi0',
     'arm_regime_tbi1',
