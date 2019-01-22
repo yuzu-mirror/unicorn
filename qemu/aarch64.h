@@ -3283,6 +3283,7 @@
 #define arm_v7m_mmu_idx_for_secstate arm_v7m_mmu_idx_for_secstate_aarch64
 #define arm_v7m_mmu_idx_for_secstate_and_priv arm_v7m_mmu_idx_for_secstate_and_priv_aarch64
 #define arm_hcr_el2_eff arm_hcr_el2_eff_aarch64
+#define arm_mmu_idx arm_mmu_idx_aarch64
 #define arm_regime_tbi0 arm_regime_tbi0_aarch64
 #define arm_regime_tbi1 arm_regime_tbi1_aarch64
 #define arm_register_pre_el_change_hook arm_register_pre_el_change_hook_aarch64
