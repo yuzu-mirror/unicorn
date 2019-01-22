@@ -4268,6 +4268,7 @@
 #define new_tmp_a64_zero new_tmp_a64_zero_aarch64
 #define pred_esz_masks pred_esz_masks_aarch64
 #define raise_exception raise_exception_aarch64
+#define raise_exception_ra raise_exception_ra_aarch64
 #define read_cpu_reg read_cpu_reg_aarch64
 #define read_cpu_reg_sp read_cpu_reg_sp_aarch64
 #define sli_op sli_op_aarch64

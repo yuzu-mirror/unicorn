@@ -3286,6 +3286,7 @@
 #define mla_op mla_op_arm
 #define mls_op mls_op_arm
 #define raise_exception raise_exception_arm
+#define raise_exception_ra raise_exception_ra_arm
 #define sli_op sli_op_arm
 #define ssra_op ssra_op_arm
 #define sri_op sri_op_arm

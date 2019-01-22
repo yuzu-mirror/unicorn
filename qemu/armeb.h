@@ -3286,6 +3286,7 @@
 #define mla_op mla_op_armeb
 #define mls_op mls_op_armeb
 #define raise_exception raise_exception_armeb
+#define raise_exception_ra raise_exception_ra_armeb
 #define sli_op sli_op_armeb
 #define ssra_op ssra_op_armeb
 #define sri_op sri_op_armeb
