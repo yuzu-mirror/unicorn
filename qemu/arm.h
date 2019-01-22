@@ -3278,8 +3278,6 @@
 #define ARM_REGS_STORAGE_SIZE ARM_REGS_STORAGE_SIZE_arm
 #define arm_hcr_el2_eff arm_hcr_el2_eff_arm
 #define arm_mmu_idx arm_mmu_idx_arm
-#define arm_regime_tbi0 arm_regime_tbi0_arm
-#define arm_regime_tbi1 arm_regime_tbi1_arm
 #define arm_register_pre_el_change_hook arm_register_pre_el_change_hook_arm
 #define arm_register_el_change_hook arm_register_el_change_hook_arm
 #define arm_reset_cpu arm_reset_cpu_arm
