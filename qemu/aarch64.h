@@ -3327,6 +3327,10 @@
 #define helper_advsimd_rinth_exact helper_advsimd_rinth_exact_aarch64
 #define helper_advsimd_sub2h helper_advsimd_sub2h_aarch64
 #define helper_advsimd_subh helper_advsimd_subh_aarch64
+#define helper_autda helper_autda_aarch64
+#define helper_autdb helper_autdb_aarch64
+#define helper_autia helper_autia_aarch64
+#define helper_autib helper_autib_aarch64
 #define helper_casp_be_parallel helper_casp_be_parallel_aarch64
 #define helper_casp_le_parallel helper_casp_le_parallel_aarch64
 #define helper_crc32_64 helper_crc32_64_aarch64
@@ -3348,6 +3352,11 @@
 #define helper_neon_ceq_f64 helper_neon_ceq_f64_aarch64
 #define helper_neon_cge_f64 helper_neon_cge_f64_aarch64
 #define helper_neon_cgt_f64 helper_neon_cgt_f64_aarch64
+#define helper_pacda helper_pacda_aarch64
+#define helper_pacdb helper_pacdb_aarch64
+#define helper_pacga helper_pacga_aarch64
+#define helper_pacia helper_pacia_aarch64
+#define helper_pacib helper_pacib_aarch64
 #define helper_paired_cmpxchg64_be helper_paired_cmpxchg64_be_aarch64
 #define helper_paired_cmpxchg64_le helper_paired_cmpxchg64_le_aarch64
 #define helper_rbit64 helper_rbit64_aarch64
@@ -4261,6 +4270,8 @@
 #define helper_vfp_cmps_a64 helper_vfp_cmps_a64_aarch64
 #define helper_vfp_mulxd helper_vfp_mulxd_aarch64
 #define helper_vfp_mulxs helper_vfp_mulxs_aarch64
+#define helper_xpacd helper_xpacd_aarch64
+#define helper_xpaci helper_xpaci_aarch64
 #define logic_imm_decode_wmask logic_imm_decode_wmask_aarch64
 #define mla_op mla_op_aarch64
 #define mls_op mls_op_aarch64
