@@ -3292,6 +3292,8 @@
 #define pmccntr_op_finish pmccntr_op_finish_armeb
 #define pmu_op_start pmu_op_start_armeb
 #define pmu_op_finish pmu_op_finish_armeb
+#define pmu_pre_el_change pmu_pre_el_change_armeb
+#define pmu_post_el_change pmu_post_el_change_armeb
 #define raise_exception raise_exception_armeb
 #define raise_exception_ra raise_exception_ra_armeb
 #define sli_op sli_op_armeb

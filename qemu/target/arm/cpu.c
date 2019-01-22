@@ -763,6 +763,13 @@ static int arm_cpu_realizefn(struct uc_struct *uc, DeviceState *dev, Error **err
         unset_feature(env, ARM_FEATURE_PMU);
         cpu->id_aa64dfr0 &= ~0xf00;
     }
+    // Unicorn: Commented out
+#if 0
+    else if (!kvm_enabled()) {
+        arm_register_pre_el_change_hook(cpu, &pmu_pre_el_change, 0);
+        arm_register_el_change_hook(cpu, &pmu_post_el_change, 0);
+    }
+#endif
 
     if (!arm_feature(env, ARM_FEATURE_EL2)) {
         /* Disable the hypervisor feature bits in the processor feature

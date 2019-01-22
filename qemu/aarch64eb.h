@@ -4284,6 +4284,8 @@
 #define pmccntr_op_finish pmccntr_op_finish_aarch64eb
 #define pmu_op_start pmu_op_start_aarch64eb
 #define pmu_op_finish pmu_op_finish_aarch64eb
+#define pmu_pre_el_change pmu_pre_el_change_aarch64eb
+#define pmu_post_el_change pmu_post_el_change_aarch64eb
 #define pred_esz_masks pred_esz_masks_aarch64eb
 #define raise_exception raise_exception_aarch64eb
 #define raise_exception_ra raise_exception_ra_aarch64eb
