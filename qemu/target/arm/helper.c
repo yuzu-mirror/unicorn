@@ -4780,6 +4780,17 @@ void register_cp_regs_for_features(ARMCPU *cpu)
     } else {
         define_arm_cp_regs(cpu, not_v7_cp_reginfo);
     }
+    if (FIELD_EX32(cpu->id_dfr0, ID_DFR0, PERFMON) >= 4 &&
+            FIELD_EX32(cpu->id_dfr0, ID_DFR0, PERFMON) != 0xf) {
+        ARMCPRegInfo v81_pmu_regs[] = {
+            { "PMCEID2", 15,9,14, 0,0,4, ARM_CP_STATE_AA32, ARM_CP_CONST,
+              PL0_R, 0, NULL, extract64(cpu->pmceid0, 32, 32), 0, {0, 0}, pmreg_access },
+            { "PMCEID3", 15,9,14, 0,0,5, ARM_CP_STATE_AA32, ARM_CP_CONST,
+              PL0_R, 0, NULL, extract64(cpu->pmceid1, 32, 32), 0, {0, 0}, pmreg_access },
+            REGINFO_SENTINEL
+        };
+        define_arm_cp_regs(cpu, v81_pmu_regs);
+    }
     if (arm_feature(env, ARM_FEATURE_V8)) {
         /* AArch64 ID registers, which all have impdef reset values.
          * Note that within the ID register ranges the unused slots
@@ -4874,13 +4885,13 @@ void register_cp_regs_for_features(ARMCPU *cpu)
             { "MVFR7_EL1_RESERVED", 0,0,3, 3,0,7, ARM_CP_STATE_AA64, ARM_CP_CONST,
               PL1_R, 0, NULL, 0 },
             { "PMCEID0", 15,9,12, 0,0,6, ARM_CP_STATE_AA32, ARM_CP_CONST,
-              PL0_R, 0, NULL, cpu->pmceid0, 0, {0, 0},
+              PL0_R, 0, NULL, extract64(cpu->pmceid0, 0, 32), 0, {0, 0},
               pmreg_access },
             { "PMCEID0_EL0", 0,9,12, 3,3,6, ARM_CP_STATE_AA64, ARM_CP_CONST,
               PL0_R, 0, NULL, cpu->pmceid0, 0, {0, 0},
               pmreg_access },
             { "PMCEID1", 15,9,12, 0,0,7, ARM_CP_STATE_AA32, ARM_CP_CONST,
-              PL0_R, 0, NULL, cpu->pmceid1, 0, {0, 0},
+              PL0_R, 0, NULL, extract64(cpu->pmceid1, 0, 32), 0, {0, 0},
               pmreg_access },
             { "PMCEID1_EL0", 0,9,12, 3,3,7, ARM_CP_STATE_AA64, ARM_CP_CONST,
               PL0_R, 0, NULL, cpu->pmceid1, 0, {0, 0},
