@@ -8948,8 +8948,8 @@ static uint8_t convert_stage2_attrs(CPUARMState *env, uint8_t s2attrs)
     return (hiattr << 6) | (hihint << 4) | (loattr << 2) | lohint;
 }
 
-ARMVAParameters aa64_va_parameters(CPUARMState *env, uint64_t va,
-                                   ARMMMUIdx mmu_idx, bool data)
+ARMVAParameters aa64_va_parameters_both(CPUARMState *env, uint64_t va,
+                                        ARMMMUIdx mmu_idx)
 {
     uint64_t tcr = regime_tcr(env, mmu_idx)->raw_tcr;
     uint32_t el = regime_el(env, mmu_idx);
@@ -9002,6 +9002,12 @@ ARMVAParameters aa64_va_parameters(CPUARMState *env, uint64_t va,
     result.using16k = using16k;
     result.using64k = using64k;
     return result;
+}
+
+ARMVAParameters aa64_va_parameters(CPUARMState *env, uint64_t va,
+                                   ARMMMUIdx mmu_idx, bool data)
+{
+    return aa64_va_parameters_both(env, va, mmu_idx);
 }
 
 static ARMVAParameters aa32_va_parameters(CPUARMState *env, uint32_t va,
