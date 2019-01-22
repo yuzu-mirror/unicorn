@@ -583,6 +583,9 @@ if ! $python -c 'import sys; sys.exit(sys.version_info < (2,6))'; then
       "Use --python=/path/to/python to specify a supported Python."
 fi
 
+# Preserve python version since some functionality is dependent on it
+python_version=$($python -V 2>&1 | sed -e 's/Python\ //')
+
 # The -B switch was added in Python 2.6.
 # If it is supplied, compiled files are not written.
 # Use it for Python versions which support it.
@@ -1387,7 +1390,7 @@ echo "CFLAGS            $CFLAGS"
 echo "QEMU_CFLAGS       $QEMU_CFLAGS"
 echo "LDFLAGS           $LDFLAGS"
 echo "make              $make"
-echo "python            $python"
+echo "python            $python ($python_version)"
 echo "host CPU          $cpu"
 echo "host big endian   $bigendian"
 echo "target list       $target_list"
@@ -1552,6 +1555,7 @@ QEMU_INCLUDES="-I\$(SRC_PATH)/tcg $QEMU_INCLUDES"
 
 echo "MAKE=$make" >> $config_host_mak
 echo "PYTHON=$python" >> $config_host_mak
+echo "PYTHON_VERSION=$python_version" >> $config_host_mak
 echo "CC=$cc" >> $config_host_mak
 echo "CC_I386=$cc_i386" >> $config_host_mak
 echo "HOST_CC=$host_cc" >> $config_host_mak
