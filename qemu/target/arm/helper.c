@@ -858,6 +858,10 @@ static const ARMCPRegInfo v6_cp_reginfo[] = {
                                PMXEVTYPER_M | PMXEVTYPER_MT | \
                                PMXEVTYPER_EVTCOUNT)
 
+#define PMCCFILTR             0xf8000000
+#define PMCCFILTR_M           PMXEVTYPER_M
+#define PMCCFILTR_EL0         (PMCCFILTR | PMCCFILTR_M)
+
 static inline uint32_t pmu_num_counters(CPUARMState *env)
 {
   return (env->cp15.c9_pmcr & PMCRN_MASK) >> PMCRN_SHIFT;
@@ -1161,8 +1165,24 @@ static void pmccfiltr_write(CPUARMState *env, const ARMCPRegInfo *ri,
                             uint64_t value)
 {
     pmccntr_op_start(env);
-    env->cp15.pmccfiltr_el0 = value & 0xfc000000;
+    env->cp15.pmccfiltr_el0 = value & PMCCFILTR_EL0;
     pmccntr_op_finish(env);
+}
+
+static void pmccfiltr_write_a32(CPUARMState *env, const ARMCPRegInfo *ri,
+                            uint64_t value)
+{
+    pmccntr_op_start(env);
+    /* M is not accessible from AArch32 */
+    env->cp15.pmccfiltr_el0 = (env->cp15.pmccfiltr_el0 & PMCCFILTR_M) |
+        (value & PMCCFILTR);
+    pmccntr_op_finish(env);
+}
+
+static uint64_t pmccfiltr_read_a32(CPUARMState *env, const ARMCPRegInfo *ri)
+{
+    /* M is not visible in AArch32 */
+    return env->cp15.pmccfiltr_el0 & PMCCFILTR;
 }
 
 static void pmcntenset_write(CPUARMState *env, const ARMCPRegInfo *ri,
@@ -1383,6 +1403,8 @@ static const ARMCPRegInfo v7_cp_reginfo[] = {
       ARM_CP_IO, PL0_RW, 0, NULL, 0, offsetof(CPUARMState, cp15.c15_ccnt), {0, 0},
       pmreg_access_ccntr, pmccntr_read, pmccntr_write, raw_read, raw_write },
 #endif
+    { "PMCCFILTR", 15,14,15, 0,0,7, 0, ARM_CP_ALIAS | ARM_CP_IO, PL0_RW, 0,
+      NULL, 0, 0, {0, 0}, pmreg_access, pmccfiltr_read_a32, pmccfiltr_write_a32 },
     { "PMCCFILTR_EL0", 0,14,15, 3,3,7, ARM_CP_STATE_AA64,
       ARM_CP_IO, PL0_RW, 0, NULL, 0, offsetof(CPUARMState, cp15.pmccfiltr_el0), {0, 0},
       pmreg_access, NULL, pmccfiltr_write, NULL, raw_write },
