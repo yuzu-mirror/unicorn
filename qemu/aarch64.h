@@ -3291,6 +3291,7 @@
 #define arm_reset_cpu arm_reset_cpu_aarch64
 #define arm_set_cpu_off arm_set_cpu_off_aarch64
 #define arm_set_cpu_on arm_set_cpu_on_aarch64
+#define arm_stage1_mmu_idx arm_stage1_mmu_idx_aarch64
 #define bif_op bif_op_aarch64
 #define bit_op bit_op_aarch64
 #define bsl_op bsl_op_aarch64

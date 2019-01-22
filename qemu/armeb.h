@@ -3283,6 +3283,7 @@
 #define arm_reset_cpu arm_reset_cpu_armeb
 #define arm_set_cpu_off arm_set_cpu_off_armeb
 #define arm_set_cpu_on arm_set_cpu_on_armeb
+#define arm_stage1_mmu_idx arm_stage1_mmu_idx_armeb
 #define cmtst_op cmtst_op_armeb
 #define fp_exception_el fp_exception_el_armeb
 #define gen_cmtst_i64 gen_cmtst_i64_armeb
