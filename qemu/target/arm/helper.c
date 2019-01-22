@@ -893,6 +893,15 @@ static bool event_always_supported(CPUARMState *env)
     return true;
 }
 
+static uint64_t swinc_get_count(CPUARMState *env)
+{
+    /*
+     * SW_INCR events are written directly to the pmevcntr's by writes to
+     * PMSWINC, so there is no underlying count maintained by the PMU itself
+     */
+    return 0;
+}
+
 /*
  * Return the underlying cycle count for the PMU cycle counters. If we're in
  * usermode, simply return 0.
@@ -921,6 +930,11 @@ static uint64_t instructions_get_count(CPUARMState *env)
 
 
 static const pm_event pm_events[] = {
+    {
+        0x000, /* SW_INCR */
+        event_always_supported,
+        swinc_get_count,
+    },
 #ifndef CONFIG_USER_ONLY
     {
         0x008, /* INST_RETIRED, Instruction architecturally executed */
@@ -1252,6 +1266,24 @@ static void pmcr_write(CPUARMState *env, const ARMCPRegInfo *ri,
     env->cp15.c9_pmcr |= (value & 0x39);
 
     pmu_op_finish(env);
+}
+
+static void pmswinc_write(CPUARMState *env, const ARMCPRegInfo *ri,
+                          uint64_t value)
+{
+    unsigned int i;
+    for (i = 0; i < pmu_num_counters(env); i++) {
+        /* Increment a counter's count iff: */
+        if ((value & (1 << i)) && /* counter's bit is set */
+                /* counter is enabled and not filtered */
+                pmu_counter_enabled(env, i) &&
+                /* counter is SW_INCR */
+                (env->cp15.c14_pmevtyper[i] & PMXEVTYPER_EVTCOUNT) == 0x0) {
+            pmevcntr_op_start(env, i);
+            env->cp15.c14_pmevcntr[i]++;
+            pmevcntr_op_finish(env, i);
+        }
+    }
 }
 
 static uint64_t pmccntr_read(CPUARMState *env, const ARMCPRegInfo *ri)
@@ -1666,10 +1698,12 @@ static const ARMCPRegInfo v7_cp_reginfo[] = {
     { "PMOVSCLR_EL0", 0,9,12, 3,3,3, ARM_CP_STATE_AA64, ARM_CP_ALIAS,
       PL0_RW, 0, NULL, 0, offsetof(CPUARMState, cp15.c9_pmovsr), {0, 0},
       pmreg_access, NULL, pmovsr_write, NULL, raw_write },
-    /* Unimplemented so WI. */
     { "PMSWINC", 15,9,12, 0,0,4, 0,
-      ARM_CP_NOP, PL0_W, 0, NULL, 0, 0, {0, 0},
-      pmreg_access_swinc },
+      ARM_CP_NO_RAW, PL0_W, 0, NULL, 0, 0, {0, 0},
+      pmreg_access_swinc, NULL, pmswinc_write },
+    { "PMSWINC_EL0", 0,9,12, 3,3,4, ARM_CP_STATE_AA64,
+      ARM_CP_NO_RAW, PL0_W, 0, NULL, 0, 0, {0, 0},
+      pmreg_access_swinc, NULL, pmswinc_write },
     { "PMSELR", 15,9,12, 0,0,5, 0, ARM_CP_ALIAS,
       PL0_RW, 0, NULL, 0, offsetoflow32(CPUARMState, cp15.c9_pmselr), {0, 0},
       pmreg_access_selr, NULL, pmselr_write, NULL, raw_write},
