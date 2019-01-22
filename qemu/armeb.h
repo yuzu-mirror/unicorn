@@ -3286,6 +3286,7 @@
 #define cmtst_op cmtst_op_armeb
 #define fp_exception_el fp_exception_el_armeb
 #define gen_cmtst_i64 gen_cmtst_i64_armeb
+#define get_pmceid get_pmceid_armeb
 #define mla_op mla_op_armeb
 #define mls_op mls_op_armeb
 #define pmccntr_op_start pmccntr_op_start_armeb

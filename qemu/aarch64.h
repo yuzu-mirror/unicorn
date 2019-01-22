@@ -3301,6 +3301,7 @@
 #define fp_exception_el fp_exception_el_aarch64
 #define gen_a64_set_pc_im gen_a64_set_pc_im_aarch64
 #define gen_cmtst_i64 gen_cmtst_i64_aarch64
+#define get_pmceid get_pmceid_aarch64
 #define helper_advsimd_acge_f16 helper_advsimd_acge_f16_aarch64
 #define helper_advsimd_acgt_f16 helper_advsimd_acgt_f16_aarch64
 #define helper_advsimd_add2h helper_advsimd_add2h_aarch64

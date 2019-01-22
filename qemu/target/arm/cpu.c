@@ -761,15 +761,19 @@ static int arm_cpu_realizefn(struct uc_struct *uc, DeviceState *dev, Error **err
 
     if (!cpu->has_pmu) {
         unset_feature(env, ARM_FEATURE_PMU);
-        cpu->id_aa64dfr0 &= ~0xf00;
     }
-    // Unicorn: Commented out
-#if 0
-    else if (!kvm_enabled()) {
+
+    if (arm_feature(env, ARM_FEATURE_PMU)) {
+        cpu->pmceid0 = get_pmceid(&cpu->env, 0);
+        cpu->pmceid1 = get_pmceid(&cpu->env, 1);
+
         arm_register_pre_el_change_hook(cpu, &pmu_pre_el_change, 0);
         arm_register_el_change_hook(cpu, &pmu_post_el_change, 0);
+    } else {
+        cpu->id_aa64dfr0 &= ~0xf00;
+        cpu->pmceid0 = 0;
+        cpu->pmceid1 = 0;
     }
-#endif
 
     if (!arm_feature(env, ARM_FEATURE_EL2)) {
         /* Disable the hypervisor feature bits in the processor feature
@@ -1410,8 +1414,6 @@ static void cortex_a7_initfn(struct uc_struct *uc, Object *obj, void *opaque)
     cpu->id_pfr0 = 0x00001131;
     cpu->id_pfr1 = 0x00011011;
     cpu->id_dfr0 = 0x02010555;
-    cpu->pmceid0 = 0x00000000;
-    cpu->pmceid1 = 0x00000000;
     cpu->id_afr0 = 0x00000000;
     cpu->id_mmfr0 = 0x10101105;
     cpu->id_mmfr1 = 0x40000000;
@@ -1457,8 +1459,6 @@ static void cortex_a15_initfn(struct uc_struct *uc, Object *obj, void *opaque)
     cpu->id_pfr0 = 0x00001131;
     cpu->id_pfr1 = 0x00011011;
     cpu->id_dfr0 = 0x02010555;
-    cpu->pmceid0 = 0x00000000;
-    cpu->pmceid1 = 0x00000000;
     cpu->id_afr0 = 0x00000000;
     cpu->id_mmfr0 = 0x10201105;
     cpu->id_mmfr1 = 0x20000000;

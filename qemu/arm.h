@@ -3286,6 +3286,7 @@
 #define cmtst_op cmtst_op_arm
 #define fp_exception_el fp_exception_el_arm
 #define gen_cmtst_i64 gen_cmtst_i64_arm
+#define get_pmceid get_pmceid_arm
 #define mla_op mla_op_arm
 #define mls_op mls_op_arm
 #define pmccntr_op_start pmccntr_op_start_arm

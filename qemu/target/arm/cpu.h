@@ -671,6 +671,17 @@ typedef struct CPUARMState {
     /* Store GICv3CPUState to access from this struct */
     void *gicv3state;
 
+    // Note: The event map has been moved here in Unicorn to avoid non-const file-static state.
+
+    /*
+     * Note: Before increasing MAX_EVENT_ID beyond 0x3f into the 0x40xx range of
+     * events (i.e. the statistical profiling extension), this implementation
+     * should first be updated to something sparse instead of the current
+     * supported_event_map[] array.
+     */
+#define MAX_EVENT_ID 0x0
+    uint16_t supported_event_map[MAX_EVENT_ID + 1];
+
     // Unicorn engine
     struct uc_struct *uc;
 } CPUARMState;
@@ -948,6 +959,16 @@ void pmu_op_finish(CPUARMState *env);
  */
 void pmu_pre_el_change(ARMCPU *cpu, void *ignored);
 void pmu_post_el_change(ARMCPU *cpu, void *ignored);
+
+/*
+ * get_pmceid
+ * @env: CPUARMState
+ * @which: which PMCEID register to return (0 or 1)
+ *
+ * Return the PMCEID[01]_EL0 register values corresponding to the counters
+ * which are supported given the current configuration
+ */
+uint64_t get_pmceid(CPUARMState *env, unsigned which);
 
 /* SCTLR bit meanings. Several bits have been reused in newer
  * versions of the architecture; in that case we define constants
