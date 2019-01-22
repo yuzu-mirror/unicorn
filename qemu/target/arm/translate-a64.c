@@ -2062,6 +2062,7 @@ static void disas_uncond_b_reg(DisasContext *s, uint32_t insn)
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
     unsigned int opc, op2, op3, rn, op4;
+    TCGv_i64 dst;
 
     opc = extract32(insn, 21, 4);
     op2 = extract32(insn, 16, 5);
@@ -2089,7 +2090,11 @@ static void disas_uncond_b_reg(DisasContext *s, uint32_t insn)
             unallocated_encoding(s);
             return;
         }
-        gen_helper_exception_return(tcg_ctx, tcg_ctx->cpu_env);
+        dst = tcg_temp_new_i64(tcg_ctx);
+        tcg_gen_ld_i64(tcg_ctx, dst, tcg_ctx->cpu_env,
+                       offsetof(CPUARMState, elr_el[s->current_el]));
+        gen_helper_exception_return(tcg_ctx, tcg_ctx->cpu_env, dst);
+        tcg_temp_free_i64(tcg_ctx, dst);
         /* Must exit loop to check un-masked IRQs */
         s->base.is_jmp = DISAS_EXIT;
         return;
