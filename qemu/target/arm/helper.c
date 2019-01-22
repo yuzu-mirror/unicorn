@@ -4,6 +4,7 @@
 #include "exec/helper-proto.h"
 #include "qemu/host-utils.h"
 #include "sysemu/sysemu.h"
+#include "sysemu/cpus.h"
 #include "qemu/bitops.h"
 #include "qemu/crc32c.h"
 #include "exec/exec-all.h"
@@ -11,6 +12,8 @@
 #include "arm_ldst.h"
 #include "fpu/softfloat.h"
 #include "qemu/range.h"
+
+#define ARM_CPU_FREQ 1000000000 /* FIXME: 1 GHz, should be configurable */
 
 #ifndef CONFIG_USER_ONLY
 /* Cacheability and shareability attributes for a memory access */
@@ -885,7 +888,51 @@ typedef struct pm_event {
     uint64_t (*get_count)(CPUARMState *);
 } pm_event;
 
+static bool event_always_supported(CPUARMState *env)
+{
+    return true;
+}
+
+/*
+ * Return the underlying cycle count for the PMU cycle counters. If we're in
+ * usermode, simply return 0.
+ */
+static uint64_t cycles_get_count(CPUARMState *env)
+{
+#ifndef CONFIG_USER_ONLY
+    return muldiv64(qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL),
+                   ARM_CPU_FREQ, NANOSECONDS_PER_SECOND);
+#else
+    return 0;
+#endif
+}
+
+#ifndef CONFIG_USER_ONLY
+static bool instructions_supported(CPUARMState *env)
+{
+    return 0; /* Precise instruction counting */
+}
+
+static uint64_t instructions_get_count(CPUARMState *env)
+{
+    return 0;
+}
+#endif
+
+
 static const pm_event pm_events[] = {
+#ifndef CONFIG_USER_ONLY
+    {
+        0x008, /* INST_RETIRED, Instruction architecturally executed */
+        instructions_supported,
+        instructions_get_count,
+    },
+    {
+        0x011, /* CPU_CYCLES, Cycle */
+        event_always_supported,
+        cycles_get_count,
+    }
+#endif
 };
 
 #define UNSUPPORTED_EVENT UINT16_MAX
@@ -986,8 +1033,6 @@ static CPAccessResult pmreg_access_swinc(CPUARMState *env,
 
     return pmreg_access(env, ri, isread);
 }
-
-#ifndef CONFIG_USER_ONLY
 
 static CPAccessResult pmreg_access_selr(CPUARMState *env,
                                         const ARMCPRegInfo *ri,
@@ -1099,9 +1144,7 @@ static bool pmu_counter_enabled(CPUARMState *env, uint8_t counter)
  */
 void pmccntr_op_start(CPUARMState *env)
 {
-    uint64_t cycles = 0;
-    cycles = muldiv64(qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL),
-                          NANOSECONDS_PER_SECOND, 1000000);
+    uint64_t cycles = cycles_get_count(env);
 
     if (pmu_counter_enabled(env, 31)) {
         uint64_t eff_cycles = cycles;
@@ -1246,42 +1289,6 @@ static void pmccntr_write32(CPUARMState *env, const ARMCPRegInfo *ri,
 
     pmccntr_write(env, ri, deposit64(cur_val, 0, 32, value));
 }
-
-#else /* CONFIG_USER_ONLY */
-
-void pmccntr_op_start(CPUARMState *env)
-{
-}
-
-void pmccntr_op_finish(CPUARMState *env)
-{
-}
-
-void pmevcntr_op_start(CPUARMState *env, uint8_t i)
-{
-}
-
-void pmevcntr_op_finish(CPUARMState *env, uint8_t i)
-{
-}
-
-void pmu_op_start(CPUARMState *env)
-{
-}
-
-void pmu_op_finish(CPUARMState *env)
-{
-}
-
-void pmu_pre_el_change(ARMCPU *cpu, void *ignored)
-{
-}
-
-void pmu_post_el_change(ARMCPU *cpu, void *ignored)
-{
-}
-
-#endif
 
 static void pmccfiltr_write(CPUARMState *env, const ARMCPRegInfo *ri,
                             uint64_t value)
@@ -1663,7 +1670,6 @@ static const ARMCPRegInfo v7_cp_reginfo[] = {
     { "PMSWINC", 15,9,12, 0,0,4, 0,
       ARM_CP_NOP, PL0_W, 0, NULL, 0, 0, {0, 0},
       pmreg_access_swinc },
-#ifndef CONFIG_USER_ONLY
     { "PMSELR", 15,9,12, 0,0,5, 0, ARM_CP_ALIAS,
       PL0_RW, 0, NULL, 0, offsetoflow32(CPUARMState, cp15.c9_pmselr), {0, 0},
       pmreg_access_selr, NULL, pmselr_write, NULL, raw_write},
@@ -1676,7 +1682,6 @@ static const ARMCPRegInfo v7_cp_reginfo[] = {
     { "PMCCNTR_EL0", 0,9,13, 3,3,0, ARM_CP_STATE_AA64,
       ARM_CP_IO, PL0_RW, 0, NULL, 0, offsetof(CPUARMState, cp15.c15_ccnt), {0, 0},
       pmreg_access_ccntr, pmccntr_read, pmccntr_write, raw_read, raw_write },
-#endif
     { "PMCCFILTR", 15,14,15, 0,0,7, 0, ARM_CP_ALIAS | ARM_CP_IO, PL0_RW, 0,
       NULL, 0, 0, {0, 0}, pmreg_access, pmccfiltr_read_a32, pmccfiltr_write_a32 },
     { "PMCCFILTR_EL0", 0,14,15, 3,3,7, ARM_CP_STATE_AA64,
@@ -5026,7 +5031,6 @@ void register_cp_regs_for_features(ARMCPU *cpu)
          * count register.
          */
         unsigned int i, pmcrn = 0;
-#ifndef CONFIG_USER_ONLY
         ARMCPRegInfo pmcr = {
             "PMCR", 15,9,12, 0,0,0, 0,
             ARM_CP_IO | ARM_CP_ALIAS, PL0_RW, 0, NULL, 0, offsetoflow32(CPUARMState, cp15.c9_pmcr), {0, 0},
@@ -5067,7 +5071,6 @@ void register_cp_regs_for_features(ARMCPU *cpu)
             g_free(pmevtyper_name);
             g_free(pmevtyper_el0_name);
         }
-#endif
         ARMCPRegInfo clidr = {
             "CLIDR", 0,0,0, 3,1,1, ARM_CP_STATE_BOTH,
             ARM_CP_CONST, PL1_R, 0, NULL, cpu->clidr

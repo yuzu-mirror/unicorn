@@ -682,7 +682,7 @@ typedef struct CPUARMState {
      * should first be updated to something sparse instead of the current
      * supported_event_map[] array.
      */
-#define MAX_EVENT_ID 0x0
+#define MAX_EVENT_ID 0x11
     uint16_t supported_event_map[MAX_EVENT_ID + 1];
 
     // Unicorn engine
