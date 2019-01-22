@@ -3271,6 +3271,7 @@
 #define xscale_cp_reginfo xscale_cp_reginfo_aarch64eb
 #define xscale_cpar_write xscale_cpar_write_aarch64eb
 #define ARM64_REGS_STORAGE_SIZE ARM64_REGS_STORAGE_SIZE_aarch64eb
+#define aa64_va_parameters aa64_va_parameters_aarch64eb
 #define aarch64_cpu_do_interrupt aarch64_cpu_do_interrupt_aarch64eb
 #define aarch64_cpu_register_types aarch64_cpu_register_types_aarch64eb
 #define aarch64_sve_change_el aarch64_sve_change_el_aarch64eb

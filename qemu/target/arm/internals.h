@@ -958,4 +958,22 @@ typedef struct ARMVAParameters {
     bool using64k   : 1;
 } ARMVAParameters;
 
+#ifdef CONFIG_USER_ONLY
+static inline ARMVAParameters aa64_va_parameters(CPUARMState *env,
+                                                 uint64_t va,
+                                                 ARMMMUIdx mmu_idx, bool data)
+{
+    ARMVAParameters result = {0};
+    /* 48-bit address space */
+    result.tsz = 16;
+    /* We can't handle tagged addresses properly in user-only mode */
+    result.tbi = false;
+
+    return result;
+}
+#else
+ARMVAParameters aa64_va_parameters(CPUARMState *env, uint64_t va,
+                                   ARMMMUIdx mmu_idx, bool data);
+#endif
+
 #endif

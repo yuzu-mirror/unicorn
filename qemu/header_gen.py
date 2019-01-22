@@ -3279,6 +3279,7 @@ symbols = (
 )
 
 arm_symbols = (
+    'aa64_va_parameters',
     'aarch64_translator_ops',
     'arm_v7m_mmu_idx_for_secstate',
     'arm_v7m_mmu_idx_for_secstate_and_priv',
@@ -3310,6 +3311,7 @@ arm_symbols = (
 
 aarch64_symbols = (
     'ARM64_REGS_STORAGE_SIZE',
+    'aa64_va_parameters',
     'aarch64_cpu_do_interrupt',
     'aarch64_cpu_register_types',
     'aarch64_sve_change_el',
