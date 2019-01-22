@@ -305,6 +305,10 @@ static void aarch64_max_initfn(struct uc_struct *uc, Object *obj, void *opaque)
     cpu->ctr = 0x80038003; /* 32 byte I and D cacheline size, VIPT icache */
     cpu->dcz_blocksize = 7; /*  512 bytes */
 
+    /* Enable all PAC keys by default.  */
+    cpu->env.cp15.sctlr_el[1] |= SCTLR_EnIA | SCTLR_EnIB;
+    cpu->env.cp15.sctlr_el[1] |= SCTLR_EnDA | SCTLR_EnDB;
+
     cpu->sve_max_vq = ARM_MAX_VQ;
 }
 
