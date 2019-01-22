@@ -2176,7 +2176,6 @@
 #define pickNaNMulAdd pickNaNMulAdd_m68k
 #define pmccfiltr_write pmccfiltr_write_m68k
 #define pmccntr_read pmccntr_read_m68k
-#define pmccntr_sync pmccntr_sync_m68k
 #define pmccntr_write pmccntr_write_m68k
 #define pmccntr_write32 pmccntr_write32_m68k
 #define pmcntenclr_write pmcntenclr_write_m68k

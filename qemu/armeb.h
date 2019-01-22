@@ -2176,7 +2176,6 @@
 #define pickNaNMulAdd pickNaNMulAdd_armeb
 #define pmccfiltr_write pmccfiltr_write_armeb
 #define pmccntr_read pmccntr_read_armeb
-#define pmccntr_sync pmccntr_sync_armeb
 #define pmccntr_write pmccntr_write_armeb
 #define pmccntr_write32 pmccntr_write32_armeb
 #define pmcntenclr_write pmcntenclr_write_armeb
@@ -3289,6 +3288,10 @@
 #define gen_cmtst_i64 gen_cmtst_i64_armeb
 #define mla_op mla_op_armeb
 #define mls_op mls_op_armeb
+#define pmccntr_op_start pmccntr_op_start_armeb
+#define pmccntr_op_finish pmccntr_op_finish_armeb
+#define pmu_op_start pmu_op_start_armeb
+#define pmu_op_finish pmu_op_finish_armeb
 #define raise_exception raise_exception_armeb
 #define raise_exception_ra raise_exception_ra_armeb
 #define sli_op sli_op_armeb

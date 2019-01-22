@@ -2176,7 +2176,6 @@
 #define pickNaNMulAdd pickNaNMulAdd_aarch64eb
 #define pmccfiltr_write pmccfiltr_write_aarch64eb
 #define pmccntr_read pmccntr_read_aarch64eb
-#define pmccntr_sync pmccntr_sync_aarch64eb
 #define pmccntr_write pmccntr_write_aarch64eb
 #define pmccntr_write32 pmccntr_write32_aarch64eb
 #define pmcntenclr_write pmcntenclr_write_aarch64eb
@@ -4281,6 +4280,10 @@
 #define mls_op mls_op_aarch64eb
 #define new_tmp_a64 new_tmp_a64_aarch64eb
 #define new_tmp_a64_zero new_tmp_a64_zero_aarch64eb
+#define pmccntr_op_start pmccntr_op_start_aarch64eb
+#define pmccntr_op_finish pmccntr_op_finish_aarch64eb
+#define pmu_op_start pmu_op_start_aarch64eb
+#define pmu_op_finish pmu_op_finish_aarch64eb
 #define pred_esz_masks pred_esz_masks_aarch64eb
 #define raise_exception raise_exception_aarch64eb
 #define raise_exception_ra raise_exception_ra_aarch64eb

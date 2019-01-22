@@ -2176,7 +2176,6 @@
 #define pickNaNMulAdd pickNaNMulAdd_sparc
 #define pmccfiltr_write pmccfiltr_write_sparc
 #define pmccntr_read pmccntr_read_sparc
-#define pmccntr_sync pmccntr_sync_sparc
 #define pmccntr_write pmccntr_write_sparc
 #define pmccntr_write32 pmccntr_write32_sparc
 #define pmcntenclr_write pmcntenclr_write_sparc

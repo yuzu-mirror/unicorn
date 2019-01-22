@@ -2176,7 +2176,6 @@
 #define pickNaNMulAdd pickNaNMulAdd_powerpc
 #define pmccfiltr_write pmccfiltr_write_powerpc
 #define pmccntr_read pmccntr_read_powerpc
-#define pmccntr_sync pmccntr_sync_powerpc
 #define pmccntr_write pmccntr_write_powerpc
 #define pmccntr_write32 pmccntr_write32_powerpc
 #define pmcntenclr_write pmcntenclr_write_powerpc

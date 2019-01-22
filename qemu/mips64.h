@@ -2176,7 +2176,6 @@
 #define pickNaNMulAdd pickNaNMulAdd_mips64
 #define pmccfiltr_write pmccfiltr_write_mips64
 #define pmccntr_read pmccntr_read_mips64
-#define pmccntr_sync pmccntr_sync_mips64
 #define pmccntr_write pmccntr_write_mips64
 #define pmccntr_write32 pmccntr_write32_mips64
 #define pmcntenclr_write pmcntenclr_write_mips64

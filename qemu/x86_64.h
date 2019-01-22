@@ -2176,7 +2176,6 @@
 #define pickNaNMulAdd pickNaNMulAdd_x86_64
 #define pmccfiltr_write pmccfiltr_write_x86_64
 #define pmccntr_read pmccntr_read_x86_64
-#define pmccntr_sync pmccntr_sync_x86_64
 #define pmccntr_write pmccntr_write_x86_64
 #define pmccntr_write32 pmccntr_write32_x86_64
 #define pmcntenclr_write pmcntenclr_write_x86_64

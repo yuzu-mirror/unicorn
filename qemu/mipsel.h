@@ -2176,7 +2176,6 @@
 #define pickNaNMulAdd pickNaNMulAdd_mipsel
 #define pmccfiltr_write pmccfiltr_write_mipsel
 #define pmccntr_read pmccntr_read_mipsel
-#define pmccntr_sync pmccntr_sync_mipsel
 #define pmccntr_write pmccntr_write_mipsel
 #define pmccntr_write32 pmccntr_write32_mipsel
 #define pmcntenclr_write pmcntenclr_write_mipsel
