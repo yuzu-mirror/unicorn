@@ -718,7 +718,7 @@ typedef struct ARMISARegisters ARMISARegisters;
  *
  * An ARM CPU core.
  */
-typedef struct ARMCPU {
+struct ARMCPU {
     /*< private >*/
     CPUState parent_obj;
     /*< public >*/
@@ -884,7 +884,7 @@ typedef struct ARMCPU {
 
     /* Used to set the maximum vector length the cpu will support.  */
     uint32_t sve_max_vq;
-} ARMCPU;
+};
 
 static inline ARMCPU *arm_env_get_cpu(CPUARMState *env)
 {

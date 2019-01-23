@@ -164,13 +164,13 @@ typedef struct CPUM68KState {
  *
  * A Motorola 68k CPU.
  */
-typedef struct M68kCPU {
+struct M68kCPU {
     /*< private >*/
     CPUState parent_obj;
     /*< public >*/
 
     CPUM68KState env;
-} M68kCPU;
+};
 
 static inline M68kCPU *m68k_env_get_cpu(CPUM68KState *env)
 {

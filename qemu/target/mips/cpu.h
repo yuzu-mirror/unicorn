@@ -1047,13 +1047,13 @@ struct CPUMIPSState {
  *
  * A MIPS CPU.
  */
-typedef struct MIPSCPU {
+struct MIPSCPU {
     /*< private >*/
     CPUState parent_obj;
     /*< public >*/
 
     CPUMIPSState env;
-} MIPSCPU;
+};
 
 static inline MIPSCPU *mips_env_get_cpu(CPUMIPSState *env)
 {

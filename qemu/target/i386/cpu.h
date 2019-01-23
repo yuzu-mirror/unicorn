@@ -1313,7 +1313,7 @@ typedef struct CPUX86State {
  *
  * An x86 CPU.
  */
-typedef struct X86CPU {
+struct X86CPU {
     /*< private >*/
     CPUState parent_obj;
     /*< public >*/
@@ -1400,7 +1400,7 @@ typedef struct X86CPU {
 
     // Unicorn: Moved here to prevent a local static
     bool cpu_globals_initialized;
-} X86CPU;
+};
 
 static inline X86CPU *x86_env_get_cpu(CPUX86State *env)
 {

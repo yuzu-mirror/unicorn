@@ -539,13 +539,13 @@ struct CPUSPARCState {
  *
  * A SPARC CPU.
  */
-typedef struct SPARCCPU {
+struct SPARCCPU {
     /*< private >*/
     CPUState parent_obj;
     /*< public >*/
 
     CPUSPARCState env;
-} SPARCCPU;
+};
 
 static inline SPARCCPU *sparc_env_get_cpu(CPUSPARCState *env)
 {
