@@ -14,6 +14,10 @@
 #define __has_attribute(x) 0 /* compatibility with older GCC */
 #endif
 
+#ifndef __has_builtin       // Optional of course.
+#define __has_builtin(x) 0  // Compatibility with non-clang compilers.
+#endif
+
 /*
  * If __attribute__((error)) is present, use it to produce an error at
  * compile time.  Otherwise, one must wait for the linker to diagnose
