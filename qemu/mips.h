@@ -3472,6 +3472,7 @@
 #define helper_dmaddu helper_dmaddu_mips
 #define helper_dmfc0_lladdr helper_dmfc0_lladdr_mips
 #define helper_dmfc0_maar helper_dmfc0_maar_mips
+#define helper_dmfc0_saar helper_dmfc0_saar_mips
 #define helper_dmfc0_tccontext helper_dmfc0_tccontext_mips
 #define helper_dmfc0_tchalt helper_dmfc0_tchalt_mips
 #define helper_dmfc0_tcrestart helper_dmfc0_tcrestart_mips
@@ -3673,6 +3674,7 @@
 #define helper_mfc0_mvpconf1 helper_mfc0_mvpconf1_mips
 #define helper_mfc0_mvpcontrol helper_mfc0_mvpcontrol_mips
 #define helper_mfc0_random helper_mfc0_random_mips
+#define helper_mfc0_saar helper_mfc0_saar_mips
 #define helper_mfc0_tcbind helper_mfc0_tcbind_mips
 #define helper_mfc0_tccontext helper_mfc0_tccontext_mips
 #define helper_mfc0_tchalt helper_mfc0_tchalt_mips
@@ -3683,6 +3685,7 @@
 #define helper_mfc0_watchhi helper_mfc0_watchhi_mips
 #define helper_mfc0_watchlo helper_mfc0_watchlo_mips
 #define helper_mfhc0_maar helper_mfhc0_maar_mips
+#define helper_mfhc0_saar helper_mfhc0_saar_mips
 #define helper_mftacx helper_mftacx_mips
 #define helper_mftc0_cause helper_mftc0_cause_mips
 #define helper_mftc0_configx helper_mftc0_configx_mips
@@ -3914,6 +3917,8 @@
 #define helper_mtc0_pwctl helper_mtc0_pwctl_mips
 #define helper_mtc0_pwfield helper_mtc0_pwfield_mips
 #define helper_mtc0_pwsize helper_mtc0_pwsize_mips
+#define helper_mtc0_saar helper_mtc0_saar_mips
+#define helper_mtc0_saari helper_mtc0_saari_mips
 #define helper_mtc0_segctl0 helper_mtc0_segctl0_mips
 #define helper_mtc0_segctl1 helper_mtc0_segctl1_mips
 #define helper_mtc0_segctl2 helper_mtc0_segctl2_mips
@@ -3943,6 +3948,7 @@
 #define helper_mtc0_xcontext helper_mtc0_xcontext_mips
 #define helper_mtc0_yqmask helper_mtc0_yqmask_mips
 #define helper_mthc0_maar helper_mthc0_maar_mips
+#define helper_mthc0_saar helper_mthc0_saar_mips
 #define helper_mthlip helper_mthlip_mips
 #define helper_mttacx helper_mttacx_mips
 #define helper_mttc0_cause helper_mttc0_cause_mips

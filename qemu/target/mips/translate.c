@@ -2513,6 +2513,7 @@ typedef struct DisasContext {
     bool mrp;
     bool nan2008;
     bool abs2008;
+    bool saar;
 
     // Unicorn engine
     struct uc_struct *uc;
@@ -6680,6 +6681,17 @@ static void gen_mfhc0(DisasContext *ctx, TCGv arg, int reg, int sel)
             goto cp0_unimplemented;
         }
         break;
+    case CPO_REGISTER_09:
+        switch (sel) {
+        case 7:
+            CP0_CHECK(ctx->saar);
+            gen_helper_mfhc0_saar(s, arg, s->cpu_env);
+            rn = "SAAR";
+            break;
+        default:
+            goto cp0_unimplemented;
+        }
+        break;
     case CPO_REGISTER_17:
         switch (sel) {
         case 0:
@@ -6753,6 +6765,16 @@ static void gen_mthc0(DisasContext *ctx, TCGv arg, int reg, int sel)
             goto cp0_unimplemented;
         }
         break;
+    case CPO_REGISTER_09:
+        switch (sel) {
+        case 7:
+            CP0_CHECK(ctx->saar);
+            gen_helper_mthc0_saar(s, s->cpu_env, arg);
+            rn = "SAAR";
+            break;
+        default:
+            goto cp0_unimplemented;
+        }
     case CPO_REGISTER_17:
         switch (sel) {
         case 0:
@@ -7134,7 +7156,16 @@ static void gen_mfc0(DisasContext *ctx, TCGv arg, int reg, int sel)
             ctx->base.is_jmp = DISAS_EXIT;
             rn = "Count";
             break;
-        /* 6,7 are implementation dependent */
+        case 6:
+            CP0_CHECK(ctx->saar);
+            gen_mfc0_load32(ctx, arg, offsetof(CPUMIPSState, CP0_SAARI));
+            rn = "SAARI";
+            break;
+        case 7:
+            CP0_CHECK(ctx->saar);
+            gen_helper_mfc0_saar(tcg_ctx, arg, tcg_ctx->cpu_env);
+            rn = "SAAR";
+            break;
         default:
             goto cp0_unimplemented;
         }
@@ -7837,7 +7868,16 @@ static void gen_mtc0(DisasContext *ctx, TCGv arg, int reg, int sel)
             gen_helper_mtc0_count(tcg_ctx, tcg_ctx->cpu_env, arg);
             rn = "Count";
             break;
-        /* 6,7 are implementation dependent */
+        case 6:
+            CP0_CHECK(ctx->saar);
+            gen_helper_mtc0_saari(tcg_ctx, tcg_ctx->cpu_env, arg);
+            rn = "SAARI";
+            break;
+        case 7:
+            CP0_CHECK(ctx->saar);
+            gen_helper_mtc0_saar(tcg_ctx, tcg_ctx->cpu_env, arg);
+            rn = "SAAR";
+            break;
         default:
             goto cp0_unimplemented;
         }
@@ -8577,7 +8617,16 @@ static void gen_dmfc0(DisasContext *ctx, TCGv arg, int reg, int sel)
             ctx->base.is_jmp = DISAS_EXIT;
             rn = "Count";
             break;
-        /* 6,7 are implementation dependent */
+        case 6:
+            CP0_CHECK(ctx->saar);
+            gen_mfc0_load32(ctx, arg, offsetof(CPUMIPSState, CP0_SAARI));
+            rn = "SAARI";
+            break;
+        case 7:
+            CP0_CHECK(ctx->saar);
+            gen_helper_dmfc0_saar(tcg_ctx, arg, tcg_ctx->cpu_env);
+            rn = "SAAR";
+            break;
         default:
             goto cp0_unimplemented;
         }
@@ -9263,7 +9312,16 @@ static void gen_dmtc0(DisasContext *ctx, TCGv arg, int reg, int sel)
             gen_helper_mtc0_count(tcg_ctx, tcg_ctx->cpu_env, arg);
             rn = "Count";
             break;
-        /* 6,7 are implementation dependent */
+        case 6:
+            CP0_CHECK(ctx->saar);
+            gen_helper_mtc0_saari(tcg_ctx, tcg_ctx->cpu_env, arg);
+            rn = "SAARI";
+            break;
+        case 7:
+            CP0_CHECK(ctx->saar);
+            gen_helper_mtc0_saar(tcg_ctx, tcg_ctx->cpu_env, arg);
+            rn = "SAAR";
+            break;
         default:
             goto cp0_unimplemented;
         }
