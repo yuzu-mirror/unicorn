@@ -30034,6 +30034,16 @@ void mips_tcg_init(struct uc_struct *uc)
                                        offsetof(CPUMIPSState, active_fpu.fcr31),
                                        "fcr31");
 
+#if defined(TARGET_MIPS64)
+    tcg_ctx->cpu_mmr[0] = NULL;
+    for (i = 1; i < 32; i++) {
+        tcg_ctx->cpu_mmr[i] = tcg_global_mem_new_i64(tcg_ctx, tcg_ctx->cpu_env,
+                                                     offsetof(CPUMIPSState,
+                                                        active_tc.mmr[i]),
+                                                     regnames[i]);
+    }
+#endif
+
 #if !defined(TARGET_MIPS64)
     for (i = 0; i < NUMBER_OF_MXU_REGISTERS - 1; i++) {
         tcg_ctx->mxu_gpr[i] = tcg_global_mem_new(tcg_ctx, tcg_ctx->cpu_env,

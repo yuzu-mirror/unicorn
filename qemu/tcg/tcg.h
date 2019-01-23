@@ -904,6 +904,9 @@ struct TCGContext {
     TCGv mxu_gpr[16 - 1]; // NUMBER_OF_MXU_REGISTERS - 1
     TCGv mxu_CR;
 
+    /* Upper halves of R5900's 128-bit registers: MMRs (multimedia registers) */
+    TCGv_i64 cpu_mmr[32];
+
     /* qemu/target-sparc/translate.c */
     /* global register indexes */
     TCGv_ptr cpu_regwptr;
