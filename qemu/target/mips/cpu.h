@@ -1173,7 +1173,7 @@ enum {
 #define CPU_RESOLVING_TYPE TYPE_MIPS_CPU
 
 int cpu_mips_signal_handler(int host_signum, void *pinfo, void *puc);
-bool cpu_supports_isa(struct uc_struct *uc, const char *cpu_model, unsigned int isa);
+bool cpu_supports_isa(struct uc_struct *uc, const char *cpu_model, uint64_t isa);
 bool cpu_supports_cps_smp(struct uc_struct *uc, const char *cpu_type);
 void cpu_set_exception_base(struct uc_struct *uc, int vp_index, target_ulong address);
 
