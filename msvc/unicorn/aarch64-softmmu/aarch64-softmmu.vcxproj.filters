@@ -125,6 +125,9 @@
     <ClCompile Include="..\..\..\qemu\target\arm\op_helper.c">
       <Filter>target\arm</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\qemu\target\arm\pauth_helper.c">
+      <Filter>target\arm</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\qemu\target\arm\psci.c">
       <Filter>target\arm</Filter>
     </ClCompile>

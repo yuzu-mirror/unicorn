@@ -70,6 +70,7 @@
     <ClCompile Include="..\..\..\qemu\target\arm\iwmmxt_helper.c" />
     <ClCompile Include="..\..\..\qemu\target\arm\neon_helper.c" />
     <ClCompile Include="..\..\..\qemu\target\arm\op_helper.c" />
+    <ClCompile Include="..\..\..\qemu\target\arm\pauth_helper.c" />
     <ClCompile Include="..\..\..\qemu\target\arm\psci.c" />
     <ClCompile Include="..\..\..\qemu\target\arm\translate-a64.c" />
     <ClCompile Include="..\..\..\qemu\target\arm\translate.c" />
