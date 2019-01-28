@@ -62,6 +62,14 @@
 #endif
 #endif
 
+#ifndef likely
+#define likely(x) (x)
+#endif
+
+#ifndef unlikely
+#define unlikely(x) (x)
+#endif
+
 #define sizeof_field(type, field) sizeof(((type *)0)->field)
 
 static double rint( double x )
