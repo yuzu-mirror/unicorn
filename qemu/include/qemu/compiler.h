@@ -77,6 +77,8 @@
 #define tostring(s) #s
 #endif
 
+#define container_of(ptr, type, member) ((type *)((char *)(ptr) -offsetof(type,member)))
+
 #define sizeof_field(type, field) sizeof(((type *)0)->field)
 
 static double rint( double x )
