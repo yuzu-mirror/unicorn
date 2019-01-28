@@ -10,11 +10,11 @@
  * See the COPYING.LIB file in the top-level directory.
  */
 
-#ifndef QAPI_QAPI_VISIT_MISC_H
-#define QAPI_QAPI_VISIT_MISC_H
+#ifndef QAPI_VISIT_MISC_H
+#define QAPI_VISIT_MISC_H
 
-#include "qapi-builtin-visit.h"
-#include "qapi/qapi-types-misc.h"
+#include "qapi/qapi-builtin-visit.h"
+#include "qapi-types-misc.h"
 
 void visit_type_X86CPURegister32(Visitor *v, const char *name, X86CPURegister32 *obj, Error **errp);
 
@@ -25,4 +25,4 @@ void visit_type_X86CPUFeatureWordInfoList(Visitor *v, const char *name, X86CPUFe
 void visit_type_DummyForceArrays_members(Visitor *v, DummyForceArrays *obj, Error **errp);
 void visit_type_DummyForceArrays(Visitor *v, const char *name, DummyForceArrays **obj, Error **errp);
 
-#endif /* QAPI_QAPI_VISIT_MISC_H */
+#endif /* QAPI_VISIT_MISC_H */

@@ -14,7 +14,7 @@
 #include "qemu-common.h"
 #include "qapi/error.h"
 #include "qapi/qmp/qerror.h"
-#include "qapi-visit.h"
+#include "qapi-visit-common.h"
 
 void visit_type_QapiErrorClass(Visitor *v, const char *name, QapiErrorClass *obj, Error **errp)
 {
@@ -22,5 +22,6 @@ void visit_type_QapiErrorClass(Visitor *v, const char *name, QapiErrorClass *obj
     visit_type_enum(v, name, &value, QapiErrorClass_lookup, errp);
     *obj = value;
 }
+
 /* Dummy declaration to prevent empty .o file */
-char dummy_qapi_qapi_visit_common_c;
+char dummy_qapi_visit_common_c;

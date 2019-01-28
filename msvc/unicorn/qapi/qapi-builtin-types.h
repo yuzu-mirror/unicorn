@@ -46,14 +46,14 @@ typedef struct anyList anyList;
 typedef struct nullList nullList;
 
 typedef enum QType {
-    QTYPE_NONE = 0,
-    QTYPE_QNULL = 1,
-    QTYPE_QNUM = 2,
-    QTYPE_QSTRING = 3,
-    QTYPE_QDICT = 4,
-    QTYPE_QLIST = 5,
-    QTYPE_QBOOL = 6,
-    QTYPE__MAX = 7,
+    QTYPE_NONE,
+    QTYPE_QNULL,
+    QTYPE_QNUM,
+    QTYPE_QSTRING,
+    QTYPE_QDICT,
+    QTYPE_QLIST,
+    QTYPE_QBOOL,
+    QTYPE__MAX,
 } QType;
 
 extern const char *const QType_lookup[];

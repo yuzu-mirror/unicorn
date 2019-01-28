@@ -12,8 +12,8 @@
 
 #include "qemu/osdep.h"
 #include "qapi/dealloc-visitor.h"
-#include "qapi/qapi-types-misc.h"
-#include "qapi/qapi-visit-misc.h"
+#include "qapi-types-misc.h"
+#include "qapi-visit-misc.h"
 
 const char *const X86CPURegister32_lookup[] = {
     "EAX",
@@ -65,5 +65,6 @@ void qapi_free_DummyForceArrays(DummyForceArrays *obj)
     visit_type_DummyForceArrays(v, NULL, &obj, NULL);
     visit_free(v);
 }
+
 /* Dummy declaration to prevent empty .o file */
-char dummy_qapi_qapi_types_misc_c;
+char dummy_qapi_types_misc_c;

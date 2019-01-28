@@ -14,7 +14,7 @@
 #define QAPI_BUILTIN_VISIT_H
 
 #include "qapi/visitor.h"
-#include "qapi-builtin-types.h"
+#include "qapi/qapi-builtin-types.h"
 
 void visit_type_strList(Visitor *v, const char *name, strList **obj, Error **errp);
 void visit_type_numberList(Visitor *v, const char *name, numberList **obj, Error **errp);

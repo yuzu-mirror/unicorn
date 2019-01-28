@@ -10,21 +10,21 @@
  * See the COPYING.LIB file in the top-level directory.
  */
 
-#ifndef QAPI_QAPI_TYPES_MISC_H
-#define QAPI_QAPI_TYPES_MISC_H
+#ifndef QAPI_TYPES_MISC_H
+#define QAPI_TYPES_MISC_H
 
-#include "qapi-builtin-types.h"
+#include "qapi/qapi-builtin-types.h"
 
 typedef enum X86CPURegister32 {
-    X86_CPU_REGISTER32_EAX = 0,
-    X86_CPU_REGISTER32_EBX = 1,
-    X86_CPU_REGISTER32_ECX = 2,
-    X86_CPU_REGISTER32_EDX = 3,
-    X86_CPU_REGISTER32_ESP = 4,
-    X86_CPU_REGISTER32_EBP = 5,
-    X86_CPU_REGISTER32_ESI = 6,
-    X86_CPU_REGISTER32_EDI = 7,
-    X86_CPU_REGISTER32__MAX = 8,
+    X86_CPU_REGISTER32_EAX,
+    X86_CPU_REGISTER32_EBX,
+    X86_CPU_REGISTER32_ECX,
+    X86_CPU_REGISTER32_EDX,
+    X86_CPU_REGISTER32_ESP,
+    X86_CPU_REGISTER32_EBP,
+    X86_CPU_REGISTER32_ESI,
+    X86_CPU_REGISTER32_EDI,
+    X86_CPU_REGISTER32__MAX,
 } X86CPURegister32;
 
 extern const char *const X86CPURegister32_lookup[];
@@ -58,4 +58,4 @@ struct DummyForceArrays {
 
 void qapi_free_DummyForceArrays(DummyForceArrays *obj);
 
-#endif /* QAPI_QAPI_TYPES_MISC_H */
+#endif /* QAPI_TYPES_MISC_H */

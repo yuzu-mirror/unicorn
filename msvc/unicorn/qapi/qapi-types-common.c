@@ -12,8 +12,8 @@
 
 #include "qemu/osdep.h"
 #include "qapi/dealloc-visitor.h"
-#include "qapi-types.h"
-#include "qapi-visit.h"
+#include "qapi-types-common.h"
+#include "qapi-visit-common.h"
 
 const char *const QapiErrorClass_lookup[] = {
     "GenericError",
@@ -24,5 +24,6 @@ const char *const QapiErrorClass_lookup[] = {
     "KVMMissingCap",
     NULL,
 };
+
 /* Dummy declaration to prevent empty .o file */
-char dummy_qapi_qapi_types_common_c;
+char dummy_qapi_types_common_c;

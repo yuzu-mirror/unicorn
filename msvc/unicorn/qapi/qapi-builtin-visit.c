@@ -13,7 +13,7 @@
 #include "qemu/osdep.h"
 #include "qemu-common.h"
 #include "qapi/error.h"
-#include "qapi-builtin-visit.h"
+#include "qapi/qapi-builtin-visit.h"
 
 void visit_type_strList(Visitor *v, const char *name, strList **obj, Error **errp)
 {
@@ -486,3 +486,6 @@ void visit_type_QType(Visitor *v, const char *name, QType *obj, Error **errp)
     visit_type_enum(v, name, &value, QType_lookup, errp);
     *obj = value;
 }
+
+/* Dummy declaration to prevent empty .o file */
+char dummy_qapi_builtin_visit_c;

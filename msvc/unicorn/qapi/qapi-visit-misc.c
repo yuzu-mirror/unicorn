@@ -14,7 +14,7 @@
 #include "qemu-common.h"
 #include "qapi/error.h"
 #include "qapi/qmp/qerror.h"
-#include "qapi/qapi-visit-misc.h"
+#include "qapi-visit-misc.h"
 
 void visit_type_X86CPURegister32(Visitor *v, const char *name, X86CPURegister32 *obj, Error **errp)
 {
@@ -145,5 +145,6 @@ out_obj:
 out:
     error_propagate(errp, err);
 }
+
 /* Dummy declaration to prevent empty .o file */
-char dummy_qapi_qapi_visit_misc_c;
+char dummy_qapi_visit_misc_c;

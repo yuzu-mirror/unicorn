@@ -10,12 +10,12 @@
  * See the COPYING.LIB file in the top-level directory.
  */
 
-#ifndef QAPI_QAPI_VISIT_COMMON_H
-#define QAPI_QAPI_VISIT_COMMON_H
+#ifndef QAPI_VISIT_COMMON_H
+#define QAPI_VISIT_COMMON_H
 
-#include "qapi-builtin-visit.h"
-#include "qapi-types.h"
+#include "qapi/qapi-builtin-visit.h"
+#include "qapi-types-common.h"
 
 void visit_type_QapiErrorClass(Visitor *v, const char *name, QapiErrorClass *obj, Error **errp);
 
-#endif /* QAPI_QAPI_VISIT_COMMON_H */
+#endif /* QAPI_VISIT_COMMON_H */

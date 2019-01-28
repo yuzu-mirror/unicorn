@@ -13,17 +13,10 @@
 #ifndef QAPI_VISIT_H
 #define QAPI_VISIT_H
 
-#include "qapi-builtin-visit.h"
+#include "qapi/qapi-builtin-visit.h"
 #include "qapi-types.h"
 
-void visit_type_QapiErrorClass(Visitor *v, const char *name, QapiErrorClass *obj, Error **errp);
-void visit_type_X86CPURegister32(Visitor *v, const char *name, X86CPURegister32 *obj, Error **errp);
-
-void visit_type_X86CPUFeatureWordInfo_members(Visitor *v, X86CPUFeatureWordInfo *obj, Error **errp);
-void visit_type_X86CPUFeatureWordInfo(Visitor *v, const char *name, X86CPUFeatureWordInfo **obj, Error **errp);
-void visit_type_X86CPUFeatureWordInfoList(Visitor *v, const char *name, X86CPUFeatureWordInfoList **obj, Error **errp);
-
-void visit_type_DummyForceArrays_members(Visitor *v, DummyForceArrays *obj, Error **errp);
-void visit_type_DummyForceArrays(Visitor *v, const char *name, DummyForceArrays **obj, Error **errp);
+#include "qapi-visit-common.h"
+#include "qapi-visit-misc.h"
 
 #endif /* QAPI_VISIT_H */

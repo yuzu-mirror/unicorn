@@ -12,8 +12,8 @@
 
 #include "qemu/osdep.h"
 #include "qapi/dealloc-visitor.h"
-#include "qapi-builtin-types.h"
-#include "qapi-builtin-visit.h"
+#include "qapi/qapi-builtin-types.h"
+#include "qapi/qapi-builtin-visit.h"
 
 void qapi_free_strList(strList *obj)
 {
@@ -220,3 +220,6 @@ const char *const QType_lookup[] = {
     "qbool",
     NULL,
 };
+
+/* Dummy declaration to prevent empty .o file */
+char dummy_qapi_builtin_types_c;
