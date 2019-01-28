@@ -1404,7 +1404,7 @@ TranslationBlock *tb_gen_code(CPUState *cpu,
     if (unlikely(gen_code_size < 0)) {
         goto buffer_overflow;
     }
-    search_size = encode_search(tcg_ctx, tb, (void *)gen_code_buf + gen_code_size);
+    search_size = encode_search(tcg_ctx, tb, (unsigned char *)gen_code_buf + gen_code_size);
     if (unlikely(search_size < 0)) {
         goto buffer_overflow;
     }
