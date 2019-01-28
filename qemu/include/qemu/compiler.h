@@ -70,6 +70,13 @@
 #define unlikely(x) (x)
 #endif
 
+#ifndef glue
+#define xglue(x, y) x ## y
+#define glue(x, y) xglue(x, y)
+#define stringify(s)  tostring(s)
+#define tostring(s) #s
+#endif
+
 #define sizeof_field(type, field) sizeof(((type *)0)->field)
 
 static double rint( double x )
