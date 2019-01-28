@@ -84,17 +84,20 @@ typedef __float128 _Float128;
 #endif
 #include <stdio.h>
 
-#include <string.h>
+#ifndef _MSC_VER
 #include <strings.h>
+#include <unistd.h>
+#include <sys/time.h>
+#endif
+
+#include <string.h>
 #include <inttypes.h>
 #include <limits.h>
 #include <time.h>
 #include <ctype.h>
 #include <errno.h>
-#include <unistd.h>
 #include <fcntl.h>
 #include <sys/stat.h>
-#include <sys/time.h>
 #include <assert.h>
 /* setjmp must be declared before sysemu/os-win32.h
  * because it is redefined there. */
