@@ -234,6 +234,16 @@ void tcg_gen_gvec_usadd(TCGContext *s, unsigned vece, uint32_t dofs, uint32_t ao
 void tcg_gen_gvec_ussub(TCGContext *s, unsigned vece, uint32_t dofs, uint32_t aofs,
                         uint32_t bofs, uint32_t oprsz, uint32_t maxsz);
 
+/* Min/max.  */
+void tcg_gen_gvec_smin(TCGContext *s, unsigned vece, uint32_t dofs, uint32_t aofs,
+                       uint32_t bofs, uint32_t oprsz, uint32_t maxsz);
+void tcg_gen_gvec_umin(TCGContext *s, unsigned vece, uint32_t dofs, uint32_t aofs,
+                       uint32_t bofs, uint32_t oprsz, uint32_t maxsz);
+void tcg_gen_gvec_smax(TCGContext *s, unsigned vece, uint32_t dofs, uint32_t aofs,
+                       uint32_t bofs, uint32_t oprsz, uint32_t maxsz);
+void tcg_gen_gvec_umax(TCGContext *s, unsigned vece, uint32_t dofs, uint32_t aofs,
+                       uint32_t bofs, uint32_t oprsz, uint32_t maxsz);
+
 void tcg_gen_gvec_and(TCGContext *, unsigned vece, uint32_t dofs, uint32_t aofs,
                       uint32_t bofs, uint32_t oprsz, uint32_t maxsz);
 void tcg_gen_gvec_or(TCGContext *, unsigned vece, uint32_t dofs, uint32_t aofs,
