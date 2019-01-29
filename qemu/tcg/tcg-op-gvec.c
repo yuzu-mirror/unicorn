@@ -1841,7 +1841,12 @@ void tcg_gen_gvec_and(TCGContext *s, unsigned vece, uint32_t dofs, uint32_t aofs
         .opc = INDEX_op_and_vec,
         .prefer_i64 = TCG_TARGET_REG_BITS == 64,
     };
-    tcg_gen_gvec_3(s, dofs, aofs, bofs, oprsz, maxsz, &g);
+
+    if (aofs == bofs) {
+        tcg_gen_gvec_mov(s, vece, dofs, aofs, oprsz, maxsz);
+    } else {
+        tcg_gen_gvec_3(s, dofs, aofs, bofs, oprsz, maxsz, &g);
+    }
 }
 
 void tcg_gen_gvec_or(TCGContext *s, unsigned vece, uint32_t dofs, uint32_t aofs,
@@ -1854,7 +1859,12 @@ void tcg_gen_gvec_or(TCGContext *s, unsigned vece, uint32_t dofs, uint32_t aofs,
         .opc = INDEX_op_or_vec,
         .prefer_i64 = TCG_TARGET_REG_BITS == 64,
     };
-    tcg_gen_gvec_3(s, dofs, aofs, bofs, oprsz, maxsz, &g);
+
+    if (aofs == bofs) {
+        tcg_gen_gvec_mov(s, vece, dofs, aofs, oprsz, maxsz);
+    } else {
+        tcg_gen_gvec_3(s, dofs, aofs, bofs, oprsz, maxsz, &g);
+    }
 }
 
 void tcg_gen_gvec_xor(TCGContext *s, unsigned vece, uint32_t dofs, uint32_t aofs,
@@ -1867,7 +1877,12 @@ void tcg_gen_gvec_xor(TCGContext *s, unsigned vece, uint32_t dofs, uint32_t aofs
         .opc = INDEX_op_xor_vec,
         .prefer_i64 = TCG_TARGET_REG_BITS == 64,
     };
-    tcg_gen_gvec_3(s, dofs, aofs, bofs, oprsz, maxsz, &g);
+
+    if (aofs == bofs) {
+        tcg_gen_gvec_dup8i(s, dofs, oprsz, maxsz, 0);
+    } else {
+        tcg_gen_gvec_3(s, dofs, aofs, bofs, oprsz, maxsz, &g);
+    }
 }
 
 void tcg_gen_gvec_andc(TCGContext *s, unsigned vece, uint32_t dofs, uint32_t aofs,
@@ -1880,7 +1895,12 @@ void tcg_gen_gvec_andc(TCGContext *s, unsigned vece, uint32_t dofs, uint32_t aof
         .opc = INDEX_op_andc_vec,
         .prefer_i64 = TCG_TARGET_REG_BITS == 64,
     };
-    tcg_gen_gvec_3(s, dofs, aofs, bofs, oprsz, maxsz, &g);
+
+    if (aofs == bofs) {
+        tcg_gen_gvec_dup8i(s, dofs, oprsz, maxsz, 0);
+    } else {
+        tcg_gen_gvec_3(s, dofs, aofs, bofs, oprsz, maxsz, &g);
+    }
 }
 
 void tcg_gen_gvec_orc(TCGContext *s, unsigned vece, uint32_t dofs, uint32_t aofs,
@@ -1893,7 +1913,12 @@ void tcg_gen_gvec_orc(TCGContext *s, unsigned vece, uint32_t dofs, uint32_t aofs
         .opc = INDEX_op_orc_vec,
         .prefer_i64 = TCG_TARGET_REG_BITS == 64,
     };
-    tcg_gen_gvec_3(s, dofs, aofs, bofs, oprsz, maxsz, &g);
+
+    if (aofs == bofs) {
+        tcg_gen_gvec_dup8i(s, dofs, oprsz, maxsz, -1);
+    } else {
+        tcg_gen_gvec_3(s, dofs, aofs, bofs, oprsz, maxsz, &g);
+    }
 }
 
 static const GVecGen2s gop_ands = {
