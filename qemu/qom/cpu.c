@@ -259,6 +259,7 @@ static void cpu_common_initfn(struct uc_struct *uc, Object *obj, void *opaque)
     CPUState *cpu = CPU(obj);
 
     cpu->cpu_index = -1;
+    cpu->cluster_index = -1;
     QTAILQ_INIT(&cpu->breakpoints);
     QTAILQ_INIT(&cpu->watchpoints);
 }
