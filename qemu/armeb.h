@@ -1131,6 +1131,7 @@
 #define helper_gvec_eq16 helper_gvec_eq16_armeb
 #define helper_gvec_eq32 helper_gvec_eq32_armeb
 #define helper_gvec_eq64 helper_gvec_eq64_armeb
+#define helper_gvec_eqv helper_gvec_eqv_armeb
 #define helper_gvec_fadd_d helper_gvec_fadd_d_armeb
 #define helper_gvec_fadd_h helper_gvec_fadd_h_armeb
 #define helper_gvec_fadd_s helper_gvec_fadd_s_armeb
@@ -1188,6 +1189,7 @@
 #define helper_gvec_muls16 helper_gvec_muls16_armeb
 #define helper_gvec_muls32 helper_gvec_muls32_armeb
 #define helper_gvec_muls64 helper_gvec_muls64_armeb
+#define helper_gvec_nand helper_gvec_nand_armeb
 #define helper_gvec_ne8 helper_gvec_ne8_armeb
 #define helper_gvec_ne16 helper_gvec_ne16_armeb
 #define helper_gvec_ne32 helper_gvec_ne32_armeb
@@ -1196,6 +1198,7 @@
 #define helper_gvec_neg16 helper_gvec_neg16_armeb
 #define helper_gvec_neg32 helper_gvec_neg32_armeb
 #define helper_gvec_neg64 helper_gvec_neg64_armeb
+#define helper_gvec_nor helper_gvec_nor_armeb
 #define helper_gvec_not helper_gvec_not_armeb
 #define helper_gvec_or helper_gvec_or_armeb
 #define helper_gvec_orc helper_gvec_orc_armeb
@@ -2769,6 +2772,7 @@
 #define tcg_gen_dup_i64_vec tcg_gen_dup_i64_vec_armeb
 #define tcg_gen_eqv_i32 tcg_gen_eqv_i32_armeb
 #define tcg_gen_eqv_i64 tcg_gen_eqv_i64_armeb
+#define tcg_gen_eqv_vec tcg_gen_eqv_vec_armeb
 #define tcg_gen_exit_tb tcg_gen_exit_tb_armeb
 #define tcg_gen_ext16s_i32 tcg_gen_ext16s_i32_armeb
 #define tcg_gen_ext16s_i64 tcg_gen_ext16s_i64_armeb
@@ -2821,6 +2825,7 @@
 #define tcg_gen_gvec_dup_i32 tcg_gen_gvec_dup_i32_armeb
 #define tcg_gen_gvec_dup_i64 tcg_gen_gvec_dup_i64_armeb
 #define tcg_gen_gvec_dup_mem tcg_gen_gvec_dup_mem_armeb
+#define tcg_gen_gvec_eqv tcg_gen_gvec_eqv_armeb
 #define tcg_gen_gvec_mov tcg_gen_gvec_mov_armeb
 #define tcg_gen_gvec_mul tcg_gen_gvec_mul_armeb
 #define tcg_gen_gvec_muli tcg_gen_gvec_muli_armeb
@@ -2829,7 +2834,9 @@
 #define tcg_gen_gvec_muls16 tcg_gen_gvec_muls16_armeb
 #define tcg_gen_gvec_muls32 tcg_gen_gvec_muls32_armeb
 #define tcg_gen_gvec_muls64 tcg_gen_gvec_muls64_armeb
+#define tcg_gen_gvec_nand tcg_gen_gvec_nand_armeb
 #define tcg_gen_gvec_neg tcg_gen_gvec_neg_armeb
+#define tcg_gen_gvec_nor tcg_gen_gvec_nor_armeb
 #define tcg_gen_gvec_not tcg_gen_gvec_not_armeb
 #define tcg_gen_gvec_or tcg_gen_gvec_or_armeb
 #define tcg_gen_gvec_orc tcg_gen_gvec_orc_armeb
@@ -2885,6 +2892,7 @@
 #define tcg_gen_mulu2_i64 tcg_gen_mulu2_i64_armeb
 #define tcg_gen_nand_i32 tcg_gen_nand_i32_armeb
 #define tcg_gen_nand_i64 tcg_gen_nand_i64_armeb
+#define tcg_gen_nand_vec tcg_gen_nand_vec_armeb
 #define tcg_gen_neg_i32 tcg_gen_neg_i32_armeb
 #define tcg_gen_neg_i64 tcg_gen_neg_i64_armeb
 #define tcg_gen_neg_vec tcg_gen_neg_vec_armeb

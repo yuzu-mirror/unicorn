@@ -276,6 +276,27 @@ void tcg_gen_orc_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_
     }
 }
 
+void tcg_gen_nand_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_vec b)
+{
+    /* TODO: Add TCG_TARGET_HAS_nand_vec when adding a backend supports it. */
+    tcg_gen_and_vec(s, 0, r, a, b);
+    tcg_gen_not_vec(s, 0, r, r);
+}
+
+void tcg_gen_nor_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_vec b)
+{
+    /* TODO: Add TCG_TARGET_HAS_nor_vec when adding a backend supports it. */
+    tcg_gen_or_vec(s, 0, r, a, b);
+    tcg_gen_not_vec(s, 0, r, r);
+}
+
+void tcg_gen_eqv_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_vec b)
+{
+    /* TODO: Add TCG_TARGET_HAS_eqv_vec when adding a backend supports it. */
+    tcg_gen_xor_vec(s, 0, r, a, b);
+    tcg_gen_not_vec(s, 0, r, r);
+}
+
 void tcg_gen_not_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a)
 {
     if (TCG_TARGET_HAS_not_vec) {

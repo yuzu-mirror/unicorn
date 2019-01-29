@@ -970,6 +970,9 @@ void tcg_gen_or_vec(TCGContext *, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_ve
 void tcg_gen_xor_vec(TCGContext *, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_vec b);
 void tcg_gen_andc_vec(TCGContext *, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_vec b);
 void tcg_gen_orc_vec(TCGContext *, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_vec b);
+void tcg_gen_nand_vec(TCGContext *, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_vec b);
+void tcg_gen_nor_vec(TCGContext *, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_vec b);
+void tcg_gen_eqv_vec(TCGContext *, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_vec b);
 void tcg_gen_not_vec(TCGContext *, unsigned vece, TCGv_vec r, TCGv_vec a);
 void tcg_gen_neg_vec(TCGContext *, unsigned vece, TCGv_vec r, TCGv_vec a);
 
