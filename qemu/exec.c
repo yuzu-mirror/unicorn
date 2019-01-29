@@ -2434,8 +2434,7 @@ int cpu_memory_rw_debug(CPUState *cpu, target_ulong addr,
                                           phys_addr, buf, l);
         } else {
             address_space_rw(cpu->cpu_ases[asidx].as, phys_addr,
-                             MEMTXATTRS_UNSPECIFIED,
-                             buf, l, 0);
+                             attrs, buf, l, 0);
         }
         len -= l;
         buf += l;
