@@ -975,6 +975,10 @@ void tcg_gen_nor_vec(TCGContext *, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_v
 void tcg_gen_eqv_vec(TCGContext *, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_vec b);
 void tcg_gen_not_vec(TCGContext *, unsigned vece, TCGv_vec r, TCGv_vec a);
 void tcg_gen_neg_vec(TCGContext *, unsigned vece, TCGv_vec r, TCGv_vec a);
+void tcg_gen_ssadd_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_vec b);
+void tcg_gen_usadd_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_vec b);
+void tcg_gen_sssub_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_vec b);
+void tcg_gen_ussub_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_vec b);
 
 void tcg_gen_shli_vec(TCGContext *, unsigned vece, TCGv_vec r, TCGv_vec a, int64_t i);
 void tcg_gen_shri_vec(TCGContext *, unsigned vece, TCGv_vec r, TCGv_vec a, int64_t i);

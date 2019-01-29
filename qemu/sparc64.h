@@ -2973,6 +2973,8 @@
 #define tcg_gen_smax_i64 tcg_gen_smax_i64_sparc64
 #define tcg_gen_smin_i32 tcg_gen_smin_i32_sparc64
 #define tcg_gen_smin_i64 tcg_gen_smin_i64_sparc64
+#define tcg_gen_ssadd_vec tcg_gen_ssadd_vec_sparc64
+#define tcg_gen_sssub_vec tcg_gen_sssub_vec_sparc64
 #define tcg_gen_st_i32 tcg_gen_st_i32_sparc64
 #define tcg_gen_st_i64 tcg_gen_st_i64_sparc64
 #define tcg_gen_st_vec tcg_gen_st_vec_sparc64
@@ -2990,6 +2992,8 @@
 #define tcg_gen_umax_i64 tcg_gen_umax_i64_sparc64
 #define tcg_gen_umin_i32 tcg_gen_umin_i32_sparc64
 #define tcg_gen_umin_i64 tcg_gen_umin_i64_sparc64
+#define tcg_gen_usadd_vec tcg_gen_usadd_vec_sparc64
+#define tcg_gen_ussub_vec tcg_gen_ussub_vec_sparc64
 #define tcg_gen_vec_add8_i64 tcg_gen_vec_add8_i64_sparc64
 #define tcg_gen_vec_add16_i64 tcg_gen_vec_add16_i64_sparc64
 #define tcg_gen_vec_add32_i64 tcg_gen_vec_add32_i64_sparc64

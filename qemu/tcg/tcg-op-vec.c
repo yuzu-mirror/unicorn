@@ -387,7 +387,8 @@ void tcg_gen_cmp_vec(TCGContext *s, TCGCond cond, unsigned vece,
     }
 }
 
-void tcg_gen_mul_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_vec b)
+static void do_op3(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a,
+                   TCGv_vec b, TCGOpcode opc)
 {
     TCGTemp *rt = tcgv_vec_temp(s, r);
     TCGTemp *at = tcgv_vec_temp(s, a);
@@ -400,11 +401,36 @@ void tcg_gen_mul_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_
 
     tcg_debug_assert(at->base_type >= type);
     tcg_debug_assert(bt->base_type >= type);
-    can = tcg_can_emit_vec_op(INDEX_op_mul_vec, type, vece);
+    can = tcg_can_emit_vec_op(opc, type, vece);
     if (can > 0) {
-        vec_gen_3(s, INDEX_op_mul_vec, type, vece, ri, ai, bi);
+        vec_gen_3(s, opc, type, vece, ri, ai, bi);
     } else {
         tcg_debug_assert(can < 0);
-        tcg_expand_vec_op(s, INDEX_op_mul_vec, type, vece, ri, ai, bi);
+        tcg_expand_vec_op(s, opc, type, vece, ri, ai, bi);
     }
+}
+
+void tcg_gen_mul_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_vec b)
+{
+    do_op3(s, vece, r, a, b, INDEX_op_mul_vec);
+}
+
+void tcg_gen_ssadd_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_vec b)
+{
+    do_op3(s, vece, r, a, b, INDEX_op_ssadd_vec);
+}
+
+void tcg_gen_usadd_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_vec b)
+{
+    do_op3(s, vece, r, a, b, INDEX_op_usadd_vec);
+}
+
+void tcg_gen_sssub_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_vec b)
+{
+    do_op3(s, vece, r, a, b, INDEX_op_sssub_vec);
+}
+
+void tcg_gen_ussub_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_vec b)
+{
+    do_op3(s, vece, r, a, b, INDEX_op_ussub_vec);
 }
