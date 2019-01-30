@@ -961,7 +961,7 @@ static inline TCGTemp *arg_temp(TCGArg a)
 static inline TCGTemp *tcgv_i32_temp(TCGContext *s, TCGv_i32 v)
 {
     uintptr_t o = (uintptr_t)v;
-    TCGTemp *t = (void *)s + o;
+    TCGTemp *t = (TCGTemp *)((char *)s + o);
     tcg_debug_assert(offsetof(TCGContext, temps[temp_idx(s, t)]) == o);
     return t;
 }
