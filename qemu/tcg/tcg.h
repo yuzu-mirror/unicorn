@@ -1403,6 +1403,9 @@ void tcg_expand_vec_op(TCGContext *s, TCGOpcode, TCGType, unsigned, TCGArg, ...)
 // Unicorn: renamed to avoid symbol clashing
 uint64_t dup_const_impl(unsigned vece, uint64_t c);
 
+#ifdef _MSC_VER
+#define dup_const(VECE, C) dup_const_impl(VECE, C)
+#else
 #define dup_const(VECE, C)                                         \
     (__builtin_constant_p(VECE)                                    \
      ? (  (VECE) == MO_8  ? 0x0101010101010101ull * (uint8_t)(C)   \
@@ -1410,6 +1413,7 @@ uint64_t dup_const_impl(unsigned vece, uint64_t c);
         : (VECE) == MO_32 ? 0x0000000100000001ull * (uint32_t)(C)  \
         : dup_const_impl(VECE, C))                                      \
      : dup_const_impl(VECE, C))
+#endif
 
 /*
  * Memory helpers that will be used by TCG generated code.
