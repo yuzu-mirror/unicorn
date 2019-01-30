@@ -109,6 +109,18 @@ static inline uint64_t muldiv64(uint64_t a, uint32_t b, uint32_t c)
 }
 #endif
 
+#ifdef _MSC_VER
+static inline int clz32(uint32_t val)
+{
+    unsigned long leading_zero = 0;
+
+    if (_BitScanReverse(&leading_zero, val) != 0) {
+        return 31 - (int)leading_zero;
+    }
+
+    return 32;
+}
+#else
 /**
  * clz32 - count leading zeros in a 32-bit value.
  * @val: The value to search
@@ -120,6 +132,7 @@ static inline int clz32(uint32_t val)
 {
     return val ? __builtin_clz(val) : 32;
 }
+#endif /* _MSC_VER */
 
 /**
  * clo32 - count leading ones in a 32-bit value.
@@ -132,6 +145,18 @@ static inline int clo32(uint32_t val)
     return clz32(~val);
 }
 
+#ifdef _MSC_VER
+static inline int clz64(uint64_t val)
+{
+    unsigned long trailing_zero = 0;
+
+    if (_BitScanReverse64(&trailing_zero, val) != 0) {
+        return 63 - (int)trailing_zero;
+    }
+
+    return 64;
+}
+#else
 /**
  * clz64 - count leading zeros in a 64-bit value.
  * @val: The value to search
@@ -143,6 +168,7 @@ static inline int clz64(uint64_t val)
 {
     return val ? __builtin_clzll(val) : 64;
 }
+#endif /* _MSC_VER */
 
 /**
  * clo64 - count leading ones in a 64-bit value.
@@ -155,6 +181,19 @@ static inline int clo64(uint64_t val)
     return clz64(~val);
 }
 
+
+#ifdef _MSC_VER
+static inline int ctz32(uint32_t val)
+{
+    unsigned long trailing_zero = 0;
+
+    if (_BitScanForward(&trailing_zero, val) != 0) {
+        return (int)trailing_zero;
+    }
+
+    return 32;
+}
+#else
 /**
  * ctz32 - count trailing zeros in a 32-bit value.
  * @val: The value to search
@@ -166,6 +205,7 @@ static inline int ctz32(uint32_t val)
 {
     return val ? __builtin_ctz(val) : 32;
 }
+#endif /* _MSC_VER */
 
 /**
  * cto32 - count trailing ones in a 32-bit value.
@@ -178,6 +218,18 @@ static inline int cto32(uint32_t val)
     return ctz32(~val);
 }
 
+#ifdef _MSC_VER
+static inline int ctz64(uint64_t val)
+{
+    unsigned long trailing_zero = 0;
+
+    if (_BitScanForward64(&trailing_zero, val) != 0) {
+        return (int)trailing_zero;
+    }
+
+    return 64;
+}
+#else
 /**
  * ctz64 - count trailing zeros in a 64-bit value.
  * @val: The value to search
@@ -189,6 +241,7 @@ static inline int ctz64(uint64_t val)
 {
     return val ? __builtin_ctzll(val) : 64;
 }
+#endif /* _MSC_VER */
 
 /**
  * cto64 - count trailing ones in a 64-bit value.
