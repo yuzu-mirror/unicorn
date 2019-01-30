@@ -50,6 +50,7 @@
 #define inline		__inline
 #define __func__	__FUNCTION__
 
+#include <intrin.h>
 #include <math.h>
 #include <float.h>
 
