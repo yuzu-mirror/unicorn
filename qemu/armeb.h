@@ -356,8 +356,6 @@
 #define define_debug_regs define_debug_regs_armeb
 #define define_one_arm_cp_reg define_one_arm_cp_reg_armeb
 #define define_one_arm_cp_reg_with_opaque define_one_arm_cp_reg_with_opaque_armeb
-#define deposit32 deposit32_armeb
-#define deposit64 deposit64_armeb
 #define deregister_tm_clones deregister_tm_clones_armeb
 #define device_class_base_init device_class_base_init_armeb
 #define device_class_init device_class_init_armeb

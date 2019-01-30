@@ -362,8 +362,6 @@ symbols = (
     'define_debug_regs',
     'define_one_arm_cp_reg',
     'define_one_arm_cp_reg_with_opaque',
-    'deposit32',
-    'deposit64',
     'deregister_tm_clones',
     'device_class_base_init',
     'device_class_init',

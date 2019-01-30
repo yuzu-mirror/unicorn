@@ -356,8 +356,6 @@
 #define define_debug_regs define_debug_regs_mips64
 #define define_one_arm_cp_reg define_one_arm_cp_reg_mips64
 #define define_one_arm_cp_reg_with_opaque define_one_arm_cp_reg_with_opaque_mips64
-#define deposit32 deposit32_mips64
-#define deposit64 deposit64_mips64
 #define deregister_tm_clones deregister_tm_clones_mips64
 #define device_class_base_init device_class_base_init_mips64
 #define device_class_init device_class_init_mips64

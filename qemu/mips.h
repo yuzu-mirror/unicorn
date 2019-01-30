@@ -356,8 +356,6 @@
 #define define_debug_regs define_debug_regs_mips
 #define define_one_arm_cp_reg define_one_arm_cp_reg_mips
 #define define_one_arm_cp_reg_with_opaque define_one_arm_cp_reg_with_opaque_mips
-#define deposit32 deposit32_mips
-#define deposit64 deposit64_mips
 #define deregister_tm_clones deregister_tm_clones_mips
 #define device_class_base_init device_class_base_init_mips
 #define device_class_init device_class_init_mips

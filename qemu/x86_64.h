@@ -356,8 +356,6 @@
 #define define_debug_regs define_debug_regs_x86_64
 #define define_one_arm_cp_reg define_one_arm_cp_reg_x86_64
 #define define_one_arm_cp_reg_with_opaque define_one_arm_cp_reg_with_opaque_x86_64
-#define deposit32 deposit32_x86_64
-#define deposit64 deposit64_x86_64
 #define deregister_tm_clones deregister_tm_clones_x86_64
 #define device_class_base_init device_class_base_init_x86_64
 #define device_class_init device_class_init_x86_64

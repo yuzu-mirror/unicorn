@@ -356,8 +356,6 @@
 #define define_debug_regs define_debug_regs_aarch64eb
 #define define_one_arm_cp_reg define_one_arm_cp_reg_aarch64eb
 #define define_one_arm_cp_reg_with_opaque define_one_arm_cp_reg_with_opaque_aarch64eb
-#define deposit32 deposit32_aarch64eb
-#define deposit64 deposit64_aarch64eb
 #define deregister_tm_clones deregister_tm_clones_aarch64eb
 #define device_class_base_init device_class_base_init_aarch64eb
 #define device_class_init device_class_init_aarch64eb

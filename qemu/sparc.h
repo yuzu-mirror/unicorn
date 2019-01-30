@@ -356,8 +356,6 @@
 #define define_debug_regs define_debug_regs_sparc
 #define define_one_arm_cp_reg define_one_arm_cp_reg_sparc
 #define define_one_arm_cp_reg_with_opaque define_one_arm_cp_reg_with_opaque_sparc
-#define deposit32 deposit32_sparc
-#define deposit64 deposit64_sparc
 #define deregister_tm_clones deregister_tm_clones_sparc
 #define device_class_base_init device_class_base_init_sparc
 #define device_class_init device_class_init_sparc

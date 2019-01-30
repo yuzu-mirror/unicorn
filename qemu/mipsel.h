@@ -356,8 +356,6 @@
 #define define_debug_regs define_debug_regs_mipsel
 #define define_one_arm_cp_reg define_one_arm_cp_reg_mipsel
 #define define_one_arm_cp_reg_with_opaque define_one_arm_cp_reg_with_opaque_mipsel
-#define deposit32 deposit32_mipsel
-#define deposit64 deposit64_mipsel
 #define deregister_tm_clones deregister_tm_clones_mipsel
 #define device_class_base_init device_class_base_init_mipsel
 #define device_class_init device_class_init_mipsel

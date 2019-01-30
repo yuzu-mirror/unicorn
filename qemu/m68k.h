@@ -356,8 +356,6 @@
 #define define_debug_regs define_debug_regs_m68k
 #define define_one_arm_cp_reg define_one_arm_cp_reg_m68k
 #define define_one_arm_cp_reg_with_opaque define_one_arm_cp_reg_with_opaque_m68k
-#define deposit32 deposit32_m68k
-#define deposit64 deposit64_m68k
 #define deregister_tm_clones deregister_tm_clones_m68k
 #define device_class_base_init device_class_base_init_m68k
 #define device_class_init device_class_init_m68k
