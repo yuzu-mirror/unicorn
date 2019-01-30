@@ -292,7 +292,11 @@ static inline int clrsb64(uint64_t val)
  */
 static inline int ctpop8(uint8_t val)
 {
+#ifdef _MSC_VER
+    return __popcnt(val);
+#else
     return __builtin_popcount(val);
+#endif
 }
 
 /**
@@ -301,7 +305,11 @@ static inline int ctpop8(uint8_t val)
  */
 static inline int ctpop16(uint16_t val)
 {
+#ifdef _MSC_VER
+    return __popcnt(val);
+#else
     return __builtin_popcount(val);
+#endif
 }
 
 /**
@@ -310,7 +318,11 @@ static inline int ctpop16(uint16_t val)
  */
 static inline int ctpop32(uint32_t val)
 {
+#ifdef _MSC_VER
+    return __popcnt(val);
+#else
     return __builtin_popcount(val);
+#endif
 }
 
 /**
@@ -319,7 +331,11 @@ static inline int ctpop32(uint32_t val)
  */
 static inline int ctpop64(uint64_t val)
 {
+#ifdef _MSC_VER
+    return __popcnt64(val);
+#else
     return __builtin_popcountll(val);
+#endif
 }
 
 /**
