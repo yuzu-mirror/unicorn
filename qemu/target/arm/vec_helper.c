@@ -41,7 +41,7 @@
 
 static void clear_tail(void *vd, uintptr_t opr_sz, uintptr_t max_sz)
 {
-    uint64_t *d = vd + opr_sz;
+    uint64_t *d = (uint64_t *)((char *)vd + opr_sz);
     uintptr_t i;
 
     for (i = opr_sz; i < max_sz; i += 8) {
