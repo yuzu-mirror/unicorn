@@ -3483,6 +3483,7 @@ static void disas_ldst_single_struct(DisasContext *s, uint32_t insn)
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
     int rt = extract32(insn, 0, 5);
     int rn = extract32(insn, 5, 5);
+    int rm = extract32(insn, 16, 5);
     int size = extract32(insn, 10, 2);
     int S = extract32(insn, 12, 1);
     int opc = extract32(insn, 13, 3);
@@ -3497,6 +3498,15 @@ static void disas_ldst_single_struct(DisasContext *s, uint32_t insn)
     int index = is_q << 3 | S << 2 | size;
     int ebytes, xs;
     TCGv_i64 tcg_addr, tcg_rn, tcg_ebytes;
+
+    if (extract32(insn, 31, 1)) {
+        unallocated_encoding(s);
+        return;
+    }
+    if (!is_postidx && rm != 0) {
+        unallocated_encoding(s);
+        return;
+    }
 
     switch (scale) {
     case 3:
@@ -3575,7 +3585,6 @@ static void disas_ldst_single_struct(DisasContext *s, uint32_t insn)
     }
 
     if (is_postidx) {
-        int rm = extract32(insn, 16, 5);
         if (rm == 31) {
             tcg_gen_mov_i64(tcg_ctx, tcg_rn, tcg_addr);
         } else {
