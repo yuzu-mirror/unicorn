@@ -337,26 +337,11 @@ static void aarch64_cpu_finalizefn(struct uc_struct *uc, Object *obj, void *opaq
 {
 }
 
-static void aarch64_cpu_set_pc(CPUState *cs, vaddr value)
-{
-    ARMCPU *cpu = ARM_CPU(cs->uc, cs);
-    /* It's OK to look at env for the current mode here, because it's
-     * never possible for an AArch64 TB to chain to an AArch32 TB.
-     * (Otherwise we would need to use synchronize_from_tb instead.)
-     */
-    if (is_a64(&cpu->env)) {
-        cpu->env.pc = value;
-    } else {
-        cpu->env.regs[15] = value;
-    }
-}
-
 static void aarch64_cpu_class_init(struct uc_struct *uc, ObjectClass *oc, void *data)
 {
     CPUClass *cc = CPU_CLASS(uc, oc);
 
     cc->cpu_exec_interrupt = arm_cpu_exec_interrupt;
-    cc->set_pc = aarch64_cpu_set_pc;
 }
 
 static void aarch64_cpu_register(struct uc_struct *uc, const ARMCPUInfo *info)

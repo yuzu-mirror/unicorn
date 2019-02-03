@@ -172,11 +172,8 @@ int arm_set_cpu_on(struct uc_struct *uc,
 
     if (target_aa64) {
         target_cpu->env.xregs[0] = context_id;
-        target_cpu->env.thumb = false;
     } else {
         target_cpu->env.regs[0] = context_id;
-        target_cpu->env.thumb = entry & 1;
-        entry &= 0xfffffffe;
     }
 
     /* Start the new CPU at the requested address */
