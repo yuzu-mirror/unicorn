@@ -3400,6 +3400,24 @@ static X86CPUDefinition builtin_x86_defs[] = {
             CPUID_EXT3_3DNOWPREFETCH | CPUID_EXT3_MISALIGNSSE |
             CPUID_EXT3_SSE4A | CPUID_EXT3_ABM | CPUID_EXT3_SVM |
             CPUID_EXT3_LAHF_LM,
+        // FEAT_8000_0007_EDX
+            0,
+        // FEAT_8000_0008_EBX
+            0,
+        // FEAT_C000_0001_EDX
+            0,
+        // FEAT_KVM
+            0,
+        // FEAT_KVM_HINTS
+            0,
+        // FEAT_HYPERV_EAX
+            0,
+        // FEAT_HYPERV_EBX
+            0,
+        // FEAT_HYPERV_EDX
+            0,
+        // FEAT_SVM
+            CPUID_SVM_NPT | CPUID_SVM_NRIPSAVE,
         },
         "AMD Opteron 62xx class CPU",
     },
@@ -3434,6 +3452,24 @@ static X86CPUDefinition builtin_x86_defs[] = {
             CPUID_EXT3_3DNOWPREFETCH | CPUID_EXT3_MISALIGNSSE |
             CPUID_EXT3_SSE4A | CPUID_EXT3_ABM | CPUID_EXT3_SVM |
             CPUID_EXT3_LAHF_LM,
+        // FEAT_8000_0007_EDX
+            0,
+        // FEAT_8000_0008_EBX
+            0,
+        // FEAT_C000_0001_EDX
+            0,
+        // FEAT_KVM
+            0,
+        // FEAT_KVM_HINTS
+            0,
+        // FEAT_HYPERV_EAX
+            0,
+        // FEAT_HYPERV_EBX
+            0,
+        // FEAT_HYPERV_EDX
+            0,
+        // FEAT_SVM
+            CPUID_SVM_NPT | CPUID_SVM_NRIPSAVE,
         },
         "AMD Opteron 63xx class CPU",
     },
@@ -3490,7 +3526,7 @@ static X86CPUDefinition builtin_x86_defs[] = {
         // FEAT_HYPERV_EDX
             0,
         // FEAT_SVM
-            0,
+            CPUID_SVM_NPT | CPUID_SVM_NRIPSAVE,
         /* Missing: XSAVES (not supported by some Linux versions,
          * including v4.1 to v4.12).
          * KVM doesn't yet expose any XSAVES state save component.
@@ -3558,7 +3594,7 @@ static X86CPUDefinition builtin_x86_defs[] = {
         // FEAT_HYPERV_EDX
             0,
         // FEAT_SVM
-            0,
+            CPUID_SVM_NPT | CPUID_SVM_NRIPSAVE,
         /* Missing: XSAVES (not supported by some Linux versions,
          * including v4.1 to v4.12).
          * KVM doesn't yet expose any XSAVES state save component.
