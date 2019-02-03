@@ -5743,10 +5743,16 @@ static void handle_fp_fcvt(DisasContext *s, int opcode,
  */
 static void disas_fp_1src(DisasContext *s, uint32_t insn)
 {
+    int mos = extract32(insn, 29, 3);
     int type = extract32(insn, 22, 2);
     int opcode = extract32(insn, 15, 6);
     int rn = extract32(insn, 5, 5);
     int rd = extract32(insn, 0, 5);
+
+    if (mos) {
+        unallocated_encoding(s);
+        return;
+    }
 
     switch (opcode) {
     case 0x4: case 0x5: case 0x7:
@@ -5978,13 +5984,14 @@ static void handle_fp_2src_half(DisasContext *s, int opcode,
  */
 static void disas_fp_2src(DisasContext *s, uint32_t insn)
 {
+    int mos = extract32(insn, 29, 3);
     int type = extract32(insn, 22, 2);
     int rd = extract32(insn, 0, 5);
     int rn = extract32(insn, 5, 5);
     int rm = extract32(insn, 16, 5);
     int opcode = extract32(insn, 12, 4);
 
-    if (opcode > 8) {
+    if (opcode > 8 || mos) {
         unallocated_encoding(s);
         return;
     }
@@ -6143,6 +6150,7 @@ static void handle_fp_3src_half(DisasContext *s, bool o0, bool o1,
  */
 static void disas_fp_3src(DisasContext *s, uint32_t insn)
 {
+    int mos = extract32(insn, 29, 3);
     int type = extract32(insn, 22, 2);
     int rd = extract32(insn, 0, 5);
     int rn = extract32(insn, 5, 5);
@@ -6150,6 +6158,11 @@ static void disas_fp_3src(DisasContext *s, uint32_t insn)
     int rm = extract32(insn, 16, 5);
     bool o0 = extract32(insn, 15, 1);
     bool o1 = extract32(insn, 21, 1);
+
+    if (mos) {
+        unallocated_encoding(s);
+        return;
+    }
 
     switch (type) {
     case 0:
@@ -6221,11 +6234,18 @@ static void disas_fp_imm(DisasContext *s, uint32_t insn)
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
     int rd = extract32(insn, 0, 5);
+    int imm5 = extract32(insn, 5, 5);
     int imm8 = extract32(insn, 13, 8);
     int type = extract32(insn, 22, 2);
+    int mos = extract32(insn, 29, 3);
     uint64_t imm;
     TCGv_i64 tcg_res;
     TCGMemOp sz;
+
+    if (mos || imm5) {
+        unallocated_encoding(s);
+        return;
+    }
 
     switch (type) {
     case 0:
