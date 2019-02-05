@@ -72,8 +72,13 @@ typedef struct DisasContext {
     int c15_cpar;
     /* True with v8.5-BTI and SCTLR_ELx.BT* set.  */
     bool bt;
-    /* A copy of PSTATE.BTYPE, which will be 0 without v8.5-BTI.  */
-    uint8_t btype;
+    /*
+     * >= 0, a copy of PSTATE.BTYPE, which will be 0 without v8.5-BTI.
+     *  < 0, set by the current instruction.
+     */
+    int8_t btype;
+    /* True if this page is guarded.  */
+    bool guarded_page;
     /* TCG op of the current insn_start.  */
     TCGOp *insn_start;
 #define TMP_A64_MAX 16
