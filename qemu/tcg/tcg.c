@@ -254,6 +254,9 @@ TCGLabel *gen_new_label(TCGContext *s)
     TCGLabel ltmp = {0};
     ltmp.id = s->nb_labels++;
     *l = ltmp;
+#ifdef CONFIG_DEBUG_TCG
+    QSIMPLEQ_INSERT_TAIL(&s->labels, l, next);
+#endif
     return l;
 }
 
@@ -516,6 +519,9 @@ void tcg_func_start(TCGContext *s)
 
     QTAILQ_INIT(&s->ops);
     QTAILQ_INIT(&s->free_ops);
+#ifdef CONFIG_DEBUG_TCG
+    QSIMPLEQ_INIT(&s->labels);
+#endif
 }
 
 static inline TCGTemp *tcg_temp_alloc(TCGContext *s)
@@ -3267,6 +3273,23 @@ int tcg_gen_code(TCGContext *s, TranslationBlock *tb)
         qemu_log("OP:\n");
         tcg_dump_ops(s, false);
         qemu_log("\n");
+    }
+#endif
+
+#ifdef CONFIG_DEBUG_TCG
+    /* Ensure all labels referenced have been emitted.  */
+    {
+        TCGLabel *l;
+        bool error = false;
+
+        QSIMPLEQ_FOREACH(l, &s->labels, next) {
+            if (unlikely(!l->present) && l->refs) {
+                qemu_log_mask(CPU_LOG_TB_OP,
+                              "$L%d referenced but not present.\n", l->id);
+                error = true;
+            }
+        }
+        assert(!error);
     }
 #endif
 
