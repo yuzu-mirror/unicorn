@@ -349,7 +349,8 @@ tb_page_addr_t get_page_addr_code(CPUArchState *env, target_ulong addr)
 
         tlb_fill(cpu, addr, 0, MMU_INST_FETCH, mmu_idx, 0);
 
-        index = (addr >> TARGET_PAGE_BITS) & (CPU_TLB_SIZE - 1);
+        index = tlb_index(env, mmu_idx, addr);
+        entry = tlb_entry(env, mmu_idx, addr);
         tlb_addr = env->tlb_table[mmu_idx][index].addr_code;
         if (!(tlb_addr & ~(TARGET_PAGE_MASK | TLB_RECHECK))) {
             /* RAM access. We can't handle this, so for now just stop */
@@ -528,7 +529,7 @@ static uint64_t io_readx(CPUArchState *env, CPUIOTLBEntry *iotlbentry,
 
         tlb_fill(cpu, addr, size, MMU_DATA_LOAD, mmu_idx, retaddr);
 
-        index = (addr >> TARGET_PAGE_BITS) & (CPU_TLB_SIZE - 1);
+        index = tlb_index(env, mmu_idx, addr);
         tlb_addr = env->tlb_table[mmu_idx][index].addr_read;
         if (!(tlb_addr & ~(TARGET_PAGE_MASK | TLB_RECHECK))) {
             /* RAM access */
@@ -584,7 +585,7 @@ static void io_writex(CPUArchState *env, CPUIOTLBEntry *iotlbentry,
 
         tlb_fill(cpu, addr, size, MMU_DATA_STORE, mmu_idx, retaddr);
 
-        index = (addr >> TARGET_PAGE_BITS) & (CPU_TLB_SIZE - 1);
+        index = tlb_index(env, mmu_idx, addr);
         tlb_addr = env->tlb_table[mmu_idx][index].addr_write;
         if (!(tlb_addr & ~(TARGET_PAGE_MASK | TLB_RECHECK))) {
             /* RAM access */
@@ -711,6 +712,8 @@ static void *atomic_mmu_lookup(CPUArchState *env, target_ulong addr,
         if (!VICTIM_TLB_HIT(addr_write, addr)) {
             tlb_fill(ENV_GET_CPU(env), addr, 1 << s_bits, MMU_DATA_STORE,
                      mmu_idx, retaddr);
+            index = tlb_index(env, mmu_idx, addr);
+            tlbe = tlb_entry(env, mmu_idx, addr);
         }
         tlb_addr = tlb_addr_write(tlbe);
     }
