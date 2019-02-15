@@ -2040,6 +2040,7 @@
 #define memory_register_types memory_register_types_mips64el
 #define memory_try_enable_merging memory_try_enable_merging_mips64el
 #define memory_unmap memory_unmap_mips64el
+#define modify_arm_cp_regs modify_arm_cp_regs_mips64el
 #define module_call_init module_call_init_mips64el
 #define module_load module_load_mips64el
 #define mpidr_cp_reginfo mpidr_cp_reginfo_mips64el

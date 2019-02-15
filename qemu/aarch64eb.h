@@ -2040,6 +2040,7 @@
 #define memory_register_types memory_register_types_aarch64eb
 #define memory_try_enable_merging memory_try_enable_merging_aarch64eb
 #define memory_unmap memory_unmap_aarch64eb
+#define modify_arm_cp_regs modify_arm_cp_regs_aarch64eb
 #define module_call_init module_call_init_aarch64eb
 #define module_load module_load_aarch64eb
 #define mpidr_cp_reginfo mpidr_cp_reginfo_aarch64eb

@@ -2040,6 +2040,7 @@
 #define memory_register_types memory_register_types_x86_64
 #define memory_try_enable_merging memory_try_enable_merging_x86_64
 #define memory_unmap memory_unmap_x86_64
+#define modify_arm_cp_regs modify_arm_cp_regs_x86_64
 #define module_call_init module_call_init_x86_64
 #define module_load module_load_x86_64
 #define mpidr_cp_reginfo mpidr_cp_reginfo_x86_64

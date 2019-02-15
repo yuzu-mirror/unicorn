@@ -2040,6 +2040,7 @@
 #define memory_register_types memory_register_types_sparc
 #define memory_try_enable_merging memory_try_enable_merging_sparc
 #define memory_unmap memory_unmap_sparc
+#define modify_arm_cp_regs modify_arm_cp_regs_sparc
 #define module_call_init module_call_init_sparc
 #define module_load module_load_sparc
 #define mpidr_cp_reginfo mpidr_cp_reginfo_sparc

@@ -2040,6 +2040,7 @@
 #define memory_register_types memory_register_types_arm
 #define memory_try_enable_merging memory_try_enable_merging_arm
 #define memory_unmap memory_unmap_arm
+#define modify_arm_cp_regs modify_arm_cp_regs_arm
 #define module_call_init module_call_init_arm
 #define module_load module_load_arm
 #define mpidr_cp_reginfo mpidr_cp_reginfo_arm

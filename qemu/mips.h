@@ -2040,6 +2040,7 @@
 #define memory_register_types memory_register_types_mips
 #define memory_try_enable_merging memory_try_enable_merging_mips
 #define memory_unmap memory_unmap_mips
+#define modify_arm_cp_regs modify_arm_cp_regs_mips
 #define module_call_init module_call_init_mips
 #define module_load module_load_mips
 #define mpidr_cp_reginfo mpidr_cp_reginfo_mips

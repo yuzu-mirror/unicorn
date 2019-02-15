@@ -2040,6 +2040,7 @@
 #define memory_register_types memory_register_types_mipsel
 #define memory_try_enable_merging memory_try_enable_merging_mipsel
 #define memory_unmap memory_unmap_mipsel
+#define modify_arm_cp_regs modify_arm_cp_regs_mipsel
 #define module_call_init module_call_init_mipsel
 #define module_load module_load_mipsel
 #define mpidr_cp_reginfo mpidr_cp_reginfo_mipsel

@@ -2040,6 +2040,7 @@
 #define memory_register_types memory_register_types_m68k
 #define memory_try_enable_merging memory_try_enable_merging_m68k
 #define memory_unmap memory_unmap_m68k
+#define modify_arm_cp_regs modify_arm_cp_regs_m68k
 #define module_call_init module_call_init_m68k
 #define module_load module_load_m68k
 #define mpidr_cp_reginfo mpidr_cp_reginfo_m68k

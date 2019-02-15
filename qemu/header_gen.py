@@ -2046,6 +2046,7 @@ symbols = (
     'memory_register_types',
     'memory_try_enable_merging',
     'memory_unmap',
+    'modify_arm_cp_regs',
     'module_call_init',
     'module_load',
     'mpidr_cp_reginfo',
