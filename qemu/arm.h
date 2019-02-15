@@ -1229,6 +1229,14 @@
 #define helper_gvec_smin16 helper_gvec_smin16_arm
 #define helper_gvec_smin32 helper_gvec_smin32_arm
 #define helper_gvec_smin64 helper_gvec_smin64_arm
+#define helper_gvec_sqadd_b helper_gvec_sqadd_b_arm
+#define helper_gvec_sqadd_d helper_gvec_sqadd_d_arm
+#define helper_gvec_sqadd_h helper_gvec_sqadd_h_arm
+#define helper_gvec_sqadd_s helper_gvec_sqadd_s_arm
+#define helper_gvec_sqsub_b helper_gvec_sqsub_b_arm
+#define helper_gvec_sqsub_d helper_gvec_sqsub_d_arm
+#define helper_gvec_sqsub_h helper_gvec_sqsub_h_arm
+#define helper_gvec_sqsub_s helper_gvec_sqsub_s_arm
 #define helper_gvec_sub8 helper_gvec_sub8_arm
 #define helper_gvec_sub16 helper_gvec_sub16_arm
 #define helper_gvec_sub32 helper_gvec_sub32_arm
@@ -1257,6 +1265,14 @@
 #define helper_gvec_umin16 helper_gvec_umin16_arm
 #define helper_gvec_umin32 helper_gvec_umin32_arm
 #define helper_gvec_umin64 helper_gvec_umin64_arm
+#define helper_gvec_uqadd_b helper_gvec_uqadd_b_arm
+#define helper_gvec_uqadd_d helper_gvec_uqadd_d_arm
+#define helper_gvec_uqadd_h helper_gvec_uqadd_h_arm
+#define helper_gvec_uqadd_s helper_gvec_uqadd_s_arm
+#define helper_gvec_uqsub_b helper_gvec_uqsub_b_arm
+#define helper_gvec_uqsub_d helper_gvec_uqsub_d_arm
+#define helper_gvec_uqsub_h helper_gvec_uqsub_h_arm
+#define helper_gvec_uqsub_s helper_gvec_uqsub_s_arm
 #define helper_gvec_usadd8 helper_gvec_usadd8_arm
 #define helper_gvec_usadd16 helper_gvec_usadd16_arm
 #define helper_gvec_usadd32 helper_gvec_usadd32_arm
@@ -3333,9 +3349,13 @@
 #define raise_exception raise_exception_arm
 #define raise_exception_ra raise_exception_ra_arm
 #define sli_op sli_op_arm
+#define sqadd_op sqadd_op_arm
+#define sqsub_op sqsub_op_arm
 #define ssra_op ssra_op_arm
 #define sri_op sri_op_arm
 #define sve_exception_el sve_exception_el_arm
 #define sve_zcr_len_for_el sve_zcr_len_for_el_arm
+#define uqadd_op uqadd_op_arm
+#define uqsub_op uqsub_op_arm
 #define usra_op usra_op_arm
 #endif

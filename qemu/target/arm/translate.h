@@ -213,6 +213,10 @@ extern const GVecGen2i ssra_op[4];
 extern const GVecGen2i usra_op[4];
 extern const GVecGen2i sri_op[4];
 extern const GVecGen2i sli_op[4];
+extern const GVecGen4 uqadd_op[4];
+extern const GVecGen4 sqadd_op[4];
+extern const GVecGen4 uqsub_op[4];
+extern const GVecGen4 sqsub_op[4];
 void gen_cmtst_i64(TCGContext* tcg_ctx, TCGv_i64 d, TCGv_i64 a, TCGv_i64 b);
 
 /*
