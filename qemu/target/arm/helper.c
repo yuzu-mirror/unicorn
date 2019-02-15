@@ -5134,17 +5134,17 @@ void register_cp_regs_for_features(ARMCPU *cpu)
             char *pmevtyper_name = g_strdup_printf("PMEVTYPER%d", i);
             char *pmevtyper_el0_name = g_strdup_printf("PMEVTYPER%d_EL0", i);
             ARMCPRegInfo pmev_regs[] = {
-                { pmevcntr_name, 15, 15, 8 | (3 & (i >> 3)), 0,0,i & 7,
+                { pmevcntr_name, 15, 14, 8 | (3 & (i >> 3)), 0,0,i & 7,
                   0, ARM_CP_IO | ARM_CP_ALIAS, PL0_RW, 0, NULL, 0, 0, {0, 0},
                   pmreg_access, pmevcntr_readfn, pmevcntr_writefn },
-                { pmevcntr_el0_name, 0,15, 8 | (3 & (i >> 3)), 3,3,i & 7,
+                { pmevcntr_el0_name, 0,14, 8 | (3 & (i >> 3)), 3,3,i & 7,
                    ARM_CP_STATE_AA64, ARM_CP_IO, PL0_RW, 0, NULL, 0, 0, {0, 0},
                   pmreg_access, pmevcntr_readfn, pmevcntr_writefn,
                   pmevcntr_rawread, pmevcntr_rawwrite },
-                { pmevtyper_name, 15,15,12 | (3 & (i >> 3)), 0,0,i & 7,
+                { pmevtyper_name, 15,14,12 | (3 & (i >> 3)), 0,0,i & 7,
                   0, ARM_CP_IO | ARM_CP_ALIAS, PL0_RW, 0, NULL, 0, 0, {0, 0},
                   pmreg_access, pmevtyper_readfn, pmevtyper_writefn },
-                { pmevtyper_el0_name, 0,15,12 | (3 & (i >> 3)), 3,3,i & 7,
+                { pmevtyper_el0_name, 0,14,12 | (3 & (i >> 3)), 3,3,i & 7,
                   ARM_CP_STATE_AA64, ARM_CP_IO, PL0_RW, 0, NULL, 0, 0, {0, 0},
                   pmreg_access, pmevtyper_readfn, pmevtyper_writefn, NULL,
                   pmevtyper_rawwrite },
