@@ -903,6 +903,7 @@ struct TCGContext {
     TCGv cpu_PC;
     TCGv cpu_HI[4], cpu_LO[4];    // MIPS_DSP_ACC = 4 in qemu/target-mips/cpu.h
     TCGv cpu_dspctrl;
+    TCGv cpu_lladdr, cpu_llval;
     TCGv btarget;
     TCGv bcond;
     TCGv_i32 hflags;
