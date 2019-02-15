@@ -187,6 +187,19 @@ gchar *g_base64_encode(const guchar *data, gsize len);
 guchar *g_base64_decode(const gchar *text, gsize *out_len);
 guchar *g_base64_decode_inplace(gchar *text, gsize *out_len);
 
+extern const gchar * const g_utf8_skip;
+#define g_utf8_next_char(p) (char *)((p) + g_utf8_skip[*(const guchar *)(p)])
+char* g_utf8_strreverse (const char *str, long long len);
+
+typedef struct _GPatternSpec    GPatternSpec;
+
+GPatternSpec* g_pattern_spec_new(const char *pattern);
+void g_pattern_spec_free(GPatternSpec *pspec);
+int g_pattern_spec_equal(GPatternSpec *pspec1, GPatternSpec *pspec2);
+int g_pattern_match(GPatternSpec *pspec, unsigned int string_length, const char *string, const char *string_reversed);
+int g_pattern_match_string(GPatternSpec *pspec, const char *string);
+int g_pattern_match_simple(const char *pattern, const char *string);
+
 #define g_new(struct_type, n_structs) ((struct_type*)g_new_(sizeof(struct_type), n_structs))
 #define g_new0(struct_type, n_structs) ((struct_type*)g_new0_(sizeof(struct_type), n_structs))
 #define g_renew(struct_type, mem, n_structs) ((struct_type*)g_renew_(sizeof(struct_type), mem, n_structs))
