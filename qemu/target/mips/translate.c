@@ -6695,7 +6695,7 @@ static void gen_mfhc0(DisasContext *ctx, TCGv arg, int reg, int sel)
     case CP0_REGISTER_17:
         switch (sel) {
         case 0:
-            gen_mfhc0_load64(ctx, arg, offsetof(CPUMIPSState, lladdr),
+            gen_mfhc0_load64(ctx, arg, offsetof(CPUMIPSState, CP0_LLAddr),
                              ctx->CP0_LLAddr_shift);
             register_name = "LLAddr";
             break;
