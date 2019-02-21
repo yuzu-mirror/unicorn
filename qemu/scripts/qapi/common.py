@@ -2265,8 +2265,14 @@ class QAPISchemaModularCVisitor(QAPISchemaVisitor):
         self._what = what
         self._blurb = blurb
         self._pydoc = pydoc
+        self._genc = None
+        self._genh = None
         self._module = {}
         self._main_module = None
+
+    @staticmethod
+    def _is_builtin_module(name):
+        return not name
 
     def _module_basename(self, what, name):
         if name is None:
@@ -2278,7 +2284,7 @@ class QAPISchemaModularCVisitor(QAPISchemaVisitor):
         return basename + '-' + os.path.splitext(os.path.basename(name))[0]
 
     def _add_module(self, name, blurb):
-        if self._main_module is None and name is not None:
+        if self._main_module is None and not self._is_builtin_module(name):
             self._main_module = name
         genc = QAPIGenC(blurb, self._pydoc)
         genh = QAPIGenH(blurb, self._pydoc)
@@ -2290,22 +2296,27 @@ class QAPISchemaModularCVisitor(QAPISchemaVisitor):
 
     def write(self, output_dir, opt_builtins=False):
         for name in self._module:
-            if name is None and not opt_builtins:
+            if self._is_builtin_module(name) and not opt_builtins:
                 continue
             basename = self._module_basename(self._what, name)
             (genc, genh) = self._module[name]
             genc.write(output_dir, basename + '.c')
             genh.write(output_dir, basename + '.h')
 
-    def _begin_module(self, name):
+    def _begin_user_module(self, name):
         pass
 
     def visit_module(self, name):
         if name in self._module:
             self._set_module(name)
-            return
-        self._add_module(name, self._blurb)
-        self._begin_module(name)
+        elif self._is_builtin_module(name):
+            # The built-in module has not been created.  No code may
+            # be generated.
+            self._genc = None
+            self._genh = None
+        else:
+            self._add_module(name, self._blurb)
+            self._begin_user_module(name)
 
     def visit_include(self, name, info):
         basename = self._module_basename(self._what, name)
