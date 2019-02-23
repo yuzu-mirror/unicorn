@@ -6644,6 +6644,25 @@ static void handle_fmov(DisasContext *s, int rd, int rn, int type, bool itof)
     }
 }
 
+static void handle_fjcvtzs(DisasContext *s, int rd, int rn)
+{
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+    TCGv_i64 t = read_fp_dreg(s, rn);
+    TCGv_ptr fpstatus = get_fpstatus_ptr(s, false);
+
+    gen_helper_fjcvtzs(tcg_ctx, t, t, fpstatus);
+
+    tcg_temp_free_ptr(tcg_ctx, fpstatus);
+
+    tcg_gen_ext32u_i64(tcg_ctx, cpu_reg(s, rd), t);
+    tcg_gen_extrh_i64_i32(tcg_ctx, tcg_ctx->cpu_ZF, t);
+    tcg_gen_movi_i32(tcg_ctx, tcg_ctx->cpu_CF, 0);
+    tcg_gen_movi_i32(tcg_ctx, tcg_ctx->cpu_NF, 0);
+    tcg_gen_movi_i32(tcg_ctx, tcg_ctx->cpu_VF, 0);
+
+    tcg_temp_free_i64(tcg_ctx, t);
+}
+
 /* Floating point <-> integer conversions
  *   31   30  29 28       24 23  22  21 20   19 18 16 15         10 9  5 4  0
  * +----+---+---+-----------+------+---+-------+-----+-------------+----+----+
@@ -6717,6 +6736,14 @@ static void disas_fp_int_conv(DisasContext *s, uint32_t insn)
             }
             itof = opcode & 1;
             handle_fmov(s, rd, rn, type, itof);
+            break;
+
+        case 0x3E: /* FJCVTZS */
+            if (!dc_isar_feature(aa64_jscvt, s)) {
+                goto do_unallocated;
+            } else if (fp_access_check(s)) {
+                handle_fjcvtzs(s, rd, rn);
+            }
             break;
 
         default:

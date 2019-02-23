@@ -3337,6 +3337,8 @@
 #define cmtst_op cmtst_op_armeb
 #define fp_exception_el fp_exception_el_armeb
 #define gen_cmtst_i64 gen_cmtst_i64_armeb
+#define helper_fjcvtzs helper_fjcvtzs_armeb
+#define helper_vjcvt helper_vjcvt_armeb
 #define pmu_init pmu_init_armeb
 #define mla_op mla_op_armeb
 #define mls_op mls_op_armeb

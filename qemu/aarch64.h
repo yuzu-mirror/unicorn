@@ -3394,6 +3394,7 @@
 #define helper_frecpx_f16 helper_frecpx_f16_aarch64
 #define helper_frecpx_f32 helper_frecpx_f32_aarch64
 #define helper_frecpx_f64 helper_frecpx_f64_aarch64
+#define helper_fjcvtzs helper_fjcvtzs_aarch64
 #define helper_gvec_recps_d helper_gvec_recps_d_aarch64
 #define helper_gvec_recps_h helper_gvec_recps_h_aarch64
 #define helper_gvec_recps_s helper_gvec_recps_s_aarch64
@@ -4325,6 +4326,7 @@
 #define helper_vfp_cmps_a64 helper_vfp_cmps_a64_aarch64
 #define helper_vfp_mulxd helper_vfp_mulxd_aarch64
 #define helper_vfp_mulxs helper_vfp_mulxs_aarch64
+#define helper_vjcvt helper_vjcvt_aarch64
 #define helper_xpacd helper_xpacd_aarch64
 #define helper_xpaci helper_xpaci_aarch64
 #define logic_imm_decode_wmask logic_imm_decode_wmask_aarch64

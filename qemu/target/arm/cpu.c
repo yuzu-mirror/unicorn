@@ -1710,6 +1710,7 @@ static void arm_max_initfn(struct uc_struct *uc, Object *obj, void *opaque)
         cpu->isar.id_isar5 = t;
 
         t = cpu->isar.id_isar6;
+        t = FIELD_DP32(t, ID_ISAR6, JSCVT, 1);
         t = FIELD_DP32(t, ID_ISAR6, DP, 1);
         cpu->isar.id_isar6 = t;
 
