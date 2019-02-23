@@ -3334,6 +3334,9 @@
 #define arm_set_cpu_off arm_set_cpu_off_arm
 #define arm_set_cpu_on arm_set_cpu_on_arm
 #define arm_stage1_mmu_idx arm_stage1_mmu_idx_arm
+#define bif_op bif_op_arm
+#define bit_op bit_op_arm
+#define bsl_op bsl_op_arm
 #define cmtst_op cmtst_op_arm
 #define fp_exception_el fp_exception_el_arm
 #define gen_cmtst_i64 gen_cmtst_i64_arm
