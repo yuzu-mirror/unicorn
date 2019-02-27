@@ -1106,6 +1106,11 @@
 #define helper_exception_return helper_exception_return_armeb
 #define helper_exception_with_syndrome helper_exception_with_syndrome_armeb
 #define helper_exit_atomic helper_exit_atomic_armeb
+#define helper_fcos helper_fcos_armeb
+#define helper_fscale helper_fscale_armeb
+#define helper_fsincos helper_fsincos_armeb
+#define helper_fsin helper_fsin_armeb
+#define helper_fsqrt helper_fsqrt_armeb
 #define helper_get_cp_reg helper_get_cp_reg_armeb
 #define helper_get_cp_reg64 helper_get_cp_reg64_armeb
 #define helper_get_r13_banked helper_get_r13_banked_armeb

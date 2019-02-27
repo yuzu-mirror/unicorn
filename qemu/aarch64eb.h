@@ -1106,6 +1106,11 @@
 #define helper_exception_return helper_exception_return_aarch64eb
 #define helper_exception_with_syndrome helper_exception_with_syndrome_aarch64eb
 #define helper_exit_atomic helper_exit_atomic_aarch64eb
+#define helper_fcos helper_fcos_aarch64eb
+#define helper_fscale helper_fscale_aarch64eb
+#define helper_fsincos helper_fsincos_aarch64eb
+#define helper_fsin helper_fsin_aarch64eb
+#define helper_fsqrt helper_fsqrt_aarch64eb
 #define helper_get_cp_reg helper_get_cp_reg_aarch64eb
 #define helper_get_cp_reg64 helper_get_cp_reg64_aarch64eb
 #define helper_get_r13_banked helper_get_r13_banked_aarch64eb

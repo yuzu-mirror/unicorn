@@ -1106,6 +1106,11 @@
 #define helper_exception_return helper_exception_return_m68k
 #define helper_exception_with_syndrome helper_exception_with_syndrome_m68k
 #define helper_exit_atomic helper_exit_atomic_m68k
+#define helper_fcos helper_fcos_m68k
+#define helper_fscale helper_fscale_m68k
+#define helper_fsincos helper_fsincos_m68k
+#define helper_fsin helper_fsin_m68k
+#define helper_fsqrt helper_fsqrt_m68k
 #define helper_get_cp_reg helper_get_cp_reg_m68k
 #define helper_get_cp_reg64 helper_get_cp_reg64_m68k
 #define helper_get_r13_banked helper_get_r13_banked_m68k
@@ -3320,4 +3325,6 @@
 #define xpsr_write xpsr_write_m68k
 #define xscale_cp_reginfo xscale_cp_reginfo_m68k
 #define xscale_cpar_write xscale_cpar_write_m68k
+#define gen_helper_raise_exception gen_helper_raise_exception_m68k
+#define raise_exception raise_exception_m68k
 #endif

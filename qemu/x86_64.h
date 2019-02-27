@@ -1106,6 +1106,11 @@
 #define helper_exception_return helper_exception_return_x86_64
 #define helper_exception_with_syndrome helper_exception_with_syndrome_x86_64
 #define helper_exit_atomic helper_exit_atomic_x86_64
+#define helper_fcos helper_fcos_x86_64
+#define helper_fscale helper_fscale_x86_64
+#define helper_fsincos helper_fsincos_x86_64
+#define helper_fsin helper_fsin_x86_64
+#define helper_fsqrt helper_fsqrt_x86_64
 #define helper_get_cp_reg helper_get_cp_reg_x86_64
 #define helper_get_cp_reg64 helper_get_cp_reg64_x86_64
 #define helper_get_r13_banked helper_get_r13_banked_x86_64
@@ -3320,4 +3325,6 @@
 #define xpsr_write xpsr_write_x86_64
 #define xscale_cp_reginfo xscale_cp_reginfo_x86_64
 #define xscale_cpar_write xscale_cpar_write_x86_64
+#define gen_helper_raise_exception gen_helper_raise_exception_x86_64
+#define raise_exception raise_exception_x86_64
 #endif

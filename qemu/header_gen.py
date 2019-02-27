@@ -1112,6 +1112,11 @@ symbols = (
     'helper_exception_return',
     'helper_exception_with_syndrome',
     'helper_exit_atomic',
+    'helper_fcos',
+    'helper_fscale',
+    'helper_fsincos',
+    'helper_fsin',
+    'helper_fsqrt',
     'helper_get_cp_reg',
     'helper_get_cp_reg64',
     'helper_get_r13_banked',
@@ -4416,6 +4421,11 @@ aarch64_symbols = (
     'write_fp_dreg',
 )
 
+m68k_symbols = (
+    'gen_helper_raise_exception',
+    'raise_exception',
+)
+
 mips_symbols = (
     'MIPS64_REGS_STORAGE_SIZE',
     'MIPS_REGS_STORAGE_SIZE',
@@ -5460,6 +5470,11 @@ sparc_symbols = (
     'sparc_tcg_init',
 )
 
+x86_64_symbols = (
+    'gen_helper_raise_exception',
+    'raise_exception',
+)
+
 
 if __name__ == '__main__':
   arch = sys.argv[1]
@@ -5479,12 +5494,20 @@ if __name__ == '__main__':
     for s in aarch64_symbols:
       print("#define %s %s_%s" %(s, s, arch))
 
+  if 'm68k' in arch:
+    for s in m68k_symbols:
+      print("#define %s %s_%s" %(s, s, arch))
+
   if 'mips' in arch:
     for s in mips_symbols:
       print("#define %s %s_%s" %(s, s, arch))
 
   if 'sparc' in arch:
     for s in sparc_symbols:
+      print("#define %s %s_%s" %(s, s, arch))
+
+  if 'x86_64' in arch:
+    for s in x86_64_symbols:
       print("#define %s %s_%s" %(s, s, arch))
 
   print("#endif")

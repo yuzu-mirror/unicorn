@@ -1106,6 +1106,11 @@
 #define helper_exception_return helper_exception_return_sparc
 #define helper_exception_with_syndrome helper_exception_with_syndrome_sparc
 #define helper_exit_atomic helper_exit_atomic_sparc
+#define helper_fcos helper_fcos_sparc
+#define helper_fscale helper_fscale_sparc
+#define helper_fsincos helper_fsincos_sparc
+#define helper_fsin helper_fsin_sparc
+#define helper_fsqrt helper_fsqrt_sparc
 #define helper_get_cp_reg helper_get_cp_reg_sparc
 #define helper_get_cp_reg64 helper_get_cp_reg64_sparc
 #define helper_get_r13_banked helper_get_r13_banked_sparc

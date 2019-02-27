@@ -1106,6 +1106,11 @@
 #define helper_exception_return helper_exception_return_mips
 #define helper_exception_with_syndrome helper_exception_with_syndrome_mips
 #define helper_exit_atomic helper_exit_atomic_mips
+#define helper_fcos helper_fcos_mips
+#define helper_fscale helper_fscale_mips
+#define helper_fsincos helper_fsincos_mips
+#define helper_fsin helper_fsin_mips
+#define helper_fsqrt helper_fsqrt_mips
 #define helper_get_cp_reg helper_get_cp_reg_mips
 #define helper_get_cp_reg64 helper_get_cp_reg64_mips
 #define helper_get_r13_banked helper_get_r13_banked_mips
