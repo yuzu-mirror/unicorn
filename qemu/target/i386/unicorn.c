@@ -1197,10 +1197,10 @@ int x86_reg_write(struct uc_struct *uc, unsigned int *regs, void *const *vals, i
                         state->segs[R_ES].selector = *(uint16_t *)value;
                         break;
                     case UC_X86_REG_FS:
-                        state->segs[R_FS].selector = *(uint16_t *)value;
+                        cpu_x86_load_seg(state, R_FS, *(uint16_t *)value);
                         break;
                     case UC_X86_REG_GS:
-                        state->segs[R_GS].selector = *(uint16_t *)value;
+                        cpu_x86_load_seg(state, R_GS, *(uint16_t *)value);
                         break;
                     case UC_X86_REG_R8:
                         state->regs[8] = *(uint64_t *)value;
