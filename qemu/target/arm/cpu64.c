@@ -253,6 +253,7 @@ static void aarch64_max_initfn(struct uc_struct *uc, Object *obj, void *opaque)
     t = FIELD_DP64(t, ID_AA64ISAR0, SM3, 1);
     t = FIELD_DP64(t, ID_AA64ISAR0, SM4, 1);
     t = FIELD_DP64(t, ID_AA64ISAR0, DP, 1);
+    t = FIELD_DP64(t, ID_AA64ISAR0, FHM, 1);
     cpu->isar.id_aa64isar0 = t;
 
     t = cpu->isar.id_aa64isar1;
@@ -292,6 +293,7 @@ static void aarch64_max_initfn(struct uc_struct *uc, Object *obj, void *opaque)
     u = cpu->isar.id_isar6;
     u = FIELD_DP32(u, ID_ISAR6, JSCVT, 1);
     u = FIELD_DP32(u, ID_ISAR6, DP, 1);
+    u = FIELD_DP32(u, ID_ISAR6, FHM, 1);
     cpu->isar.id_isar6 = u;
 
     // Unicorn: we lie and enable them anyway
