@@ -12595,13 +12595,6 @@ static void disas_thumb_insn(DisasContext *s, uint32_t insn)
     TCGv_i32 tmp2;
     TCGv_i32 addr;
 
-    // Unicorn: end address tells us to stop emulation
-    if (s->pc == s->uc->addr_end) {
-        // imitate WFI instruction to halt emulation
-        s->base.is_jmp = DISAS_WFI;
-        return;
-    }
-
     // Unicorn: trace this instruction on request
     if (HOOK_EXISTS_BOUNDED(s->uc, UC_HOOK_CODE, s->pc)) {
         // determine instruction size (Thumb/Thumb2)
@@ -13665,6 +13658,13 @@ static bool arm_pre_translate_insn(DisasContext *dc)
 static void arm_post_translate_insn(DisasContext *dc)
 {
     TCGContext *tcg_ctx = dc->uc->tcg_ctx;
+
+    // Unicorn: end address tells us to stop emulation
+    if (dc->pc == dc->uc->addr_end) {
+        // imitate WFI instruction to halt emulation
+        dc->base.is_jmp = DISAS_WFI;
+        return;
+    }
 
     if (dc->condjmp && !dc->base.is_jmp) {
         gen_set_label(tcg_ctx, dc->condlabel);
