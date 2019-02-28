@@ -488,6 +488,7 @@ symbols = (
     'float128_to_int32_round_to_zero',
     'float128_to_int64',
     'float128_to_int64_round_to_zero',
+    'float128_to_uint32',
     'float128_to_uint32_round_to_zero',
     'float128_to_uint64',
     'float128_to_uint64_round_to_zero',
