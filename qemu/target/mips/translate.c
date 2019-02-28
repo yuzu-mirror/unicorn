@@ -27622,7 +27622,7 @@ static void decode_mmi(CPUMIPSState *env, DisasContext *ctx)
     }
 }
 
-static void decode_mmi_lq(CPUMIPSState *env, DisasContext *ctx)
+static void gen_mmi_lq(CPUMIPSState *env, DisasContext *ctx)
 {
     generate_exception_end(ctx, EXCP_RI);    /* TODO: MMI_OPC_LQ */
 }
@@ -29705,7 +29705,7 @@ static void decode_opc(CPUMIPSState *env, DisasContext *ctx, bool *insn_need_pat
     case OPC_MSA: /* OPC_MDMX */
         if (ctx->insn_flags & INSN_R5900) {
 #if defined(TARGET_MIPS64)
-            decode_mmi_lq(env, ctx);    /* MMI_OPC_LQ */
+            gen_mmi_lq(env, ctx);    /* MMI_OPC_LQ */
 #endif
         } else {
             /* MDMX: Not implemented. */
