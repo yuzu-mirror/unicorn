@@ -13657,8 +13657,6 @@ static bool arm_pre_translate_insn(DisasContext *dc)
 
 static void arm_post_translate_insn(DisasContext *dc)
 {
-    TCGContext *tcg_ctx = dc->uc->tcg_ctx;
-
     // Unicorn: end address tells us to stop emulation
     if (dc->pc == dc->uc->addr_end) {
         // imitate WFI instruction to halt emulation
@@ -13667,6 +13665,7 @@ static void arm_post_translate_insn(DisasContext *dc)
     }
 
     if (dc->condjmp && !dc->base.is_jmp) {
+        TCGContext *tcg_ctx = dc->uc->tcg_ctx;
         gen_set_label(tcg_ctx, dc->condlabel);
         dc->condjmp = 0;
     }
