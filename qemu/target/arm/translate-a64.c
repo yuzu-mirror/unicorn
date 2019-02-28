@@ -11021,6 +11021,8 @@ static void handle_simd_3same_pair(DisasContext *s, int is_q, int u, int opcode,
 /* Floating point op subgroup of C3.6.16. */
 static void disas_simd_3same_float(DisasContext *s, uint32_t insn)
 {
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+
     /* For floating point ops, the U, size[1] and opcode bits
      * together indicate the operation. size[0] indicates single
      * or double.
@@ -11078,9 +11080,29 @@ static void disas_simd_3same_float(DisasContext *s, uint32_t insn)
         if (!fp_access_check(s)) {
             return;
         }
-
         handle_3same_float(s, size, elements, fpopcode, rd, rn, rm);
         return;
+
+    case 0x1d: /* FMLAL  */
+    case 0x3d: /* FMLSL  */
+    case 0x59: /* FMLAL2 */
+    case 0x79: /* FMLSL2 */
+        if (size & 1 || !dc_isar_feature(aa64_fhm, s)) {
+            unallocated_encoding(s);
+            return;
+        }
+        if (fp_access_check(s)) {
+            int is_s = extract32(insn, 23, 1);
+            int is_2 = extract32(insn, 29, 1);
+            int data = (is_2 << 1) | is_s;
+            tcg_gen_gvec_3_ptr(tcg_ctx, vec_full_reg_offset(s, rd),
+                               vec_full_reg_offset(s, rn),
+                               vec_full_reg_offset(s, rm), tcg_ctx->cpu_env,
+                               is_q ? 16 : 8, vec_full_reg_size(s),
+                               data, gen_helper_gvec_fmlal_a64);
+        }
+        return;
+
     default:
         unallocated_encoding(s);
         return;
