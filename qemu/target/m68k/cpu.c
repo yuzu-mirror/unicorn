@@ -211,7 +211,10 @@ static void any_cpu_initfn(struct uc_struct *uc, Object *obj, void *opaque)
 static int m68k_cpu_realizefn(struct uc_struct *uc, DeviceState *dev, Error **errp)
 {
     CPUState *cs = CPU(dev);
+    M68kCPU *cpu = M68K_CPU(uc, dev);
     M68kCPUClass *mcc = M68K_CPU_GET_CLASS(uc, dev);
+
+    register_m68k_insns(&cpu->env);
 
     cpu_reset(cs);
     qemu_init_vcpu(cs);

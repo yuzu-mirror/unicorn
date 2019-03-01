@@ -6334,12 +6334,6 @@ static void m68k_tr_translate_insn(DisasContextBase *dcbase, CPUState *cpu)
     TCGContext *tcg_ctx = env->uc->tcg_ctx;
     uint16_t insn = read_im16(env, dc);
 
-    // Unicorn: end address tells us to stop emulation
-    if (dc->pc == dc->uc->addr_end) {
-        gen_exception(dc, dc->pc, EXCP_HLT);
-        return;
-    }
-
     // Unicorn: trace this instruction on request
     if (HOOK_EXISTS_BOUNDED(env->uc, UC_HOOK_CODE, dc->pc)) {
         gen_uc_tracecode(tcg_ctx, 2, UC_HOOK_CODE_IDX, env->uc, dc->pc);
@@ -6352,6 +6346,12 @@ static void m68k_tr_translate_insn(DisasContextBase *dcbase, CPUState *cpu)
     do_release(dc);
 
     dc->base.pc_next = dc->pc;
+
+    // Unicorn: end address tells us to stop emulation
+    if (dc->pc == dc->uc->addr_end) {
+        gen_exception(dc, dc->pc, EXCP_HLT);
+        return;
+    }
 
     if (dc->base.is_jmp == DISAS_NEXT) {
         /* Stop translation when the next insn might touch a new page.
