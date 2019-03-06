@@ -1107,6 +1107,10 @@
 #define helper_exception_with_syndrome helper_exception_with_syndrome_mips
 #define helper_exit_atomic helper_exit_atomic_mips
 #define helper_fcos helper_fcos_mips
+#define helper_frint32_d helper_frint32_d_mips
+#define helper_frint32_s helper_frint32_s_mips
+#define helper_frint64_d helper_frint64_d_mips
+#define helper_frint64_s helper_frint64_s_mips
 #define helper_fscale helper_fscale_mips
 #define helper_fsincos helper_fsincos_mips
 #define helper_fsin helper_fsin_mips

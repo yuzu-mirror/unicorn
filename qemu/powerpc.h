@@ -1107,6 +1107,10 @@
 #define helper_exception_with_syndrome helper_exception_with_syndrome_powerpc
 #define helper_exit_atomic helper_exit_atomic_powerpc
 #define helper_fcos helper_fcos_powerpc
+#define helper_frint32_d helper_frint32_d_powerpc
+#define helper_frint32_s helper_frint32_s_powerpc
+#define helper_frint64_d helper_frint64_d_powerpc
+#define helper_frint64_s helper_frint64_s_powerpc
 #define helper_fscale helper_fscale_powerpc
 #define helper_fsincos helper_fsincos_powerpc
 #define helper_fsin helper_fsin_powerpc

@@ -1107,6 +1107,10 @@
 #define helper_exception_with_syndrome helper_exception_with_syndrome_m68k
 #define helper_exit_atomic helper_exit_atomic_m68k
 #define helper_fcos helper_fcos_m68k
+#define helper_frint32_d helper_frint32_d_m68k
+#define helper_frint32_s helper_frint32_s_m68k
+#define helper_frint64_d helper_frint64_d_m68k
+#define helper_frint64_s helper_frint64_s_m68k
 #define helper_fscale helper_fscale_m68k
 #define helper_fsincos helper_fsincos_m68k
 #define helper_fsin helper_fsin_m68k
