@@ -1432,7 +1432,6 @@
 #define helper_msa_st_h helper_msa_st_h_aarch64eb
 #define helper_msa_st_w helper_msa_st_w_aarch64eb
 #define helper_msr_banked helper_msr_banked_aarch64eb
-#define helper_msr_i_pstate helper_msr_i_pstate_aarch64eb
 #define helper_neon_abd_f32 helper_neon_abd_f32_aarch64eb
 #define helper_neon_abd_s16 helper_neon_abd_s16_aarch64eb
 #define helper_neon_abd_s32 helper_neon_abd_s32_aarch64eb
@@ -3411,6 +3410,9 @@
 #define helper_gvec_rsqrts_d helper_gvec_rsqrts_d_aarch64eb
 #define helper_gvec_rsqrts_h helper_gvec_rsqrts_h_aarch64eb
 #define helper_gvec_rsqrts_s helper_gvec_rsqrts_s_aarch64eb
+#define helper_msr_i_daifclear helper_msr_i_daifclear_aarch64eb
+#define helper_msr_i_daifset helper_msr_i_daifset_aarch64eb
+#define helper_msr_i_spsel helper_msr_i_spsel_aarch64eb
 #define helper_neon_addlp_s16 helper_neon_addlp_s16_aarch64eb
 #define helper_neon_addlp_s8 helper_neon_addlp_s8_aarch64eb
 #define helper_neon_addlp_u16 helper_neon_addlp_u16_aarch64eb

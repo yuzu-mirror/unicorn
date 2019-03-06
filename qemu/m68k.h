@@ -1432,7 +1432,6 @@
 #define helper_msa_st_h helper_msa_st_h_m68k
 #define helper_msa_st_w helper_msa_st_w_m68k
 #define helper_msr_banked helper_msr_banked_m68k
-#define helper_msr_i_pstate helper_msr_i_pstate_m68k
 #define helper_neon_abd_f32 helper_neon_abd_f32_m68k
 #define helper_neon_abd_s16 helper_neon_abd_s16_m68k
 #define helper_neon_abd_s32 helper_neon_abd_s32_m68k

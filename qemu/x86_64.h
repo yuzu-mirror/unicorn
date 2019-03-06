@@ -1432,7 +1432,6 @@
 #define helper_msa_st_h helper_msa_st_h_x86_64
 #define helper_msa_st_w helper_msa_st_w_x86_64
 #define helper_msr_banked helper_msr_banked_x86_64
-#define helper_msr_i_pstate helper_msr_i_pstate_x86_64
 #define helper_neon_abd_f32 helper_neon_abd_f32_x86_64
 #define helper_neon_abd_s16 helper_neon_abd_s16_x86_64
 #define helper_neon_abd_s32 helper_neon_abd_s32_x86_64

@@ -1432,7 +1432,6 @@
 #define helper_msa_st_h helper_msa_st_h_powerpc
 #define helper_msa_st_w helper_msa_st_w_powerpc
 #define helper_msr_banked helper_msr_banked_powerpc
-#define helper_msr_i_pstate helper_msr_i_pstate_powerpc
 #define helper_neon_abd_f32 helper_neon_abd_f32_powerpc
 #define helper_neon_abd_s16 helper_neon_abd_s16_powerpc
 #define helper_neon_abd_s32 helper_neon_abd_s32_powerpc

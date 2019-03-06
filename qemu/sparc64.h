@@ -1432,7 +1432,6 @@
 #define helper_msa_st_h helper_msa_st_h_sparc64
 #define helper_msa_st_w helper_msa_st_w_sparc64
 #define helper_msr_banked helper_msr_banked_sparc64
-#define helper_msr_i_pstate helper_msr_i_pstate_sparc64
 #define helper_neon_abd_f32 helper_neon_abd_f32_sparc64
 #define helper_neon_abd_s16 helper_neon_abd_s16_sparc64
 #define helper_neon_abd_s32 helper_neon_abd_s32_sparc64
