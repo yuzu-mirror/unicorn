@@ -202,6 +202,43 @@ static inline TCGv_i32 get_ahp_flag(DisasContext *s)
     return ret;
 }
 
+/* Set bits within PSTATE.  */
+static inline void set_pstate_bits(DisasContext *s, uint32_t bits)
+{
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+    TCGv_i32 p = tcg_temp_new_i32(tcg_ctx);
+
+    tcg_debug_assert(!(bits & CACHED_PSTATE_BITS));
+
+    tcg_gen_ld_i32(tcg_ctx, p, tcg_ctx->cpu_env, offsetof(CPUARMState, pstate));
+    tcg_gen_ori_i32(tcg_ctx, p, p, bits);
+    tcg_gen_st_i32(tcg_ctx, p, tcg_ctx->cpu_env, offsetof(CPUARMState, pstate));
+    tcg_temp_free_i32(tcg_ctx, p);
+}
+
+/* Clear bits within PSTATE.  */
+static inline void clear_pstate_bits(DisasContext *s, uint32_t bits)
+{
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+    TCGv_i32 p = tcg_temp_new_i32(tcg_ctx);
+
+    tcg_debug_assert(!(bits & CACHED_PSTATE_BITS));
+
+    tcg_gen_ld_i32(tcg_ctx, p, tcg_ctx->cpu_env, offsetof(CPUARMState, pstate));
+    tcg_gen_andi_i32(tcg_ctx, p, p, ~bits);
+    tcg_gen_st_i32(tcg_ctx, p, tcg_ctx->cpu_env, offsetof(CPUARMState, pstate));
+    tcg_temp_free_i32(tcg_ctx, p);
+}
+
+/* If the singlestep state is Active-not-pending, advance to Active-pending. */
+static inline void gen_ss_advance(DisasContext *s)
+{
+    if (s->ss_active) {
+        s->pstate_ss = 0;
+        clear_pstate_bits(s, PSTATE_SS);
+    }
+}
+
 /* Vector operations shared between ARM and AArch64.  */
 extern const GVecGen3 bsl_op;
 extern const GVecGen3 bit_op;

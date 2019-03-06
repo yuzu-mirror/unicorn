@@ -299,18 +299,6 @@ static void gen_exception(DisasContext *s, int excp, uint32_t syndrome, uint32_t
     tcg_temp_free_i32(tcg_ctx, tcg_excp);
 }
 
-static void gen_ss_advance(DisasContext *s)
-{
-    TCGContext *tcg_ctx = s->uc->tcg_ctx;
-    /* If the singlestep state is Active-not-pending, advance to
-     * Active-pending.
-     */
-    if (s->ss_active) {
-        s->pstate_ss = 0;
-        gen_helper_clear_pstate_ss(tcg_ctx, tcg_ctx->cpu_env);
-    }
-}
-
 static void gen_step_complete_exception(DisasContext *s)
 {
     /* We just completed step of an insn. Move from Active-not-pending

@@ -1070,7 +1070,6 @@ symbols = (
     'helper_be_stl_mmu',
     'helper_be_stq_mmu',
     'helper_be_stw_mmu',
-    'helper_clear_pstate_ss',
     'helper_clrsb_i32',
     'helper_clrsb_i64',
     'helper_clz_i32',

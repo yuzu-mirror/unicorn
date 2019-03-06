@@ -1064,7 +1064,6 @@
 #define helper_be_stl_mmu helper_be_stl_mmu_armeb
 #define helper_be_stq_mmu helper_be_stq_mmu_armeb
 #define helper_be_stw_mmu helper_be_stw_mmu_armeb
-#define helper_clear_pstate_ss helper_clear_pstate_ss_armeb
 #define helper_clrsb_i32 helper_clrsb_i32_armeb
 #define helper_clrsb_i64 helper_clrsb_i64_armeb
 #define helper_clz_i32 helper_clz_i32_armeb
