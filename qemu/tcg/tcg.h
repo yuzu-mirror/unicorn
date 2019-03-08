@@ -916,6 +916,13 @@ struct TCGContext {
     /* Upper halves of R5900's 128-bit registers: MMRs (multimedia registers) */
     TCGv_i64 cpu_mmr[32];
 
+    /* qemu/target-riscv/translate.c */
+    TCGv cpu_gpr_risc[32];
+    TCGv cpu_pc_risc;
+    TCGv_i64 cpu_fpr_risc[32]; /* assume F and D extensions */
+    TCGv load_res_risc;
+    TCGv load_val_risc;
+
     /* qemu/target-sparc/translate.c */
     /* global register indexes */
     TCGv_ptr cpu_regwptr;

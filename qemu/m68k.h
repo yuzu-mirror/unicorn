@@ -305,7 +305,6 @@
 #define cpu_loop_exit_noexc cpu_loop_exit_noexc_m68k
 #define cpu_loop_exit_restore cpu_loop_exit_restore_m68k
 #define cpu_memory_rw_debug cpu_memory_rw_debug_m68k
-#define cpu_mmu_index cpu_mmu_index_m68k
 #define cpu_outb cpu_outb_m68k
 #define cpu_outl cpu_outl_m68k
 #define cpu_outw cpu_outw_m68k
@@ -3332,6 +3331,7 @@
 #define xpsr_write xpsr_write_m68k
 #define xscale_cp_reginfo xscale_cp_reginfo_m68k
 #define xscale_cpar_write xscale_cpar_write_m68k
+#define cpu_mmu_index cpu_mmu_index_m68k
 #define gen_helper_raise_exception gen_helper_raise_exception_m68k
 #define raise_exception raise_exception_m68k
 #endif

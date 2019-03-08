@@ -305,7 +305,6 @@
 #define cpu_loop_exit_noexc cpu_loop_exit_noexc_sparc64
 #define cpu_loop_exit_restore cpu_loop_exit_restore_sparc64
 #define cpu_memory_rw_debug cpu_memory_rw_debug_sparc64
-#define cpu_mmu_index cpu_mmu_index_sparc64
 #define cpu_outb cpu_outb_sparc64
 #define cpu_outl cpu_outl_sparc64
 #define cpu_outw cpu_outw_sparc64
@@ -3335,6 +3334,7 @@
 #define cpu_cwp_dec cpu_cwp_dec_sparc64
 #define cpu_cwp_inc cpu_cwp_inc_sparc64
 #define cpu_get_psr cpu_get_psr_sparc64
+#define cpu_mmu_index cpu_mmu_index_sparc64
 #define cpu_put_psr cpu_put_psr_sparc64
 #define cpu_put_psr_raw cpu_put_psr_raw_sparc64
 #define cpu_raise_exception_ra cpu_raise_exception_ra_sparc64

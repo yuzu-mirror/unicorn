@@ -59,6 +59,15 @@ ifneq (,$(findstring mips,$(UNICORN_ARCHS)))
 	UNICORN_TARGETS += mips64-softmmu,
 	UNICORN_TARGETS += mips64el-softmmu,
 endif
+ifneq (,$(findstring riscv,$(UNICORN_ARCHS)))
+	UC_TARGET_OBJ += $(call GENOBJ,riscv32-softmmu)
+	UC_TARGET_OBJ += $(call GENOBJ,riscv64-softmmu)
+	UNICORN_CFLAGS += -DUNICORN_HAS_RISCV
+	UNICORN_CFLAGS += -DUNICORN_HAS_RISCV32
+	UNICORN_CFLAGS += -DUNICORN_HAS_RISCV64
+	UNICORN_TARGETS += riscv32-softmmu,
+	UNICORN_TARGETS += riscv64-softmmu,
+endif
 ifneq (,$(findstring sparc,$(UNICORN_ARCHS)))
 	UC_TARGET_OBJ += $(call GENOBJ,sparc-softmmu)
 	UC_TARGET_OBJ += $(call GENOBJ,sparc64-softmmu)
@@ -318,7 +327,7 @@ dist:
 # run "make header" whenever qemu/header_gen.py is modified
 header:
 	$(eval TARGETS := m68k arm armeb aarch64 aarch64eb mips mipsel mips64 mips64el\
-		powerpc sparc sparc64 x86_64)
+		powerpc riscv32 riscv64 sparc sparc64 x86_64)
 	$(foreach var,$(TARGETS),\
 		$(shell python qemu/header_gen.py $(var) > qemu/$(var).h;))
 	@echo "Generated headers for $(TARGETS)."

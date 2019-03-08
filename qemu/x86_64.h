@@ -305,7 +305,6 @@
 #define cpu_loop_exit_noexc cpu_loop_exit_noexc_x86_64
 #define cpu_loop_exit_restore cpu_loop_exit_restore_x86_64
 #define cpu_memory_rw_debug cpu_memory_rw_debug_x86_64
-#define cpu_mmu_index cpu_mmu_index_x86_64
 #define cpu_outb cpu_outb_x86_64
 #define cpu_outl cpu_outl_x86_64
 #define cpu_outw cpu_outw_x86_64
@@ -3332,6 +3331,7 @@
 #define xpsr_write xpsr_write_x86_64
 #define xscale_cp_reginfo xscale_cp_reginfo_x86_64
 #define xscale_cpar_write xscale_cpar_write_x86_64
+#define cpu_mmu_index cpu_mmu_index_x86_64
 #define gen_helper_raise_exception gen_helper_raise_exception_x86_64
 #define raise_exception raise_exception_x86_64
 #endif

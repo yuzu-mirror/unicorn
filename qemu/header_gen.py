@@ -311,7 +311,6 @@ symbols = (
     'cpu_loop_exit_noexc',
     'cpu_loop_exit_restore',
     'cpu_memory_rw_debug',
-    'cpu_mmu_index',
     'cpu_outb',
     'cpu_outl',
     'cpu_outw',
@@ -3359,6 +3358,7 @@ arm_symbols = (
     'bit_op',
     'bsl_op',
     'cmtst_op',
+    'cpu_mmu_index',
     'fp_exception_el',
     'gen_cmtst_i64',
     'helper_fjcvtzs',
@@ -3413,6 +3413,7 @@ aarch64_symbols = (
     'bit_op',
     'bsl_op',
     'cmtst_op',
+    'cpu_mmu_index',
     'cpu_reg',
     'cpu_reg_sp',
     'disas_sve',
@@ -4432,6 +4433,7 @@ aarch64_symbols = (
 )
 
 m68k_symbols = (
+    'cpu_mmu_index',
     'gen_helper_raise_exception',
     'raise_exception',
 )
@@ -4453,6 +4455,7 @@ mips_symbols = (
     'cpu_mips_store_status',
     'cpu_mips_tlb_flush',
     'cpu_mips_translate_address',
+    'cpu_mmu_index',
     'cpu_rddsp',
     'cpu_set_exception_base',
     'cpu_state_reset',
@@ -5405,10 +5408,99 @@ mips_symbols = (
     'update_pagemask',
 )
 
+
+riscv_symbols = (
+    'RISCV32_REGS_STORAGE_SIZE',
+    'RISCV64_REGS_STORAGE_SIZE',
+    'cpu_riscv_get_fflags',
+    'cpu_riscv_set_fflags',
+    'csr_read_helper',
+    'csr_write_helper',
+    'do_raise_exception_err',
+    'gen_helper_tlb_flush',
+    'helper_csrrc',
+    'helper_csrrs',
+    'helper_csrrw',
+    'helper_fadd_d',
+    'helper_fadd_s',
+    'helper_fclass_d',
+    'helper_fclass_s',
+    'helper_fcvt_d_s',
+    'helper_fcvt_d_w',
+    'helper_fcvt_d_wu',
+    'helper_fcvt_s_d',
+    'helper_fcvt_s_w',
+    'helper_fcvt_s_wu',
+    'helper_fcvt_w_d',
+    'helper_fcvt_w_s',
+    'helper_fcvt_wu_d',
+    'helper_fcvt_wu_s',
+    'helper_fdiv_d',
+    'helper_fdiv_s',
+    'helper_feq_d',
+    'helper_feq_s',
+    'helper_fle_d',
+    'helper_fle_s',
+    'helper_flt_d',
+    'helper_flt_s',
+    'helper_fmadd_d',
+    'helper_fmadd_s',
+    'helper_fmsub_d',
+    'helper_fmsub_s',
+    'helper_fmax_d',
+    'helper_fmax_s',
+    'helper_fmin_d',
+    'helper_fmin_s',
+    'helper_fmul_d',
+    'helper_fmul_s',
+    'helper_fnmadd_d',
+    'helper_fnmadd_s',
+    'helper_fnmsub_d',
+    'helper_fnmsub_s',
+    'helper_fsqrt_d',
+    'helper_fsqrt_s',
+    'helper_fsub_d',
+    'helper_fsub_s',
+    'helper_mret',
+    'helper_tlb_flush',
+    'helper_set_rounding_mode',
+    'helper_sret',
+    'pmp_hart_has_privs',
+    'pmpaddr_csr_read',
+    'pmpaddr_csr_write',
+    'pmpcfg_csr_read',
+    'pmpcfg_csr_write',
+    'riscv_cpu_do_interrupt',
+    'riscv_cpu_do_unaligned_access',
+    'riscv_cpu_exec_interrupt',
+    'riscv_cpu_get_fflags',
+    'riscv_cpu_get_phys_page_debug',
+    'riscv_cpu_handle_mmu_fault',
+    'riscv_cpu_list',
+    'riscv_cpu_mmu_index',
+    'riscv_cpu_register_types',
+    'riscv_cpu_set_fflags',
+    'riscv_cpu_set_mode',
+    'riscv_cpu_update_mip',
+    'riscv_csrrw',
+    'riscv_excp_names',
+    'riscv_fpr_regnames',
+    'riscv_get_csr_ops',
+    'riscv_int_regnames',
+    'riscv_intr_names',
+    'riscv_raise_exception',
+    'riscv_set_csr_ops',
+    'riscv_set_local_interrupt',
+    'riscv_set_mode',
+    'riscv_translate_init',
+    'spike_v1_10_0_machine_init_register_types',
+)
+
 sparc_symbols = (
     'cpu_cwp_dec',
     'cpu_cwp_inc',
     'cpu_get_psr',
+    'cpu_mmu_index',
     'cpu_put_psr',
     'cpu_put_psr_raw',
     'cpu_raise_exception_ra',
@@ -5481,6 +5573,7 @@ sparc_symbols = (
 )
 
 x86_64_symbols = (
+    'cpu_mmu_index',
     'gen_helper_raise_exception',
     'raise_exception',
 )
@@ -5510,6 +5603,10 @@ if __name__ == '__main__':
 
   if 'mips' in arch:
     for s in mips_symbols:
+      print("#define %s %s_%s" %(s, s, arch))
+
+  if 'riscv' in arch:
+    for s in riscv_symbols:
       print("#define %s %s_%s" %(s, s, arch))
 
   if 'sparc' in arch:

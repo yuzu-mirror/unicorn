@@ -305,7 +305,6 @@
 #define cpu_loop_exit_noexc cpu_loop_exit_noexc_armeb
 #define cpu_loop_exit_restore cpu_loop_exit_restore_armeb
 #define cpu_memory_rw_debug cpu_memory_rw_debug_armeb
-#define cpu_mmu_index cpu_mmu_index_armeb
 #define cpu_outb cpu_outb_armeb
 #define cpu_outl cpu_outl_armeb
 #define cpu_outw cpu_outw_armeb
@@ -3350,6 +3349,7 @@
 #define bit_op bit_op_armeb
 #define bsl_op bsl_op_armeb
 #define cmtst_op cmtst_op_armeb
+#define cpu_mmu_index cpu_mmu_index_armeb
 #define fp_exception_el fp_exception_el_armeb
 #define gen_cmtst_i64 gen_cmtst_i64_armeb
 #define helper_fjcvtzs helper_fjcvtzs_armeb

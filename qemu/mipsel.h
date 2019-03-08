@@ -305,7 +305,6 @@
 #define cpu_loop_exit_noexc cpu_loop_exit_noexc_mipsel
 #define cpu_loop_exit_restore cpu_loop_exit_restore_mipsel
 #define cpu_memory_rw_debug cpu_memory_rw_debug_mipsel
-#define cpu_mmu_index cpu_mmu_index_mipsel
 #define cpu_outb cpu_outb_mipsel
 #define cpu_outl cpu_outl_mipsel
 #define cpu_outw cpu_outw_mipsel
@@ -3348,6 +3347,7 @@
 #define cpu_mips_store_status cpu_mips_store_status_mipsel
 #define cpu_mips_tlb_flush cpu_mips_tlb_flush_mipsel
 #define cpu_mips_translate_address cpu_mips_translate_address_mipsel
+#define cpu_mmu_index cpu_mmu_index_mipsel
 #define cpu_rddsp cpu_rddsp_mipsel
 #define cpu_set_exception_base cpu_set_exception_base_mipsel
 #define cpu_state_reset cpu_state_reset_mipsel

@@ -305,7 +305,6 @@
 #define cpu_loop_exit_noexc cpu_loop_exit_noexc_powerpc
 #define cpu_loop_exit_restore cpu_loop_exit_restore_powerpc
 #define cpu_memory_rw_debug cpu_memory_rw_debug_powerpc
-#define cpu_mmu_index cpu_mmu_index_powerpc
 #define cpu_outb cpu_outb_powerpc
 #define cpu_outl cpu_outl_powerpc
 #define cpu_outw cpu_outw_powerpc

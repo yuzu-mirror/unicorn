@@ -305,7 +305,6 @@
 #define cpu_loop_exit_noexc cpu_loop_exit_noexc_aarch64
 #define cpu_loop_exit_restore cpu_loop_exit_restore_aarch64
 #define cpu_memory_rw_debug cpu_memory_rw_debug_aarch64
-#define cpu_mmu_index cpu_mmu_index_aarch64
 #define cpu_outb cpu_outb_aarch64
 #define cpu_outl cpu_outl_aarch64
 #define cpu_outw cpu_outw_aarch64
@@ -3358,6 +3357,7 @@
 #define bit_op bit_op_aarch64
 #define bsl_op bsl_op_aarch64
 #define cmtst_op cmtst_op_aarch64
+#define cpu_mmu_index cpu_mmu_index_aarch64
 #define cpu_reg cpu_reg_aarch64
 #define cpu_reg_sp cpu_reg_sp_aarch64
 #define disas_sve disas_sve_aarch64

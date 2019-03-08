@@ -1,0 +1,2 @@
+obj-y += translate.o op_helper.o cpu_helper.o cpu.o csr.o fpu_helper.o pmp.o
+obj-y += unicorn.o
