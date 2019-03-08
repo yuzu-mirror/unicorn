@@ -93,11 +93,20 @@ int arm_reg_read(struct uc_struct *uc, unsigned int *regs, void **vals, int coun
                 case UC_ARM_REG_FPEXC:
                     *(int32_t *)value = state->vfp.xregs[ARM_VFP_FPEXC];
                     break;
+                case UC_ARM_REG_FPSCR:
+                    *(int32_t *)value = vfp_get_fpscr(state);
+                    break;
                 case UC_ARM_REG_IPSR:
                     *(uint32_t *)value = xpsr_read(state) & 0x1ff;
                     break;
-                case UC_ARM_REG_FPSCR:
-                    *(int32_t *)value = vfp_get_fpscr(state);
+                case UC_ARM_REG_MSP:
+                    *(uint32_t *)value = helper_v7m_mrs(state, 8);
+                    break;
+                case UC_ARM_REG_PSP:
+                    *(uint32_t *)value = helper_v7m_mrs(state, 9);
+                    break;
+                 case UC_ARM_REG_CONTROL:
+                    *(uint32_t *)value = helper_v7m_mrs(state, 20);
                     break;
             }
         }
@@ -162,6 +171,15 @@ int arm_reg_write(struct uc_struct *uc, unsigned int *regs, void* const* vals, i
                     break;
                 case UC_ARM_REG_IPSR:
                     xpsr_write(state, *(uint32_t *)value, 0x1ff);
+                    break;
+                case UC_ARM_REG_MSP:
+                    helper_v7m_msr(state, 8, *(uint32_t *)value);
+                    break;
+                case UC_ARM_REG_PSP:
+                    helper_v7m_msr(state, 9, *(uint32_t *)value);
+                    break;
+                 case UC_ARM_REG_CONTROL:
+                    helper_v7m_msr(state, 20, *(uint32_t *)value);
                     break;
             }
         }
