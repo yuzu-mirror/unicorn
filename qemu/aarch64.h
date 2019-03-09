@@ -466,7 +466,6 @@
 #define float128_le_quiet float128_le_quiet_aarch64
 #define float128_lt float128_lt_aarch64
 #define float128_lt_quiet float128_lt_quiet_aarch64
-#define float128_maybe_silence_nan float128_maybe_silence_nan_aarch64
 #define float128_mul float128_mul_aarch64
 #define float128_rem float128_rem_aarch64
 #define float128_round_to_int float128_round_to_int_aarch64
@@ -498,7 +497,6 @@
 #define float16_max float16_max_aarch64
 #define float16_maxnum float16_maxnum_aarch64
 #define float16_maxnummag float16_maxnummag_aarch64
-#define float16_maybe_silence_nan float16_maybe_silence_nan_aarch64
 #define float16_min float16_min_aarch64
 #define float16_minnum float16_minnum_aarch64
 #define float16_minnummag float16_minnummag_aarch64
@@ -558,7 +556,6 @@
 #define float32_max float32_max_aarch64
 #define float32_maxnum float32_maxnum_aarch64
 #define float32_maxnummag float32_maxnummag_aarch64
-#define float32_maybe_silence_nan float32_maybe_silence_nan_aarch64
 #define float32_min float32_min_aarch64
 #define float32_minmax float32_minmax_aarch64
 #define float32_minnum float32_minnum_aarch64
@@ -622,7 +619,6 @@
 #define float64_max float64_max_aarch64
 #define float64_maxnum float64_maxnum_aarch64
 #define float64_maxnummag float64_maxnummag_aarch64
-#define float64_maybe_silence_nan float64_maybe_silence_nan_aarch64
 #define float64_min float64_min_aarch64
 #define float64_minmax float64_minmax_aarch64
 #define float64_minnum float64_minnum_aarch64
@@ -678,7 +674,6 @@
 #define floatx80_le_quiet floatx80_le_quiet_aarch64
 #define floatx80_lt floatx80_lt_aarch64
 #define floatx80_lt_quiet floatx80_lt_quiet_aarch64
-#define floatx80_maybe_silence_nan floatx80_maybe_silence_nan_aarch64
 #define floatx80_mul floatx80_mul_aarch64
 #define floatx80_rem floatx80_rem_aarch64
 #define floatx80_round floatx80_round_aarch64

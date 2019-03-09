@@ -501,7 +501,6 @@ typedef enum __attribute__ ((__packed__)) {
     float_class_snan,
 } FloatClass;
 
-/* Simple helpers for checking if what NaN we have */
 /* Simple helpers for checking if, or what kind of, NaN we have */
 static inline bool is_nan(FloatClass c)
 {
@@ -568,15 +567,15 @@ typedef struct {
 
 /* Expand fields based on the size of exponent and fraction */
 #define FLOAT_PARAMS(E, F)                                           \
-    E,                                             \
-    ((1 << E) - 1) >> 1,                           \
-    (1 << E) - 1,                                  \
-    F,                                             \
-    DECOMPOSED_BINARY_POINT - F,                   \
-    1ull << (DECOMPOSED_BINARY_POINT - F),         \
-    1ull << ((DECOMPOSED_BINARY_POINT - F) - 1),   \
-    (1ull << (DECOMPOSED_BINARY_POINT - F)) - 1,   \
-    (2ull << (DECOMPOSED_BINARY_POINT - F)) - 1
+    .exp_size       = E,                                             \
+    .exp_bias       = ((1 << E) - 1) >> 1,                           \
+    .exp_max        = (1 << E) - 1,                                  \
+    .frac_size      = F,                                             \
+    .frac_shift     = DECOMPOSED_BINARY_POINT - F,                   \
+    .frac_lsb       = 1ull << (DECOMPOSED_BINARY_POINT - F),         \
+    .frac_lsbm1     = 1ull << ((DECOMPOSED_BINARY_POINT - F) - 1),   \
+    .round_mask     = (1ull << (DECOMPOSED_BINARY_POINT - F)) - 1,   \
+    .roundeven_mask = (2ull << (DECOMPOSED_BINARY_POINT - F)) - 1
 
 static const FloatFmt float16_params = {
     FLOAT_PARAMS(5, 10)
@@ -584,7 +583,7 @@ static const FloatFmt float16_params = {
 
 static const FloatFmt float16_params_ahp = {
     FLOAT_PARAMS(5, 10),
-    true
+    .arm_althp = true
 };
 
 static const FloatFmt float32_params = {
@@ -1057,8 +1056,7 @@ static FloatParts addsub_floats(FloatParts a, FloatParts b, bool subtract,
  * IEC/IEEE Standard for Binary Floating-Point Arithmetic.
  */
 
-float16  QEMU_FLATTEN float16_add(float16 a, float16 b,
-                                  float_status *status)
+float16 QEMU_FLATTEN float16_add(float16 a, float16 b, float_status *status)
 {
     FloatParts pa = float16_unpack_canonical(a, status);
     FloatParts pb = float16_unpack_canonical(b, status);
@@ -1240,8 +1238,7 @@ static FloatParts mul_floats(FloatParts a, FloatParts b, float_status *s)
     g_assert_not_reached();
 }
 
-float16 QEMU_FLATTEN float16_mul(float16 a, float16 b,
-                                 float_status *status)
+float16 QEMU_FLATTEN float16_mul(float16 a, float16 b, float_status *status)
 {
     FloatParts pa = float16_unpack_canonical(a, status);
     FloatParts pb = float16_unpack_canonical(b, status);
@@ -2503,7 +2500,8 @@ uint64_t float64_to_uint64_round_to_zero(float64 a, float_status *s)
 
 static FloatParts int_to_float(int64_t a, int scale, float_status *status)
 {
-    FloatParts r = {0, 0, float_class_unclassified, false};
+    FloatParts r = { .sign = false };
+
     if (a == 0) {
         r.cls = float_class_zero;
     } else {
@@ -2629,7 +2627,7 @@ float64 int16_to_float64(int16_t a, float_status *status)
 
 static FloatParts uint_to_float(uint64_t a, int scale, float_status *status)
 {
-    FloatParts r = {0, 0, float_class_unclassified, false};
+    FloatParts r = { .sign = false };
 
     if (a == 0) {
         r.cls = float_class_zero;
@@ -7057,6 +7055,7 @@ float128 float128_round_to_int(float128 a, float_status *status)
                 return
                       aSign ? packFloat128( 1, 0, 0, 0 )
                     : packFloat128( 0, 0x3FFF, 0, 0 );
+
             case float_round_to_odd:
                 return packFloat128(aSign, 0x3FFF, 0, 0);
             }

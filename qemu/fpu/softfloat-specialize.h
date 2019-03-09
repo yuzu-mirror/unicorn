@@ -554,7 +554,6 @@ static int pickNaNMulAdd(FloatClass a_cls, FloatClass b_cls, FloatClass c_cls,
     } else {
         return 1;
     }
-}
 #else
     /* A default implementation: prefer a to b to c.
      * This is unlikely to actually match any real implementation.
