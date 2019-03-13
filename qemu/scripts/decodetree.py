@@ -1115,7 +1115,8 @@ def main():
 
     decode_scope = 'static '
 
-    long_opts = ['decode=', 'translate=', 'output=', 'insnwidth=']
+    long_opts = ['decode=', 'translate=', 'output=', 'insnwidth=',
+                 'static-decode=']
     try:
         (opts, args) = getopt.getopt(sys.argv[1:], 'o:w:', long_opts)
     except getopt.GetoptError as err:
@@ -1126,6 +1127,8 @@ def main():
         elif o == '--decode':
             decode_function = a
             decode_scope = ''
+        elif o == '--static-decode':
+            decode_function = a
         elif o == '--translate':
             translate_prefix = a
             translate_scope = ''
