@@ -482,8 +482,8 @@ class Pattern(General):
             output(ind, self.base.extract_name(), '(&u.f_', arg, ', insn);\n')
         for n, f in self.fields.items():
             output(ind, 'u.f_', arg, '.', n, ' = ', f.str_extract(), ';\n')
-        output(ind, 'return ', translate_prefix, '_', self.name,
-               '(ctx, &u.f_', arg, ');\n')
+        output(ind, 'if (', translate_prefix, '_', self.name,
+               '(ctx, &u.f_', arg, ')) return true;\n')
 # end Pattern
 
 
@@ -911,8 +911,8 @@ class Tree:
             output(ind, '    /* ',
                    str_match_bits(innerbits, innermask), ' */\n')
             s.output_code(i + 4, extracted, innerbits, innermask)
+            output(ind, '    return false;\n')
         output(ind, '}\n')
-        output(ind, 'return false;\n')
 # end Tree
 
 
@@ -1066,6 +1066,7 @@ def main():
     output(i4, '} u;\n\n')
 
     t.output_code(4, False, 0, 0)
+    output(i4, 'return false;\n')
 
     output('}\n')
 
