@@ -3332,6 +3332,7 @@
 #define cpu_riscv_set_fflags cpu_riscv_set_fflags_riscv32
 #define csr_read_helper csr_read_helper_riscv32
 #define csr_write_helper csr_write_helper_riscv32
+#define decode_insn32 decode_insn32_riscv32
 #define do_raise_exception_err do_raise_exception_err_riscv32
 #define gen_helper_tlb_flush gen_helper_tlb_flush_riscv32
 #define helper_csrrc helper_csrrc_riscv32
