@@ -410,3 +410,97 @@ static bool trans_fcvt_d_wu(DisasContext *ctx, arg_fcvt_d_wu *a)
     mark_fs_dirty(ctx);
     return true;
 }
+
+#ifdef TARGET_RISCV64
+
+static bool trans_fcvt_l_d(DisasContext *ctx, arg_fcvt_l_d *a)
+{
+    TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
+
+    REQUIRE_FPU;
+    REQUIRE_EXT(ctx, RVD);
+
+    TCGv t0 = tcg_temp_new(tcg_ctx);
+    gen_set_rm(ctx, a->rm);
+    gen_helper_fcvt_l_d(tcg_ctx, t0, tcg_ctx->cpu_env, tcg_ctx->cpu_fpr_risc[a->rs1]);
+    gen_set_gpr(ctx, a->rd, t0);
+    tcg_temp_free(tcg_ctx, t0);
+    return true;
+}
+
+static bool trans_fcvt_lu_d(DisasContext *ctx, arg_fcvt_lu_d *a)
+{
+    TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
+
+    REQUIRE_FPU;
+    REQUIRE_EXT(ctx, RVD);
+
+    TCGv t0 = tcg_temp_new(tcg_ctx);
+    gen_set_rm(ctx, a->rm);
+    gen_helper_fcvt_lu_d(tcg_ctx, t0, tcg_ctx->cpu_env, tcg_ctx->cpu_fpr_risc[a->rs1]);
+    gen_set_gpr(ctx, a->rd, t0);
+    tcg_temp_free(tcg_ctx, t0);
+    return true;
+}
+
+static bool trans_fmv_x_d(DisasContext *ctx, arg_fmv_x_d *a)
+{
+    TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
+
+    REQUIRE_FPU;
+    REQUIRE_EXT(ctx, RVD);
+
+    gen_set_gpr(ctx, a->rd, tcg_ctx->cpu_fpr_risc[a->rs1]);
+    return true;
+}
+
+static bool trans_fcvt_d_l(DisasContext *ctx, arg_fcvt_d_l *a)
+{
+    TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
+
+    REQUIRE_FPU;
+    REQUIRE_EXT(ctx, RVD);
+
+    TCGv t0 = tcg_temp_new(tcg_ctx);
+    gen_get_gpr(ctx, t0, a->rs1);
+
+    gen_set_rm(ctx, a->rm);
+    gen_helper_fcvt_d_l(tcg_ctx, tcg_ctx->cpu_fpr_risc[a->rd], tcg_ctx->cpu_env, t0);
+    tcg_temp_free(tcg_ctx, t0);
+    mark_fs_dirty(ctx);
+    return true;
+}
+
+static bool trans_fcvt_d_lu(DisasContext *ctx, arg_fcvt_d_lu *a)
+{
+    TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
+
+    REQUIRE_FPU;
+    REQUIRE_EXT(ctx, RVD);
+
+    TCGv t0 = tcg_temp_new(tcg_ctx);
+    gen_get_gpr(ctx, t0, a->rs1);
+
+    gen_set_rm(ctx, a->rm);
+    gen_helper_fcvt_d_lu(tcg_ctx, tcg_ctx->cpu_fpr_risc[a->rd], tcg_ctx->cpu_env, t0);
+    tcg_temp_free(tcg_ctx, t0);
+    mark_fs_dirty(ctx);
+    return true;
+}
+
+static bool trans_fmv_d_x(DisasContext *ctx, arg_fmv_d_x *a)
+{
+    TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
+
+    REQUIRE_FPU;
+    REQUIRE_EXT(ctx, RVD);
+
+    TCGv t0 = tcg_temp_new(tcg_ctx);
+    gen_get_gpr(ctx, t0, a->rs1);
+
+    tcg_gen_mov_tl(tcg_ctx, tcg_ctx->cpu_fpr_risc[a->rd], t0);
+    tcg_temp_free(tcg_ctx, t0);
+    mark_fs_dirty(ctx);
+    return true;
+}
+#endif
