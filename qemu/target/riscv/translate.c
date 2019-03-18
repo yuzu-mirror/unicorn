@@ -1962,7 +1962,6 @@ bool decode_insn32(DisasContext *ctx, uint32_t insn);
 
 static void decode_RV32_64G(DisasContext *ctx)
 {
-    TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
     int rs1;
     int rs2;
     int rd;
@@ -2022,18 +2021,6 @@ static void decode_RV32_64G(DisasContext *ctx)
     case OPC_RISC_FP_ARITH:
         gen_fp_arith(ctx, MASK_OP_FP_ARITH(ctx->opcode), rd, rs1, rs2,
                      GET_RM(ctx->opcode));
-        break;
-    case OPC_RISC_FENCE:
-        if (ctx->opcode & 0x1000) {
-            /* FENCE_I is a no-op in QEMU,
-             * however we need to end the translation block */
-            tcg_gen_movi_tl(tcg_ctx, tcg_ctx->cpu_pc_risc, ctx->pc_succ_insn);
-            tcg_gen_exit_tb(tcg_ctx, NULL, 0);
-            ctx->base.is_jmp = DISAS_NORETURN;
-        } else {
-            /* FENCE is a full memory barrier. */
-            tcg_gen_mb(tcg_ctx, TCG_MO_ALL | TCG_BAR_SC);
-        }
         break;
     case OPC_RISC_SYSTEM:
         gen_system(ctx, MASK_OP_SYSTEM(ctx->opcode), rd, rs1,

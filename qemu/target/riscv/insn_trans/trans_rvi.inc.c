@@ -22,7 +22,7 @@ static bool trans_lui(DisasContext *ctx, arg_lui *a)
 {
     if (a->rd != 0) {
         TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
-        tcg_gen_movi_tl(tcg_ctx, tcg_ctx->cpu_gpr[a->rd], a->imm);
+        tcg_gen_movi_tl(tcg_ctx, tcg_ctx->cpu_gpr_risc[a->rd], a->imm);
     }
     return true;
 }
@@ -31,7 +31,7 @@ static bool trans_auipc(DisasContext *ctx, arg_auipc *a)
 {
     if (a->rd != 0) {
         TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
-        tcg_gen_movi_tl(tcg_ctx, tcg_ctx->cpu_gpr[a->rd], a->imm + ctx->base.pc_next);
+        tcg_gen_movi_tl(tcg_ctx, tcg_ctx->cpu_gpr_risc[a->rd], a->imm + ctx->base.pc_next);
     }
     return true;
 }
@@ -320,3 +320,26 @@ static bool trans_sraw(DisasContext *ctx, arg_sraw *a)
     return true;
 }
 #endif
+
+static bool trans_fence(DisasContext *ctx, arg_fence *a)
+{
+    TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
+
+    /* FENCE is a full memory barrier. */
+    tcg_gen_mb(tcg_ctx, TCG_MO_ALL | TCG_BAR_SC);
+    return true;
+}
+
+static bool trans_fence_i(DisasContext *ctx, arg_fence_i *a)
+{
+    TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
+
+    /*
+     * FENCE_I is a no-op in QEMU,
+     * however we need to end the translation block
+     */
+    tcg_gen_movi_tl(tcg_ctx, tcg_ctx->cpu_pc_risc, ctx->pc_succ_insn);
+    tcg_gen_exit_tb(tcg_ctx, NULL, 0);
+    ctx->base.is_jmp = DISAS_NORETURN;
+    return true;
+}
