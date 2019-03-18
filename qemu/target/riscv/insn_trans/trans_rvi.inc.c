@@ -343,3 +343,86 @@ static bool trans_fence_i(DisasContext *ctx, arg_fence_i *a)
     ctx->base.is_jmp = DISAS_NORETURN;
     return true;
 }
+
+#define RISCV_OP_CSR_PRE do {\
+    source1 = tcg_temp_new(tcg_ctx); \
+    csr_store = tcg_temp_new(tcg_ctx); \
+    dest = tcg_temp_new(tcg_ctx); \
+    rs1_pass = tcg_temp_new(tcg_ctx); \
+    gen_get_gpr(ctx, source1, a->rs1); \
+    tcg_gen_movi_tl(tcg_ctx, tcg_ctx->cpu_pc_risc, ctx->base.pc_next); \
+    tcg_gen_movi_tl(tcg_ctx, rs1_pass, a->rs1); \
+    tcg_gen_movi_tl(tcg_ctx, csr_store, a->csr); \
+} while (0)
+
+#define RISCV_OP_CSR_POST do {\
+    gen_set_gpr(ctx, a->rd, dest); \
+    tcg_gen_movi_tl(tcg_ctx, tcg_ctx->cpu_pc_risc, ctx->pc_succ_insn); \
+    tcg_gen_exit_tb(tcg_ctx, NULL, 0); \
+    ctx->base.is_jmp = DISAS_NORETURN; \
+    tcg_temp_free(tcg_ctx, source1); \
+    tcg_temp_free(tcg_ctx, csr_store); \
+    tcg_temp_free(tcg_ctx, dest); \
+    tcg_temp_free(tcg_ctx, rs1_pass); \
+} while (0)
+
+
+static bool trans_csrrw(DisasContext *ctx, arg_csrrw *a)
+{
+    TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
+    TCGv source1, csr_store, dest, rs1_pass;
+    RISCV_OP_CSR_PRE;
+    gen_helper_csrrw(tcg_ctx, dest, tcg_ctx->cpu_env, source1, csr_store);
+    RISCV_OP_CSR_POST;
+    return true;
+}
+
+static bool trans_csrrs(DisasContext *ctx, arg_csrrs *a)
+{
+    TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
+    TCGv source1, csr_store, dest, rs1_pass;
+    RISCV_OP_CSR_PRE;
+    gen_helper_csrrs(tcg_ctx, dest, tcg_ctx->cpu_env, source1, csr_store, rs1_pass);
+    RISCV_OP_CSR_POST;
+    return true;
+}
+
+static bool trans_csrrc(DisasContext *ctx, arg_csrrc *a)
+{
+    TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
+    TCGv source1, csr_store, dest, rs1_pass;
+    RISCV_OP_CSR_PRE;
+    gen_helper_csrrc(tcg_ctx, dest, tcg_ctx->cpu_env, source1, csr_store, rs1_pass);
+    RISCV_OP_CSR_POST;
+    return true;
+}
+
+static bool trans_csrrwi(DisasContext *ctx, arg_csrrwi *a)
+{
+    TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
+    TCGv source1, csr_store, dest, rs1_pass;
+    RISCV_OP_CSR_PRE;
+    gen_helper_csrrw(tcg_ctx, dest, tcg_ctx->cpu_env, rs1_pass, csr_store);
+    RISCV_OP_CSR_POST;
+    return true;
+}
+
+static bool trans_csrrsi(DisasContext *ctx, arg_csrrsi *a)
+{
+    TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
+    TCGv source1, csr_store, dest, rs1_pass;
+    RISCV_OP_CSR_PRE;
+    gen_helper_csrrs(tcg_ctx, dest, tcg_ctx->cpu_env, rs1_pass, csr_store, rs1_pass);
+    RISCV_OP_CSR_POST;
+    return true;
+}
+
+static bool trans_csrrci(DisasContext *ctx, arg_csrrci *a)
+{
+    TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
+    TCGv source1, csr_store, dest, rs1_pass;
+    RISCV_OP_CSR_PRE;
+    gen_helper_csrrc(tcg_ctx, dest, tcg_ctx->cpu_env, rs1_pass, csr_store, rs1_pass);
+    RISCV_OP_CSR_POST;
+    return true;
+}

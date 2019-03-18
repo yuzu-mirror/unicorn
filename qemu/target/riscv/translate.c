@@ -1545,16 +1545,11 @@ static void gen_system(DisasContext *ctx, uint32_t opc, int rd, int rs1,
 {
     TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
 
-    TCGv source1, csr_store, dest, rs1_pass, imm_rs1;
+    TCGv source1, dest;
     source1 = tcg_temp_new(tcg_ctx);
-    csr_store = tcg_temp_new(tcg_ctx);
     dest = tcg_temp_new(tcg_ctx);
-    rs1_pass = tcg_temp_new(tcg_ctx);
-    imm_rs1 = tcg_temp_new(tcg_ctx);
     gen_get_gpr(ctx, source1, rs1);
     tcg_gen_movi_tl(tcg_ctx, tcg_ctx->cpu_pc_risc, ctx->base.pc_next);
-    tcg_gen_movi_tl(tcg_ctx, rs1_pass, rs1);
-    tcg_gen_movi_tl(tcg_ctx, csr_store, csr); /* copy into temp reg to feed to helper */
 
 #ifndef CONFIG_USER_ONLY
     /* Extract funct7 value and check whether it matches SFENCE.VMA */
@@ -1625,47 +1620,9 @@ static void gen_system(DisasContext *ctx, uint32_t opc, int rd, int rs1,
             break;
         }
         break;
-    default:
-        tcg_gen_movi_tl(tcg_ctx, imm_rs1, rs1);
-        // Unicorn: Commented out
-        //gen_io_start();
-        switch (opc) {
-        case OPC_RISC_CSRRW:
-            gen_helper_csrrw(tcg_ctx, dest, tcg_ctx->cpu_env, source1, csr_store);
-            break;
-        case OPC_RISC_CSRRS:
-            gen_helper_csrrs(tcg_ctx, dest, tcg_ctx->cpu_env, source1, csr_store, rs1_pass);
-            break;
-        case OPC_RISC_CSRRC:
-            gen_helper_csrrc(tcg_ctx, dest, tcg_ctx->cpu_env, source1, csr_store, rs1_pass);
-            break;
-        case OPC_RISC_CSRRWI:
-            gen_helper_csrrw(tcg_ctx, dest, tcg_ctx->cpu_env, imm_rs1, csr_store);
-            break;
-        case OPC_RISC_CSRRSI:
-            gen_helper_csrrs(tcg_ctx, dest, tcg_ctx->cpu_env, imm_rs1, csr_store, rs1_pass);
-            break;
-        case OPC_RISC_CSRRCI:
-            gen_helper_csrrc(tcg_ctx, dest, tcg_ctx->cpu_env, imm_rs1, csr_store, rs1_pass);
-            break;
-        default:
-            gen_exception_illegal(ctx);
-            return;
-        }
-        // Unicorn: Commented out
-        //gen_io_end();
-        gen_set_gpr(ctx, rd, dest);
-        /* end tb since we may be changing priv modes, to get mmu_index right */
-        tcg_gen_movi_tl(tcg_ctx, tcg_ctx->cpu_pc_risc, ctx->pc_succ_insn);
-        tcg_gen_exit_tb(tcg_ctx, NULL, 0); /* no chaining */
-        ctx->base.is_jmp = DISAS_NORETURN;
-        break;
     }
     tcg_temp_free(tcg_ctx, source1);
-    tcg_temp_free(tcg_ctx, csr_store);
     tcg_temp_free(tcg_ctx, dest);
-    tcg_temp_free(tcg_ctx, rs1_pass);
-    tcg_temp_free(tcg_ctx, imm_rs1);
 }
 
 static void decode_RV32_64C0(DisasContext *ctx)
