@@ -5411,6 +5411,7 @@ riscv_symbols = (
     'cpu_riscv_set_fflags',
     'csr_read_helper',
     'csr_write_helper',
+    'decode_insn16',
     'decode_insn32',
     'do_raise_exception_err',
     'gen_helper_tlb_flush',
