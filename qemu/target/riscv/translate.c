@@ -651,8 +651,8 @@ static bool gen_arith_div_w(DisasContext *ctx, arg_r *a,
 }
 #endif
 
-static bool trans_arith(DisasContext *ctx, arg_r *a,
-                        void(*func)(TCGContext *, TCGv, TCGv, TCGv))
+static bool gen_arith(DisasContext *ctx, arg_r *a,
+                      void(*func)(TCGContext *, TCGv, TCGv, TCGv))
 {
     TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
     TCGv source1, source2;
