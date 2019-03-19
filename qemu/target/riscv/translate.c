@@ -212,47 +212,6 @@ static void gen_arith(DisasContext *ctx, uint32_t opc, int rd, int rs1,
     gen_get_gpr(ctx, source2, rs2);
 
     switch (opc) {
-#if defined(TARGET_RISCV64)
-    case OPC_RISC_SLLW:
-        tcg_gen_andi_tl(tcg_ctx, source2, source2, 0x1F);
-        tcg_gen_shl_tl(tcg_ctx, source1, source1, source2);
-        break;
-#endif
-    case OPC_RISC_SLL:
-        tcg_gen_andi_tl(tcg_ctx, source2, source2, TARGET_LONG_BITS - 1);
-        tcg_gen_shl_tl(tcg_ctx, source1, source1, source2);
-        break;
-    case OPC_RISC_SLT:
-        tcg_gen_setcond_tl(tcg_ctx, TCG_COND_LT, source1, source1, source2);
-        break;
-    case OPC_RISC_SLTU:
-        tcg_gen_setcond_tl(tcg_ctx, TCG_COND_LTU, source1, source1, source2);
-        break;
-#if defined(TARGET_RISCV64)
-    case OPC_RISC_SRLW:
-        /* clear upper 32 */
-        tcg_gen_ext32u_tl(tcg_ctx, source1, source1);
-        tcg_gen_andi_tl(tcg_ctx, source2, source2, 0x1F);
-        tcg_gen_shr_tl(tcg_ctx, source1, source1, source2);
-        break;
-#endif
-    case OPC_RISC_SRL:
-        tcg_gen_andi_tl(tcg_ctx, source2, source2, TARGET_LONG_BITS - 1);
-        tcg_gen_shr_tl(tcg_ctx, source1, source1, source2);
-        break;
-#if defined(TARGET_RISCV64)
-    case OPC_RISC_SRAW:
-        /* first, trick to get it to act like working on 32 bits (get rid of
-        upper 32, sign extend to fill space) */
-        tcg_gen_ext32s_tl(tcg_ctx, source1, source1);
-        tcg_gen_andi_tl(tcg_ctx, source2, source2, 0x1F);
-        tcg_gen_sar_tl(tcg_ctx, source1, source1, source2);
-        break;
-#endif
-    case OPC_RISC_SRA:
-        tcg_gen_andi_tl(tcg_ctx, source2, source2, TARGET_LONG_BITS - 1);
-        tcg_gen_sar_tl(tcg_ctx, source1, source1, source2);
-        break;
     CASE_OP_32_64(OPC_RISC_MUL):
         if (!has_ext(ctx, RVM)) {
             goto do_illegal;
@@ -758,6 +717,25 @@ static bool trans_arith(DisasContext *ctx, arg_r *a,
     gen_get_gpr(ctx, source1, a->rs1);
     gen_get_gpr(ctx, source2, a->rs2);
 
+    (*func)(tcg_ctx, source1, source1, source2);
+
+    gen_set_gpr(ctx, a->rd, source1);
+    tcg_temp_free(tcg_ctx, source1);
+    tcg_temp_free(tcg_ctx, source2);
+    return true;
+}
+
+static bool gen_shift(DisasContext *ctx, arg_r *a,
+                        void(*func)(TCGContext *, TCGv, TCGv, TCGv))
+{
+    TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
+    TCGv source1 = tcg_temp_new(tcg_ctx);
+    TCGv source2 = tcg_temp_new(tcg_ctx);
+
+    gen_get_gpr(ctx, source1, a->rs1);
+    gen_get_gpr(ctx, source2, a->rs2);
+
+    tcg_gen_andi_tl(tcg_ctx, source2, source2, TARGET_LONG_BITS - 1);
     (*func)(tcg_ctx, source1, source1, source2);
 
     gen_set_gpr(ctx, a->rd, source1);
