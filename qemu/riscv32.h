@@ -3388,6 +3388,7 @@
 #define pmpaddr_csr_write pmpaddr_csr_write_riscv32
 #define pmpcfg_csr_read pmpcfg_csr_read_riscv32
 #define pmpcfg_csr_write pmpcfg_csr_write_riscv32
+#define riscv_cpu_claim_interrupts riscv_cpu_claim_interrupts_riscv32
 #define riscv_cpu_do_interrupt riscv_cpu_do_interrupt_riscv32
 #define riscv_cpu_do_unaligned_access riscv_cpu_do_unaligned_access_riscv32
 #define riscv_cpu_exec_interrupt riscv_cpu_exec_interrupt_riscv32
