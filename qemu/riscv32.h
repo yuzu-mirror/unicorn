@@ -3401,6 +3401,7 @@
 #define riscv_cpu_set_mode riscv_cpu_set_mode_riscv32
 #define riscv_cpu_update_mip riscv_cpu_update_mip_riscv32
 #define riscv_csrrw riscv_csrrw_riscv32
+#define riscv_csrrw_debug riscv_csrrw_debug_riscv32
 #define riscv_excp_names riscv_excp_names_riscv32
 #define riscv_fpr_regnames riscv_fpr_regnames_riscv32
 #define riscv_get_csr_ops riscv_get_csr_ops_riscv32

@@ -5480,6 +5480,7 @@ riscv_symbols = (
     'riscv_cpu_set_mode',
     'riscv_cpu_update_mip',
     'riscv_csrrw',
+    'riscv_csrrw_debug',
     'riscv_excp_names',
     'riscv_fpr_regnames',
     'riscv_get_csr_ops',
