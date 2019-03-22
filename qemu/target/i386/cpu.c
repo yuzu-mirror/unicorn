@@ -892,7 +892,6 @@ static FeatureWordInfo feature_word_info[FEATURE_WORDS] = {
             .reg = R_EDX,
         },
         .tcg_features = TCG_7_0_EDX_FEATURES,
-        .unmigratable_flags = CPUID_7_0_EDX_ARCH_CAPABILITIES,
     },
     /* Feature names that are already defined on feature_name[] but
      * are set on CPUID[8000_0001].EDX on AMD CPUs don't have their
