@@ -620,6 +620,29 @@ static bool gen_arith_div_w(DisasContext *ctx, arg_r *a,
     tcg_temp_free(tcg_ctx, source2);
     return true;
 }
+
+static bool gen_arith_div_uw(DisasContext *ctx, arg_r *a,
+                            void(*func)(TCGContext *, TCGv, TCGv, TCGv))
+{
+    TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
+    TCGv source1, source2;
+    source1 = tcg_temp_new(tcg_ctx);
+    source2 = tcg_temp_new(tcg_ctx);
+
+    gen_get_gpr(ctx, source1, a->rs1);
+    gen_get_gpr(ctx, source2, a->rs2);
+    tcg_gen_ext32u_tl(tcg_ctx, source1, source1);
+    tcg_gen_ext32u_tl(tcg_ctx, source2, source2);
+
+    (*func)(tcg_ctx, source1, source1, source2);
+
+    tcg_gen_ext32s_tl(tcg_ctx, source1, source1);
+    gen_set_gpr(ctx, a->rd, source1);
+    tcg_temp_free(tcg_ctx, source1);
+    tcg_temp_free(tcg_ctx, source2);
+    return true;
+}
+
 #endif
 
 static bool gen_arith(DisasContext *ctx, arg_r *a,
