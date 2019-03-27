@@ -3352,8 +3352,6 @@
 #define pmu_init pmu_init_armeb
 #define mla_op mla_op_armeb
 #define mls_op mls_op_armeb
-#define pmccntr_op_start pmccntr_op_start_armeb
-#define pmccntr_op_finish pmccntr_op_finish_armeb
 #define pmu_op_start pmu_op_start_armeb
 #define pmu_op_finish pmu_op_finish_armeb
 #define pmu_pre_el_change pmu_pre_el_change_armeb

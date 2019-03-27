@@ -4344,8 +4344,6 @@
 #define mls_op mls_op_aarch64
 #define new_tmp_a64 new_tmp_a64_aarch64
 #define new_tmp_a64_zero new_tmp_a64_zero_aarch64
-#define pmccntr_op_start pmccntr_op_start_aarch64
-#define pmccntr_op_finish pmccntr_op_finish_aarch64
 #define pmu_op_start pmu_op_start_aarch64
 #define pmu_op_finish pmu_op_finish_aarch64
 #define pmu_pre_el_change pmu_pre_el_change_aarch64
