@@ -1465,10 +1465,17 @@ void memory_region_init_ram_device_ptr(struct uc_struct *uc,
                                        uint64_t size,
                                        void *ptr)
 {
-    memory_region_init_ram_ptr(uc, mr, owner, name, size, ptr);
+    memory_region_init(uc, mr, owner, name, size);
+    mr->ram = true;
+    mr->terminates = true;
     mr->ram_device = true;
     mr->ops = &ram_device_mem_ops;
     mr->opaque = mr;
+    mr->destructor = memory_region_destructor_ram;
+    mr->dirty_log_mask = tcg_enabled(uc) ? (1 << DIRTY_MEMORY_CODE) : 0;
+    /* qemu_ram_alloc_from_ptr cannot fail with ptr != NULL.  */
+    assert(ptr != NULL);
+    mr->ram_block = qemu_ram_alloc_from_ptr(size, ptr, mr, &error_fatal);
 }
 
 void memory_region_init_alias(struct uc_struct *uc, MemoryRegion *mr,
