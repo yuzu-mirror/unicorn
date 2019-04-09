@@ -1564,6 +1564,11 @@ static void gen_inc(DisasContext *s, TCGMemOp ot, int d, int c)
     TCGv cpu_cc_src = tcg_ctx->cpu_cc_src;
 
     if (s->prefix & PREFIX_LOCK) {
+        if (d != OR_TMP0) {
+            /* Lock prefix when destination is not memory */
+            gen_illegal_opcode(s1);
+            return;
+        }
         tcg_gen_movi_tl(tcg_ctx, s->T0, c > 0 ? 1 : -1);
         tcg_gen_atomic_add_fetch_tl(tcg_ctx, s->T0, s->A0, s->T0,
                                     s->mem_index, ot | MO_LE);
