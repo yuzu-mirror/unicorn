@@ -210,21 +210,23 @@ static void arm_cpu_reset(CPUState *s)
         env->pc = cpu->rvbar;
 #endif
     } else {
-#if defined(CONFIG_USER_ONLY)
+// Unicorn: commented out to always allow accesses to FP/Neon
+//#if defined(CONFIG_USER_ONLY)
         /* Userspace expects access to cp10 and cp11 for FP/Neon */
         env->cp15.cpacr_el1 = deposit64(env->cp15.cpacr_el1, 20, 4, 0xf);
-#endif
+//#endif
     }
 
-#if defined(CONFIG_USER_ONLY)
-    env->uncached_cpsr = ARM_CPU_MODE_USR;
-    /* For user mode we must enable access to coprocessors */
+    // Unicorn: Always enable access to the coprocessors initially.
     env->vfp.xregs[ARM_VFP_FPEXC] = 1 << 30;
     if (arm_feature(env, ARM_FEATURE_IWMMXT)) {
         env->cp15.c15_cpar = 3;
     } else if (arm_feature(env, ARM_FEATURE_XSCALE)) {
         env->cp15.c15_cpar = 1;
     }
+
+#if defined(CONFIG_USER_ONLY)
+    env->uncached_cpsr = ARM_CPU_MODE_USR;
 #else
     /*
      * If the highest available EL is EL2, AArch32 will start in Hyp

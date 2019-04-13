@@ -13644,6 +13644,13 @@ static bool arm_pre_translate_insn(DisasContext *dc)
     }
 #endif
 
+    // Unicorn: end address tells us to stop emulation
+    if (dc->pc == dc->uc->addr_end) {
+        // imitate WFI instruction to halt emulation
+        dc->base.is_jmp = DISAS_WFI;
+        return true;
+    }
+
     if (dc->ss_active && !dc->pstate_ss) {
         /* Singlestep state is Active-pending.
          * If we're in this state at the start of a TB then either
@@ -13667,13 +13674,6 @@ static bool arm_pre_translate_insn(DisasContext *dc)
 
 static void arm_post_translate_insn(DisasContext *dc)
 {
-    // Unicorn: end address tells us to stop emulation
-    if (dc->pc == dc->uc->addr_end) {
-        // imitate WFI instruction to halt emulation
-        dc->base.is_jmp = DISAS_WFI;
-        return;
-    }
-
     if (dc->condjmp && !dc->base.is_jmp) {
         TCGContext *tcg_ctx = dc->uc->tcg_ctx;
         gen_set_label(tcg_ctx, dc->condlabel);
