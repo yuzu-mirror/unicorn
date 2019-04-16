@@ -26,11 +26,8 @@ ifneq (,$(findstring x86,$(UNICORN_ARCHS)))
 endif
 ifneq (,$(findstring arm,$(UNICORN_ARCHS)))
 	UC_TARGET_OBJ += $(call GENOBJ,arm-softmmu)
-	UC_TARGET_OBJ += $(call GENOBJ,armeb-softmmu)
 	UNICORN_CFLAGS += -DUNICORN_HAS_ARM
-	UNICORN_CFLAGS += -DUNICORN_HAS_ARMEB
 	UNICORN_TARGETS += arm-softmmu,
-	UNICORN_TARGETS += armeb-softmmu,
 endif
 ifneq (,$(findstring m68k,$(UNICORN_ARCHS)))
 	UC_TARGET_OBJ += $(call GENOBJ,m68k-softmmu)
