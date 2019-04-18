@@ -11186,7 +11186,7 @@ static void disas_thumb2_insn(DisasContext *s, uint32_t insn)
                     gen_aa32_st32(s, tmp, addr, get_mem_index(s));
                     tcg_temp_free_i32(tcg_ctx, tmp);
                 }
-                if (insn & (1 << 21)) {
+                if (wback) {
                     /* Base writeback.  */
                     tcg_gen_addi_i32(tcg_ctx, addr, addr, offset - 4);
                     store_reg(s, rn, addr);
@@ -11440,7 +11440,7 @@ static void disas_thumb2_insn(DisasContext *s, uint32_t insn)
                 if (loaded_base) {
                     store_reg(s, rn, loaded_var);
                 }
-                if (insn & (1 << 21)) {
+                if (wback) {
                     /* Base register writeback.  */
                     if (insn & (1 << 24)) {
                         tcg_gen_addi_i32(tcg_ctx, addr, addr, 0-offset);
