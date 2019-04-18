@@ -1299,24 +1299,6 @@ static inline const char *tcg_find_helper(TCGContext *s, uintptr_t val)
 
 static const char * const cond_name[] =
 {
-#ifdef _MSC_VER
-    "never",	// TCG_COND_NEVER
-    "always",	// TCG_COND_ALWAYS
-    "lt",		// TCG_COND_LT
-    "ge",		// TCG_COND_GE
-    "ltu",		// TCG_COND_LTU
-    "geu",		// TCG_COND_GEU
-    NULL,		// n/a
-    NULL,		// n/a
-    "eq",		// TCG_COND_EQ
-    "ne",		// TCG_COND_NE
-    "le",		// TCG_COND_LE
-    "gt",		// TCG_COND_GT
-    "leu",		// TCG_COND_LEU
-    "gtu",		// TCG_COND_GTU
-    NULL,		// n/a
-    NULL,		// n/a
-#else
     [TCG_COND_NEVER] = "never",
     [TCG_COND_ALWAYS] = "always",
     [TCG_COND_EQ] = "eq",
@@ -1329,48 +1311,10 @@ static const char * const cond_name[] =
     [TCG_COND_GEU] = "geu",
     [TCG_COND_LEU] = "leu",
     [TCG_COND_GTU] = "gtu"
-#endif
 };
 
 static const char * const ldst_name[] =
 {
-#ifdef _MSC_VER
-    "ub",	// MO_UB
-#  ifdef HOST_WORDS_BIGENDIAN
-    "beuw",		// MO_BEUW
-    "beul",		// MO_BEUL
-    "beq",		// MO_BEQ
-    "sb",		// MO_SB
-    "besw",		// MO_BESW
-    "besl",		// MO_BESL
-    NULL,		// n/a
-    NULL,		// n/a
-    "leuw",		// MO_LEUW
-    "leul",		// MO_LEUL
-    "leq",		// MO_LEQ
-    NULL,		// n/a
-    "lesw",		// MO_LESW
-    "lesl",		// MO_LESL
-    NULL,		// n/a
-#  else // !HOST_WORDS_BIGENDIAN
-    "leuw",		// MO_LEUW
-    "leul",		// MO_LEUL
-    "leq",		// MO_LEQ
-    "sb",		// MO_SB
-    "lesw",		// MO_LESW
-    "lesl",		// MO_LESL
-    NULL,		// n/a
-    NULL,		// n/a
-    "beuw",		// MO_BEUW
-    "beul",		// MO_BEUL
-    "beq",		// MO_BEQ
-    NULL,		// n/a
-    "besw",		// MO_BESW
-    "besl",		// MO_BESL
-    NULL,		// n/a
-#  endif // HOST_WORDS_BIGENDIAN
-
-#else //_MSC_VER
     [MO_UB]   = "ub",
     [MO_SB]   = "sb",
     [MO_LEUW] = "leuw",
@@ -1383,22 +1327,22 @@ static const char * const ldst_name[] =
     [MO_BEUL] = "beul",
     [MO_BESL] = "besl",
     [MO_BEQ]  = "beq",
-#endif // _MSC_VER
 };
 
 static const char * const alignment_name[(MO_AMASK >> MO_ASHIFT) + 1] = {
-    "",
-    "al2+",
-    "al4+",
-    "al8+",
-    "al16+",
-    "al32+",
-    "al64+",
 #ifdef ALIGNED_ONLY
-    "un+"
+    [MO_UNALN >> MO_ASHIFT]    = "un+",
+    [MO_ALIGN >> MO_ASHIFT]    = "",
 #else
-    "al+",
+    [MO_UNALN >> MO_ASHIFT]    = "",
+    [MO_ALIGN >> MO_ASHIFT]    = "al+",
 #endif
+    [MO_ALIGN_2 >> MO_ASHIFT]  = "al2+",
+    [MO_ALIGN_4 >> MO_ASHIFT]  = "al4+",
+    [MO_ALIGN_8 >> MO_ASHIFT]  = "al8+",
+    [MO_ALIGN_16 >> MO_ASHIFT] = "al16+",
+    [MO_ALIGN_32 >> MO_ASHIFT] = "al32+",
+    [MO_ALIGN_64 >> MO_ASHIFT] = "al64+",
 };
 
 static inline bool tcg_regset_single(TCGRegSet d)
@@ -2017,6 +1961,7 @@ static void liveness_pass_1(TCGContext *s)
         s->temps[i].state_ptr = prefs + i;
     }
 
+    /* ??? Should be redundant with the exit_tb that ends the TB.  */
     la_func_end(s, nb_globals, nb_temps);
 
     QTAILQ_FOREACH_REVERSE_SAFE(op, &s->ops, TCGOpHead, link, op_prev) {
