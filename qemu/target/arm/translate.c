@@ -12606,25 +12606,6 @@ static void disas_thumb_insn(DisasContext *s, uint32_t insn)
     TCGv_i32 tmp2;
     TCGv_i32 addr;
 
-    // Unicorn: trace this instruction on request
-    if (HOOK_EXISTS_BOUNDED(s->uc, UC_HOOK_CODE, s->pc)) {
-        // determine instruction size (Thumb/Thumb2)
-        switch(insn & 0xf800) {
-            // Thumb2: 32-bit
-            case 0xe800:
-            case 0xf000:
-            case 0xf800:
-                gen_uc_tracecode(tcg_ctx, 4, UC_HOOK_CODE_IDX, s->uc, s->pc - 4);
-                break;
-            // Thumb: 16-bit
-            default:
-                gen_uc_tracecode(tcg_ctx, 2, UC_HOOK_CODE_IDX, s->uc, s->pc - 2);
-                break;
-        }
-        // the callback might want to stop emulation immediately
-        check_exit_request(tcg_ctx);
-    }
-
     switch (insn >> 12) {
     case 0: case 1:
 
@@ -13755,6 +13736,7 @@ static void thumb_tr_translate_insn(DisasContextBase *dcbase, CPUState *cpu)
 {
     DisasContext *dc = container_of(dcbase, DisasContext, base);
     CPUARMState *env = cpu->env_ptr;
+    TCGContext *tcg_ctx = dc->uc->tcg_ctx;
     uint32_t insn;
     bool is_16bit;
 
@@ -13779,6 +13761,14 @@ static void thumb_tr_translate_insn(DisasContextBase *dcbase, CPUState *cpu)
         if (cond != 0x0e) {     /* Skip conditional when condition is AL. */
             arm_skip_unless(dc, cond);
         }
+    }
+
+    // Unicorn: trace this instruction on request
+    const uint32_t insn_size = is_16bit ? 2 : 4;
+    if (HOOK_EXISTS_BOUNDED(dc->uc, UC_HOOK_CODE, dc->pc - insn_size)) {
+        gen_uc_tracecode(tcg_ctx, insn_size, UC_HOOK_CODE_IDX, dc->uc, dc->pc - insn_size);
+        // the callback might want to stop emulation immediately
+        check_exit_request(tcg_ctx);
     }
 
     if (is_16bit) {
