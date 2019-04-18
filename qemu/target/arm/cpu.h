@@ -32,8 +32,6 @@
 #  define TARGET_LONG_BITS 32
 #endif
 
-#define TARGET_IS_BIENDIAN 1
-
 /* ARM processors have a weak memory model */
 #define TCG_GUEST_DEFAULT_MO      (0)
 
@@ -943,6 +941,7 @@ int cpu_arm_signal_handler(int host_signum, void *pinfo,
 /**
  * pmu_op_start/finish
  * @env: CPUARMState
+ *
  * Convert all PMU counters between their delta form (the typical mode when
  * they are enabled) and the guest-visible values. These two calls must
  * surround any action which might affect the counters.
@@ -2403,7 +2402,7 @@ struct ARMCPRegInfo {
 #define CPREG_FIELD64(env, ri) \
     (*(uint64_t *)((char *)(env) + (ri)->fieldoffset))
 
-#define REGINFO_SENTINEL { NULL, 0,0,0,0,0,0, 0, ARM_CP_SENTINEL, 0, 0, NULL, 0,0, {0, 0}, 0,0,0,0,0,0, }
+#define REGINFO_SENTINEL { .type = ARM_CP_SENTINEL }
 
 void define_arm_cp_regs_with_opaque(ARMCPU *cpu,
                                     const ARMCPRegInfo *regs, void *opaque);
@@ -2523,54 +2522,6 @@ bool write_cpustate_to_list(ARMCPU *cpu);
 #  define TARGET_VIRT_ADDR_SPACE_BITS 32
 #endif
 
-/**
- * arm_hcr_el2_imo(): Return the effective value of HCR_EL2.IMO.
- * Depending on the values of HCR_EL2.E2H and TGE, this may be
- * "behaves as 1 for all purposes other than direct read/write" or
- * "behaves as 0 for all purposes other than direct read/write"
- */
-static inline bool arm_hcr_el2_imo(CPUARMState *env)
-{
-    switch (env->cp15.hcr_el2 & (HCR_TGE | HCR_E2H)) {
-    case HCR_TGE:
-        return true;
-    case HCR_TGE | HCR_E2H:
-        return false;
-    default:
-        return env->cp15.hcr_el2 & HCR_IMO;
-    }
-}
-
-/**
- * arm_hcr_el2_fmo(): Return the effective value of HCR_EL2.FMO.
- */
-static inline bool arm_hcr_el2_fmo(CPUARMState *env)
-{
-    switch (env->cp15.hcr_el2 & (HCR_TGE | HCR_E2H)) {
-    case HCR_TGE:
-        return true;
-    case HCR_TGE | HCR_E2H:
-        return false;
-    default:
-        return env->cp15.hcr_el2 & HCR_FMO;
-    }
-}
-
-/**
- * arm_hcr_el2_amo(): Return the effective value of HCR_EL2.AMO.
- */
-static inline bool arm_hcr_el2_amo(CPUARMState *env)
-{
-    switch (env->cp15.hcr_el2 & (HCR_TGE | HCR_E2H)) {
-    case HCR_TGE:
-        return true;
-    case HCR_TGE | HCR_E2H:
-        return false;
-    default:
-        return env->cp15.hcr_el2 & HCR_AMO;
-    }
-}
-
 static inline bool arm_excp_unmasked(CPUState *cs, unsigned int excp_idx,
                                      unsigned int target_el)
 {
@@ -2579,6 +2530,7 @@ static inline bool arm_excp_unmasked(CPUState *cs, unsigned int excp_idx,
     bool secure = arm_is_secure(env);
     bool pstate_unmasked;
     int8_t unmasked = 0;
+    uint64_t hcr_el2;
 
     /* Don't take exceptions if they target a lower EL.
      * This check should catch any exceptions that would not be taken but left
@@ -2587,6 +2539,8 @@ static inline bool arm_excp_unmasked(CPUState *cs, unsigned int excp_idx,
     if (cur_el > target_el) {
         return false;
     }
+
+    hcr_el2 = arm_hcr_el2_eff(env);
 
     switch (excp_idx) {
     case EXCP_FIQ:
@@ -2598,13 +2552,13 @@ static inline bool arm_excp_unmasked(CPUState *cs, unsigned int excp_idx,
         break;
 
     case EXCP_VFIQ:
-        if (secure || !arm_hcr_el2_fmo(env) || (env->cp15.hcr_el2 & HCR_TGE)) {
+        if (secure || !(hcr_el2 & HCR_FMO) || (hcr_el2 & HCR_TGE)) {
             /* VFIQs are only taken when hypervized and non-secure.  */
             return false;
         }
         return !(env->daif & PSTATE_F);
     case EXCP_VIRQ:
-        if (secure || !arm_hcr_el2_imo(env) || (env->cp15.hcr_el2 & HCR_TGE)) {
+        if (secure || !(hcr_el2 & HCR_IMO) || (hcr_el2 & HCR_TGE)) {
             /* VIRQs are only taken when hypervized and non-secure.  */
             return false;
         }
@@ -2644,7 +2598,7 @@ static inline bool arm_excp_unmasked(CPUState *cs, unsigned int excp_idx,
                  * to the CPSR.F setting otherwise we further assess the state
                  * below.
                  */
-                hcr = arm_hcr_el2_fmo(env);
+                hcr = hcr_el2 & HCR_FMO;
                 scr = (env->cp15.scr_el3 & SCR_FIQ);
 
                 /* When EL3 is 32-bit, the SCR.FW bit controls whether the
@@ -2661,7 +2615,7 @@ static inline bool arm_excp_unmasked(CPUState *cs, unsigned int excp_idx,
                  * when setting the target EL, so it does not have a further
                  * affect here.
                  */
-                hcr = arm_hcr_el2_imo(env);
+                hcr = hcr_el2 & HCR_IMO;
                 scr = false;
                 break;
             default:
@@ -2988,9 +2942,6 @@ static inline bool aa32_generate_debug_exceptions(CPUARMState *env)
  * since the pseudocode has it at all callsites except for the one in
  * CheckSoftwareStep(), where it is elided because both branches would
  * always return the same value.
- *
- * Parts of the pseudocode relating to EL2 and EL3 are omitted because we
- * don't yet implement those exception levels or their associated trap bits.
  */
 static inline bool arm_generate_debug_exceptions(CPUARMState *env)
 {
@@ -3009,6 +2960,59 @@ static inline bool arm_singlestep_active(CPUARMState *env)
     return extract32(env->cp15.mdscr_el1, 0, 1)
         && arm_el_is_aa64(env, arm_debug_target_el(env))
         && arm_generate_debug_exceptions(env);
+}
+
+static inline bool arm_sctlr_b(CPUARMState *env)
+{
+    return
+        /* We need not implement SCTLR.ITD in user-mode emulation, so
+         * let linux-user ignore the fact that it conflicts with SCTLR_B.
+         * This lets people run BE32 binaries with "-cpu any".
+         */
+#ifndef CONFIG_USER_ONLY
+        !arm_feature(env, ARM_FEATURE_V7) &&
+#endif
+        (env->cp15.sctlr_el[1] & SCTLR_B) != 0;
+}
+
+static inline uint64_t arm_sctlr(CPUARMState *env, int el)
+{
+    if (el == 0) {
+        /* FIXME: ARMv8.1-VHE S2 translation regime.  */
+        return env->cp15.sctlr_el[1];
+    } else {
+        return env->cp15.sctlr_el[el];
+    }
+}
+
+
+/* Return true if the processor is in big-endian mode. */
+static inline bool arm_cpu_data_is_big_endian(CPUARMState *env)
+{
+    /* In 32bit endianness is determined by looking at CPSR's E bit */
+    if (!is_a64(env)) {
+        return
+#ifdef CONFIG_USER_ONLY
+            /* In system mode, BE32 is modelled in line with the
+             * architecture (as word-invariant big-endianness), where loads
+             * and stores are done little endian but from addresses which
+             * are adjusted by XORing with the appropriate constant. So the
+             * endianness to use for the raw data access is not affected by
+             * SCTLR.B.
+             * In user mode, however, we model BE32 as byte-invariant
+             * big-endianness (because user-only code cannot tell the
+             * difference), and so we need to use a data access endianness
+             * that depends on SCTLR.B.
+             */
+            arm_sctlr_b(env) ||
+#endif
+                ((env->uncached_cpsr & CPSR_E) ? 1 : 0);
+    } else {
+        int cur_el = arm_current_el(env);
+        uint64_t sctlr = arm_sctlr(env, cur_el);
+
+        return (sctlr & (cur_el ? SCTLR_EE : SCTLR_E0E)) != 0;
+    }
 }
 
 #include "exec/cpu-all.h"
@@ -3076,57 +3080,16 @@ static inline bool bswap_code(bool sctlr_b)
 #endif
 }
 
-static inline bool arm_sctlr_b(CPUARMState *env)
+#ifdef CONFIG_USER_ONLY
+static inline bool arm_cpu_bswap_data(CPUARMState *env)
 {
     return
-        /* We need not implement SCTLR.ITD in user-mode emulation, so
-         * let linux-user ignore the fact that it conflicts with SCTLR_B.
-         * This lets people run BE32 binaries with "-cpu any".
-         */
-#ifndef CONFIG_USER_ONLY
-        !arm_feature(env, ARM_FEATURE_V7) &&
+#ifdef TARGET_WORDS_BIGENDIAN
+       1 ^
 #endif
-        (env->cp15.sctlr_el[1] & SCTLR_B) != 0;
+       arm_cpu_data_is_big_endian(env);
 }
-
-static inline uint64_t arm_sctlr(CPUARMState *env, int el)
-{
-    if (el == 0) {
-        /* FIXME: ARMv8.1-VHE S2 translation regime.  */
-        return env->cp15.sctlr_el[1];
-    } else {
-        return env->cp15.sctlr_el[el];
-    }
-}
-
-/* Return true if the processor is in big-endian mode. */
-static inline bool arm_cpu_data_is_big_endian(CPUARMState *env)
-{
-    /* In 32bit endianness is determined by looking at CPSR's E bit */
-    if (!is_a64(env)) {
-        return
-#ifdef CONFIG_USER_ONLY
-            /* In system mode, BE32 is modelled in line with the
-             * architecture (as word-invariant big-endianness), where loads
-             * and stores are done little endian but from addresses which
-             * are adjusted by XORing with the appropriate constant. So the
-             * endianness to use for the raw data access is not affected by
-             * SCTLR.B.
-             * In user mode, however, we model BE32 as byte-invariant
-             * big-endianness (because user-only code cannot tell the
-             * difference), and so we need to use a data access endianness
-             * that depends on SCTLR.B.
-             */
-            arm_sctlr_b(env) ||
 #endif
-                ((env->uncached_cpsr & CPSR_E) ? 1 : 0);
-    } else {
-        int cur_el = arm_current_el(env);
-        uint64_t sctlr = arm_sctlr(env, cur_el);
-
-        return (sctlr & (cur_el ? SCTLR_EE : SCTLR_E0E)) != 0;
-    }
-}
 
 void cpu_get_tb_cpu_state(CPUARMState *env, target_ulong *pc,
                           target_ulong *cs_base, uint32_t *flags);

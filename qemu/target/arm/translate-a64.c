@@ -36,11 +36,6 @@
 
 #include "translate-a64.h"
 
-#ifdef CONFIG_USER_ONLY
-static TCGv_i64 cpu_exclusive_test;
-static TCGv_i32 cpu_exclusive_info;
-#endif
-
 static const char *regnames[] = {
     "x0", "x1", "x2", "x3", "x4", "x5", "x6", "x7",
     "x8", "x9", "x10", "x11", "x12", "x13", "x14", "x15",
@@ -109,12 +104,6 @@ void a64_translate_init(struct uc_struct *uc)
         offsetof(CPUARMState, exclusive_val), "exclusive_val");
     tcg_ctx->cpu_exclusive_high = tcg_global_mem_new_i64(uc->tcg_ctx, tcg_ctx->cpu_env,
         offsetof(CPUARMState, exclusive_high), "exclusive_high");
-#ifdef CONFIG_USER_ONLY
-    cpu_exclusive_test = tcg_global_mem_new_i64(uc->tcg_ctx, tcg_ctx->cpu_env,
-        offsetof(CPUARMState, exclusive_test), "exclusive_test");
-    cpu_exclusive_info = tcg_global_mem_new_i32(uc->tcg_ctx, tcg_ctx->cpu_env,
-        offsetof(CPUARMState, exclusive_info), "exclusive_info");
-#endif
 }
 
 static inline int get_a64_user_mem_index(DisasContext *s)
@@ -176,14 +165,13 @@ void aarch64_cpu_dump_state(CPUState *cs, FILE *f,
     int el = arm_current_el(env);
     const char *ns_status;
 
-    cpu_fprintf(f, "PC=%016"PRIx64"  SP=%016"PRIx64"\n",
-            env->pc, env->xregs[31]);
-    for (i = 0; i < 31; i++) {
-        cpu_fprintf(f, "X%02d=%016"PRIx64, i, env->xregs[i]);
-        if ((i % 4) == 3) {
-            cpu_fprintf(f, "\n");
+    cpu_fprintf(f, " PC=%016" PRIx64 " ", env->pc);
+    for (i = 0; i < 32; i++) {
+        if (i == 31) {
+            cpu_fprintf(f, " SP=%016" PRIx64 "\n", env->xregs[i]);
         } else {
-            cpu_fprintf(f, " ");
+            cpu_fprintf(f, "X%02d=%016" PRIx64 "%s", i, env->xregs[i],
+                        (i + 2) % 3 ? " " : "\n");
         }
     }
 
@@ -192,7 +180,6 @@ void aarch64_cpu_dump_state(CPUState *cs, FILE *f,
     } else {
         ns_status = "";
     }
-
     cpu_fprintf(f, "PSTATE=%08x %c%c%c%c %sEL%d%c",
                 psr,
                 psr & PSTATE_N ? 'N' : '-',
@@ -202,6 +189,7 @@ void aarch64_cpu_dump_state(CPUState *cs, FILE *f,
                 ns_status,
                 el,
                 psr & PSTATE_SP ? 'h' : 't');
+
     if (cpu_isar_feature(aa64_bti, cpu)) {
         cpu_fprintf(f, "  BTYPE=%d", (psr & PSTATE_BTYPE) >> 10);
     }
@@ -10333,7 +10321,6 @@ static void handle_vec_simd_shri(DisasContext *s, bool is_q, bool is_u,
         unallocated_encoding(s);
         return;
     }
-
     tcg_debug_assert(size <= 3);
 
     if (!fp_access_check(s)) {
@@ -13198,6 +13185,17 @@ static void disas_simd_indexed(DisasContext *s, uint32_t insn)
         }
         is_fp = 2;
         break;
+    case 0x00: /* FMLAL */
+    case 0x04: /* FMLSL */
+    case 0x18: /* FMLAL2 */
+    case 0x1c: /* FMLSL2 */
+        if (is_scalar || size != MO_32 || !dc_isar_feature(aa64_fhm, s)) {
+            unallocated_encoding(s);
+            return;
+        }
+        size = MO_16;
+        /* is_fp, but we pass cpu_env not fp_status.  */
+        break;
     default:
         unallocated_encoding(s);
         return;
@@ -13306,6 +13304,22 @@ static void disas_simd_indexed(DisasContext *s, uint32_t insn)
                                ? gen_helper_gvec_fcmlas_idx
                                : gen_helper_gvec_fcmlah_idx);
             tcg_temp_free_ptr(tcg_ctx, fpst);
+        }
+        return;
+
+    case 0x00: /* FMLAL */
+    case 0x04: /* FMLSL */
+    case 0x18: /* FMLAL2 */
+    case 0x1c: /* FMLSL2 */
+        {
+            int is_s = extract32(opcode, 2, 1);
+            int is_2 = u;
+            int data = (index << 2) | (is_2 << 1) | is_s;
+            tcg_gen_gvec_3_ptr(tcg_ctx, vec_full_reg_offset(s, rd),
+                               vec_full_reg_offset(s, rn),
+                               vec_full_reg_offset(s, rm), tcg_ctx->cpu_env,
+                               is_q ? 16 : 8, vec_full_reg_size(s),
+                               data, gen_helper_gvec_fmlal_idx_a64);
         }
         return;
     }
@@ -14730,11 +14744,11 @@ static void aarch64_tr_disas_log(const DisasContextBase *dcbase,
 }
 
 const TranslatorOps aarch64_translator_ops = {
-    aarch64_tr_init_disas_context,
-    aarch64_tr_tb_start,
-    aarch64_tr_insn_start,
-    aarch64_tr_breakpoint_check,
-    aarch64_tr_translate_insn,
-    aarch64_tr_tb_stop,
-    aarch64_tr_disas_log,
+    .init_disas_context = aarch64_tr_init_disas_context,
+    .tb_start           = aarch64_tr_tb_start,
+    .insn_start         = aarch64_tr_insn_start,
+    .breakpoint_check   = aarch64_tr_breakpoint_check,
+    .translate_insn     = aarch64_tr_translate_insn,
+    .tb_stop            = aarch64_tr_tb_stop,
+    .disas_log          = aarch64_tr_disas_log,
 };

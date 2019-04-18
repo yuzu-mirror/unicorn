@@ -342,11 +342,11 @@ typedef struct ARMCPUInfo {
 } ARMCPUInfo;
 
 static const ARMCPUInfo aarch64_cpus[] = {
-    { "cortex-a57",  aarch64_a57_initfn },
-    { "cortex-a53",  aarch64_a53_initfn },
-    { "cortex-a72",  aarch64_a72_initfn },
-    { "max",         aarch64_max_initfn },
-    { NULL }
+    { .name = "cortex-a57",         .initfn = aarch64_a57_initfn },
+    { .name = "cortex-a53",         .initfn = aarch64_a53_initfn },
+    { .name = "cortex-a72",         .initfn = aarch64_a72_initfn },
+    { .name = "max",                .initfn = aarch64_max_initfn },
+    { .name = NULL }
 };
 
 static QEMU_UNUSED_FUNC bool aarch64_cpu_get_aarch64(Object *obj, Error **errp)

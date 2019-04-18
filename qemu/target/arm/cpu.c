@@ -7,7 +7,7 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- *f
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -156,8 +156,10 @@ static void arm_cpu_reset(CPUState *s)
     acc->parent_reset(s);
 
     memset(env, 0, offsetof(CPUARMState, end_reset_fields));
+
     g_hash_table_foreach(cpu->cp_regs, cp_reg_reset, cpu);
     g_hash_table_foreach(cpu->cp_regs, cp_reg_check_reset, cpu);
+
     env->vfp.xregs[ARM_VFP_FPSID] = cpu->reset_fpsid;
     env->vfp.xregs[ARM_VFP_MVFR0] = cpu->isar.mvfr0;
     env->vfp.xregs[ARM_VFP_MVFR1] = cpu->isar.mvfr1;
@@ -239,7 +241,6 @@ static void arm_cpu_reset(CPUState *s)
     } else {
         env->uncached_cpsr = ARM_CPU_MODE_SVC;
     }
-
     env->daif = PSTATE_D | PSTATE_A | PSTATE_I | PSTATE_F;
 
     if (arm_feature(env, ARM_FEATURE_M)) {
@@ -795,7 +796,6 @@ static int arm_cpu_realizefn(struct uc_struct *uc, DeviceState *dev, Error **err
     if (!cpu->has_pmu) {
         unset_feature(env, ARM_FEATURE_PMU);
     }
-
     if (arm_feature(env, ARM_FEATURE_PMU)) {
         pmu_init(cpu);
 
@@ -874,6 +874,8 @@ static int arm_cpu_realizefn(struct uc_struct *uc, DeviceState *dev, Error **err
     register_cp_regs_for_features(cpu);
     arm_cpu_register_gdb_regs_for_features(cpu);
 
+    init_cpreg_list(cpu);
+
 #ifndef CONFIG_USER_ONLY
     if (cpu->has_el3 || arm_feature(env, ARM_FEATURE_M_SECURITY)) {
         cs->num_ases = 2;
@@ -893,8 +895,6 @@ static int arm_cpu_realizefn(struct uc_struct *uc, DeviceState *dev, Error **err
         cpu->core_count = smp_cpus;
     }
 #endif
-
-    init_cpreg_list(cpu);
 
     qemu_init_vcpu(cs);
     cpu_reset(cs);
@@ -1245,9 +1245,12 @@ static void arm_v7m_class_init(struct uc_struct *uc, ObjectClass *oc, void *data
 
 static const ARMCPRegInfo cortexr5_cp_reginfo[] = {
     /* Dummy the TCM region regs for the moment */
-    { "ATCM", 15,9,1, 0,0,0, 0,ARM_CP_CONST, PL1_RW },
-    { "BTCM", 15,9,1, 0,0,1, 0,ARM_CP_CONST, PL1_RW },
-    { "DCACHE_INVAL", 15,15,5,  0,0,0, 0, ARM_CP_NOP, PL1_W },
+    { .name = "ATCM", .cp = 15, .opc1 = 0, .crn = 9, .crm = 1, .opc2 = 0,
+      .access = PL1_RW, .type = ARM_CP_CONST },
+    { .name = "BTCM", .cp = 15, .opc1 = 0, .crn = 9, .crm = 1, .opc2 = 1,
+      .access = PL1_RW, .type = ARM_CP_CONST },
+    { .name = "DCACHE_INVAL", .cp = 15, .opc1 = 0, .crn = 15, .crm = 5,
+      .opc2 = 0, .access = PL1_W, .type = ARM_CP_NOP },
     REGINFO_SENTINEL
 };
 
@@ -1275,6 +1278,7 @@ static void cortex_r5_initfn(struct uc_struct *uc, Object *obj, void *opaque)
     cpu->isar.id_isar5 = 0x0;
     cpu->isar.id_isar6 = 0x0;
     cpu->mp_is_up = true;
+    cpu->pmsav7_dregion = 16;
     define_arm_cp_regs(cpu, cortexr5_cp_reginfo);
 }
 
@@ -1287,10 +1291,10 @@ static void cortex_r5f_initfn(struct uc_struct *uc, Object *obj, void *opaque)
 }
 
 static const ARMCPRegInfo cortexa8_cp_reginfo[] = {
-    { "L2LOCKDOWN", 15,9,0, 0,1,0, 0,
-      ARM_CP_CONST, PL1_RW, 0, NULL, 0, },
-    { "L2AUXCR",    15,9,0, 0,1,2, 0,
-      ARM_CP_CONST, PL1_RW, 0, NULL, 0, },
+    { .name = "L2LOCKDOWN", .cp = 15, .crn = 9, .crm = 0, .opc1 = 1, .opc2 = 0,
+      .access = PL1_RW, .type = ARM_CP_CONST, .resetvalue = 0 },
+    { .name = "L2AUXCR", .cp = 15, .crn = 9, .crm = 0, .opc1 = 1, .opc2 = 2,
+      .access = PL1_RW, .type = ARM_CP_CONST, .resetvalue = 0 },
     REGINFO_SENTINEL
 };
 
@@ -1337,25 +1341,28 @@ static const ARMCPRegInfo cortexa9_cp_reginfo[] = {
     /* power_control should be set to maximum latency. Again,
      * default to 0 and set by private hook
      */
-    { "A9_PWRCTL", 15,15,0, 0,0,0, 0,
-      0,            PL1_RW, 0, NULL, 0, offsetof(CPUARMState, cp15.c15_power_control) },
-    { "A9_DIAG",   15,15,0, 0,0,1, 0,
-      0,            PL1_RW, 0, NULL, 0, offsetof(CPUARMState, cp15.c15_diagnostic) },
-    { "A9_PWRDIAG",15,15,0, 0,0,2, 0,
-      0,            PL1_RW, 0, NULL, 0, offsetof(CPUARMState, cp15.c15_power_diagnostic) },
-    { "NEONBUSY",  15,15,1, 0,0,0, 0,
-      ARM_CP_CONST, PL1_RW, 0, NULL, 0,  },
+    { .name = "A9_PWRCTL", .cp = 15, .crn = 15, .crm = 0, .opc1 = 0, .opc2 = 0,
+      .access = PL1_RW, .resetvalue = 0,
+      .fieldoffset = offsetof(CPUARMState, cp15.c15_power_control) },
+    { .name = "A9_DIAG", .cp = 15, .crn = 15, .crm = 0, .opc1 = 0, .opc2 = 1,
+      .access = PL1_RW, .resetvalue = 0,
+      .fieldoffset = offsetof(CPUARMState, cp15.c15_diagnostic) },
+    { .name = "A9_PWRDIAG", .cp = 15, .crn = 15, .crm = 0, .opc1 = 0, .opc2 = 2,
+      .access = PL1_RW, .resetvalue = 0,
+      .fieldoffset = offsetof(CPUARMState, cp15.c15_power_diagnostic) },
+    { .name = "NEONBUSY", .cp = 15, .crn = 15, .crm = 1, .opc1 = 0, .opc2 = 0,
+      .access = PL1_RW, .resetvalue = 0, .type = ARM_CP_CONST },
     /* TLB lockdown control */
-    { "TLB_LOCKR", 15,15,4, 0,5,2, 0,
-      ARM_CP_NOP,   PL1_W,  0, NULL, 0 },
-    { "TLB_LOCKW", 15,15,4, 0,5,4, 0,
-      ARM_CP_NOP,   PL1_W,  0, NULL, 0, },
-    { "TLB_VA",    15,15,5, 0,5,2, 0,
-      ARM_CP_CONST, PL1_RW, 0, NULL, 0,  },
-    { "TLB_PA",    15,15,6, 0,5,2, 0,
-      ARM_CP_CONST, PL1_RW, 0, NULL, 0 },
-    { "TLB_ATTR",  15,15,7, 0,5,2, 0,
-      ARM_CP_CONST, PL1_RW, 0, NULL, 0,  },
+    { .name = "TLB_LOCKR", .cp = 15, .crn = 15, .crm = 4, .opc1 = 5, .opc2 = 2,
+      .access = PL1_W, .resetvalue = 0, .type = ARM_CP_NOP },
+    { .name = "TLB_LOCKW", .cp = 15, .crn = 15, .crm = 4, .opc1 = 5, .opc2 = 4,
+      .access = PL1_W, .resetvalue = 0, .type = ARM_CP_NOP },
+    { .name = "TLB_VA", .cp = 15, .crn = 15, .crm = 5, .opc1 = 5, .opc2 = 2,
+      .access = PL1_RW, .resetvalue = 0, .type = ARM_CP_CONST },
+    { .name = "TLB_PA", .cp = 15, .crn = 15, .crm = 6, .opc1 = 5, .opc2 = 2,
+      .access = PL1_RW, .resetvalue = 0, .type = ARM_CP_CONST },
+    { .name = "TLB_ATTR", .cp = 15, .crn = 15, .crm = 7, .opc1 = 5, .opc2 = 2,
+      .access = PL1_RW, .resetvalue = 0, .type = ARM_CP_CONST },
     REGINFO_SENTINEL
 };
 
@@ -1413,12 +1420,12 @@ static uint64_t a15_l2ctlr_read(CPUARMState *env, const ARMCPRegInfo *ri)
 
 static const ARMCPRegInfo cortexa15_cp_reginfo[] = {
 #ifndef CONFIG_USER_ONLY
-    { "L2CTLR",  15,9,0, 0,1,2, 0,
-      0,            PL1_RW, 0, NULL, 0, 0, {0, 0},
-	  NULL, a15_l2ctlr_read, arm_cp_write_ignore, },
+    { .name = "L2CTLR", .cp = 15, .crn = 9, .crm = 0, .opc1 = 1, .opc2 = 2,
+      .access = PL1_RW, .resetvalue = 0, .readfn = a15_l2ctlr_read,
+      .writefn = arm_cp_write_ignore, },
 #endif
-    { "L2ECTLR", 15,9,0, 0,1,3, 0,
-      ARM_CP_CONST, PL1_RW, 0, NULL, 0 },
+    { .name = "L2ECTLR", .cp = 15, .crn = 9, .crm = 0, .opc1 = 1, .opc2 = 3,
+      .access = PL1_RW, .type = ARM_CP_CONST, .resetvalue = 0 },
     REGINFO_SENTINEL
 };
 
@@ -1742,51 +1749,55 @@ typedef struct ARMCPUInfo {
 
 static const ARMCPUInfo arm_cpus[] = {
 #if !defined(CONFIG_USER_ONLY) || !defined(TARGET_AARCH64)
-    { "arm926",      arm926_initfn },
-    { "arm946",      arm946_initfn },
-    { "arm1026",     arm1026_initfn },
+    { .name = "arm926",      .initfn = arm926_initfn },
+    { .name = "arm946",      .initfn = arm946_initfn },
+    { .name = "arm1026",     .initfn = arm1026_initfn },
     /* What QEMU calls "arm1136-r2" is actually the 1136 r0p2, i.e. an
      * older core than plain "arm1136". In particular this does not
      * have the v6K features.
      */
-    { "arm1136-r2",  arm1136_r2_initfn },
-    { "arm1136",     arm1136_initfn },
-    { "arm1176",     arm1176_initfn },
-    { "arm11mpcore", arm11mpcore_initfn },
-    { "cortex-m0",   cortex_m0_initfn, arm_v7m_class_init },
-    { "cortex-m3",   cortex_m3_initfn, arm_v7m_class_init },
-    { "cortex-m4",   cortex_m4_initfn, arm_v7m_class_init },
-    { "cortex-m33",  cortex_m33_initfn, arm_v7m_class_init },
-    { "cortex-r5",   cortex_r5_initfn },
-    { "cortex-r5f",  cortex_r5f_initfn },
-    { "cortex-a7",   cortex_a7_initfn },
-    { "cortex-a8",   cortex_a8_initfn },
-    { "cortex-a9",   cortex_a9_initfn },
-    { "cortex-a15",  cortex_a15_initfn },
-    { "ti925t",      ti925t_initfn },
-    { "sa1100",      sa1100_initfn },
-    { "sa1110",      sa1110_initfn },
-    { "pxa250",      pxa250_initfn },
-    { "pxa255",      pxa255_initfn },
-    { "pxa260",      pxa260_initfn },
-    { "pxa261",      pxa261_initfn },
-    { "pxa262",      pxa262_initfn },
+    { .name = "arm1136-r2",  .initfn = arm1136_r2_initfn },
+    { .name = "arm1136",     .initfn = arm1136_initfn },
+    { .name = "arm1176",     .initfn = arm1176_initfn },
+    { .name = "arm11mpcore", .initfn = arm11mpcore_initfn },
+    { .name = "cortex-m0",   .initfn = cortex_m0_initfn,
+                             .class_init = arm_v7m_class_init },
+    { .name = "cortex-m3",   .initfn = cortex_m3_initfn,
+                             .class_init = arm_v7m_class_init },
+    { .name = "cortex-m4",   .initfn = cortex_m4_initfn,
+                             .class_init = arm_v7m_class_init },
+    { .name = "cortex-m33",  .initfn = cortex_m33_initfn,
+                             .class_init = arm_v7m_class_init },
+    { .name = "cortex-r5",   .initfn = cortex_r5_initfn },
+    { .name = "cortex-r5f",  .initfn = cortex_r5f_initfn },
+    { .name = "cortex-a7",   .initfn = cortex_a7_initfn },
+    { .name = "cortex-a8",   .initfn = cortex_a8_initfn },
+    { .name = "cortex-a9",   .initfn = cortex_a9_initfn },
+    { .name = "cortex-a15",  .initfn = cortex_a15_initfn },
+    { .name = "ti925t",      .initfn = ti925t_initfn },
+    { .name = "sa1100",      .initfn = sa1100_initfn },
+    { .name = "sa1110",      .initfn = sa1110_initfn },
+    { .name = "pxa250",      .initfn = pxa250_initfn },
+    { .name = "pxa255",      .initfn = pxa255_initfn },
+    { .name = "pxa260",      .initfn = pxa260_initfn },
+    { .name = "pxa261",      .initfn = pxa261_initfn },
+    { .name = "pxa262",      .initfn = pxa262_initfn },
     /* "pxa270" is an alias for "pxa270-a0" */
-    { "pxa270",      pxa270a0_initfn },
-    { "pxa270-a0",   pxa270a0_initfn },
-    { "pxa270-a1",   pxa270a1_initfn },
-    { "pxa270-b0",   pxa270b0_initfn },
-    { "pxa270-b1",   pxa270b1_initfn },
-    { "pxa270-c0",   pxa270c0_initfn },
-    { "pxa270-c5",   pxa270c5_initfn },
+    { .name = "pxa270",      .initfn = pxa270a0_initfn },
+    { .name = "pxa270-a0",   .initfn = pxa270a0_initfn },
+    { .name = "pxa270-a1",   .initfn = pxa270a1_initfn },
+    { .name = "pxa270-b0",   .initfn = pxa270b0_initfn },
+    { .name = "pxa270-b1",   .initfn = pxa270b1_initfn },
+    { .name = "pxa270-c0",   .initfn = pxa270c0_initfn },
+    { .name = "pxa270-c5",   .initfn = pxa270c5_initfn },
 #ifndef TARGET_AARCH64
-    { "max",         arm_max_initfn },
+    { .name = "max",         .initfn = arm_max_initfn },
 #endif
 #ifdef CONFIG_USER_ONLY
-    { "any",         arm_max_initfn },
+    { .name = "any",         .initfn = arm_max_initfn },
 #endif
 #endif
-    { NULL }
+    { .name = NULL }
 };
 
 #ifdef CONFIG_USER_ONLY
@@ -1818,7 +1829,6 @@ static void arm_cpu_class_init(struct uc_struct *uc, ObjectClass *oc, void *data
 
     acc->parent_reset = cc->reset;
     cc->reset = arm_cpu_reset;
-    cc->class_by_name = arm_cpu_class_by_name;
 
     cc->class_by_name = arm_cpu_class_by_name;
     cc->has_work = arm_cpu_has_work;

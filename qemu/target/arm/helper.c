@@ -1230,12 +1230,10 @@ static void pmccntr_op_finish(CPUARMState *env)
 {
     if (pmu_counter_enabled(env, 31)) {
         uint64_t prev_cycles = env->cp15.c15_ccnt_delta;
-
         if (env->cp15.c9_pmcr & PMCRD) {
             /* Increment once every 64 processor clock cycles */
             prev_cycles /= 64;
         }
-
         env->cp15.c15_ccnt_delta = prev_cycles - env->cp15.c15_ccnt;
     }
 }
@@ -1472,7 +1470,6 @@ static void pmevtyper_write(CPUARMState *env, const ARMCPRegInfo *ri,
         env->cp15.c14_pmevtyper[counter] = value & PMXEVTYPER_MASK;
         pmevcntr_op_finish(env, counter);
     }
-
     /* Attempts to access PMXEVTYPER are CONSTRAINED UNPREDICTABLE when
      * PMSELR value is equal to or greater than the number of implemented
      * counters, but not equal to 0x1f. We opt to behave as a RAZ/WI.
@@ -2652,6 +2649,7 @@ static const ARMCPRegInfo generic_timer_cp_reginfo[] = {
 };
 
 #else
+
 /* In user-mode most of the generic timer registers are inaccessible
  * however modern kernels (4.12+) allow access to cntvct_el0
  */
@@ -2926,15 +2924,16 @@ static void ats_write64(CPUARMState *env, const ARMCPRegInfo *ri,
 #endif
 
 static const ARMCPRegInfo vapa_cp_reginfo[] = {
-    { "PAR", 15,7,4, 0,0,0, 0,
-      0, PL1_RW, 0, NULL, 0, 0,
-      { offsetoflow32(CPUARMState, cp15.par_s), offsetoflow32(CPUARMState, cp15.par_ns) },
-      NULL, NULL, par_write },
+    { .name = "PAR", .cp = 15, .crn = 7, .crm = 4, .opc1 = 0, .opc2 = 0,
+      .access = PL1_RW, .resetvalue = 0,
+      .bank_fieldoffsets = { offsetoflow32(CPUARMState, cp15.par_s),
+                             offsetoflow32(CPUARMState, cp15.par_ns) },
+      .writefn = par_write },
 #ifndef CONFIG_USER_ONLY
     /* This underdecoding is safe because the reginfo is NO_RAW. */
-    { "ATS", 15,7,8, 0,0,CP_ANY, 0,
-      ARM_CP_NO_RAW, PL1_W, 0, NULL, 0, 0, {0, 0},
-      ats_access, NULL, ats_write },
+    { .name = "ATS", .cp = 15, .crn = 7, .crm = 8, .opc1 = 0, .opc2 = CP_ANY,
+      .access = PL1_W, .accessfn = ats_access,
+      .writefn = ats_write, .type = ARM_CP_NO_RAW },
 #endif
     REGINFO_SENTINEL
 };
@@ -3565,7 +3564,7 @@ static CPAccessResult aa64_cacheop_access(CPUARMState *env,
  */
 
 static void tlbi_aa64_vmalle1is_write(CPUARMState *env, const ARMCPRegInfo *ri,
-                                uint64_t value)
+                                      uint64_t value)
 {
 // UNICORN: TODO: issue #642
 #if 0
@@ -6008,9 +6007,9 @@ void register_cp_regs_for_features(ARMCPU *cpu)
             { .name = "ID_AA64ZFR0_EL1"           },
             { .name = "ID_AA64MMFR0_EL1",
               .fixed_bits    = 0x00000000ff000000 },
+            { .name = "ID_AA64MMFR1_EL1"          },
             { .name = "ID_AA64MMFR*_EL1_RESERVED",
               .is_glob = true                     },
-            { .name = "ID_AA64MMFR1_EL1"          },
             { .name = "ID_AA64DFR0_EL1",
               .fixed_bits    = 0x0000000000000006 },
             { .name = "ID_AA64DFR1_EL1"           },
@@ -7101,11 +7100,11 @@ void cpsr_write(CPUARMState *env, uint32_t val, uint32_t mask,
                 arm_feature(env, ARM_FEATURE_V8)) {
                 mask |= CPSR_IL;
                 val |= CPSR_IL;
+            }
             qemu_log_mask(LOG_GUEST_ERROR,
                           "Illegal AArch32 mode switch attempt from %s to %s\n",
                           aarch32_mode_name(env->uncached_cpsr),
                           aarch32_mode_name(val));
-            }
         } else {
             qemu_log_mask(CPU_LOG_INT, "%s %s to %s PC 0x%" PRIx32 "\n",
                           write_type == CPSRWriteExceptionReturn ?
@@ -7937,12 +7936,15 @@ static void v7m_exception_taken(ARMCPU *cpu, uint32_t lr, bool dotailchain,
          * we might now want to take a different exception which
          * targets a different security state, so try again from the top.
          */
+        qemu_log_mask(CPU_LOG_INT,
+                      "...derived exception on callee-saves register stacking");
         v7m_exception_taken(cpu, lr, true, true);
         return;
     }
 
     if (!arm_v7m_load_vector(cpu, exc, targets_secure, &addr)) {
         /* Vector load failed: derived exception */
+        qemu_log_mask(CPU_LOG_INT, "...derived exception on vector table load");
         v7m_exception_taken(cpu, lr, true, true);
         return;
     }
@@ -8042,12 +8044,19 @@ static void do_v7m_exception_exit(ARMCPU *cpu)
     bool exc_secure = false;
     bool return_to_secure;
 
-    /* We can only get here from an EXCP_EXCEPTION_EXIT, and
-     * gen_bx_excret() enforces the architectural rule
-     * that jumps to magic addresses don't have magic behaviour unless
-     * we're in Handler mode (compare pseudocode BXWritePC()).
+    /* If we're not in Handler mode then jumps to magic exception-exit
+     * addresses don't have magic behaviour. However for the v8M
+     * security extensions the magic secure-function-return has to
+     * work in thread mode too, so to avoid doing an extra check in
+     * the generated code we allow exception-exit magic to also cause the
+     * internal exception and bring us here in thread mode. Correct code
+     * will never try to do this (the following insn fetch will always
+     * fault) so we the overhead of having taken an unnecessary exception
+     * doesn't matter.
      */
-    assert(arm_v7m_is_handler_mode(env));
+    if (!arm_v7m_is_handler_mode(env)) {
+        return;
+    }
 
     /* In the spec pseudocode ExceptionReturn() is called directly
      * from BXWritePC() and gets the full target PC value including
@@ -8095,7 +8104,7 @@ static void do_v7m_exception_exit(ARMCPU *cpu)
         if (arm_feature(env, ARM_FEATURE_M_SECURITY)) {
             // Unicorn: commented out
             //if (armv7m_nvic_raw_execution_priority(env->nvic) >= 0) {
-            //    env->v7m.faultmask[es] = 0;
+            //    env->v7m.faultmask[exc_secure] = 0;
             //}
         } else {
             env->v7m.faultmask[M_REG_NS] = 0;
@@ -8104,7 +8113,8 @@ static void do_v7m_exception_exit(ARMCPU *cpu)
 
 // Unicorn: if'd out
 #if 0
-    switch (armv7m_nvic_complete_irq(env->nvic, env->v7m.exception)) {
+    switch (armv7m_nvic_complete_irq(env->nvic, env->v7m.exception,
+                                     exc_secure)) {
     case -1:
         /* attempt to exit an exception that isn't active */
         ufault = true;
@@ -8178,9 +8188,9 @@ static void do_v7m_exception_exit(ARMCPU *cpu)
         env->v7m.sfsr |= R_V7M_SFSR_INVER_MASK;
         // Unicorn: commented out
         //armv7m_nvic_set_pending(env->nvic, ARMV7M_EXCP_SECURE, false);
-        v7m_exception_taken(cpu, excret, true, false);
         qemu_log_mask(CPU_LOG_INT, "...taking SecureFault on existing "
                       "stackframe: failed EXC_RETURN.ES validity check\n");
+        v7m_exception_taken(cpu, excret, true, false);
         return;
     }
 
@@ -8191,9 +8201,9 @@ static void do_v7m_exception_exit(ARMCPU *cpu)
         env->v7m.cfsr[env->v7m.secure] |= R_V7M_CFSR_INVPC_MASK;
         // Unicorn: commented out
         //armv7m_nvic_set_pending(env->nvic, ARMV7M_EXCP_USAGE);
-        v7m_exception_taken(cpu, excret, true, false);
         qemu_log_mask(CPU_LOG_INT, "...taking UsageFault on existing "
                       "stackframe: failed exception return integrity check\n");
+        v7m_exception_taken(cpu, excret, true, false);
         return;
     }
 
@@ -8260,10 +8270,10 @@ static void do_v7m_exception_exit(ARMCPU *cpu)
                 env->v7m.sfsr |= R_V7M_SFSR_INVIS_MASK;
                 // Unicorn: commented out
                 //armv7m_nvic_set_pending(env->nvic, ARMV7M_EXCP_SECURE, false);
-                v7m_exception_taken(cpu, excret, true, false);
                 qemu_log_mask(CPU_LOG_INT, "...taking SecureFault on existing "
                               "stackframe: failed exception return integrity "
                               "signature check\n");
+                v7m_exception_taken(cpu, excret, true, false);
                 return;
             }
 
@@ -8295,6 +8305,7 @@ static void do_v7m_exception_exit(ARMCPU *cpu)
             /* v7m_stack_read() pended a fault, so take it (as a tail
              * chained exception on the same stack frame)
              */
+            qemu_log_mask(CPU_LOG_INT, "...derived exception on unstacking\n");
             v7m_exception_taken(cpu, excret, true, false);
             return;
         }
@@ -8332,10 +8343,10 @@ static void do_v7m_exception_exit(ARMCPU *cpu)
                 //armv7m_nvic_set_pending(env->nvic, ARMV7M_EXCP_USAGE,
                 //                        env->v7m.secure);
                 env->v7m.cfsr[env->v7m.secure] |= R_V7M_CFSR_INVPC_MASK;
-                v7m_exception_taken(cpu, excret, true, false);
                 qemu_log_mask(CPU_LOG_INT, "...taking UsageFault on existing "
                               "stackframe: failed exception return integrity "
                               "check\n");
+                v7m_exception_taken(cpu, excret, true, false);
                 return;
             }
         }
@@ -8372,9 +8383,9 @@ static void do_v7m_exception_exit(ARMCPU *cpu)
         //armv7m_nvic_set_pending(env->nvic, ARMV7M_EXCP_USAGE);
         env->v7m.cfsr[env->v7m.secure] |= R_V7M_CFSR_INVPC_MASK;
         ignore_stackfaults = v7m_push_stack(cpu);
-        v7m_exception_taken(cpu, excret, false, ignore_stackfaults);
         qemu_log_mask(CPU_LOG_INT, "...taking UsageFault on new stackframe: "
                       "failed exception return integrity check\n");
+        v7m_exception_taken(cpu, excret, false, ignore_stackfaults);
         return;
     }
 
@@ -8461,26 +8472,24 @@ static void arm_log_exception(int idx)
     if (qemu_loglevel_mask(CPU_LOG_INT)) {
         const char *exc = NULL;
         static const char * const excnames[] = {
-            NULL,
-            "Undefined Instruction",
-            "SVC",
-            "Prefetch Abort",
-            "Data Abort",
-            "IRQ",
-            "FIQ",
-            "Breakpoint",
-            "QEMU v7M exception exit",
-             "QEMU intercept of kernel commpage",
-             NULL,
-            "Hypervisor Call",
-            "Hypervisor Trap",
-            "Secure Monitor Call",
-            "Virtual IRQ",
-            "Virtual FIQ",
-            "Semihosting call",
-            "v7M NOCP UsageFault",
-            "v7M INVSTATE UsageFault",
-            "v8M STKOF UsageFault",
+            [EXCP_UDEF] = "Undefined Instruction",
+            [EXCP_SWI] = "SVC",
+            [EXCP_PREFETCH_ABORT] = "Prefetch Abort",
+            [EXCP_DATA_ABORT] = "Data Abort",
+            [EXCP_IRQ] = "IRQ",
+            [EXCP_FIQ] = "FIQ",
+            [EXCP_BKPT] = "Breakpoint",
+            [EXCP_EXCEPTION_EXIT] = "QEMU v7M exception exit",
+            [EXCP_KERNEL_TRAP] = "QEMU intercept of kernel commpage",
+            [EXCP_HVC] = "Hypervisor Call",
+            [EXCP_HYP_TRAP] = "Hypervisor Trap",
+            [EXCP_SMC] = "Secure Monitor Call",
+            [EXCP_VIRQ] = "Virtual IRQ",
+            [EXCP_VFIQ] = "Virtual FIQ",
+            [EXCP_SEMIHOST] = "Semihosting call",
+            [EXCP_NOCP] = "v7M NOCP UsageFault",
+            [EXCP_INVSTATE] = "v7M INVSTATE UsageFault",
+            [EXCP_STKOF] = "v8M STKOF UsageFault",
         };
 
         if (idx >= 0 && idx < ARRAY_SIZE(excnames)) {
@@ -8629,15 +8638,15 @@ void arm_v7m_cpu_do_interrupt(CPUState *cs)
        handle it.  */
     switch (cs->exception_index) {
     case EXCP_UDEF:
-        //armv7m_nvic_set_pending(env->nvic, ARMV7M_EXCP_USAGE);
+        //armv7m_nvic_set_pending(env->nvic, ARMV7M_EXCP_USAGE, env->v7m.secure);
         env->v7m.cfsr[env->v7m.secure] |= R_V7M_CFSR_UNDEFINSTR_MASK;
         break;
     case EXCP_NOCP:
-        //armv7m_nvic_set_pending(env->nvic, ARMV7M_EXCP_USAGE);
+        //armv7m_nvic_set_pending(env->nvic, ARMV7M_EXCP_USAGE, env->v7m.secure);
         env->v7m.cfsr[env->v7m.secure] |= R_V7M_CFSR_NOCP_MASK;
         break;
     case EXCP_INVSTATE:
-        //armv7m_nvic_set_pending(env->nvic, ARMV7M_EXCP_USAGE);
+        //armv7m_nvic_set_pending(env->nvic, ARMV7M_EXCP_USAGE, env->v7m.secure);
         env->v7m.cfsr[env->v7m.secure] |= R_V7M_CFSR_INVSTATE_MASK;
         break;
     case EXCP_STKOF:
@@ -8646,7 +8655,7 @@ void arm_v7m_cpu_do_interrupt(CPUState *cs)
         break;
     case EXCP_SWI:
         /* The PC already points to the next instruction.  */
-        //armv7m_nvic_set_pending(env->nvic, ARMV7M_EXCP_SVC);
+        //armv7m_nvic_set_pending(env->nvic, ARMV7M_EXCP_SVC, env->v7m.secure);
         break;
     case EXCP_PREFETCH_ABORT:
     case EXCP_DATA_ABORT:
@@ -8710,7 +8719,7 @@ void arm_v7m_cpu_do_interrupt(CPUState *cs)
                 break;
             }
             // Unicorn: commented out
-            //armv7m_nvic_set_pending(env->nvic, ARMV7M_EXCP_BUS);
+            //armv7m_nvic_set_pending(env->nvic, ARMV7M_EXCP_BUS, false);
             break;
         default:
             /* All other FSR values are either MPU faults or "can't happen
@@ -8731,7 +8740,8 @@ void arm_v7m_cpu_do_interrupt(CPUState *cs)
                 break;
             }
             // Unicorn: commented out
-            //armv7m_nvic_set_pending(env->nvic, ARMV7M_EXCP_MEM);
+            //armv7m_nvic_set_pending(env->nvic, ARMV7M_EXCP_MEM,
+            //                        env->v7m.secure);
             break;
         }
         break;
@@ -8750,7 +8760,7 @@ void arm_v7m_cpu_do_interrupt(CPUState *cs)
             }
         }
 #endif
-        //armv7m_nvic_set_pending(env->nvic, ARMV7M_EXCP_DEBUG);
+        //armv7m_nvic_set_pending(env->nvic, ARMV7M_EXCP_DEBUG, false);
         break;
     case EXCP_IRQ:
         break;
@@ -8806,7 +8816,6 @@ void arm_v7m_cpu_do_interrupt(CPUState *cs)
 
     ignore_stackfaults = v7m_push_stack(cpu);
     v7m_exception_taken(cpu, lr, false, ignore_stackfaults);
-    qemu_log_mask(CPU_LOG_INT, "... as %d\n", env->v7m.exception);
 }
 
 /* Function used to synchronize QEMU's AArch64 register set with AArch32
@@ -10580,7 +10589,6 @@ static bool get_phys_addr_lpae(CPUARMState *env, target_ulong address,
         param = aa64_va_parameters(env, address, mmu_idx,
                                    access_type != MMU_INST_FETCH);
         level = 0;
-
         /* If we are in 64-bit EL2 or EL3 then there is no TTBR1, so mark it
          * invalid.
          */
@@ -12223,7 +12231,6 @@ void HELPER(dc_zva)(CPUARMState *env, uint64_t vaddr_in)
          * 1K as an artefact of legacy v5 subpage support being present in the
          * same QEMU executable.
          */
-        
         int maxidx = DIV_ROUND_UP(blocklen, TARGET_PAGE_SIZE);
         // msvc doesnt allow non-constant array sizes, so we work out the size it would be
         // TARGET_PAGE_SIZE is 1024
@@ -12694,7 +12701,7 @@ ARMMMUIdx arm_stage1_mmu_idx(CPUARMState *env)
 void cpu_get_tb_cpu_state(CPUARMState *env, target_ulong *pc,
                           target_ulong *cs_base, uint32_t *pflags)
 {
-    ARMMMUIdx mmu_idx = core_to_arm_mmu_idx(env, cpu_mmu_index(env, false));
+    ARMMMUIdx mmu_idx = arm_mmu_idx(env);
     int current_el = arm_current_el(env);
     int fp_el = fp_exception_el(env, current_el);
     uint32_t flags = 0;

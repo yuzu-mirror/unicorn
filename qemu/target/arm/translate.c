@@ -4858,6 +4858,11 @@ static void gen_exception_return(DisasContext *s, TCGv_i32 pc)
 static void gen_nop_hint(DisasContext *s, int val)
 {
     switch (val) {
+        /* When running in MTTCG we don't generate jumps to the yield and
+         * WFE helpers as it won't affect the scheduling of other vCPUs.
+         * If we wanted to more completely model WFE/SEV so we don't busy
+         * spin unnecessarily we would need to do something more involved.
+         */
     case 1: /* yield */
         if (!s->uc->parallel_cpus) {
             gen_set_pc_im(s, s->pc);
@@ -5306,6 +5311,7 @@ static int disas_neon_ls_insn(DisasContext *s, uint32_t insn)
                 break;
             case 2:
                 reg_idx = (insn >> 7) & 1;
+                stride = (insn & (1 << 6)) ? 2 : 1;
                 break;
             default:
                 abort();
@@ -5599,7 +5605,7 @@ static void gen_neon_narrow_op(DisasContext *s, int op, int u, int size,
 #define NEON_3R_VABA 15
 #define NEON_3R_VADD_VSUB 16
 #define NEON_3R_VTST_VCEQ 17
-#define NEON_3R_VML 18 /* VMLA, VMLAL, VMLS, VMLSL */
+#define NEON_3R_VML 18 /* VMLA, VMLS */
 #define NEON_3R_VMUL 19
 #define NEON_3R_VPMAX 20
 #define NEON_3R_VPMIN 21
@@ -5615,38 +5621,38 @@ static void gen_neon_narrow_op(DisasContext *s, int op, int u, int size,
 #define NEON_3R_FLOAT_MISC 31 /* float VRECPS, VRSQRTS, VMAXNM/MINNM */
 
 static const uint8_t neon_3r_sizes[] = {
-    /*NEON_3R_VHADD*/ 0x7,
-    /*NEON_3R_VQADD*/ 0xf,
-    /*NEON_3R_VRHADD*/ 0x7,
-    /*NEON_3R_LOGIC*/ 0xf, /* size field encodes op type */
-    /*NEON_3R_VHSUB*/ 0x7,
-    /*NEON_3R_VQSUB*/ 0xf,
-    /*NEON_3R_VCGT*/ 0x7,
-    /*NEON_3R_VCGE*/ 0x7,
-    /*NEON_3R_VSHL*/ 0xf,
-    /*NEON_3R_VQSHL*/ 0xf,
-    /*NEON_3R_VRSHL*/ 0xf,
-    /*NEON_3R_VQRSHL*/ 0xf,
-    /*NEON_3R_VMAX*/ 0x7,
-    /*NEON_3R_VMIN*/ 0x7,
-    /*NEON_3R_VABD*/ 0x7,
-    /*NEON_3R_VABA*/ 0x7,
-    /*NEON_3R_VADD_VSUB*/ 0xf,
-    /*NEON_3R_VTST_VCEQ*/ 0x7,
-    /*NEON_3R_VML*/ 0x7,
-    /*NEON_3R_VMUL*/ 0x7,
-    /*NEON_3R_VPMAX*/ 0x7,
-    /*NEON_3R_VPMIN*/ 0x7,
-    /*NEON_3R_VQDMULH_VQRDMULH*/ 0x6,
-    /*NEON_3R_VPADD_VQRDMLAH*/ 0x7,
-    /*NEON_3R_SHA*/ 0xf, /* size field encodes op type */
-    /*NEON_3R_VFM_VQRDMLSH*/ 0x7, /* For VFM, size bit 1 encodes op */
-    /*NEON_3R_FLOAT_ARITH*/ 0x5, /* size bit 1 encodes op */
-    /*NEON_3R_FLOAT_MULTIPLY*/ 0x5, /* size bit 1 encodes op */
-    /*NEON_3R_FLOAT_CMP*/ 0x5, /* size bit 1 encodes op */
-    /*NEON_3R_FLOAT_ACMP*/ 0x5, /* size bit 1 encodes op */
-    /*NEON_3R_FLOAT_MINMAX*/ 0x5, /* size bit 1 encodes op */
-    /*NEON_3R_FLOAT_MISC*/ 0x5, /* size bit 1 encodes op */
+    [NEON_3R_VHADD] = 0x7,
+    [NEON_3R_VQADD] = 0xf,
+    [NEON_3R_VRHADD] = 0x7,
+    [NEON_3R_LOGIC] = 0xf, /* size field encodes op type */
+    [NEON_3R_VHSUB] = 0x7,
+    [NEON_3R_VQSUB] = 0xf,
+    [NEON_3R_VCGT] = 0x7,
+    [NEON_3R_VCGE] = 0x7,
+    [NEON_3R_VSHL] = 0xf,
+    [NEON_3R_VQSHL] = 0xf,
+    [NEON_3R_VRSHL] = 0xf,
+    [NEON_3R_VQRSHL] = 0xf,
+    [NEON_3R_VMAX] = 0x7,
+    [NEON_3R_VMIN] = 0x7,
+    [NEON_3R_VABD] = 0x7,
+    [NEON_3R_VABA] = 0x7,
+    [NEON_3R_VADD_VSUB] = 0xf,
+    [NEON_3R_VTST_VCEQ] = 0x7,
+    [NEON_3R_VML] = 0x7,
+    [NEON_3R_VMUL] = 0x7,
+    [NEON_3R_VPMAX] = 0x7,
+    [NEON_3R_VPMIN] = 0x7,
+    [NEON_3R_VQDMULH_VQRDMULH] = 0x6,
+    [NEON_3R_VPADD_VQRDMLAH] = 0x7,
+    [NEON_3R_SHA] = 0xf, /* size field encodes op type */
+    [NEON_3R_VFM_VQRDMLSH] = 0x7, /* For VFM, size bit 1 encodes op */
+    [NEON_3R_FLOAT_ARITH] = 0x5, /* size bit 1 encodes op */
+    [NEON_3R_FLOAT_MULTIPLY] = 0x5, /* size bit 1 encodes op */
+    [NEON_3R_FLOAT_CMP] = 0x5, /* size bit 1 encodes op */
+    [NEON_3R_FLOAT_ACMP] = 0x5, /* size bit 1 encodes op */
+    [NEON_3R_FLOAT_MINMAX] = 0x5, /* size bit 1 encodes op */
+    [NEON_3R_FLOAT_MISC] = 0x5, /* size bit 1 encodes op */
 };
 
 /* Symbolic constants for op fields for Neon 2-register miscellaneous.
@@ -5755,70 +5761,68 @@ static bool neon_2rm_is_v8_op(int op)
  * op values will have no bits set they always UNDEF.
  */
 static const uint8_t neon_2rm_sizes[] = {
-    /*NEON_2RM_VREV64*/ 0x7,
-    /*NEON_2RM_VREV32*/ 0x3,
-    /*NEON_2RM_VREV16*/ 0x1,
-    0,
-    /*NEON_2RM_VPADDL*/ 0x7,
-    /*NEON_2RM_VPADDL_U*/ 0x7,
-    /*NEON_2RM_AESE*/ 0x1,
-    /*NEON_2RM_AESMC*/ 0x1,
-    /*NEON_2RM_VCLS*/ 0x7,
-    /*NEON_2RM_VCLZ*/ 0x7,
-    /*NEON_2RM_VCNT*/ 0x1,
-    /*NEON_2RM_VMVN*/ 0x1,
-    /*NEON_2RM_VPADAL*/ 0x7,
-    /*NEON_2RM_VPADAL_U*/ 0x7,
-    /*NEON_2RM_VQABS*/ 0x7,
-    /*NEON_2RM_VQNEG*/ 0x7,
-    /*NEON_2RM_VCGT0*/ 0x7,
-    /*NEON_2RM_VCGE0*/ 0x7,
-    /*NEON_2RM_VCEQ0*/ 0x7,
-    /*NEON_2RM_VCLE0*/ 0x7,
-    /*NEON_2RM_VCLT0*/ 0x7,
-    /*NEON_2RM_SHA1H*/ 0x4,
-    /*NEON_2RM_VABS*/ 0x7,
-    /*NEON_2RM_VNEG*/ 0x7,
-    /*NEON_2RM_VCGT0_F*/ 0x4,
-    /*NEON_2RM_VCGE0_F*/ 0x4,
-    /*NEON_2RM_VCEQ0_F*/ 0x4,
-    /*NEON_2RM_VCLE0_F*/ 0x4,
-    /*NEON_2RM_VCLT0_F*/ 0x4,
-    0,
-    /*NEON_2RM_VABS_F*/ 0x4,
-    /*NEON_2RM_VNEG_F*/ 0x4,
-    /*NEON_2RM_VSWP*/ 0x1,
-    /*NEON_2RM_VTRN*/ 0x7,
-    /*NEON_2RM_VUZP*/ 0x7,
-    /*NEON_2RM_VZIP*/ 0x7,
-    /*NEON_2RM_VMOVN*/ 0x7,
-    /*NEON_2RM_VQMOVN*/ 0x7,
-    /*NEON_2RM_VSHLL*/ 0x7,
-    /*NEON_2RM_SHA1SU1*/ 0x4,
-    /*NEON_2RM_VRINTN*/ 0x4,
-    /*NEON_2RM_VRINTX*/ 0x4,
-    /*NEON_2RM_VRINTA*/ 0x4,
-    /*NEON_2RM_VRINTZ*/ 0x4,
-    /*NEON_2RM_VCVT_F16_F32*/ 0x2,
-    /*NEON_2RM_VRINTM*/ 0x4,
-    /*NEON_2RM_VCVT_F32_F16*/ 0x2,
-    /*NEON_2RM_VRINTP*/ 0x4,
-    /*NEON_2RM_VCVTAU*/ 0x4,
-    /*NEON_2RM_VCVTAS*/ 0x4,
-    /*NEON_2RM_VCVTNU*/ 0x4,
-    /*NEON_2RM_VCVTNS*/ 0x4,
-    /*NEON_2RM_VCVTPU*/ 0x4,
-    /*NEON_2RM_VCVTPS*/ 0x4,
-    /*NEON_2RM_VCVTMU*/ 0x4,
-    /*NEON_2RM_VCVTMS*/ 0x4,
-    /*NEON_2RM_VRECPE*/ 0x4,
-    /*NEON_2RM_VRSQRTE*/ 0x4,
-    /*NEON_2RM_VRECPE_F*/ 0x4,
-    /*NEON_2RM_VRSQRTE_F*/ 0x4,
-    /*NEON_2RM_VCVT_FS*/ 0x4,
-    /*NEON_2RM_VCVT_FU*/ 0x4,
-    /*NEON_2RM_VCVT_SF*/ 0x4,
-    /*NEON_2RM_VCVT_UF*/ 0x4,
+    [NEON_2RM_VREV64] = 0x7,
+    [NEON_2RM_VREV32] = 0x3,
+    [NEON_2RM_VREV16] = 0x1,
+    [NEON_2RM_VPADDL] = 0x7,
+    [NEON_2RM_VPADDL_U] = 0x7,
+    [NEON_2RM_AESE] = 0x1,
+    [NEON_2RM_AESMC] = 0x1,
+    [NEON_2RM_VCLS] = 0x7,
+    [NEON_2RM_VCLZ] = 0x7,
+    [NEON_2RM_VCNT] = 0x1,
+    [NEON_2RM_VMVN] = 0x1,
+    [NEON_2RM_VPADAL] = 0x7,
+    [NEON_2RM_VPADAL_U] = 0x7,
+    [NEON_2RM_VQABS] = 0x7,
+    [NEON_2RM_VQNEG] = 0x7,
+    [NEON_2RM_VCGT0] = 0x7,
+    [NEON_2RM_VCGE0] = 0x7,
+    [NEON_2RM_VCEQ0] = 0x7,
+    [NEON_2RM_VCLE0] = 0x7,
+    [NEON_2RM_VCLT0] = 0x7,
+    [NEON_2RM_SHA1H] = 0x4,
+    [NEON_2RM_VABS] = 0x7,
+    [NEON_2RM_VNEG] = 0x7,
+    [NEON_2RM_VCGT0_F] = 0x4,
+    [NEON_2RM_VCGE0_F] = 0x4,
+    [NEON_2RM_VCEQ0_F] = 0x4,
+    [NEON_2RM_VCLE0_F] = 0x4,
+    [NEON_2RM_VCLT0_F] = 0x4,
+    [NEON_2RM_VABS_F] = 0x4,
+    [NEON_2RM_VNEG_F] = 0x4,
+    [NEON_2RM_VSWP] = 0x1,
+    [NEON_2RM_VTRN] = 0x7,
+    [NEON_2RM_VUZP] = 0x7,
+    [NEON_2RM_VZIP] = 0x7,
+    [NEON_2RM_VMOVN] = 0x7,
+    [NEON_2RM_VQMOVN] = 0x7,
+    [NEON_2RM_VSHLL] = 0x7,
+    [NEON_2RM_SHA1SU1] = 0x4,
+    [NEON_2RM_VRINTN] = 0x4,
+    [NEON_2RM_VRINTX] = 0x4,
+    [NEON_2RM_VRINTA] = 0x4,
+    [NEON_2RM_VRINTZ] = 0x4,
+    [NEON_2RM_VCVT_F16_F32] = 0x2,
+    [NEON_2RM_VRINTM] = 0x4,
+    [NEON_2RM_VCVT_F32_F16] = 0x2,
+    [NEON_2RM_VRINTP] = 0x4,
+    [NEON_2RM_VCVTAU] = 0x4,
+    [NEON_2RM_VCVTAS] = 0x4,
+    [NEON_2RM_VCVTNU] = 0x4,
+    [NEON_2RM_VCVTNS] = 0x4,
+    [NEON_2RM_VCVTPU] = 0x4,
+    [NEON_2RM_VCVTPS] = 0x4,
+    [NEON_2RM_VCVTMU] = 0x4,
+    [NEON_2RM_VCVTMS] = 0x4,
+    [NEON_2RM_VRECPE] = 0x4,
+    [NEON_2RM_VRSQRTE] = 0x4,
+    [NEON_2RM_VRECPE_F] = 0x4,
+    [NEON_2RM_VRSQRTE_F] = 0x4,
+    [NEON_2RM_VCVT_FS] = 0x4,
+    [NEON_2RM_VCVT_FU] = 0x4,
+    [NEON_2RM_VCVT_SF] = 0x4,
+    [NEON_2RM_VCVT_UF] = 0x4,
 };
 
 
@@ -6140,27 +6144,24 @@ static void gen_shl_ins_vec(TCGContext *s, unsigned vece, TCGv_vec d, TCGv_vec a
 const GVecGen2i sli_op[4] = {
     { .fni8 = gen_shl8_ins_i64,
       .fniv = gen_shl_ins_vec,
-      .opc = INDEX_op_shli_vec,
-      .prefer_i64 = TCG_TARGET_REG_BITS == 64,
       .load_dest = true,
+      .opc = INDEX_op_shli_vec,
       .vece = MO_8 },
     { .fni8 = gen_shl16_ins_i64,
       .fniv = gen_shl_ins_vec,
-      .opc = INDEX_op_shli_vec,
-      .prefer_i64 = TCG_TARGET_REG_BITS == 64,
       .load_dest = true,
+      .opc = INDEX_op_shli_vec,
       .vece = MO_16 },
     { .fni4 = gen_shl32_ins_i32,
       .fniv = gen_shl_ins_vec,
-      .opc = INDEX_op_shli_vec,
-      .prefer_i64 = TCG_TARGET_REG_BITS == 64,
       .load_dest = true,
+      .opc = INDEX_op_shli_vec,
       .vece = MO_32 },
     { .fni8 = gen_shl64_ins_i64,
       .fniv = gen_shl_ins_vec,
-      .opc = INDEX_op_shli_vec,
       .prefer_i64 = TCG_TARGET_REG_BITS == 64,
       .load_dest = true,
+      .opc = INDEX_op_shli_vec,
       .vece = MO_64 },
 };
 
@@ -7436,6 +7437,7 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                     for (pass = 0; pass <= q; ++pass) {
                         uint64_t val = 0;
                         int n;
+
                         for (n = 0; n < 8; n++) {
                             if (imm & (1 << (n + pass * 8))) {
                                 val |= 0xffull << (n * 8);
@@ -8068,7 +8070,6 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                 {
                     TCGv_ptr fpst;
                     TCGv_i32 ahp;
-
                     if (!dc_isar_feature(aa32_fp16_spconv, s) ||
                         q || (rd & 1)) {
                         return 1;
