@@ -12614,11 +12614,11 @@ static void disas_thumb_insn(DisasContext *s, uint32_t insn)
             case 0xe800:
             case 0xf000:
             case 0xf800:
-                gen_uc_tracecode(tcg_ctx, 4, UC_HOOK_CODE_IDX, s->uc, s->pc);
+                gen_uc_tracecode(tcg_ctx, 4, UC_HOOK_CODE_IDX, s->uc, s->pc - 4);
                 break;
             // Thumb: 16-bit
             default:
-                gen_uc_tracecode(tcg_ctx, 2, UC_HOOK_CODE_IDX, s->uc, s->pc);
+                gen_uc_tracecode(tcg_ctx, 2, UC_HOOK_CODE_IDX, s->uc, s->pc - 2);
                 break;
         }
         // the callback might want to stop emulation immediately
