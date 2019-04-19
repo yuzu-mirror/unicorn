@@ -78,29 +78,27 @@ static void memory_region_update_container_subregions(MemoryRegion *subregion);
 
 void memory_unmap(struct uc_struct *uc, MemoryRegion *mr)
 {
-    int i;
-    target_ulong addr;
-    Object *obj;
-
     // Make sure all pages associated with the MemoryRegion are flushed
     // Only need to do this if we are in a running state
     if (uc->current_cpu) {
-        for (addr = mr->addr; addr < mr->end; addr += uc->target_page_size) {
-           tlb_flush_page(uc->current_cpu, addr);
+        for (hwaddr addr = mr->addr; addr < mr->end; addr += uc->target_page_size) {
+           tlb_flush_page(uc->current_cpu, (target_ulong)addr);
         }
     }
     memory_region_del_subregion(get_system_memory(uc), mr);
 
-    for (i = 0; i < uc->mapped_block_count; i++) {
+    for (size_t i = 0; i < uc->mapped_block_count; i++) {
         if (uc->mapped_blocks[i] == mr) {
             uc->mapped_block_count--;
             //shift remainder of array down over deleted pointer
             memmove(&uc->mapped_blocks[i], &uc->mapped_blocks[i + 1], sizeof(MemoryRegion*) * (uc->mapped_block_count - i));
             mr->destructor(mr);
             mr->ram_block = NULL;
-            obj = OBJECT(mr);
+
+            Object *obj = OBJECT(mr);
             obj->ref = 1;
             obj->free = g_free;
+
             g_free((char *)mr->name);
             mr->name = NULL;
             object_property_del_child(mr->uc, qdev_get_machine(mr->uc), obj, &error_abort);
@@ -111,17 +109,14 @@ void memory_unmap(struct uc_struct *uc, MemoryRegion *mr)
 
 int memory_free(struct uc_struct *uc)
 {
-    MemoryRegion *mr;
-    Object *obj;
-    int i;
-
-    for (i = 0; i < uc->mapped_block_count; i++) {
-        mr = uc->mapped_blocks[i];
+    for (size_t i = 0; i < uc->mapped_block_count; i++) {
+        MemoryRegion *mr = uc->mapped_blocks[i];
         mr->enabled = false;
         memory_region_del_subregion(get_system_memory(uc), mr);
         mr->destructor(mr);
         mr->ram_block = NULL;
-        obj = OBJECT(mr);
+
+        Object *obj = OBJECT(mr);
         obj->ref = 1;
         obj->free = g_free;
         object_property_del_child(mr->uc, qdev_get_machine(mr->uc), obj, &error_abort);
