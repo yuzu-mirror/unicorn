@@ -76,6 +76,19 @@ MemoryRegion *memory_map_ptr(struct uc_struct *uc, hwaddr begin, size_t size, ui
 
 static void memory_region_update_container_subregions(MemoryRegion *subregion);
 
+static void unicorn_free_memory_region(MemoryRegion *mr) {
+    mr->destructor(mr);
+    mr->ram_block = NULL;
+
+    g_free((char *)mr->name);
+    mr->name = NULL;
+
+    Object *obj = OBJECT(mr);
+    obj->ref = 1;
+    obj->free = g_free;
+    object_property_del_child(mr->uc, qdev_get_machine(mr->uc), obj, &error_abort);
+}
+
 void memory_unmap(struct uc_struct *uc, MemoryRegion *mr)
 {
     // Make sure all pages associated with the MemoryRegion are flushed
@@ -92,16 +105,7 @@ void memory_unmap(struct uc_struct *uc, MemoryRegion *mr)
             uc->mapped_block_count--;
             //shift remainder of array down over deleted pointer
             memmove(&uc->mapped_blocks[i], &uc->mapped_blocks[i + 1], sizeof(MemoryRegion*) * (uc->mapped_block_count - i));
-            mr->destructor(mr);
-            mr->ram_block = NULL;
-
-            Object *obj = OBJECT(mr);
-            obj->ref = 1;
-            obj->free = g_free;
-
-            g_free((char *)mr->name);
-            mr->name = NULL;
-            object_property_del_child(mr->uc, qdev_get_machine(mr->uc), obj, &error_abort);
+            unicorn_free_memory_region(mr);
             break;
         }
     }
@@ -112,14 +116,7 @@ int memory_free(struct uc_struct *uc)
     for (size_t i = 0; i < uc->mapped_block_count; i++) {
         MemoryRegion *mr = uc->mapped_blocks[i];
         mr->enabled = false;
-        memory_region_del_subregion(get_system_memory(uc), mr);
-        mr->destructor(mr);
-        mr->ram_block = NULL;
-
-        Object *obj = OBJECT(mr);
-        obj->ref = 1;
-        obj->free = g_free;
-        object_property_del_child(mr->uc, qdev_get_machine(mr->uc), obj, &error_abort);
+        unicorn_free_memory_region(mr);
     }
 
     return 0;
