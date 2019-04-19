@@ -6055,17 +6055,20 @@ static void gen_shr64_ins_i64(TCGContext *s, TCGv_i64 d, TCGv_i64 a, int64_t shi
 
 static void gen_shr_ins_vec(TCGContext *s, unsigned vece, TCGv_vec d, TCGv_vec a, int64_t sh)
 {
-    uint64_t mask = (2ull << ((8 << vece) - 1)) - 1;
-    TCGv_vec t = tcg_temp_new_vec_matching(s, d);
-    TCGv_vec m = tcg_temp_new_vec_matching(s, d);
+    if (sh == 0) {
+        tcg_gen_mov_vec(s, d, a);
+    } else {
+        TCGv_vec t = tcg_temp_new_vec_matching(s, d);
+        TCGv_vec m = tcg_temp_new_vec_matching(s, d);
 
-    tcg_gen_dupi_vec(s, vece, m, mask ^ (mask >> sh));
-    tcg_gen_shri_vec(s, vece, t, a, sh);
-    tcg_gen_and_vec(s, vece, d, d, m);
-    tcg_gen_or_vec(s, vece, d, d, t);
+        tcg_gen_dupi_vec(s, vece, m, MAKE_64BIT_MASK((8 << vece) - sh, sh));
+        tcg_gen_shri_vec(s, vece, t, a, sh);
+        tcg_gen_and_vec(s, vece, d, d, m);
+        tcg_gen_or_vec(s, vece, d, d, t);
 
-    tcg_temp_free_vec(s, t);
-    tcg_temp_free_vec(s, m);
+        tcg_temp_free_vec(s, t);
+        tcg_temp_free_vec(s, m);
+    }
 }
 
 const GVecGen2i sri_op[4] = {
@@ -10360,7 +10363,7 @@ static void disas_arm_insn(DisasContext *s, unsigned int insn)
                 }
                 /* Perform base writeback before the loaded value to
                    ensure correct behavior with overlapping index registers.
-                   ldrd with base writeback is is undefined if the
+                   ldrd with base writeback is undefined if the
                    destination and index registers overlap.  */
                 if (!pbit) {
                     gen_add_datah_offset(s, insn, address_offset, addr);
@@ -13941,29 +13944,28 @@ static void arm_tr_disas_log(const DisasContextBase *dcbase, CPUState *cpu)
     DisasContext *dc = container_of(dcbase, DisasContext, base);
 
     qemu_log("IN: %s\n", lookup_symbol(dc->base.pc_first));
-    log_target_disas(cpu, dc->base.pc_first, dc->base.tb->size,
-                     dc->thumb | (dc->sctlr_b << 1));
+    log_target_disas(cpu, dc->base.pc_first, dc->base.tb->size);
 #endif
 }
 
 static const TranslatorOps arm_translator_ops = {
-    arm_tr_init_disas_context,
-    arm_tr_tb_start,
-    arm_tr_insn_start,
-    arm_tr_breakpoint_check,
-    arm_tr_translate_insn,
-    arm_tr_tb_stop,
-    arm_tr_disas_log,
+    .init_disas_context = arm_tr_init_disas_context,
+    .tb_start           = arm_tr_tb_start,
+    .insn_start         = arm_tr_insn_start,
+    .breakpoint_check   = arm_tr_breakpoint_check,
+    .translate_insn     = arm_tr_translate_insn,
+    .tb_stop            = arm_tr_tb_stop,
+    .disas_log          = arm_tr_disas_log,
 };
 
 static const TranslatorOps thumb_translator_ops = {
-    arm_tr_init_disas_context,
-    arm_tr_tb_start,
-    arm_tr_insn_start,
-    arm_tr_breakpoint_check,
-    thumb_tr_translate_insn,
-    arm_tr_tb_stop,
-    arm_tr_disas_log,
+    .init_disas_context = arm_tr_init_disas_context,
+    .tb_start           = arm_tr_tb_start,
+    .insn_start         = arm_tr_insn_start,
+    .breakpoint_check   = arm_tr_breakpoint_check,
+    .translate_insn     = thumb_tr_translate_insn,
+    .tb_stop            = arm_tr_tb_stop,
+    .disas_log          = arm_tr_disas_log,
 };
 
 /* generate intermediate code for basic block 'tb'.  */
