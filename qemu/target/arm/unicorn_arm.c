@@ -97,7 +97,7 @@ int arm_reg_read(struct uc_struct *uc, unsigned int *regs, void **vals, int coun
                     *(int32_t *)value = vfp_get_fpscr(state);
                     break;
                 case UC_ARM_REG_IPSR:
-                    *(uint32_t *)value = xpsr_read(state) & 0x1ff;
+                    *(uint32_t *)value = xpsr_read(state) & XPSR_EXCP;
                     break;
                 case UC_ARM_REG_MSP:
                     *(uint32_t *)value = helper_v7m_mrs(state, 8);
@@ -170,7 +170,7 @@ int arm_reg_write(struct uc_struct *uc, unsigned int *regs, void* const* vals, i
                     vfp_set_fpscr(state, *(uint32_t *)value);
                     break;
                 case UC_ARM_REG_IPSR:
-                    xpsr_write(state, *(uint32_t *)value, 0x1ff);
+                    xpsr_write(state, *(uint32_t *)value, XPSR_EXCP);
                     break;
                 case UC_ARM_REG_MSP:
                     helper_v7m_msr(state, 8, *(uint32_t *)value);
