@@ -458,7 +458,7 @@ static inline bool use_goto_tb(DisasContext *s, int n, uint64_t dest)
     /* No direct tb linking with singlestep (either QEMU's or the ARM
      * debug architecture kind) or deterministic io
      */
-    if (s->base.singlestep_enabled || s->ss_active || (s->base.tb->cflags & CF_LAST_IO)) {
+    if (s->base.singlestep_enabled || s->ss_active || (tb_cflags(s->base.tb) & CF_LAST_IO)) {
         return false;
     }
 
@@ -1953,7 +1953,7 @@ static void handle_sys(DisasContext *s, uint32_t insn, bool isread,
 
     // Unicorn: if'd out
 #if 0
-    if ((s->base.tb->cflags & CF_USE_ICOUNT) && (ri->type & ARM_CP_IO)) {
+    if ((tb_cflags(s->base.tb) & CF_USE_ICOUNT) && (ri->type & ARM_CP_IO)) {
         gen_io_start();
     }
 #endif
@@ -1985,7 +1985,7 @@ static void handle_sys(DisasContext *s, uint32_t insn, bool isread,
         }
     }
 
-    if ((s->base.tb->cflags & CF_USE_ICOUNT) && (ri->type & ARM_CP_IO)) {
+    if ((tb_cflags(s->base.tb) & CF_USE_ICOUNT) && (ri->type & ARM_CP_IO)) {
         /* I/O operations must end the TB here (whether read or write) */
         // Unicorn: commented out
         //gen_io_end();
@@ -2543,7 +2543,7 @@ static void gen_compare_and_swap_pair(DisasContext *s, int rs, int rt,
         }
         tcg_temp_free_i64(tcg_ctx, cmp);
         // Unicorn: commented out as parallel context support isn't implemented
-    /* } else if (s->base.tb->cflags & CF_PARALLEL) {
+    /* } else if (tb_cflags(s->base.tb) & CF_PARALLEL) {
         TCGv_i32 tcg_rs = tcg_const_i32(tcg_ctx, rs);
 
         if (s->be_data == MO_LE) {

@@ -8162,12 +8162,12 @@ case 0x101:
             }
             gen_update_cc_op(s);
             gen_jmp_im(s, pc_start - s->cs_base);
-            if (s->base.tb->cflags & CF_USE_ICOUNT) {
+            if (tb_cflags(s->base.tb) & CF_USE_ICOUNT) {
                 // Unicorn: commented out
                 //gen_io_start();
             }
             gen_helper_rdtscp(tcg_ctx, cpu_env);
-            if (s->base.tb->cflags & CF_USE_ICOUNT) {
+            if (tb_cflags(s->base.tb) & CF_USE_ICOUNT) {
                 // Unicorn: commented out
                 //gen_io_end();
                 gen_jmp(s, s->pc - s->cs_base);
@@ -8535,7 +8535,7 @@ case 0x101:
                 if (b & 2) {
                     // Unicorn: if'd out
                     #if 0
-                    if (s->base.tb->cflags & CF_USE_ICOUNT) {
+                    if (tb_cflags(s->base.tb) & CF_USE_ICOUNT) {
                         gen_io_start();
                     }
                     #endif
@@ -8545,7 +8545,7 @@ case 0x101:
 
                     // Unicorn: if'd out
                     #if 0
-                    if (s->base.tb->cflags & CF_USE_ICOUNT) {
+                    if (tb_cflags(s->base.tb) & CF_USE_ICOUNT) {
                         gen_io_end();
                     }
                     #endif
@@ -8554,14 +8554,14 @@ case 0x101:
                 } else {
                     // Unicorn: if'd out
                     #if 0
-                    if (s->base.tb->cflags & CF_USE_ICOUNT) {
+                    if (tb_cflags(s->base.tb) & CF_USE_ICOUNT) {
                         gen_io_start();
                     }
                     #endif
                     gen_helper_read_crN(tcg_ctx, s->T0, cpu_env, tcg_const_i32(tcg_ctx, reg));
                     gen_op_mov_reg_v(s, ot, rm, s->T0);
                     #if 0
-                    if (s->base.tb->cflags & CF_USE_ICOUNT) {
+                    if (tb_cflags(s->base.tb) & CF_USE_ICOUNT) {
                         gen_io_end();
                     }
                     #endif
@@ -9105,7 +9105,7 @@ static void i386_tr_init_disas_context(DisasContextBase *dcbase, CPUState *cpu)
        record/replay modes and there will always be an
        additional step for ecx=0 when icount is enabled.
      */
-    dc->repz_opt = !dc->jmp_opt && !(dc->base.tb->cflags & CF_USE_ICOUNT);
+    dc->repz_opt = !dc->jmp_opt && !(tb_cflags(dc->base.tb) & CF_USE_ICOUNT);
 #if 0
     /* check addseg logic */
     if (!dc->addseg && (dc->vm86 || !dc->pe || !dc->code32))
@@ -9183,7 +9183,7 @@ static void i386_tr_translate_insn(DisasContextBase *dcbase, CPUState *cpu)
            the flag and abort the translation to give the irqs a
            chance to happen */
         dc->base.is_jmp = DISAS_TOO_MANY;
-    } else if ((dc->base.tb->cflags & CF_USE_ICOUNT)
+    } else if ((tb_cflags(dc->base.tb) & CF_USE_ICOUNT)
                && ((pc_next & TARGET_PAGE_MASK)
                    != ((pc_next + TARGET_MAX_INSN_SIZE - 1)
                        & TARGET_PAGE_MASK)

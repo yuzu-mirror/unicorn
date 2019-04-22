@@ -134,7 +134,7 @@ TranslationBlock *tb_htable_lookup(CPUState *cpu, target_ulong pc,
             tb->page_addr[0] == phys_page1 &&
             tb->cs_base == cs_base &&
             tb->flags == flags &&
-            !(atomic_read(&tb->cflags) & CF_INVALID)) {
+            !(tb_cflags(tb) & CF_INVALID)) {
 
             if (tb->page_addr[1] == -1) {
                 /* done, we have a match */
@@ -251,7 +251,7 @@ static inline TranslationBlock *tb_find(CPUState *cpu,
         /* Check if translation buffer has been flushed */
         if (cpu->tb_flushed) {
             cpu->tb_flushed = false;
-        } else if (!(tb->cflags & CF_INVALID)) {
+        } else if (!(tb_cflags(tb) & CF_INVALID)) {
             tb_add_jump(last_tb, tb_exit, tb);
         }
     }

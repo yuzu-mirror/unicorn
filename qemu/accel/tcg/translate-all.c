@@ -316,7 +316,7 @@ static int cpu_restore_state_from_tb(CPUState *cpu, TranslationBlock *tb,
 
 found:
     // UNICORN: Commented out
-    //if (reset_icount && (tb->cflags & CF_USE_ICOUNT)) {
+    //if (reset_icount && (tb_cflags(tb) & CF_USE_ICOUNT)) {
     //    assert(use_icount);
     //    /* Reset the cycle counter to the start of the block
     //       and shift if to the number of actually executed instructions */
@@ -359,7 +359,7 @@ bool cpu_restore_state(CPUState *cpu, uintptr_t host_pc, bool will_exit)
         tb = tb_find_pc(env->uc, host_pc);
         if (tb) {
             cpu_restore_state_from_tb(cpu, tb, host_pc, will_exit);
-            if (tb->cflags & CF_NOCACHE) {
+            if (tb_cflags(tb) & CF_NOCACHE) {
                 /* one-shot translation, invalidate it immediately */
                 tb_phys_invalidate(cpu->uc, tb, -1);
                 tb_free(cpu->uc, tb);
@@ -1591,7 +1591,7 @@ void tb_invalidate_phys_page_range(struct uc_struct *uc, tb_page_addr_t start, t
                 }
             }
             if (current_tb == tb &&
-                (current_tb->cflags & CF_COUNT_MASK) != 1) {
+                (tb_cflags(current_tb) & CF_COUNT_MASK) != 1) {
                 /* If we are modifying the current TB, we must stop
                 its execution. We could be more precise by checking
                 that the modification is after the current PC, but it
@@ -1711,7 +1711,7 @@ static bool tb_invalidate_phys_page(tb_page_addr_t addr, uintptr_t pc)
         tb = (TranslationBlock *)((uintptr_t)tb & ~3);
 #ifdef TARGET_HAS_PRECISE_SMC
         if (current_tb == tb &&
-            (current_tb->cflags & CF_COUNT_MASK) != 1) {
+            (tb_cflags(current_tb) & CF_COUNT_MASK) != 1) {
                 /* If we are modifying the current TB, we must stop
                    its execution. We could be more precise by checking
                    that the modification is after the current PC, but it
@@ -1870,7 +1870,7 @@ void cpu_io_recompile(CPUState *cpu, uintptr_t retaddr)
     cs_base = tb->cs_base;
     flags = tb->flags;
     tb_phys_invalidate(cpu->uc, tb, -1);
-    if (tb->cflags & CF_NOCACHE) {
+    if (tb_cflags(tb) & CF_NOCACHE) {
         if (tb->orig_tb) {
             /* Invalidate original TB if this TB was generated in
              * cpu_exec_nocache() */

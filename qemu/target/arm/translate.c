@@ -8882,7 +8882,7 @@ static int disas_coproc_insn(DisasContext *s, uint32_t insn)
 
         // Unicorn: if'd out
 #if 0
-        if ((s->base.tb->cflags & CF_USE_ICOUNT) && (ri->type & ARM_CP_IO)) {
+        if ((tb_cflags(s->base.tb) & CF_USE_ICOUNT) && (ri->type & ARM_CP_IO)) {
             gen_io_start();
         }
 #endif
@@ -8974,7 +8974,7 @@ static int disas_coproc_insn(DisasContext *s, uint32_t insn)
             }
         }
 
-        if ((s->base.tb->cflags & CF_USE_ICOUNT) && (ri->type & ARM_CP_IO)) {
+        if ((tb_cflags(s->base.tb) & CF_USE_ICOUNT) && (ri->type & ARM_CP_IO)) {
             /* I/O operations must end the TB here (whether read or write) */
             // Unicorn: commented out
             //gen_io_end();
@@ -13818,7 +13818,7 @@ static void arm_tr_tb_stop(DisasContextBase *dcbase, CPUState *cpu)
     DisasContext *dc = container_of(dcbase, DisasContext, base);
     TCGContext *tcg_ctx = cpu->uc->tcg_ctx;
 
-    if (dc->base.tb->cflags & CF_LAST_IO && dc->condjmp) {
+    if (tb_cflags(dc->base.tb) & CF_LAST_IO && dc->condjmp) {
         /* FIXME: This can theoretically happen with self-modifying code. */
         cpu_abort(cpu, "IO on conditional branch instruction");
     }

@@ -286,6 +286,12 @@ struct TranslationBlock {
     uintptr_t jmp_list_first;
 };
 
+/* Hide the atomic_read to make code a little easier on the eyes */
+static inline uint32_t tb_cflags(const TranslationBlock *tb)
+{
+    return atomic_read(&tb->cflags);
+}
+
 void tb_free(struct uc_struct *uc, TranslationBlock *tb);
 void tb_flush(CPUState *cpu);
 void tb_phys_invalidate(struct uc_struct *uc,

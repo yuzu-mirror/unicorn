@@ -7100,11 +7100,11 @@ static void gen_mfc0(DisasContext *ctx, TCGv arg, int reg, int sel)
         switch (sel) {
         case 0:
             /* Mark as an IO operation because we read the time.  */
-            //if (ctx->base.tb->cflags & CF_USE_ICOUNT) {
+            //if (tb_cflags(ctx->base.tb) & CF_USE_ICOUNT) {
             //   gen_io_start();
             //}
             gen_helper_mfc0_count(tcg_ctx, arg, tcg_ctx->cpu_env);
-            //if (ctx->base.tb->cflags & CF_USE_ICOUNT) {
+            //if (tb_cflags(ctx->base.tb) & CF_USE_ICOUNT) {
             //    gen_io_end();
             //}
             /* Break the TB to be able to take timer interrupts immediately
@@ -7542,7 +7542,7 @@ static void gen_mtc0(DisasContext *ctx, TCGv arg, int reg, int sel)
     if (sel != 0)
         check_insn(ctx, ISA_MIPS32);
 
-    //if (ctx->base.tb->cflags & CF_USE_ICOUNT) {
+    //if (tb_cflags(ctx->base.tb) & CF_USE_ICOUNT) {
     //    gen_io_start();
     //}
 
@@ -8262,7 +8262,7 @@ static void gen_mtc0(DisasContext *ctx, TCGv arg, int reg, int sel)
     (void)register_name; /* avoid a compiler warning */
     LOG_DISAS("mtc0 %s (reg %d sel %d)\n", register_name, reg, sel);
     /* For simplicity assume that all writes can cause interrupts.  */
-    //if (ctx->base.tb->cflags & CF_USE_ICOUNT) {
+    //if (tb_cflags(ctx->base.tb) & CF_USE_ICOUNT) {
     //    gen_io_end();
     //    /* BS_STOP isn't sufficient, we need to ensure we break out of
     //     * translated code to check for pending interrupts.  */
@@ -8561,11 +8561,11 @@ static void gen_dmfc0(DisasContext *ctx, TCGv arg, int reg, int sel)
         switch (sel) {
         case 0:
             /* Mark as an IO operation because we read the time.  */
-            //if (ctx->base.tb->cflags & CF_USE_ICOUNT) {
+            //if (tb_cflags(ctx->base.tb) & CF_USE_ICOUNT) {
             //    gen_io_start();
             //}
             gen_helper_mfc0_count(tcg_ctx, arg, tcg_ctx->cpu_env);
-            //if (ctx->base.tb->cflags & CF_USE_ICOUNT) {
+            //if (tb_cflags(ctx->base.tb) & CF_USE_ICOUNT) {
             //    gen_io_end();
             //}
             /* Break the TB to be able to take timer interrupts immediately
@@ -8989,7 +8989,7 @@ static void gen_dmtc0(DisasContext *ctx, TCGv arg, int reg, int sel)
     if (sel != 0)
         check_insn(ctx, ISA_MIPS64);
 
-    //if (ctx->base.tb->cflags & CF_USE_ICOUNT) {
+    //if (tb_cflags(ctx->base.tb) & CF_USE_ICOUNT) {
     //    gen_io_start();
     //}
 
@@ -9697,7 +9697,7 @@ static void gen_dmtc0(DisasContext *ctx, TCGv arg, int reg, int sel)
     (void)register_name; /* avoid a compiler warning */
     LOG_DISAS("dmtc0 %s (reg %d sel %d)\n", register_name, reg, sel);
     /* For simplicity assume that all writes can cause interrupts.  */
-    //if (ctx->base.tb->cflags & CF_USE_ICOUNT) {
+    //if (tb_cflags(ctx->base.tb) & CF_USE_ICOUNT) {
     //    gen_io_end();
     //    /* DISAS_STOP isn't sufficient, we need to ensure we break out of
     //     * translated code to check for pending interrupts.  */
@@ -12757,13 +12757,13 @@ static void gen_rdhwr(DisasContext *ctx, int rt, int rd, int sel)
     case 2:
     // Unicorn: if'd out
 #if 0
-        if (ctx->base.tb->cflags & CF_USE_ICOUNT) {
+        if (tb_cflags(ctx->base.tb) & CF_USE_ICOUNT) {
             gen_io_start();
         }
 #endif
         gen_helper_rdhwr_cc(tcg_ctx, t0, tcg_ctx->cpu_env);
 #if 0
-        if (ctx->base.tb->cflags & CF_USE_ICOUNT) {
+        if (tb_cflags(ctx->base.tb) & CF_USE_ICOUNT) {
             gen_io_end();
         }
 #endif

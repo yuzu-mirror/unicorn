@@ -47,7 +47,7 @@ void translator_loop(const TranslatorOps *ops, DisasContextBase *db,
     db->uc->block_full = false;
 
     /* Instruction counting */
-    db->max_insns = db->tb->cflags & CF_COUNT_MASK;
+    db->max_insns = tb_cflags(db->tb) & CF_COUNT_MASK;
     if (db->max_insns == 0) {
         db->max_insns = CF_COUNT_MASK;
     }
@@ -124,7 +124,7 @@ void translator_loop(const TranslatorOps *ops, DisasContextBase *db,
            done next -- either exiting this loop or locate the start of
            the next instruction.  */
         if (db->num_insns == db->max_insns
-            && (db->tb->cflags & CF_LAST_IO)) {
+            && (tb_cflags(db->tb) & CF_LAST_IO)) {
             /* Accept I/O on the last instruction.  */
             //gen_io_start();
             ops->translate_insn(db, cpu);
