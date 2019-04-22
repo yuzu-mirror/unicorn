@@ -92,7 +92,7 @@ static const int tcg_target_reg_alloc_order[] = {
 
 static const int tcg_target_call_iarg_regs[] = {
 #if TCG_TARGET_REG_BITS == 64
-#if (defined(_WIN64) || defined(__CYGWIN__))
+#if defined(_WIN64)
     TCG_REG_RCX,
     TCG_REG_RDX,
 #else
@@ -528,24 +528,6 @@ static inline int tcg_target_const_match(tcg_target_long val, TCGType type,
 #define JCC_JG  0xf
 
 static const uint8_t tcg_cond_to_jcc[] = {
-#ifdef _MSC_VER
-    0,			// TCG_COND_NEVER
-    0,			// TCG_COND_ALWAYS
-    JCC_JL,		// TCG_COND_LT
-    JCC_JGE,	// TCG_COND_GE
-    JCC_JB,		// TCG_COND_LTU
-    JCC_JAE,	// TCG_COND_GEU
-    0,			// n/a
-    0,			// n/a
-    JCC_JE,		// TCG_COND_EQ
-    JCC_JNE,	// TCG_COND_NE
-    JCC_JLE,	// TCG_COND_LE
-    JCC_JG,		// TCG_COND_GT
-    JCC_JBE,	// TCG_COND_LEU
-    JCC_JA,		// TCG_COND_GTU
-    0,			// n/a
-    0,			// n/a
-#else
     [TCG_COND_EQ] = JCC_JE,
     [TCG_COND_NE] = JCC_JNE,
     [TCG_COND_LT] = JCC_JL,
@@ -556,7 +538,6 @@ static const uint8_t tcg_cond_to_jcc[] = {
     [TCG_COND_GEU] = JCC_JAE,
     [TCG_COND_LEU] = JCC_JBE,
     [TCG_COND_GTU] = JCC_JA,
-#endif
 };
 
 #if TCG_TARGET_REG_BITS == 64
@@ -1602,43 +1583,6 @@ static void tcg_out_nopn(TCGContext *s, int n)
  *                                     int mmu_idx, uintptr_t ra)
  */
 static void * const qemu_ld_helpers[16] = {
-#ifdef _MSC_VER
-    helper_ret_ldub_mmu,	// MO_UB
-#  ifdef HOST_WORDS_BIGENDIAN
-    helper_be_lduw_mmu,		// MO_BEUW
-    helper_be_ldul_mmu,		// MO_BEUL
-    helper_be_ldq_mmu,		// MO_BEQ
-    0,		// MO_SB
-    0,		// MO_BESW
-    0,		// MO_BESL
-    0,		// n/a
-    0,		// n/a
-    helper_le_lduw_mmu,		// MO_LEUW
-    helper_le_ldul_mmu,		// MO_LEUL
-    helper_le_ldq_mmu,		// MO_LEQ
-    0,		// n/a
-    0,		// MO_LESW
-    0,		// MO_LESL
-    0,		// n/a
-#  else // !HOST_WORDS_BIGENDIAN
-    helper_le_lduw_mmu,		// MO_LEUW
-    helper_le_ldul_mmu,		// MO_LEUL
-    helper_le_ldq_mmu,		// MO_LEQ
-    0,		// MO_SB
-    0,		// MO_LESW
-    0,		// MO_LESL
-    0,		// n/a
-    0,		// n/a
-    helper_be_lduw_mmu,		// MO_BEUW
-    helper_be_ldul_mmu,		// MO_BEUL
-    helper_be_ldq_mmu,		// MO_BEQ
-    0,		// n/a
-    0,		// MO_BESW
-    0,		// MO_BESL
-    0,		// n/a
-#  endif // HOST_WORDS_BIGENDIAN
-
-#else //_MSC_VER
     [MO_UB]   = helper_ret_ldub_mmu,
     [MO_LEUW] = helper_le_lduw_mmu,
     [MO_LEUL] = helper_le_ldul_mmu,
@@ -1646,50 +1590,12 @@ static void * const qemu_ld_helpers[16] = {
     [MO_BEUW] = helper_be_lduw_mmu,
     [MO_BEUL] = helper_be_ldul_mmu,
     [MO_BEQ]  = helper_be_ldq_mmu,
-#endif // _MSC_VER
 };
 
 /* helper signature: helper_ret_st_mmu(CPUState *env, target_ulong addr,
  *                                     uintxx_t val, int mmu_idx, uintptr_t ra)
  */
 static void * const qemu_st_helpers[16] = {
-#ifdef _MSC_VER
-    helper_ret_stb_mmu,		// MO_UB
-#  ifdef HOST_WORDS_BIGENDIAN
-    helper_be_stw_mmu,		// MO_BEUW
-    helper_be_stl_mmu,		// MO_BEUL
-    helper_be_stq_mmu,		// MO_BEQ
-    0,		// MO_SB
-    0,		// MO_BESW
-    0,		// MO_BESL
-    0,		// n/a
-    0,		// n/a
-    helper_le_stw_mmu,		// MO_LEUW
-    helper_le_stl_mmu,		// MO_LEUL
-    helper_le_stq_mmu,		// MO_LEQ
-    0,		// n/a
-    0,		// MO_LESW
-    0,		// MO_LESL
-    0,		// n/a
-#  else // !HOST_WORDS_BIGENDIAN
-    helper_le_stw_mmu,		// MO_LEUW
-    helper_le_stl_mmu,		// MO_LEUL
-    helper_le_stq_mmu,		// MO_LEQ
-    0,		// MO_SB
-    0,		// MO_LESW
-    0,		// MO_LESL
-    0,		// n/a
-    0,		// n/a
-    helper_be_stw_mmu,		// MO_BEUW
-    helper_be_stl_mmu,		// MO_BEUL
-    helper_be_stq_mmu,		// MO_BEQ
-    0,		// n/a
-    0,		// MO_BESW
-    0,		// MO_BESL
-    0,		// n/a
-#  endif // HOST_WORDS_BIGENDIAN
-
-#else //_MSC_VER
     [MO_UB]   = helper_ret_stb_mmu,
     [MO_LEUW] = helper_le_stw_mmu,
     [MO_LEUL] = helper_le_stl_mmu,
@@ -1697,7 +1603,6 @@ static void * const qemu_st_helpers[16] = {
     [MO_BEUW] = helper_be_stw_mmu,
     [MO_BEUL] = helper_be_stl_mmu,
     [MO_BEQ]  = helper_be_stq_mmu,
-#endif // _MSC_VER
 };
 
 /* Perform the TLB load and compare.
@@ -2958,29 +2863,32 @@ static void tcg_out_vec_op(TCGContext *s, TCGOpcode opc,
 
 static const TCGTargetOpDef *tcg_target_op_def(TCGOpcode op)
 {
-    static const TCGTargetOpDef r = { 0, { "r" } };
-    static const TCGTargetOpDef ri_r = { 0, { "ri", "r" } };
-    static const TCGTargetOpDef re_r = { 0, { "re", "r" } };
-    static const TCGTargetOpDef qi_r = { 0, { "qi", "r" } };
-    static const TCGTargetOpDef r_r = { 0, { "r", "r" } };
-    static const TCGTargetOpDef r_q = { 0, { "r", "q" } };
-    static const TCGTargetOpDef r_re = { 0, { "r", "re" } };
-    static const TCGTargetOpDef r_0 = { 0, { "r", "0" } };
-    static const TCGTargetOpDef r_r_ri = { 0, { "r", "r", "ri" } };
-    static const TCGTargetOpDef r_r_re = { 0, { "r", "r", "re" } };
-    static const TCGTargetOpDef r_0_re = { 0, { "r", "0", "re" } };
-    static const TCGTargetOpDef r_0_ci = { 0, { "r", "0", "ci" } };
-    static const TCGTargetOpDef r_L = { 0, { "r", "L" } };
-    static const TCGTargetOpDef L_L = { 0, { "L", "L" } };
-    static const TCGTargetOpDef r_L_L = { 0, { "r", "L", "L" } };
-    static const TCGTargetOpDef r_r_L = { 0, { "r", "r", "L" } };
-    static const TCGTargetOpDef L_L_L = { 0, { "L", "L", "L" } };
-    static const TCGTargetOpDef r_r_L_L = { 0, { "r", "r", "L", "L" } };
-    static const TCGTargetOpDef L_L_L_L = { 0, { "L", "L", "L", "L" } };
-    static const TCGTargetOpDef x_x = { 0, { "x", "x" } };
-    static const TCGTargetOpDef x_x_x = { 0, { "x", "x", "x" } };
-    static const TCGTargetOpDef x_x_x_x = { 0, { "x", "x", "x", "x" } };
-    static const TCGTargetOpDef x_r = { 0, { "x", "r" } };
+    static const TCGTargetOpDef r = { .args_ct_str = { "r" } };
+    static const TCGTargetOpDef ri_r = { .args_ct_str = { "ri", "r" } };
+    static const TCGTargetOpDef re_r = { .args_ct_str = { "re", "r" } };
+    static const TCGTargetOpDef qi_r = { .args_ct_str = { "qi", "r" } };
+    static const TCGTargetOpDef r_r = { .args_ct_str = { "r", "r" } };
+    static const TCGTargetOpDef r_q = { .args_ct_str = { "r", "q" } };
+    static const TCGTargetOpDef r_re = { .args_ct_str = { "r", "re" } };
+    static const TCGTargetOpDef r_0 = { .args_ct_str = { "r", "0" } };
+    static const TCGTargetOpDef r_r_ri = { .args_ct_str = { "r", "r", "ri" } };
+    static const TCGTargetOpDef r_r_re = { .args_ct_str = { "r", "r", "re" } };
+    static const TCGTargetOpDef r_0_re = { .args_ct_str = { "r", "0", "re" } };
+    static const TCGTargetOpDef r_0_ci = { .args_ct_str = { "r", "0", "ci" } };
+    static const TCGTargetOpDef r_L = { .args_ct_str = { "r", "L" } };
+    static const TCGTargetOpDef L_L = { .args_ct_str = { "L", "L" } };
+    static const TCGTargetOpDef r_L_L = { .args_ct_str = { "r", "L", "L" } };
+    static const TCGTargetOpDef r_r_L = { .args_ct_str = { "r", "r", "L" } };
+    static const TCGTargetOpDef L_L_L = { .args_ct_str = { "L", "L", "L" } };
+    static const TCGTargetOpDef r_r_L_L
+        = { .args_ct_str = { "r", "r", "L", "L" } };
+    static const TCGTargetOpDef L_L_L_L
+        = { .args_ct_str = { "L", "L", "L", "L" } };
+    static const TCGTargetOpDef x_x = { .args_ct_str = { "x", "x" } };
+    static const TCGTargetOpDef x_x_x = { .args_ct_str = { "x", "x", "x" } };
+    static const TCGTargetOpDef x_x_x_x
+        = { .args_ct_str = { "x", "x", "x", "x" } };
+    static const TCGTargetOpDef x_r = { .args_ct_str = { "x", "r" } };
 
     switch (op) {
     case INDEX_op_goto_ptr:
@@ -3027,14 +2935,16 @@ static const TCGTargetOpDef *tcg_target_op_def(TCGOpcode op)
     case INDEX_op_and_i32:
     case INDEX_op_and_i64:
         {
-            static const TCGTargetOpDef and = { 0, { "r", "0", "reZ" } };
+            static const TCGTargetOpDef and
+                = { .args_ct_str = { "r", "0", "reZ" } };
             return &and;
         }
         break;
     case INDEX_op_andc_i32:
     case INDEX_op_andc_i64:
         {
-            static const TCGTargetOpDef andc = { 0, { "r", "r", "rI" } };
+            static const TCGTargetOpDef andc
+                = { .args_ct_str = { "r", "r", "rI" } };
             return &andc;
         }
         break;
@@ -3092,19 +3002,22 @@ static const TCGTargetOpDef *tcg_target_op_def(TCGOpcode op)
     case INDEX_op_deposit_i32:
     case INDEX_op_deposit_i64:
         {
-            static const TCGTargetOpDef dep = { 0, { "Q", "0", "Q" } };
+            static const TCGTargetOpDef dep
+                = { .args_ct_str = { "Q", "0", "Q" } };
             return &dep;
         }
     case INDEX_op_setcond_i32:
     case INDEX_op_setcond_i64:
         {
-            static const TCGTargetOpDef setc = { 0, { "q", "r", "re" } };
+            static const TCGTargetOpDef setc
+                = { .args_ct_str = { "q", "r", "re" } };
             return &setc;
         }
     case INDEX_op_movcond_i32:
     case INDEX_op_movcond_i64:
         {
-            static const TCGTargetOpDef movc = { 0, { "r", "r", "re", "r", "0" } };
+            static const TCGTargetOpDef movc
+                = { .args_ct_str = { "r", "r", "re", "r", "0" } };
             return &movc;
         }
     case INDEX_op_div2_i32:
@@ -3112,7 +3025,8 @@ static const TCGTargetOpDef *tcg_target_op_def(TCGOpcode op)
     case INDEX_op_divu2_i32:
     case INDEX_op_divu2_i64:
         {
-            static const TCGTargetOpDef div2 = { 0, { "a", "d", "0", "1", "r" } };
+            static const TCGTargetOpDef div2
+                = { .args_ct_str = { "a", "d", "0", "1", "r" } };
             return &div2;
         }
     case INDEX_op_mulu2_i32:
@@ -3120,7 +3034,8 @@ static const TCGTargetOpDef *tcg_target_op_def(TCGOpcode op)
     case INDEX_op_muls2_i32:
     case INDEX_op_muls2_i64:
         {
-            static const TCGTargetOpDef mul2 = { 0, { "a", "d", "a", "r" } };
+            static const TCGTargetOpDef mul2
+                = { .args_ct_str = { "a", "d", "a", "r" } };
             return &mul2;
         }
     case INDEX_op_add2_i32:
@@ -3128,15 +3043,16 @@ static const TCGTargetOpDef *tcg_target_op_def(TCGOpcode op)
     case INDEX_op_sub2_i32:
     case INDEX_op_sub2_i64:
         {
-            static const TCGTargetOpDef arith2 = { 0, { "r", "r", "0", "1", "re", "re" } };
+            static const TCGTargetOpDef arith2
+                = { .args_ct_str = { "r", "r", "0", "1", "re", "re" } };
             return &arith2;
         }
     case INDEX_op_ctz_i32:
     case INDEX_op_ctz_i64:
         {
             static const TCGTargetOpDef ctz[2] = {
-                { 0, { "&r", "r", "r" } },
-                { 0, { "&r", "r", "rW" } },
+                { .args_ct_str = { "&r", "r", "r" } },
+                { .args_ct_str = { "&r", "r", "rW" } },
             };
             return &ctz[have_bmi1];
         }
@@ -3144,8 +3060,8 @@ static const TCGTargetOpDef *tcg_target_op_def(TCGOpcode op)
     case INDEX_op_clz_i64:
         {
             static const TCGTargetOpDef clz[2] = {
-                { 0, { "&r", "r", "r" } },
-                { 0, { "&r", "r", "rW" } },
+                { .args_ct_str = { "&r", "r", "r" } },
+                { .args_ct_str = { "&r", "r", "rW" } },
             };
             return &clz[have_lzcnt];
         }
@@ -3165,12 +3081,14 @@ static const TCGTargetOpDef *tcg_target_op_def(TCGOpcode op)
 
     case INDEX_op_brcond2_i32:
         {
-            static const TCGTargetOpDef b2 = { 0, { "r", "r", "ri", "ri" } };
+            static const TCGTargetOpDef b2
+                = { .args_ct_str = { "r", "r", "ri", "ri" } };
             return &b2;
         }
     case INDEX_op_setcond2_i32:
         {
-            static const TCGTargetOpDef s2 = { 0, { "r", "r", "r", "ri", "ri" } };
+            static const TCGTargetOpDef s2
+                = { .args_ct_str = { "r", "r", "r", "ri", "ri" } };
             return &s2;
         }
 
@@ -3676,14 +3594,7 @@ static void tcg_target_init(TCGContext *s)
 {
 #ifdef CONFIG_CPUID_H
     unsigned a, b, c, d, b7 = 0;
-    int max;
-
-#ifdef _MSC_VER
-    int cpu_info[4];
-    __cpuid(cpu_info, 0);
-    max = cpu_info[0];
-#else
-    max = __get_cpuid_max(0, 0);
+    int max = __get_cpuid_max(0, 0);
 
     if (max >= 7) {
         /* BMI1 is available on AMD Piledriver and Intel Haswell CPUs.  */
@@ -3691,24 +3602,16 @@ static void tcg_target_init(TCGContext *s)
         have_bmi1 = (b7 & bit_BMI) != 0;
         have_bmi2 = (b7 & bit_BMI2) != 0;
     }
-#endif
 
     if (max >= 1) {
-#ifdef _MSC_VER
-        __cpuid(cpu_info, 1);
-        a = cpu_info[0];
-        b = cpu_info[1];
-        c = cpu_info[2];
-        d = cpu_info[3];
-#else
         __cpuid(1, a, b, c, d);
-#endif
 #ifndef have_cmov
         /* For 32-bit, 99% certainty that we're running on hardware that
            supports cmov, but we still need to check.  In case cmov is not
            available, we'll use a small forward branch.  */
         have_cmov = (d & bit_CMOV) != 0;
 #endif
+
         /* MOVBE is only available on Intel Atom and Haswell CPUs, so we
            need to probe for it.  */
         s->have_movbe = (c & bit_MOVBE) != 0;
@@ -3729,7 +3632,6 @@ static void tcg_target_init(TCGContext *s)
         }
     }
 
-// TODO: MSVC-compatible equivalent
     max = __get_cpuid_max(0x8000000, 0);
     if (max >= 1) {
         __cpuid(0x80000001, a, b, c, d);
@@ -3757,7 +3659,7 @@ static void tcg_target_init(TCGContext *s)
     tcg_regset_set_reg(s->tcg_target_call_clobber_regs, TCG_REG_EDX);
     tcg_regset_set_reg(s->tcg_target_call_clobber_regs, TCG_REG_ECX);
     if (TCG_TARGET_REG_BITS == 64) {
-#if !(defined(_WIN64) || defined(__CYGWIN__))
+#if !defined(_WIN64)
         tcg_regset_set_reg(s->tcg_target_call_clobber_regs, TCG_REG_RDI);
         tcg_regset_set_reg(s->tcg_target_call_clobber_regs, TCG_REG_RSI);
 #endif

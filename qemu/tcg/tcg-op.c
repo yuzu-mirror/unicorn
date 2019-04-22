@@ -1124,7 +1124,7 @@ void tcg_gen_ld_i64(TCGContext *s, TCGv_i64 ret, TCGv_ptr arg2, tcg_target_long 
 {
     /* Since arg2 and ret have different types,
        they cannot be the same temporary */
-#ifdef TCG_TARGET_WORDS_BIGENDIAN
+#ifdef HOST_WORDS_BIGENDIAN
     tcg_gen_ld_i32(s, TCGV_HIGH(s, ret), arg2, offset);
     tcg_gen_ld_i32(s, TCGV_LOW(s, ret), arg2, offset + 4);
 #else
@@ -1135,7 +1135,7 @@ void tcg_gen_ld_i64(TCGContext *s, TCGv_i64 ret, TCGv_ptr arg2, tcg_target_long 
 
 void tcg_gen_st_i64(TCGContext *s, TCGv_i64 arg1, TCGv_ptr arg2, tcg_target_long offset)
 {
-#ifdef TCG_TARGET_WORDS_BIGENDIAN
+#ifdef HOST_WORDS_BIGENDIAN
     tcg_gen_st_i32(s, TCGV_HIGH(s, arg1), arg2, offset);
     tcg_gen_st_i32(s, TCGV_LOW(s, arg1), arg2, offset + 4);
 #else
@@ -2967,40 +2967,18 @@ typedef void (*gen_atomic_op_i64)(TCGContext *, TCGv_i64, TCGv_env, TCGv, TCGv_i
 #ifdef CONFIG_ATOMIC64
 # define WITH_ATOMIC64(X) X,
 #else
-# define WITH_ATOMIC64(X) NULL,
+# define WITH_ATOMIC64(X)
 #endif
 
-#ifdef HOST_WORDS_BIGENDIAN
 static void * const table_cmpxchg[16] = {
-    gen_helper_atomic_cmpxchgb,
-    gen_helper_atomic_cmpxchgw_be,
-    gen_helper_atomic_cmpxchgl_be,
-    WITH_ATOMIC64(gen_helper_atomic_cmpxchgq_be)
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    gen_helper_atomic_cmpxchgw_le,
-    gen_helper_atomic_cmpxchgl_le,
-    WITH_ATOMIC64(gen_helper_atomic_cmpxchgq_le)
-}
-#else
-static void * const table_cmpxchg[16] = {
-    gen_helper_atomic_cmpxchgb,
-    gen_helper_atomic_cmpxchgw_le,
-    gen_helper_atomic_cmpxchgl_le,
-    WITH_ATOMIC64(gen_helper_atomic_cmpxchgq_le)
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    gen_helper_atomic_cmpxchgw_be,
-    gen_helper_atomic_cmpxchgl_be,
-    WITH_ATOMIC64(gen_helper_atomic_cmpxchgq_be)
+    [MO_8] = gen_helper_atomic_cmpxchgb,
+    [MO_16 | MO_LE] = gen_helper_atomic_cmpxchgw_le,
+    [MO_16 | MO_BE] = gen_helper_atomic_cmpxchgw_be,
+    [MO_32 | MO_LE] = gen_helper_atomic_cmpxchgl_le,
+    [MO_32 | MO_BE] = gen_helper_atomic_cmpxchgl_be,
+    WITH_ATOMIC64([MO_64 | MO_LE] = gen_helper_atomic_cmpxchgq_le)
+    WITH_ATOMIC64([MO_64 | MO_BE] = gen_helper_atomic_cmpxchgq_be)
 };
-#endif
 
 void tcg_gen_atomic_cmpxchg_i32(TCGContext *s,
                                 TCGv_i32 retv, TCGv addr, TCGv_i32 cmpv,
@@ -3221,42 +3199,16 @@ static void do_atomic_op_i64(TCGContext *s,
     }
 }
 
-#ifdef HOST_WORDS_BIGENDIAN
-#define GEN_ATOMIC_TABLE(NAME) \
-static void * const table_##NAME[16] = {    \
-    gen_helper_atomic_##NAME##b,            \
-    gen_helper_atomic_##NAME##w_be,         \
-    gen_helper_atomic_##NAME##l_be,         \
-    gen_helper_atomic_##NAME##q_be,         \
-    NULL,                                   \
-    NULL,                                   \
-    NULL,                                   \
-    NULL,                                   \
-    NULL,                                   \
-    gen_helper_atomic_##NAME##w_le,         \
-    gen_helper_atomic_##NAME##l_le,         \
-    gen_helper_atomic_##NAME##q_le,         \
-};
-#else
-#define GEN_ATOMIC_TABLE(NAME) \
-static void * const table_##NAME[16] = {    \
-    gen_helper_atomic_##NAME##b,            \
-    gen_helper_atomic_##NAME##w_le,         \
-    gen_helper_atomic_##NAME##w_be,         \
-    gen_helper_atomic_##NAME##l_le,         \
-    NULL,                                   \
-    NULL,                                   \
-    NULL,                                   \
-    NULL,                                   \
-    NULL,                                   \
-    gen_helper_atomic_##NAME##l_be,         \
-    gen_helper_atomic_##NAME##q_le,         \
-    gen_helper_atomic_##NAME##q_be,         \
-};
-#endif
-
 #define GEN_ATOMIC_HELPER(NAME, OP, NEW)                                \
-GEN_ATOMIC_TABLE(NAME)                                                  \
+static void * const table_##NAME[16] = {                                \
+    [MO_8] = gen_helper_atomic_##NAME##b,                               \
+    [MO_16 | MO_LE] = gen_helper_atomic_##NAME##w_le,                   \
+    [MO_16 | MO_BE] = gen_helper_atomic_##NAME##w_be,                   \
+    [MO_32 | MO_LE] = gen_helper_atomic_##NAME##l_le,                   \
+    [MO_32 | MO_BE] = gen_helper_atomic_##NAME##l_be,                   \
+    WITH_ATOMIC64([MO_64 | MO_LE] = gen_helper_atomic_##NAME##q_le)     \
+    WITH_ATOMIC64([MO_64 | MO_BE] = gen_helper_atomic_##NAME##q_be)     \
+};                                                                      \
 void tcg_gen_atomic_##NAME##_i32                                        \
     (TCGContext *s, TCGv_i32 ret, TCGv addr, TCGv_i32 val, TCGArg idx, TCGMemOp memop) \
 {                                                                       \
@@ -3307,7 +3259,5 @@ static void tcg_gen_mov2_i64(TCGContext *s, TCGv_i64 r, TCGv_i64 a, TCGv_i64 b)
 }
 
 GEN_ATOMIC_HELPER(xchg, mov2, 0)
-
-#undef GEN_ATOMIC_TABLE
 
 #undef GEN_ATOMIC_HELPER
