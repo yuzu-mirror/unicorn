@@ -92,7 +92,7 @@ glue(glue(glue(cpu_ld, USUFFIX), MEMSUFFIX), _ra)(CPUArchState *env,
                                                             oi, retaddr);
     } else {
         uintptr_t hostaddr = (uintptr_t)(addr + entry->addend);
-        res = glue(glue(ld, USUFFIX), _raw)(hostaddr);
+        res = glue(glue(ld, USUFFIX), _p)((uint8_t *)hostaddr);
     }
     return res;
 }
@@ -125,7 +125,7 @@ glue(glue(glue(cpu_lds, SUFFIX), MEMSUFFIX), _ra)(CPUArchState *env,
                                MMUSUFFIX)(env, addr, oi, retaddr);
     } else {
         uintptr_t hostaddr = (uintptr_t)(addr + entry->addend);
-        res = glue(glue(lds, SUFFIX), _raw)(hostaddr);
+        res = glue(glue(lds, SUFFIX), _p)((uint8_t *)hostaddr);
     }
     return res;
 }
@@ -160,7 +160,7 @@ glue(glue(glue(cpu_st, SUFFIX), MEMSUFFIX), _ra)(CPUArchState *env,
                                                      retaddr);
     } else {
         uintptr_t hostaddr = (uintptr_t)(addr + entry->addend);
-        glue(glue(st, SUFFIX), _raw)(hostaddr, v);
+        glue(glue(st, SUFFIX), _p)((uint8_t *)hostaddr, v);
     }
 }
 
