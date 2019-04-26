@@ -636,7 +636,7 @@ TCGTemp *tcg_global_mem_new_internal(TCGContext *s, TCGType type, TCGv_ptr base,
         ts2->mem_offset = offset + (1 - bigendian) * 4;
         pstrcpy(buf, sizeof(buf), name);
         pstrcat(buf, sizeof(buf), "_1");
-        ts2->name = g_strdup(buf);
+        ts2->name = strdup(buf);
     } else {
         ts->base_type = type;
         ts->type = type;
