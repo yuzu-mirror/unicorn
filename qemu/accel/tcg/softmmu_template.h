@@ -101,11 +101,12 @@ static inline DATA_TYPE glue(io_read, SUFFIX)(CPUArchState *env,
                                               size_t mmu_idx, size_t index,
                                               target_ulong addr,
                                               uintptr_t retaddr,
-                                              bool recheck)
+                                              bool recheck,
+                                              MMUAccessType access_type)
 {
     CPUIOTLBEntry *iotlbentry = &env->iotlb[mmu_idx][index];
     return io_readx(env, iotlbentry, mmu_idx, addr, retaddr, recheck,
-                    DATA_SIZE);
+                    access_type, DATA_SIZE);
 }
 #endif
 
@@ -252,7 +253,8 @@ WORD_TYPE helper_le_ld_name(CPUArchState *env, target_ulong addr,
         /* ??? Note that the io helpers always read data in the target
            byte ordering.  We should push the LE/BE request down into io.  */
         res = glue(io_read, SUFFIX)(env, mmu_idx, index, addr, retaddr,
-                                    tlb_addr & TLB_RECHECK);
+                                    tlb_addr & TLB_RECHECK,
+                                    READ_ACCESS_TYPE);
         res = TGT_LE(res);
         goto _out;
     }
@@ -439,7 +441,8 @@ WORD_TYPE helper_be_ld_name(CPUArchState *env, target_ulong addr,
         /* ??? Note that the io helpers always read data in the target
            byte ordering.  We should push the LE/BE request down into io.  */
         res = glue(io_read, SUFFIX)(env, mmu_idx, index, addr, retaddr,
-                                    tlb_addr & TLB_RECHECK);
+                                    tlb_addr & TLB_RECHECK,
+                                    READ_ACCESS_TYPE);
         res = TGT_BE(res);
         goto _out;
     }
@@ -592,7 +595,7 @@ void helper_le_st_name(CPUArchState *env, target_ulong addr, DATA_TYPE val,
             index = tlb_index(env, mmu_idx, addr);
             entry = tlb_entry(env, mmu_idx, addr);
         }
-        tlb_addr = tlb_addr_write(entry);
+        tlb_addr = tlb_addr_write(entry) & ~TLB_INVALID_MASK;
     }
 
     /* Handle an IO access.  */
@@ -740,7 +743,7 @@ void helper_be_st_name(CPUArchState *env, target_ulong addr, DATA_TYPE val,
             index = tlb_index(env, mmu_idx, addr);
             entry = tlb_entry(env, mmu_idx, addr);
         }
-        tlb_addr = tlb_addr_write(entry);
+        tlb_addr = tlb_addr_write(entry) & ~TLB_INVALID_MASK;
     }
 
     /* Handle an IO access.  */

@@ -1136,7 +1136,8 @@ static uint64_t unassigned_mem_read(struct uc_struct* uc, hwaddr addr, unsigned 
     printf("Unassigned mem read " TARGET_FMT_plx "\n", addr);
 #endif
     if (uc->current_cpu != NULL) {
-        cpu_unassigned_access(uc->current_cpu, addr, false, false, 0, size);
+        bool is_exec = uc->current_cpu->mem_io_access_type == MMU_INST_FETCH;
+        cpu_unassigned_access(uc->current_cpu, addr, false, is_exec, 0, size);
     }
     return 0;
 }
