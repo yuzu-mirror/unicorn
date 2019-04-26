@@ -367,6 +367,7 @@ bool cpu_restore_state(CPUState *cpu, uintptr_t host_pc, bool will_exit)
             r = true;
         }
     }
+
     return r;
 }
 

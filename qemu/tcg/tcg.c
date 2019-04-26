@@ -68,8 +68,7 @@ static bool patch_reloc(tcg_insn_unit *code_ptr, int type,
 
 /* The CIE and FDE header definitions will be common to all hosts.  */
 typedef struct {
-    //uint32_t QEMU_ALIGNED(sizeof(void *), len);
-    uint32_t QEMU_ALIGNED(8, len);
+    uint32_t QEMU_ALIGNED(sizeof(void *), len);
     uint32_t id;
     uint8_t version;
     char augmentation[1];
@@ -79,8 +78,7 @@ typedef struct {
 } DebugFrameCIE;
 
 QEMU_PACK( typedef struct {
-//  uint32_t QEMU_ALIGNED(sizeof(void *), len);
-    uint32_t QEMU_ALIGNED(8, len);
+    uint32_t QEMU_ALIGNED(sizeof(void *), len);
     uint32_t cie_offset;
     uintptr_t func_start;
     uintptr_t func_len;
@@ -267,7 +265,7 @@ void *tcg_malloc_internal(TCGContext *s, int size)
 {
     TCGPool *p;
     int pool_size;
-
+    
     if (size > TCG_POOL_CHUNK_SIZE) {
         /* big malloc: insert a new pool (XXX: could optimize) */
         p = g_malloc(sizeof(TCGPool) + size);
@@ -3181,7 +3179,7 @@ static void tcg_reg_alloc_call(TCGContext *s, TCGOp *op)
 
 #ifdef CONFIG_PROFILER
 
-static void dump_op_count(void)
+void tcg_dump_op_count(void)
 {
     int i;
 
@@ -3194,6 +3192,9 @@ static void dump_op_count(void)
 
 int tcg_gen_code(TCGContext *s, TranslationBlock *tb)
 {
+#ifdef CONFIG_PROFILER
+    TCGProfile *prof = &s->prof;
+#endif
     int i, num_insns;
     TCGOp *op;
 
@@ -3204,15 +3205,15 @@ int tcg_gen_code(TCGContext *s, TranslationBlock *tb)
         QTAILQ_FOREACH(op, &s->ops, link) {
             n++;
         }
-        atomic_set(&s->op_count, s->op_count + n);
-        if (n > s->op_count_max) {
-            atomic_set(&s->op_count_max, n);
+        atomic_set(&prof->op_count, prof->op_count + n);
+        if (n > prof->op_count_max) {
+            atomic_set(&prof->op_count_max, n);
         }
 
         n = s->nb_temps;
-        atomic_set(&s->temp_count, s->temp_count + n);
-        if (n > s->temp_count_max) {
-            atomic_set(&s->temp_count_max, n);
+        atomic_set(&prof->temp_count, prof->temp_count + n);
+        if (n > prof->temp_count_max) {
+            atomic_set(&prof->temp_count_max, n);
         }
     }
 #endif
@@ -3244,7 +3245,7 @@ int tcg_gen_code(TCGContext *s, TranslationBlock *tb)
 #endif
 
 #ifdef CONFIG_PROFILER
-    s->opt_time -= profile_getclock();
+    atomic_set(&prof->opt_time, prof->opt_time - profile_getclock());
 #endif
 
 #ifdef USE_TCG_OPTIMIZATIONS
@@ -3252,8 +3253,8 @@ int tcg_gen_code(TCGContext *s, TranslationBlock *tb)
 #endif
 
 #ifdef CONFIG_PROFILER
-    s->opt_time += profile_getclock();
-    s->la_time -= profile_getclock();
+    atomic_set(&prof->opt_time, prof->opt_time + profile_getclock());
+    atomic_set(&prof->la_time, prof->la_time - profile_getclock());
 #endif
 
     reachable_code_pass(s);
@@ -3276,14 +3277,14 @@ int tcg_gen_code(TCGContext *s, TranslationBlock *tb)
     }
 
 #ifdef CONFIG_PROFILER
-    s->la_time += profile_getclock();
+    atomic_set(&prof->la_time, prof->la_time + profile_getclock());
 #endif
 
 #ifdef DEBUG_DISAS
     if (unlikely(qemu_loglevel_mask(CPU_LOG_TB_OP_OPT)
                  && qemu_log_in_addr_range(tb->pc))) {
         qemu_log("OP after optimization and liveness analysis:\n");
-        tcg_dump_ops(s, false);
+        tcg_dump_ops(s, true);
         qemu_log("\n");
     }
 #endif
@@ -3305,8 +3306,9 @@ int tcg_gen_code(TCGContext *s, TranslationBlock *tb)
         TCGOpcode opc = op->opc;
 
 #ifdef CONFIG_PROFILER
-        tcg_table_op_count[opc]++;
+        atomic_set(&prof->table_op_count[opc], prof->table_op_count[opc] + 1);
 #endif
+
         switch (opc) {
         case INDEX_op_mov_i32:
         case INDEX_op_mov_i64:
@@ -3385,63 +3387,68 @@ int tcg_gen_code(TCGContext *s, TranslationBlock *tb)
 }
 
 #ifdef CONFIG_PROFILER
-void tcg_dump_info(FILE *f, fprintf_function cpu_fprintf)
+void tcg_dump_info(void)
 {
-#if 0
-    TCGContext *s = &tcg_ctx;
-    int64_t tb_count = s->tb_count;
-    int64_t tb_div_count = tb_count ? tb_count : 1;
-    int64_t tot = s->interm_time + s->code_time;
+    TCGProfile prof = {};
+    const TCGProfile *s;
+    int64_t tb_count;
+    int64_t tb_div_count;
+    int64_t tot;
 
-    cpu_fprintf(f, "JIT cycles          %" PRId64 " (%0.3f s at 2.4 GHz)\n",
+    tcg_profile_snapshot_counters(&prof);
+    s = &prof;
+    tb_count = s->tb_count;
+    tb_div_count = tb_count ? tb_count : 1;
+    tot = s->interm_time + s->code_time;
+
+    qemu_printf("JIT cycles          %" PRId64 " (%0.3f s at 2.4 GHz)\n",
                 tot, tot / 2.4e9);
-    cpu_fprintf(f, "translated TBs      %" PRId64 " (aborted=%" PRId64 " %0.1f%%)\n",
+    qemu_printf("translated TBs      %" PRId64 " (aborted=%" PRId64
+                " %0.1f%%)\n",
                 tb_count, s->tb_count1 - tb_count,
                 (double)(s->tb_count1 - s->tb_count)
                 / (s->tb_count1 ? s->tb_count1 : 1) * 100.0);
-    cpu_fprintf(f, "avg ops/TB          %0.1f max=%d\n",
+    qemu_printf("avg ops/TB          %0.1f max=%d\n",
                 (double)s->op_count / tb_div_count, s->op_count_max);
-    cpu_fprintf(f, "deleted ops/TB      %0.2f\n",
+    qemu_printf("deleted ops/TB      %0.2f\n",
                 (double)s->del_op_count / tb_div_count);
-    cpu_fprintf(f, "avg temps/TB        %0.2f max=%d\n",
+    qemu_printf("avg temps/TB        %0.2f max=%d\n",
                 (double)s->temp_count / tb_div_count, s->temp_count_max);
-    cpu_fprintf(f, "avg host code/TB    %0.1f\n",
+    qemu_printf("avg host code/TB    %0.1f\n",
                 (double)s->code_out_len / tb_div_count);
-    cpu_fprintf(f, "avg search data/TB  %0.1f\n",
+    qemu_printf("avg search data/TB  %0.1f\n",
                 (double)s->search_out_len / tb_div_count);
 
-    cpu_fprintf(f, "cycles/op           %0.1f\n",
+    qemu_printf("cycles/op           %0.1f\n",
                 s->op_count ? (double)tot / s->op_count : 0);
-    cpu_fprintf(f, "cycles/in byte      %0.1f\n",
+    qemu_printf("cycles/in byte      %0.1f\n",
                 s->code_in_len ? (double)tot / s->code_in_len : 0);
-    cpu_fprintf(f, "cycles/out byte     %0.1f\n",
+    qemu_printf("cycles/out byte     %0.1f\n",
                 s->code_out_len ? (double)tot / s->code_out_len : 0);
-    cpu_fprintf(f, "cycles/search byte     %0.1f\n",
+    qemu_printf("cycles/search byte     %0.1f\n",
                 s->search_out_len ? (double)tot / s->search_out_len : 0);
     if (tot == 0) {
         tot = 1;
     }
-    cpu_fprintf(f, "  gen_interm time   %0.1f%%\n",
+    qemu_printf("  gen_interm time   %0.1f%%\n",
                 (double)s->interm_time / tot * 100.0);
-    cpu_fprintf(f, "  gen_code time     %0.1f%%\n",
+    qemu_printf("  gen_code time     %0.1f%%\n",
                 (double)s->code_time / tot * 100.0);
-    cpu_fprintf(f, "optim./code time    %0.1f%%\n",
+    qemu_printf("optim./code time    %0.1f%%\n",
                 (double)s->opt_time / (s->code_time ? s->code_time : 1)
                 * 100.0);
-    cpu_fprintf(f, "liveness/code time  %0.1f%%\n",
+    qemu_printf("liveness/code time  %0.1f%%\n",
                 (double)s->la_time / (s->code_time ? s->code_time : 1) * 100.0);
-    cpu_fprintf(f, "cpu_restore count   %" PRId64 "\n",
+    qemu_printf("cpu_restore count   %" PRId64 "\n",
                 s->restore_count);
-    cpu_fprintf(f, "  avg cycles        %0.1f\n",
+    qemu_printf("  avg cycles        %0.1f\n",
                 s->restore_count ? (double)s->restore_time / s->restore_count : 0);
-
-    dump_op_count();
-#endif
 }
 #else
-void tcg_dump_info(FILE *f, fprintf_function cpu_fprintf)
+void tcg_dump_info(void)
 {
-    cpu_fprintf(f, "[TCG profiler not compiled]\n");
+    // Unicorn: commented out
+    //qemu_printf("[TCG profiler not compiled]\n");
 }
 #endif
 

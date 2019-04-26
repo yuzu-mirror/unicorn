@@ -268,6 +268,7 @@ static inline void tcg_gen_op6ii_i64(TCGContext *s, TCGOpcode opc, TCGv_i64 a1,
                 tcgv_i64_arg(s, a3), tcgv_i64_arg(s, a4), a5, a6);
 }
 
+
 /* Generic ops.  */
 
 static inline void gen_set_label(TCGContext *s, TCGLabel *l)
@@ -759,8 +760,7 @@ static inline void tcg_gen_insn_start(TCGContext *tcg_ctx, target_ulong pc)
 # else
 static inline void tcg_gen_insn_start(TCGContext *tcg_ctx, target_ulong pc)
 {
-    tcg_gen_op2(tcg_ctx, INDEX_op_insn_start,
-                (uint32_t)pc, (uint32_t)(pc >> 32));
+    tcg_gen_op2(tcg_ctx, INDEX_op_insn_start, (uint32_t)pc, (uint32_t)(pc >> 32));
 }
 # endif
 #elif TARGET_INSN_START_WORDS == 2
@@ -828,7 +828,7 @@ void tcg_gen_exit_tb(TCGContext *s, TranslationBlock *tb, unsigned idx);
 void tcg_gen_goto_tb(TCGContext *s, unsigned idx);
 
 /**
- * tcg_gen_lookup_and_goto_ptr() - look up a TB and jump to it if valid
+ * tcg_gen_lookup_and_goto_ptr() - look up the current TB, jump to it if valid
  * @addr: Guest address of the target TB
  *
  * If the TB is not valid, jump to the epilogue.
