@@ -2159,104 +2159,109 @@ static void liveness_pass_1(TCGContext *s)
                         goto do_not_remove;
                     }
                 }
-            do_remove:
-                tcg_op_remove(s, op);
-            } else {
-            do_not_remove:
-                /* output args are dead */
-                for (i = 0; i < nb_oargs; i++) {
-                    ts = arg_temp(op->args[i]);
+                goto do_remove;
+            }
+            goto do_not_remove;
 
-                    /* Remember the preference of the uses that followed.  */
-                    op->output_pref[i] = *la_temp_pref(ts);
+        do_remove:
+            tcg_op_remove(s, op);
+            break;
 
-                    /* Output args are dead.  */
-                    if (ts->state & TS_DEAD) {
-                        arg_life |= DEAD_ARG << i;
-                    }
-                    if (ts->state & TS_MEM) {
-                        arg_life |= SYNC_ARG << i;
-                    }
-                    ts->state = TS_DEAD;
-                    la_reset_pref(s, ts);
+        do_not_remove:
+            for (i = 0; i < nb_oargs; i++) {
+                ts = arg_temp(op->args[i]);
+
+                /* Remember the preference of the uses that followed.  */
+                op->output_pref[i] = *la_temp_pref(ts);
+
+                /* Output args are dead.  */
+                if (ts->state & TS_DEAD) {
+                    arg_life |= DEAD_ARG << i;
                 }
-
-                /* If end of basic block, update.  */
-                if (def->flags & TCG_OPF_BB_END) {
-                    // Unicorn: do not optimize dead temps on brcond,
-                    // this causes problem because check_exit_request() inserts
-                    // brcond instruction in the middle of the TB,
-                    // which incorrectly flags end-of-block
-                    if (opc != INDEX_op_brcond_i32) {
-                        la_bb_end(s, nb_globals, nb_temps);
-                    } else {
-                        // Unicorn: we do not touch dead temps for brcond,
-                        // but we should refresh TCG globals In-Memory states,
-                        // otherwise, important CPU states(especially conditional flags) might be forgotten,
-                        // result in wrongly generated host code that run into wrong branch.
-                        // Refer to https://github.com/unicorn-engine/unicorn/issues/287 for further information
-                        tcg_la_br_end(s);
-                    }
-                } else if (def->flags & TCG_OPF_SIDE_EFFECTS) {
-                    la_global_sync(s, nb_globals);
-                    if (def->flags & TCG_OPF_CALL_CLOBBER) {
-                        la_cross_call(s, nb_temps);
-                    }
+                if (ts->state & TS_MEM) {
+                    arg_life |= SYNC_ARG << i;
                 }
+                ts->state = TS_DEAD;
+                la_reset_pref(s, ts);
+            }
 
-                /* Record arguments that die in this opcode.  */
+            /* If end of basic block, update.  */
+            if (def->flags & TCG_OPF_BB_EXIT) {
+                la_func_end(s, nb_globals, nb_temps);
+            } else if (def->flags & TCG_OPF_BB_END) {
+                // Unicorn: do not optimize dead temps on brcond,
+                // this causes problem because check_exit_request() inserts
+                // brcond instruction in the middle of the TB,
+                // which incorrectly flags end-of-block
+                if (opc != INDEX_op_brcond_i32) {
+                    la_bb_end(s, nb_globals, nb_temps);
+                } else {
+                    // Unicorn: we do not touch dead temps for brcond,
+                    // but we should refresh TCG globals In-Memory states,
+                    // otherwise, important CPU states(especially conditional flags) might be forgotten,
+                    // result in wrongly generated host code that run into wrong branch.
+                    // Refer to https://github.com/unicorn-engine/unicorn/issues/287 for further information
+                    tcg_la_br_end(s);
+                }
+            } else if (def->flags & TCG_OPF_SIDE_EFFECTS) {
+                la_global_sync(s, nb_globals);
+                if (def->flags & TCG_OPF_CALL_CLOBBER) {
+                    la_cross_call(s, nb_temps);
+                }
+            }
+
+            /* Record arguments that die in this opcode.  */
+            for (i = nb_oargs; i < nb_oargs + nb_iargs; i++) {
+                ts = arg_temp(op->args[i]);
+                if (ts->state & TS_DEAD) {
+                    arg_life |= DEAD_ARG << i;
+                }
+            }
+
+            /* Input arguments are live for preceding opcodes.  */
+            for (i = nb_oargs; i < nb_oargs + nb_iargs; i++) {
+                ts = arg_temp(op->args[i]);
+                if (ts->state & TS_DEAD) {
+                    /* For operands that were dead, initially allow
+                       all regs for the type.  */
+                    *la_temp_pref(ts) = s->tcg_target_available_regs[ts->type];
+                    ts->state &= ~TS_DEAD;
+                }
+            }
+
+            /* Incorporate constraints for this operand.  */
+            switch (opc) {
+            case INDEX_op_mov_i32:
+            case INDEX_op_mov_i64:
+                /* Note that these are TCG_OPF_NOT_PRESENT and do not
+                   have proper constraints.  That said, special case
+                   moves to propagate preferences backward.  */
+                if (IS_DEAD_ARG(1)) {
+                    *la_temp_pref(arg_temp(op->args[0]))
+                        = *la_temp_pref(arg_temp(op->args[1]));
+                }
+                break;
+
+            default:
                 for (i = nb_oargs; i < nb_oargs + nb_iargs; i++) {
+                    const TCGArgConstraint *ct = &def->args_ct[i];
+                    TCGRegSet set, *pset;
+
                     ts = arg_temp(op->args[i]);
-                    if (ts->state & TS_DEAD) {
-                        arg_life |= DEAD_ARG << i;
+                    pset = la_temp_pref(ts);
+                    set = *pset;
+
+                    set &= ct->u.regs;
+                    if (ct->ct & TCG_CT_IALIAS) {
+                        set &= op->output_pref[ct->alias_index];
                     }
+                    /* If the combination is not possible, restart.  */
+                    if (set == 0) {
+                        set = ct->u.regs;
+                    }
+                    *pset = set;
                 }
-                /* Input arguments are live for preceding opcodes.  */
-                for (i = nb_oargs; i < nb_oargs + nb_iargs; i++) {
-                    ts = arg_temp(op->args[i]);
-                    if (ts->state & TS_DEAD) {
-                        /* For operands that were dead, initially allow
-                           all regs for the type.  */
-                        *la_temp_pref(ts) = s->tcg_target_available_regs[ts->type];
-                        ts->state &= ~TS_DEAD;
-                    }
-                }
-
-                /* Incorporate constraints for this operand.  */
-                switch (opc) {
-                case INDEX_op_mov_i32:
-                case INDEX_op_mov_i64:
-                    /* Note that these are TCG_OPF_NOT_PRESENT and do not
-                       have proper constraints.  That said, special case
-                       moves to propagate preferences backward.  */
-                    if (IS_DEAD_ARG(1)) {
-                        *la_temp_pref(arg_temp(op->args[0]))
-                            = *la_temp_pref(arg_temp(op->args[1]));
-                    }
-                    break;
-
-                default:
-                    for (i = nb_oargs; i < nb_oargs + nb_iargs; i++) {
-                        const TCGArgConstraint *ct = &def->args_ct[i];
-                        TCGRegSet set, *pset;
-
-                        ts = arg_temp(op->args[i]);
-                        pset = la_temp_pref(ts);
-                        set = *pset;
-
-                        set &= ct->u.regs;
-                        if (ct->ct & TCG_CT_IALIAS) {
-                            set &= op->output_pref[ct->alias_index];
-                        }
-                        /* If the combination is not possible, restart.  */
-                        if (set == 0) {
-                            set = ct->u.regs;
-                        }
-                        *pset = set;
-                    }
-                    break;
-
-                }
+                break;
             }
             break;
         }
