@@ -69,9 +69,12 @@ int arm_reg_read(struct uc_struct *uc, unsigned int *regs, void **vals, int coun
                 case UC_ARM_REG_APSR:
                     *(int32_t *)value = cpsr_read(state) & CPSR_NZCV;
                     break;
-                case UC_ARM_REG_CPSR:
-                    *(int32_t *)value = cpsr_read(state);
+                case UC_ARM_REG_CPSR: {
+                    // Bits 20-23 should always read as zero.
+                    const uint32_t mask = 0xFF0FFFFF;
+                    *(int32_t *)value = cpsr_read(state) & mask;
                     break;
+                }
                 //case UC_ARM_REG_SP:
                 case UC_ARM_REG_R13:
                     *(int32_t *)value = state->regs[13];
@@ -134,9 +137,12 @@ int arm_reg_write(struct uc_struct *uc, unsigned int *regs, void* const* vals, i
                 case UC_ARM_REG_APSR:
                     cpsr_write(state, *(uint32_t *)value, CPSR_NZCV, CPSRWriteRaw);
                     break;
-                case UC_ARM_REG_CPSR:
-                    cpsr_write(state, *(uint32_t *)value, ~0, CPSRWriteRaw);
+                case UC_ARM_REG_CPSR: {
+                    // Bits 20-23 are considered reserved and should always read as zero.
+                    const uint32_t mask = 0xFF0FFFFF;
+                    cpsr_write(state, *(uint32_t *)value, mask, CPSRWriteRaw);
                     break;
+                }
                 //case UC_ARM_REG_SP:
                 case UC_ARM_REG_R13:
                     state->regs[13] = *(uint32_t *)value;
