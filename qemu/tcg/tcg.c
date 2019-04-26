@@ -1878,23 +1878,6 @@ static void la_bb_end(TCGContext *s, int ng, int nt)
     }
 }
 
-/*
-    Unicorn: for brcond, we should refresh liveness states for TCG globals
-*/
-static inline void tcg_la_br_end(TCGContext *s)
-{
-    int ng = s->nb_globals;
-    int nt = s->nb_temps;
-    int i;
-
-    for (i = 0; i < ng; i++) {
-        s->temps[i].state = TS_MEM;
-    }
-    for(i = ng; i < nt; i++) {
-        s->temps[i].state = s->temps[i].temp_local;
-    }
-}
-
 /* liveness analysis: sync globals back to memory.  */
 static void la_global_sync(TCGContext *s, int ng)
 {
@@ -1917,6 +1900,21 @@ static void la_global_kill(TCGContext *s, int ng)
 
     for (i = 0; i < ng; i++) {
         s->temps[i].state = TS_DEAD | TS_MEM;
+        la_reset_pref(s, &s->temps[i]);
+    }
+}
+
+/* Unicorn: for brcond, we should refresh liveness states for TCG globals */
+static inline void tcg_la_br_end(TCGContext *s)
+{
+    int ng = s->nb_globals;
+    int nt = s->nb_temps;
+    int i;
+
+    la_global_sync(s, ng);
+    for (i = ng; i < nt; i++) {
+        s->temps[i].state = s->temps[i].temp_local ? TS_DEAD | TS_MEM
+                                                   : TS_MEM;
         la_reset_pref(s, &s->temps[i]);
     }
 }
