@@ -42,11 +42,8 @@ static inline tcg_target_ulong cpu_tb_exec(CPUState *cpu, TranslationBlock *itb)
     int tb_exit;
     uint8_t *tb_ptr = itb->tc.ptr;
 
-    // Unicorn: commented out
-    //qemu_log_mask_and_addr(CPU_LOG_EXEC, itb->pc,
-    //                       "Trace %p [" TARGET_FMT_lx "] %s\n",
-    //                       itb->tc.ptr, itb->pc, lookup_symbol(itb->pc));
     ret = tcg_qemu_tb_exec(env, tb_ptr);
+    cpu->can_do_io = 1;
     last_tb = (TranslationBlock *)(ret & ~TB_EXIT_MASK);
     tb_exit = ret & TB_EXIT_MASK;
     //trace_exec_tb_exit(last_tb, tb_exit);
@@ -86,8 +83,9 @@ static inline tcg_target_ulong cpu_tb_exec(CPUState *cpu, TranslationBlock *itb)
     return ret;
 }
 
- /* Execute the code without caching the generated code. An interpreter
-    could be used if available. */
+#ifndef CONFIG_USER_ONLY
+/* Execute the code without caching the generated code. An interpreter
+   could be used if available. */
 static void cpu_exec_nocache(CPUState *cpu, int max_cycles,
                              TranslationBlock *orig_tb, bool ignore_icount)
 {
@@ -100,16 +98,21 @@ static void cpu_exec_nocache(CPUState *cpu, int max_cycles,
         max_cycles = CF_COUNT_MASK;
     }
 
+    mmap_lock();
     tb = tb_gen_code(cpu, orig_tb->pc, orig_tb->cs_base, orig_tb->flags,
                      max_cycles | CF_NOCACHE);
     tb->orig_tb = orig_tb;
+    mmap_unlock();
+
     /* execute the generated code */
-    // Unicorn: commented out
-    //trace_exec_tb_nocache(tb, tb->pc);
     cpu_tb_exec(cpu, tb);
+
+    mmap_lock();
     tb_phys_invalidate(env->uc, tb, -1);
+    mmap_unlock();
     tb_free(env->uc, tb);
 }
+#endif
 
 TranslationBlock *tb_htable_lookup(CPUState *cpu, target_ulong pc,
                                    target_ulong cs_base, uint32_t flags)
@@ -175,7 +178,6 @@ void tb_set_jmp_target(TranslationBlock *tb, int n, uintptr_t addr)
     }
 }
 
-/* Called with tb_lock held.  */
 static inline void tb_add_jump(TranslationBlock *tb, int n,
                                TranslationBlock *tb_next)
 {
@@ -210,10 +212,6 @@ static inline TranslationBlock *tb_find(CPUState *cpu,
 
     tb = tb_lookup__cpu_state(cpu, &pc, &cs_base, &flags);
     if (tb == NULL) {
-        /* mmap_lock is needed by tb_gen_code, and mmap_lock must be
-         * taken outside tb_lock. As system emulation is currently
-         * single threaded the locks are NOPs.
-         */
         mmap_lock();
         //tb_lock();
         acquired_tb_lock = true;
@@ -228,7 +226,6 @@ static inline TranslationBlock *tb_find(CPUState *cpu,
         }
 
         mmap_unlock();
-
         /* We add the TB in the virtual pc hash table for the fast lookup */
         atomic_set(&cpu->tb_jmp_cache[tb_jmp_cache_hash_func(pc)], tb);
     }
@@ -311,9 +308,9 @@ static inline bool cpu_handle_exception(struct uc_struct *uc, CPUState *cpu, int
             return true;
         } else {
 #if defined(CONFIG_USER_ONLY)
-            /* if user mode only, we simulate a fake exception
-               which will be handled outside the cpu execution
-               loop */
+        /* if user mode only, we simulate a fake exception
+           which will be handled outside the cpu execution
+           loop */
 #if defined(TARGET_I386)
             CPUClass *cc = CPU_GET_CLASS(uc, cpu);
             cc->do_interrupt(cpu);
@@ -348,9 +345,9 @@ static inline bool cpu_handle_interrupt(CPUState *cpu,
                                         TranslationBlock **last_tb)
 {
     CPUClass *cc = CPU_GET_CLASS(cpu->uc, cpu);
-    int interrupt_request = cpu->interrupt_request;
 
-    if (unlikely(interrupt_request)) {
+    if (unlikely(atomic_read(&cpu->interrupt_request))) {
+        int interrupt_request = cpu->interrupt_request;
         if (unlikely(cpu->singlestep_enabled & SSTEP_NOIRQ)) {
             /* Mask out external interrupts for this step. */
             interrupt_request &= ~CPU_INTERRUPT_SSTEP_MASK;
@@ -378,13 +375,14 @@ static inline bool cpu_handle_interrupt(CPUState *cpu,
 #else
         else if (interrupt_request & CPU_INTERRUPT_RESET) {
             cpu_reset(cpu);
+            return true;
         }
 #endif
+        /* The target hook has 3 exit conditions:
+           False when the interrupt isn't processed,
+           True when it is, and we should restart on a new TB,
+           and via longjmp via cpu_loop_exit.  */
         else {
-            /* The target hook has 3 exit conditions:
-               False when the interrupt isn't processed,
-               True when it is, and we should restart on a new TB,
-               and via longjmp via cpu_loop_exit.  */
             if (cc->cpu_exec_interrupt(cpu, interrupt_request)) {
                 cpu->exception_index = -1;
                 *last_tb = NULL;
@@ -393,7 +391,6 @@ static inline bool cpu_handle_interrupt(CPUState *cpu,
              * reload the 'interrupt_request' value */
             interrupt_request = cpu->interrupt_request;
         }
-
         if (interrupt_request & CPU_INTERRUPT_EXITTB) {
             cpu->interrupt_request &= ~CPU_INTERRUPT_EXITTB;
             /* ensure that no TB jump will be modified as
@@ -401,13 +398,16 @@ static inline bool cpu_handle_interrupt(CPUState *cpu,
             *last_tb = NULL;
         }
     }
-    if (unlikely(cpu->exit_request)) {
+
+    /* Finally, check if we need to exit to the main loop.  */
+    if (unlikely(atomic_read(&cpu->exit_request))) {
         atomic_set(&cpu->exit_request, 0);
         if (cpu->exception_index == -1) {
             cpu->exception_index = EXCP_INTERRUPT;
         }
         return true;
     }
+
     return false;
 }
 
