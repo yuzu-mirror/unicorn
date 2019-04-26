@@ -60,44 +60,44 @@ int arm_reg_read(struct uc_struct *uc, unsigned int *regs, void **vals, int coun
         unsigned int regid = regs[i];
         void *value = vals[i];
         if (regid >= UC_ARM_REG_R0 && regid <= UC_ARM_REG_R12) {
-            *(int32_t *)value = state->regs[regid - UC_ARM_REG_R0];
+            *(uint32_t *)value = state->regs[regid - UC_ARM_REG_R0];
         } else if (regid >= UC_ARM_REG_D0 && regid <= UC_ARM_REG_D31) {
             const float64 *d_reg = aa32_vfp_dreg(state, regid - UC_ARM_REG_D0);
             *(float64 *)value = *d_reg;
         } else {
             switch(regid) {
                 case UC_ARM_REG_APSR:
-                    *(int32_t *)value = cpsr_read(state) & CPSR_NZCV;
+                    *(uint32_t *)value = cpsr_read(state) & CPSR_NZCV;
                     break;
                 case UC_ARM_REG_CPSR: {
                     // Bits 20-23 should always read as zero.
                     const uint32_t mask = 0xFF0FFFFF;
-                    *(int32_t *)value = cpsr_read(state) & mask;
+                    *(uint32_t *)value = cpsr_read(state) & mask;
                     break;
                 }
                 //case UC_ARM_REG_SP:
                 case UC_ARM_REG_R13:
-                    *(int32_t *)value = state->regs[13];
+                    *(uint32_t *)value = state->regs[13];
                     break;
                 //case UC_ARM_REG_LR:
                 case UC_ARM_REG_R14:
-                    *(int32_t *)value = state->regs[14];
+                    *(uint32_t *)value = state->regs[14];
                     break;
                 //case UC_ARM_REG_PC:
                 case UC_ARM_REG_R15:
-                    *(int32_t *)value = state->regs[15];
+                    *(uint32_t *)value = state->regs[15];
                     break;
                 case UC_ARM_REG_C1_C0_2:
-                    *(int32_t *)value = state->cp15.cpacr_el1;
+                    *(uint32_t *)value = state->cp15.cpacr_el1;
                     break;
                 case UC_ARM_REG_C13_C0_3:
-                    *(int32_t *)value = state->cp15.tpidrro_el[0];
+                    *(uint32_t *)value = state->cp15.tpidrro_el[0];
                     break;
                 case UC_ARM_REG_FPEXC:
-                    *(int32_t *)value = state->vfp.xregs[ARM_VFP_FPEXC];
+                    *(uint32_t *)value = state->vfp.xregs[ARM_VFP_FPEXC];
                     break;
                 case UC_ARM_REG_FPSCR:
-                    *(int32_t *)value = vfp_get_fpscr(state);
+                    *(uint32_t *)value = vfp_get_fpscr(state);
                     break;
                 case UC_ARM_REG_IPSR:
                     *(uint32_t *)value = xpsr_read(state) & XPSR_EXCP;
@@ -163,14 +163,14 @@ int arm_reg_write(struct uc_struct *uc, unsigned int *regs, void* const* vals, i
 
                     break;
                 case UC_ARM_REG_C1_C0_2:
-                    state->cp15.cpacr_el1 = *(int32_t *)value;
+                    state->cp15.cpacr_el1 = *(uint32_t *)value;
                     break;
 
                 case UC_ARM_REG_C13_C0_3:
-                    state->cp15.tpidrro_el[0] = *(int32_t *)value;
+                    state->cp15.tpidrro_el[0] = *(uint32_t *)value;
                     break;
                 case UC_ARM_REG_FPEXC:
-                    state->vfp.xregs[ARM_VFP_FPEXC] = *(int32_t *)value;
+                    state->vfp.xregs[ARM_VFP_FPEXC] = *(uint32_t *)value;
                     break;
                 case UC_ARM_REG_FPSCR:
                     vfp_set_fpscr(state, *(uint32_t *)value);
