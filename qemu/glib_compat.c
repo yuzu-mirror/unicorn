@@ -1535,6 +1535,28 @@ static void g_hash_table_insert_internal (GHashTable *hash_table,
     }
 }
 
+GList *
+g_hash_table_get_keys (GHashTable *hash_table)
+{
+  gint i;
+  GList *retval;
+
+  if (hash_table == NULL) {
+    return NULL;
+  }
+
+  retval = NULL;
+  for (i = 0; i < hash_table->size; i++)
+    {
+      GHashNode *node = &hash_table->nodes [i];
+
+      if (node->key_hash > 1)
+        retval = g_list_prepend (retval, node->key);
+    }
+
+  return retval;
+}
+
 /**
  * g_hash_table_insert:
  * @hash_table: a #GHashTable.

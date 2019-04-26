@@ -373,12 +373,14 @@ static void aarch64_cpu_class_init(struct uc_struct *uc, ObjectClass *oc, void *
 
 static void aarch64_cpu_register(struct uc_struct *uc, const ARMCPUInfo *info)
 {
-    TypeInfo type_info = { 0 };
-    type_info.parent = TYPE_AARCH64_CPU;
-    type_info.instance_size = sizeof(ARMCPU);
-    type_info.instance_init = info->initfn;
-    type_info.class_size = sizeof(ARMCPUClass);
-    type_info.class_init = info->class_init;
+    TypeInfo type_info = {
+        .parent = TYPE_AARCH64_CPU,
+        .instance_size = sizeof(ARMCPU),
+        .instance_init = info->initfn,
+        .class_size = sizeof(ARMCPUClass),
+        .class_init = info->class_init,
+        .class_data = (void *)info,
+    };
 
     type_info.name = g_strdup_printf("%s-" TYPE_ARM_CPU, info->name);
     type_register(uc, &type_info);

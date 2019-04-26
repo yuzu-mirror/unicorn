@@ -3129,22 +3129,9 @@ static int disas_dsp_insn(DisasContext *s, uint32_t insn)
     return 1;
 }
 
-// this causes "warning C4293: shift count negative or too big, undefined behavior"
-// on msvc, so is replaced with separate versions for the shift to perform.
-//#define VFP_REG_SHR(x, n) (((n) > 0) ? (x) >> (n) : (x) << -(n))
-#if 0
-//#define VFP_SREG(insn, bigbit, smallbit) \
-//  ((VFP_REG_SHR(insn, bigbit - 1) & 0x1e) | (((insn) >> (smallbit)) & 1))
-#endif
-
-#define VFP_REG_SHR_NEG(insn, n) ((insn) << -(n))
-#define VFP_SREG_NEG(insn, bigbit, smallbit) \
-  ((VFP_REG_SHR_NEG(insn, bigbit - 1) & 0x1e) | (((insn) >> (smallbit)) & 1))
-
-#define VFP_REG_SHR_POS(x, n) ((insn) >> (n))
-#define VFP_SREG_POS(insn, bigbit, smallbit) \
-  ((VFP_REG_SHR_POS(insn, bigbit - 1) & 0x1e) | (((insn) >> (smallbit)) & 1))
-
+#define VFP_REG_SHR(x, n) (((n) > 0) ? (x) >> (n) : (x) << -(n))
+#define VFP_SREG(insn, bigbit, smallbit) \
+  ((VFP_REG_SHR(insn, bigbit - 1) & 0x1e) | (((insn) >> (smallbit)) & 1))
 #define VFP_DREG(reg, insn, bigbit, smallbit) do { \
     if (arm_dc_feature(s, ARM_FEATURE_VFP3)) { \
         reg = (((insn) >> (bigbit)) & 0x0f) \
@@ -3155,11 +3142,11 @@ static int disas_dsp_insn(DisasContext *s, uint32_t insn)
         reg = ((insn) >> (bigbit)) & 0x0f; \
     }} while (0)
 
-#define VFP_SREG_D(insn) VFP_SREG_POS(insn, 12, 22)
+#define VFP_SREG_D(insn) VFP_SREG(insn, 12, 22)
 #define VFP_DREG_D(reg, insn) VFP_DREG(reg, insn, 12, 22)
-#define VFP_SREG_N(insn) VFP_SREG_POS(insn, 16,  7)
+#define VFP_SREG_N(insn) VFP_SREG(insn, 16,  7)
 #define VFP_DREG_N(reg, insn) VFP_DREG(reg, insn, 16,  7)
-#define VFP_SREG_M(insn) VFP_SREG_NEG(insn,  0,  5)
+#define VFP_SREG_M(insn) VFP_SREG(insn,  0,  5)
 #define VFP_DREG_M(reg, insn) VFP_DREG(reg, insn,  0,  5)
 
 /* Move between integer and VFP cores.  */
@@ -6131,17 +6118,20 @@ static void gen_shl64_ins_i64(TCGContext *s, TCGv_i64 d, TCGv_i64 a, int64_t shi
 
 static void gen_shl_ins_vec(TCGContext *s, unsigned vece, TCGv_vec d, TCGv_vec a, int64_t sh)
 {
-    uint64_t mask = (1ull << sh) - 1;
-    TCGv_vec t = tcg_temp_new_vec_matching(s, d);
-    TCGv_vec m = tcg_temp_new_vec_matching(s, d);
+    if (sh == 0) {
+        tcg_gen_mov_vec(s, d, a);
+    } else {
+        TCGv_vec t = tcg_temp_new_vec_matching(s, d);
+        TCGv_vec m = tcg_temp_new_vec_matching(s, d);
 
-    tcg_gen_dupi_vec(s, vece, m, mask);
-    tcg_gen_shli_vec(s, vece, t, a, sh);
-    tcg_gen_and_vec(s, vece, d, d, m);
-    tcg_gen_or_vec(s, vece, d, d, t);
+        tcg_gen_dupi_vec(s, vece, m, MAKE_64BIT_MASK(0, sh));
+        tcg_gen_shli_vec(s, vece, t, a, sh);
+        tcg_gen_and_vec(s, vece, d, d, m);
+        tcg_gen_or_vec(s, vece, d, d, t);
 
-    tcg_temp_free_vec(s, t);
-    tcg_temp_free_vec(s, m);
+        tcg_temp_free_vec(s, t);
+        tcg_temp_free_vec(s, m);
+    }
 }
 
 const GVecGen2i sli_op[4] = {
@@ -6174,34 +6164,16 @@ static void gen_mla8_i32(TCGContext *s, TCGv_i32 d, TCGv_i32 a, TCGv_i32 b)
     gen_helper_neon_add_u8(s, d, d, a);
 }
 
-static void gen_mla16_i32(TCGContext *s, TCGv_i32 d, TCGv_i32 a, TCGv_i32 b)
-{
-    gen_helper_neon_mul_u16(s, a, a, b);
-    gen_helper_neon_add_u16(s, d, d, a);
-}
-
-static void gen_mla32_i32(TCGContext *s, TCGv_i32 d, TCGv_i32 a, TCGv_i32 b)
-{
-    tcg_gen_mul_i32(s, a, a, b);
-    tcg_gen_add_i32(s, d, d, a);
-}
-
-static void gen_mla64_i64(TCGContext *s, TCGv_i64 d, TCGv_i64 a, TCGv_i64 b)
-{
-    tcg_gen_mul_i64(s, a, a, b);
-    tcg_gen_add_i64(s, d, d, a);
-}
-
-static void gen_mla_vec(TCGContext *s, unsigned vece, TCGv_vec d, TCGv_vec a, TCGv_vec b)
-{
-    tcg_gen_mul_vec(s, vece, a, a, b);
-    tcg_gen_add_vec(s, vece, d, d, a);
-}
-
 static void gen_mls8_i32(TCGContext *s, TCGv_i32 d, TCGv_i32 a, TCGv_i32 b)
 {
     gen_helper_neon_mul_u8(s, a, a, b);
     gen_helper_neon_sub_u8(s, d, d, a);
+}
+
+static void gen_mla16_i32(TCGContext *s, TCGv_i32 d, TCGv_i32 a, TCGv_i32 b)
+{
+    gen_helper_neon_mul_u16(s, a, a, b);
+    gen_helper_neon_add_u16(s, d, d, a);
 }
 
 static void gen_mls16_i32(TCGContext *s, TCGv_i32 d, TCGv_i32 a, TCGv_i32 b)
@@ -6210,16 +6182,34 @@ static void gen_mls16_i32(TCGContext *s, TCGv_i32 d, TCGv_i32 a, TCGv_i32 b)
     gen_helper_neon_sub_u16(s, d, d, a);
 }
 
+static void gen_mla32_i32(TCGContext *s, TCGv_i32 d, TCGv_i32 a, TCGv_i32 b)
+{
+    tcg_gen_mul_i32(s, a, a, b);
+    tcg_gen_add_i32(s, d, d, a);
+}
+
 static void gen_mls32_i32(TCGContext *s, TCGv_i32 d, TCGv_i32 a, TCGv_i32 b)
 {
     tcg_gen_mul_i32(s, a, a, b);
     tcg_gen_sub_i32(s, d, d, a);
 }
 
+static void gen_mla64_i64(TCGContext *s, TCGv_i64 d, TCGv_i64 a, TCGv_i64 b)
+{
+    tcg_gen_mul_i64(s, a, a, b);
+    tcg_gen_add_i64(s, d, d, a);
+}
+
 static void gen_mls64_i64(TCGContext *s, TCGv_i64 d, TCGv_i64 a, TCGv_i64 b)
 {
     tcg_gen_mul_i64(s, a, a, b);
     tcg_gen_sub_i64(s, d, d, a);
+}
+
+static void gen_mla_vec(TCGContext *s, unsigned vece, TCGv_vec d, TCGv_vec a, TCGv_vec b)
+{
+    tcg_gen_mul_vec(s, vece, a, a, b);
+    tcg_gen_add_vec(s, vece, d, d, a);
 }
 
 static void gen_mls_vec(TCGContext *s, unsigned vece, TCGv_vec d, TCGv_vec a, TCGv_vec b)

@@ -142,6 +142,7 @@ struct _GHashTableIter
 void g_hash_table_destroy(GHashTable *hash_table);
 gpointer g_hash_table_find(GHashTable *hash_table, GHRFunc predicate, gpointer user_data);
 void g_hash_table_foreach(GHashTable *hash_table, GHFunc func, gpointer user_data);
+GList *g_hash_table_get_keys(GHashTable *hash_table);
 void g_hash_table_insert(GHashTable *hash_table, gpointer key, gpointer value);
 void g_hash_table_replace(GHashTable *hash_table, gpointer key, gpointer value);
 gpointer g_hash_table_lookup(GHashTable *hash_table, gconstpointer key);

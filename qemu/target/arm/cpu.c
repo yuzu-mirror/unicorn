@@ -993,16 +993,12 @@ static void arm1026_initfn(struct uc_struct *uc, Object *obj, void *opaque)
 
     {
         /* The 1026 had an IFAR at c6,c0,0,1 rather than the ARMv6 c6,c0,0,2 */
-        ARMCPRegInfo ifar = { 0 };
-        ifar.name = "IFAR";
-        ifar.cp = 15;
-        ifar.crn = 6;
-        ifar.crm = 0;
-        ifar.opc1 = 0;
-        ifar.opc2 = 1;
-        ifar.access = PL1_RW;
-        ifar.fieldoffset = offsetof(CPUARMState, cp15.ifar_ns),
-        ifar.resetvalue = 0;
+        ARMCPRegInfo ifar = {
+            .name = "IFAR", .cp = 15, .crn = 6, .crm = 0, .opc1 = 0, .opc2 = 1,
+            .access = PL1_RW,
+            .fieldoffset = offsetof(CPUARMState, cp15.ifar_ns),
+            .resetvalue = 0
+        };
         define_one_arm_cp_reg(cpu, &ifar);
     }
 }
@@ -1858,12 +1854,14 @@ static void arm_cpu_class_init(struct uc_struct *uc, ObjectClass *oc, void *data
 
 static void cpu_register(struct uc_struct *uc, const ARMCPUInfo *info)
 {
-    TypeInfo type_info = { 0 };
-    type_info.parent = TYPE_ARM_CPU;
-    type_info.instance_size = sizeof(ARMCPU);
-    type_info.instance_init = info->initfn;
-    type_info.class_size = sizeof(ARMCPUClass);
-    type_info.class_init = info->class_init;
+    TypeInfo type_info = {
+        .parent = TYPE_ARM_CPU,
+        .instance_size = sizeof(ARMCPU),
+        .instance_init = info->initfn,
+        .class_size = sizeof(ARMCPUClass),
+        .class_init = info->class_init,
+        .class_data = (void *)info,
+    };
 
     type_info.name = g_strdup_printf("%s-" TYPE_ARM_CPU, info->name);
     type_register(uc, &type_info);
