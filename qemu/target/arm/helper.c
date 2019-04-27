@@ -6,6 +6,7 @@
 #include "sysemu/sysemu.h"
 #include "sysemu/cpus.h"
 #include "qemu/bitops.h"
+#include "qemu/crc32.h"
 #include "qemu/crc32c.h"
 #include "exec/exec-all.h"
 #include "exec/cpu_ldst.h"
@@ -229,23 +230,15 @@ static gint cpreg_key_compare(gconstpointer a, gconstpointer b)
     return 0;
 }
 
-static void cpreg_make_keylist(gpointer key, gpointer value, gpointer udata)
-{
-    GList **plist = udata;
-
-    *plist = g_list_prepend(*plist, key);
-}
-
 void init_cpreg_list(ARMCPU *cpu)
 {
     /* Initialise the cpreg_tuples[] array based on the cp_regs hash.
      * Note that we require cpreg_tuples[] to be sorted by key ID.
      */
-    GList *keys = NULL;
+    GList *keys;
     int arraylen;
 
-    g_hash_table_foreach(cpu->cp_regs, cpreg_make_keylist, &keys);
-
+    keys = g_hash_table_get_keys(cpu->cp_regs);
     keys = g_list_sort(keys, cpreg_key_compare);
 
     cpu->cpreg_array_len = 0;
@@ -10426,7 +10419,6 @@ ARMVAParameters aa64_va_parameters_both(CPUARMState *env, uint64_t va,
     uint32_t el = regime_el(env, mmu_idx);
     bool tbi, tbid, epd, hpd, using16k, using64k;
     int select, tsz;
-    ARMVAParameters result = {0};
 
     /*
      * Bit 55 is always between the two regions, and is canonical for
@@ -10468,15 +10460,16 @@ ARMVAParameters aa64_va_parameters_both(CPUARMState *env, uint64_t va,
     tsz = MIN(tsz, 39);  /* TODO: ARMv8.4-TTST */
     tsz = MAX(tsz, 16);  /* TODO: ARMv8.2-LVA  */
 
-    result.tsz = tsz;
-    result.select = select;
-    result.tbi = tbi;
-    result.tbid = tbid;
-    result.epd = epd;
-    result.hpd = hpd;
-    result.using16k = using16k;
-    result.using64k = using64k;
-    return result;
+    return (ARMVAParameters) {
+        .tsz = tsz,
+        .select = select,
+        .tbi = tbi,
+        .tbid = tbid,
+        .epd = epd,
+        .hpd = hpd,
+        .using16k = using16k,
+        .using64k = using64k,
+    };
 }
 
 ARMVAParameters aa64_va_parameters(CPUARMState *env, uint64_t va,
@@ -10497,7 +10490,6 @@ static ARMVAParameters aa32_va_parameters(CPUARMState *env, uint32_t va,
     uint32_t el = regime_el(env, mmu_idx);
     int select, tsz;
     bool epd, hpd;
-    ARMVAParameters result = {0};
 
     if (mmu_idx == ARMMMUIdx_S2NS) {
         /* VTCR */
@@ -10545,11 +10537,12 @@ static ARMVAParameters aa32_va_parameters(CPUARMState *env, uint32_t va,
         hpd &= extract32(tcr, 6, 1);
     }
 
-    result.tsz = tsz;
-    result.select = select;
-    result.epd = epd;
-    result.hpd = hpd;
-    return result;
+    return (ARMVAParameters) {
+        .tsz = tsz,
+        .select = select,
+        .epd = epd,
+        .hpd = hpd,
+    };
 }
 
 static bool get_phys_addr_lpae(CPUARMState *env, target_ulong address,
@@ -12553,15 +12546,11 @@ uint32_t HELPER(sel_flags)(uint32_t flags, uint32_t a, uint32_t b)
  */
 uint32_t HELPER(crc32_arm)(uint32_t acc, uint32_t val, uint32_t bytes)
 {
-#if 0   // FIXME
     uint8_t buf[4];
 
     stl_le_p(buf, val);
 
-    /* zlib crc32 converts the accumulator and output to one's complement.  */
-    return crc32(acc ^ 0xffffffff, buf, bytes) ^ 0xffffffff;
-#endif
-    return 0;
+    return qemu_crc32(acc, buf, bytes);
 }
 
 uint32_t HELPER(crc32c)(uint32_t acc, uint32_t val, uint32_t bytes)
