@@ -830,6 +830,8 @@ void tcg_gen_extract2_i32(TCGContext *s, TCGv_i32 ret, TCGv_i32 al, TCGv_i32 ah,
         tcg_gen_mov_i32(s, ret, ah);
     } else if (al == ah) {
         tcg_gen_rotri_i32(s, ret, al, ofs);
+    } else if (TCG_TARGET_HAS_extract2_i32) {
+        tcg_gen_op4i_i32(s, INDEX_op_extract2_i32, ret, al, ah, ofs);
     } else {
         TCGv_i32 t0 = tcg_temp_new_i32(s);
         tcg_gen_shri_i32(s, t0, al, ofs);
@@ -2347,6 +2349,8 @@ void tcg_gen_extract2_i64(TCGContext *s, TCGv_i64 ret, TCGv_i64 al, TCGv_i64 ah,
         tcg_gen_mov_i64(s, ret, ah);
     } else if (al == ah) {
         tcg_gen_rotri_i64(s, ret, al, ofs);
+    } else if (TCG_TARGET_HAS_extract2_i64) {
+        tcg_gen_op4i_i64(s, INDEX_op_extract2_i64, ret, al, ah, ofs);
     } else {
         TCGv_i64 t0 = tcg_temp_new_i64(s);
         tcg_gen_shri_i64(s, t0, al, ofs);
