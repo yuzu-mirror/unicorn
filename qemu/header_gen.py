@@ -2832,6 +2832,8 @@ symbols = (
     'tcg_gen_extr_i64_i32',
     'tcg_gen_extract_i32',
     'tcg_gen_extract_i64',
+    'tcg_gen_extract2_i32',
+    'tcg_gen_extract2_i64',
     'tcg_gen_extrh_i64_i32',
     'tcg_gen_extrl_i64_i32',
     'tcg_gen_extu_i32_i64',
