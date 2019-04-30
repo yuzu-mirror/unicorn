@@ -1745,6 +1745,7 @@
 #define helper_uxtb16 helper_uxtb16_mips64
 #define helper_v7m_blxns helper_v7m_blxns_mips64
 #define helper_v7m_bxns helper_v7m_bxns_mips64
+#define helper_v7m_preserve_fp_state helper_v7m_preserve_fp_state_mips64
 #define helper_v7m_mrs helper_v7m_mrs_mips64
 #define helper_v7m_msr helper_v7m_msr_mips64
 #define helper_v7m_tt helper_v7m_tt_mips64

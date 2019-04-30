@@ -1751,6 +1751,7 @@ symbols = (
     'helper_uxtb16',
     'helper_v7m_blxns',
     'helper_v7m_bxns',
+    'helper_v7m_preserve_fp_state',
     'helper_v7m_mrs',
     'helper_v7m_msr',
     'helper_v7m_tt',
