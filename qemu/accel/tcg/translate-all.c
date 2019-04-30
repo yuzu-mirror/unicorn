@@ -1325,16 +1325,26 @@ TranslationBlock *tb_gen_code(CPUState *cpu,
     TranslationBlock *tb;
     tb_page_addr_t phys_pc, phys_page2;
     tcg_insn_unit *gen_code_buf;
-    int gen_code_size, search_size;
+    int gen_code_size, search_size, max_insns;
 #ifdef CONFIG_PROFILER
     int64_t ti;
 #endif
 
     phys_pc = get_page_addr_code(env, pc);
-    /* UNICORN: Commented out
-    if (use_icount) {
-        cflags |= CF_USE_ICOUNT;
-    }*/
+
+    /* Instruction counting */
+    max_insns = cflags & CF_COUNT_MASK;
+    if (max_insns == 0) {
+        max_insns = CF_COUNT_MASK;
+    }
+    if (max_insns > TCG_MAX_INSNS) {
+        max_insns = TCG_MAX_INSNS;
+    }
+    // Unicorn: commented out
+    if (cpu->singlestep_enabled /*|| singlestep*/) {
+        max_insns = 1;
+    }
+
     tb = tb_alloc(env->uc, pc);
     if (unlikely(!tb)) {
  buffer_overflow:
@@ -1360,7 +1370,7 @@ TranslationBlock *tb_gen_code(CPUState *cpu,
     tcg_func_start(tcg_ctx);
 
     tcg_ctx->cpu = ENV_GET_CPU(env);
-    gen_intermediate_code(cpu, tb);
+    gen_intermediate_code(cpu, tb, max_insns);
     tcg_ctx->cpu = NULL;
 
     // Unicorn: FIXME: Needs to be amended to work with new TCG

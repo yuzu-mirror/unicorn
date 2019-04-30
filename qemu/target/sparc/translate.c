@@ -6048,11 +6048,11 @@ static const TranslatorOps sparc_tr_ops = {
     sparc_tr_disas_log,
 };
 
-void gen_intermediate_code(CPUState *cs, TranslationBlock *tb)
+void gen_intermediate_code(CPUState *cs, TranslationBlock *tb, int max_insns)
 {
     DisasContext dc = {{0}};
 
-    translator_loop(&sparc_tr_ops, &dc.base, cs, tb);
+    translator_loop(&sparc_tr_ops, &dc.base, cs, tb, max_insns);
 }
 
 void sparc_tcg_init(struct uc_struct *uc)
