@@ -1362,31 +1362,33 @@ static inline void tcg_gen_shifti_i64(TCGContext *s, TCGv_i64 ret, TCGv_i64 arg1
             tcg_gen_shli_i32(s, TCGV_HIGH(s, ret), TCGV_LOW(s, arg1), c);
             tcg_gen_movi_i32(s, TCGV_LOW(s, ret), 0);
         }
-    } else {
-        TCGv_i32 t0, t1;
-
-        t0 = tcg_temp_new_i32(s);
-        t1 = tcg_temp_new_i32(s);
-        if (right) {
-            tcg_gen_shli_i32(s, t0, TCGV_HIGH(s, arg1), 32 - c);
-            if (arith) {
-                tcg_gen_sari_i32(s, t1, TCGV_HIGH(s, arg1), c);
-            } else {
-                tcg_gen_shri_i32(s, t1, TCGV_HIGH(s, arg1), c);
-            }
-            tcg_gen_shri_i32(s, TCGV_LOW(s, ret), TCGV_LOW(s, arg1), c);
-            tcg_gen_or_i32(s, TCGV_LOW(s, ret), TCGV_LOW(s, ret), t0);
-            tcg_gen_mov_i32(s, TCGV_HIGH(s, ret), t1);
+    } else if (right) {
+        if (TCG_TARGET_HAS_extract2_i32) {
+            tcg_gen_extract2_i32(s, TCGV_LOW(s, ret),
+                                 TCGV_LOW(s, arg1), TCGV_HIGH(s, arg1), c);
         } else {
-            tcg_gen_shri_i32(s, t0, TCGV_LOW(s, arg1), 32 - c);
-            /* Note: ret can be the same as arg1, so we use t1 */
-            tcg_gen_shli_i32(s, t1, TCGV_LOW(s, arg1), c);
-            tcg_gen_shli_i32(s, TCGV_HIGH(s, ret), TCGV_HIGH(s, arg1), c);
-            tcg_gen_or_i32(s, TCGV_HIGH(s, ret), TCGV_HIGH(s, ret), t0);
-            tcg_gen_mov_i32(s, TCGV_LOW(s, ret), t1);
+            tcg_gen_shri_i32(s, TCGV_LOW(s, ret), TCGV_LOW(s, arg1), c);
+            tcg_gen_deposit_i32(s, TCGV_LOW(s, ret), TCGV_LOW(s, ret),
+                                TCGV_HIGH(s, arg1), 32 - c, c);
         }
-        tcg_temp_free_i32(s, t0);
-        tcg_temp_free_i32(s, t1);
+        if (arith) {
+            tcg_gen_sari_i32(s, TCGV_HIGH(s, ret), TCGV_HIGH(s, arg1), c);
+        } else {
+            tcg_gen_shri_i32(s, TCGV_HIGH(s, ret), TCGV_HIGH(s, arg1), c);
+        }
+    } else {
+        if (TCG_TARGET_HAS_extract2_i32) {
+            tcg_gen_extract2_i32(s, TCGV_HIGH(s, ret),
+                                 TCGV_LOW(s, arg1), TCGV_HIGH(s, arg1), 32 - c);
+        } else {
+            TCGv_i32 t0 = tcg_temp_new_i32(s);
+
+            tcg_gen_shri_i32(s, t0, TCGV_LOW(s, arg1), 32 - c);
+            tcg_gen_deposit_i32(s, TCGV_HIGH(s, ret), t0,
+                                TCGV_HIGH(s, arg1), c, 32 - c);
+            tcg_temp_free_i32(s, t0);
+        }
+        tcg_gen_shli_i32(s, TCGV_LOW(s, ret), TCGV_LOW(s, arg1), c);
     }
 }
 
