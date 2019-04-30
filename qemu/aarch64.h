@@ -3340,6 +3340,7 @@
 #define arm64_reg_reset arm64_reg_reset_aarch64
 #define arm64_reg_write arm64_reg_write_aarch64
 #define arm64_release arm64_release_aarch64
+#define arm_v7m_mmu_idx_all arm_v7m_mmu_idx_all_aarch64
 #define arm_v7m_mmu_idx_for_secstate arm_v7m_mmu_idx_for_secstate_aarch64
 #define arm_v7m_mmu_idx_for_secstate_and_priv arm_v7m_mmu_idx_for_secstate_and_priv_aarch64
 #define arm_hcr_el2_eff arm_hcr_el2_eff_aarch64
