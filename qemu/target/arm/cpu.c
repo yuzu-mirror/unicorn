@@ -769,6 +769,13 @@ static int arm_cpu_realizefn(struct uc_struct *uc, DeviceState *dev, Error **err
         set_feature(env, ARM_FEATURE_THUMB_DSP);
     }
 
+    /*
+     * We rely on no XScale CPU having VFP so we can use the same bits in the
+     * TB flags field for VECSTRIDE and XSCALE_CPAR.
+     */
+    assert(!(arm_feature(env, ARM_FEATURE_VFP) &&
+             arm_feature(env, ARM_FEATURE_XSCALE)));
+
     if (cpu->reset_hivecs) {
             cpu->reset_sctlr |= (1 << 13);
     }
