@@ -1749,6 +1749,7 @@
 #define helper_v7m_mrs helper_v7m_mrs_arm
 #define helper_v7m_msr helper_v7m_msr_arm
 #define helper_v7m_tt helper_v7m_tt_arm
+#define helper_v7m_vlstm helper_v7m_vlstm_arm
 #define helper_v8m_stackcheck helper_v8m_stackcheck_arm
 #define helper_vfp_absd helper_vfp_absd_arm
 #define helper_vfp_abss helper_vfp_abss_arm
