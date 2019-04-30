@@ -1917,7 +1917,11 @@ uint32_t arm_phys_excp_target_el(CPUState *cs, uint32_t excp_idx,
 
 /* Interface between CPU and Interrupt controller.  */
 #ifndef CONFIG_USER_ONLY
-bool armv7m_nvic_can_take_pending_exception(void *opaque);
+static inline bool armv7m_nvic_can_take_pending_exception(void *opaque)
+{
+    // Unicorn: We return true here as well
+    return true;
+}
 #else
 static inline bool armv7m_nvic_can_take_pending_exception(void *opaque)
 {
@@ -1987,6 +1991,25 @@ void armv7m_nvic_acknowledge_irq(void *opaque);
  */
 int armv7m_nvic_complete_irq(void *opaque, int irq, bool secure);
 /**
+ * armv7m_nvic_get_ready_status(void *opaque, int irq, bool secure)
+ * @opaque: the NVIC
+ * @irq: the exception number to mark pending
+ * @secure: false for non-banked exceptions or for the nonsecure
+ * version of a banked exception, true for the secure version of a banked
+ * exception.
+ *
+ * Return whether an exception is "ready", i.e. whether the exception is
+ * enabled and is configured at a priority which would allow it to
+ * interrupt the current execution priority. This controls whether the
+ * RDY bit for it in the FPCCR is set.
+ */
+static inline bool armv7m_nvic_get_ready_status(void *opaque, int irq, bool secure)
+{
+    // Unicorn: We always return as ready.
+    return true;
+}
+
+/**
  * armv7m_nvic_raw_execution_priority: return the raw execution priority
  * @opaque: the NVIC
  *
@@ -2004,7 +2027,11 @@ int armv7m_nvic_raw_execution_priority(void *opaque);
  * This corresponds to the pseudocode IsReqExecPriNeg().
  */
 #ifndef CONFIG_USER_ONLY
-bool armv7m_nvic_neg_prio_requested(void *opaque, bool secure);
+static inline bool armv7m_nvic_neg_prio_requested(void *opaque, bool secure)
+{
+    // Unicorn: We also return false here
+    return false;
+}
 #else
 static inline bool armv7m_nvic_neg_prio_requested(void *opaque, bool secure)
 {
