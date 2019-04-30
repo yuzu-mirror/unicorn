@@ -1749,6 +1749,7 @@
 #define helper_v7m_mrs helper_v7m_mrs_mips
 #define helper_v7m_msr helper_v7m_msr_mips
 #define helper_v7m_tt helper_v7m_tt_mips
+#define helper_v7m_vlldm helper_v7m_vlldm_mips
 #define helper_v7m_vlstm helper_v7m_vlstm_mips
 #define helper_v8m_stackcheck helper_v8m_stackcheck_mips
 #define helper_vfp_absd helper_vfp_absd_mips

@@ -1749,6 +1749,7 @@
 #define helper_v7m_mrs helper_v7m_mrs_armeb
 #define helper_v7m_msr helper_v7m_msr_armeb
 #define helper_v7m_tt helper_v7m_tt_armeb
+#define helper_v7m_vlldm helper_v7m_vlldm_armeb
 #define helper_v7m_vlstm helper_v7m_vlstm_armeb
 #define helper_v8m_stackcheck helper_v8m_stackcheck_armeb
 #define helper_vfp_absd helper_vfp_absd_armeb

@@ -12001,7 +12001,7 @@ static void disas_thumb2_insn(DisasContext *s, uint32_t insn)
                     TCGv_i32 fptr = load_reg(s, rn);
 
                     if (extract32(insn, 20, 1)) {
-                        /* VLLDM */
+                        gen_helper_v7m_vlldm(tcg_ctx, tcg_ctx->cpu_env, fptr);
                     } else {
                         gen_helper_v7m_vlstm(tcg_ctx, tcg_ctx->cpu_env, fptr);
                     }

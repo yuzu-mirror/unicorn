@@ -1749,6 +1749,7 @@
 #define helper_v7m_mrs helper_v7m_mrs_powerpc
 #define helper_v7m_msr helper_v7m_msr_powerpc
 #define helper_v7m_tt helper_v7m_tt_powerpc
+#define helper_v7m_vlldm helper_v7m_vlldm_powerpc
 #define helper_v7m_vlstm helper_v7m_vlstm_powerpc
 #define helper_v8m_stackcheck helper_v8m_stackcheck_powerpc
 #define helper_vfp_absd helper_vfp_absd_powerpc
