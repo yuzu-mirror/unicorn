@@ -484,7 +484,18 @@ Linux)
 esac
 
 : ${make=${MAKE-make}}
-: ${python=${PYTHON-python}}
+# We prefer python 3.x. A bare 'python' is traditionally
+# python 2.x, but some distros have it as python 3.x, so
+# we check that before python2
+python=
+for binary in "${PYTHON-python3}" python python2
+do
+    if has "$binary"
+    then
+        python="$binary"
+        break
+    fi
+done
 
 # Default objcc to clang if available, otherwise use CC
 if has clang; then
@@ -579,8 +590,9 @@ done
 # Remove old dependency files to make sure that they get properly regenerated
 rm -f *-config-devices.mak.d
 
-if ! has $python; then
-  error_exit "Python not found. Use --python=/path/to/python"
+if test -z "$python"
+then
+    error_exit "Python not found. Use --python=/path/to/python"
 fi
 
 # Note that if the Python conditional here evaluates True we will exit
