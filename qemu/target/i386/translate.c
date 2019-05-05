@@ -5866,7 +5866,7 @@ static target_ulong disas_insn(DisasContext *s, CPUState *cpu)
             if (!(s->cpuid_ext_features & CPUID_EXT_CX16))
                 goto illegal_op;
             gen_lea_modrm(env, s, modrm);
-            if ((s->prefix & PREFIX_LOCK) && tcg_ctx->uc->parallel_cpus) {
+            if ((s->prefix & PREFIX_LOCK) && (tb_cflags(s->base.tb) & CF_PARALLEL)) {
                 gen_helper_cmpxchg16b(tcg_ctx, cpu_env, s->A0);
             } else {
                 gen_helper_cmpxchg16b_unlocked(tcg_ctx, cpu_env, s->A0);
@@ -5877,7 +5877,7 @@ static target_ulong disas_insn(DisasContext *s, CPUState *cpu)
             if (!(s->cpuid_features & CPUID_CX8))
                 goto illegal_op;
             gen_lea_modrm(env, s, modrm);
-            if ((s->prefix & PREFIX_LOCK) && tcg_ctx->uc->parallel_cpus) {
+            if ((s->prefix & PREFIX_LOCK) && (tb_cflags(s->base.tb) & CF_PARALLEL)) {
                 gen_helper_cmpxchg8b(tcg_ctx, cpu_env, s->A0);
             } else {
                 gen_helper_cmpxchg8b_unlocked(tcg_ctx, cpu_env, s->A0);
