@@ -1570,13 +1570,11 @@ void tb_invalidate_phys_page_range(struct uc_struct *uc, tb_page_addr_t start, t
                                    int is_cpu_write_access)
 {
     TranslationBlock *tb, *tb_next;
-#if defined(TARGET_HAS_PRECISE_SMC)
-    CPUArchState *env = NULL;
-#endif
     tb_page_addr_t tb_start, tb_end;
     PageDesc *p;
     int n;
 #ifdef TARGET_HAS_PRECISE_SMC
+    CPUArchState *env = NULL;
     int current_tb_not_found = is_cpu_write_access;
     TranslationBlock *current_tb = NULL;
     int current_tb_modified = 0;
@@ -1655,11 +1653,8 @@ void tb_invalidate_phys_page_range(struct uc_struct *uc, tb_page_addr_t start, t
 #endif
 #ifdef TARGET_HAS_PRECISE_SMC
     if (current_tb_modified) {
-        /* we generate a block containing just the instruction
-           modifying the memory. It will ensure that it cannot modify
-           itself */
-        tb_gen_code(uc->cpu, current_pc, current_cs_base, current_flags,
-                    1 | curr_cflags(uc));
+        /* Force execution of one insn next time.  */
+        uc->cpu->cflags_next_tb = 1 | curr_cflags(uc);
         cpu_loop_exit_noexc(uc->cpu);
     }
 #endif
@@ -1768,11 +1763,8 @@ static bool tb_invalidate_phys_page(struct uc_struct *uc, tb_page_addr_t addr, u
     p->first_tb = NULL;
 #ifdef TARGET_HAS_PRECISE_SMC
     if (current_tb_modified) {
-        /* we generate a block containing just the instruction
-           modifying the memory. It will ensure that it cannot modify
-           itself */
-        tb_gen_code(cpu, current_pc, current_cs_base, current_flags,
-                    1 | curr_cflags(uc));
+        /* Force execution of one insn next time.  */
+        cpu->cflags_next_tb = 1 | curr_cflags(uc);
         return true;
     }
 #endif
@@ -1865,9 +1857,7 @@ void cpu_io_recompile(CPUState *cpu, uintptr_t retaddr)
 {
     CPUArchState *env = cpu->env_ptr;
     TranslationBlock *tb;
-    uint32_t n, cflags;
-    target_ulong pc, cs_base;
-    uint32_t flags;
+    uint32_t n;
 
     tb = tb_find_pc(env->uc, retaddr);
     if (!tb) {
@@ -1904,12 +1894,9 @@ void cpu_io_recompile(CPUState *cpu, uintptr_t retaddr)
         cpu_abort(cpu, "TB too big during recompile");
     }
 
-    cflags = n | CF_LAST_IO;
-    cflags |= curr_cflags(cpu->uc);
-    pc = tb->pc;
-    cs_base = tb->cs_base;
-    flags = tb->flags;
-    tb_phys_invalidate(cpu->uc, tb, -1);
+    /* Adjust the execution state of the next TB.  */
+    cpu->cflags_next_tb = curr_cflags(cpu->uc) | CF_LAST_IO | n;
+
     if (tb_cflags(tb) & CF_NOCACHE) {
         if (tb->orig_tb) {
             /* Invalidate original TB if this TB was generated in
@@ -1918,9 +1905,7 @@ void cpu_io_recompile(CPUState *cpu, uintptr_t retaddr)
         }
         tb_free(env->uc, tb);
     }
-    /* FIXME: In theory this could raise an exception.  In practice
-       we have already translated the block once so it's probably ok.  */
-    tb_gen_code(cpu, pc, cs_base, (int)flags, cflags);
+
     /* TODO: If env->pc != tb->pc (i.e. the faulting instruction was not
        the first in the TB) then we end up generating a whole new TB and
        repeating the fault, which is horribly inefficient.

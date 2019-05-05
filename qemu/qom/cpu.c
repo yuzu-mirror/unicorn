@@ -149,6 +149,7 @@ static void cpu_common_reset(CPUState *cpu)
     cpu->can_do_io = 0;
     cpu->exception_index = -1;
     cpu->crash_occurred = false;
+    cpu->cflags_next_tb = -1;
 
     // TODO: Should be uncommented, but good 'ol
     //       unicorn's crappy symbol deduplication
