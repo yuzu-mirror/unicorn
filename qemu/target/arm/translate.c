@@ -4941,7 +4941,7 @@ static void gen_nop_hint(DisasContext *s, int val)
          * spin unnecessarily we would need to do something more involved.
          */
     case 1: /* yield */
-        if (!s->uc->parallel_cpus) {
+        if (!(tb_cflags(s->base.tb) & CF_PARALLEL)) {
             gen_set_pc_im(s, s->pc);
             s->base.is_jmp = DISAS_YIELD;
         }
@@ -4951,7 +4951,7 @@ static void gen_nop_hint(DisasContext *s, int val)
         s->base.is_jmp = DISAS_WFI;
         break;
     case 2: /* wfe */
-        if (!s->uc->parallel_cpus) {
+        if (!(tb_cflags(s->base.tb) & CF_PARALLEL)) {
             gen_set_pc_im(s, s->pc);
             s->base.is_jmp = DISAS_WFE;
         }

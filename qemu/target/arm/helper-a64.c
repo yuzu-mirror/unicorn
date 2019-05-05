@@ -538,46 +538,130 @@ uint64_t HELPER(crc32c_64)(uint64_t acc, uint64_t val, uint32_t bytes)
     return crc32c(acc, buf, bytes) ^ 0xffffffff;
 }
 
-uint64_t HELPER(paired_cmpxchg64_le)(CPUARMState *env, uint64_t addr,
-                                     uint64_t new_lo, uint64_t new_hi)
+static uint64_t do_paired_cmpxchg64_le(CPUARMState *env, uint64_t addr,
+                                       uint64_t new_lo, uint64_t new_hi,
+                                       bool parallel)
 {
-    Int128 cmpv = int128_make128(env->exclusive_val, env->exclusive_high);
-    Int128 newv = int128_make128(new_lo, new_hi);
-    Int128 oldv;
     uintptr_t ra = GETPC();
-    uint64_t o0, o1;
+    Int128 oldv, cmpv, newv;
     bool success;
 
-#ifdef CONFIG_USER_ONLY
-    /* ??? Enforce alignment.  */
-    uint64_t *haddr = g2h(addr);
+    cmpv = int128_make128(env->exclusive_val, env->exclusive_high);
+    newv = int128_make128(new_lo, new_hi);
 
-    helper_retaddr = ra;
-    o0 = ldq_le_p(haddr + 0);
-    o1 = ldq_le_p(haddr + 1);
-    oldv = int128_make128(o0, o1);
-
-    success = int128_eq(oldv, cmpv);
-    if (success) {
-        stq_le_p(haddr + 0, int128_getlo(newv));
-        stq_le_p(haddr + 1, int128_gethi(newv));
-    }
-    helper_retaddr = 0;
+    if (parallel) {
+#ifndef CONFIG_ATOMIC128
+        cpu_loop_exit_atomic(ENV_GET_CPU(env), ra);
 #else
-    int mem_idx = cpu_mmu_index(env, false);
-    TCGMemOpIdx oi0 = make_memop_idx(MO_LEQ | MO_ALIGN_16, mem_idx);
-    TCGMemOpIdx oi1 = make_memop_idx(MO_LEQ, mem_idx);
-
-    o0 = helper_le_ldq_mmu(env, addr + 0, oi0, ra);
-    o1 = helper_le_ldq_mmu(env, addr + 8, oi1, ra);
-    oldv = int128_make128(o0, o1);
-
-    success = int128_eq(oldv, cmpv);
-    if (success) {
-        helper_le_stq_mmu(env, addr + 0, int128_getlo(newv), oi1, ra);
-        helper_le_stq_mmu(env, addr + 8, int128_gethi(newv), oi1, ra);
-    }
+        int mem_idx = cpu_mmu_index(env, false);
+        TCGMemOpIdx oi = make_memop_idx(MO_LEQ | MO_ALIGN_16, mem_idx);
+        oldv = helper_atomic_cmpxchgo_le_mmu(env, addr, cmpv, newv, oi, ra);
+        success = int128_eq(oldv, cmpv);
 #endif
+    } else {
+        uint64_t o0, o1;
+
+#ifdef CONFIG_USER_ONLY
+        /* ??? Enforce alignment.  */
+        uint64_t *haddr = g2h(addr);
+
+        helper_retaddr = ra;
+        o0 = ldq_le_p(haddr + 0);
+        o1 = ldq_le_p(haddr + 1);
+        oldv = int128_make128(o0, o1);
+
+        success = int128_eq(oldv, cmpv);
+        if (success) {
+            stq_le_p(haddr + 0, int128_getlo(newv));
+            stq_le_p(haddr + 1, int128_gethi(newv));
+        }
+        helper_retaddr = 0;
+#else
+        int mem_idx = cpu_mmu_index(env, false);
+        TCGMemOpIdx oi0 = make_memop_idx(MO_LEQ | MO_ALIGN_16, mem_idx);
+        TCGMemOpIdx oi1 = make_memop_idx(MO_LEQ, mem_idx);
+
+        o0 = helper_le_ldq_mmu(env, addr + 0, oi0, ra);
+        o1 = helper_le_ldq_mmu(env, addr + 8, oi1, ra);
+        oldv = int128_make128(o0, o1);
+
+        success = int128_eq(oldv, cmpv);
+        if (success) {
+            helper_le_stq_mmu(env, addr + 0, int128_getlo(newv), oi1, ra);
+            helper_le_stq_mmu(env, addr + 8, int128_gethi(newv), oi1, ra);
+        }
+#endif
+    }
+
+    return !success;
+}
+
+uint64_t HELPER(paired_cmpxchg64_le)(CPUARMState *env, uint64_t addr,
+                                              uint64_t new_lo, uint64_t new_hi)
+{
+    return do_paired_cmpxchg64_le(env, addr, new_lo, new_hi, false);
+}
+
+uint64_t HELPER(paired_cmpxchg64_le_parallel)(CPUARMState *env, uint64_t addr,
+                                              uint64_t new_lo, uint64_t new_hi)
+{
+    return do_paired_cmpxchg64_le(env, addr, new_lo, new_hi, true);
+}
+
+static uint64_t do_paired_cmpxchg64_be(CPUARMState *env, uint64_t addr,
+                                       uint64_t new_lo, uint64_t new_hi,
+                                       bool parallel)
+{
+    uintptr_t ra = GETPC();
+    Int128 oldv, cmpv, newv;
+    bool success;
+
+    cmpv = int128_make128(env->exclusive_val, env->exclusive_high);
+    newv = int128_make128(new_lo, new_hi);
+
+    if (parallel) {
+#ifndef CONFIG_ATOMIC128
+        cpu_loop_exit_atomic(ENV_GET_CPU(env), ra);
+#else
+        int mem_idx = cpu_mmu_index(env, false);
+        TCGMemOpIdx oi = make_memop_idx(MO_BEQ | MO_ALIGN_16, mem_idx);
+        oldv = helper_atomic_cmpxchgo_be_mmu(env, addr, cmpv, newv, oi, ra);
+        success = int128_eq(oldv, cmpv);
+#endif
+    } else {
+        uint64_t o0, o1;
+
+#ifdef CONFIG_USER_ONLY
+        /* ??? Enforce alignment.  */
+        uint64_t *haddr = g2h(addr);
+
+        helper_retaddr = ra;
+        o1 = ldq_be_p(haddr + 0);
+        o0 = ldq_be_p(haddr + 1);
+        oldv = int128_make128(o0, o1);
+
+        success = int128_eq(oldv, cmpv);
+        if (success) {
+            stq_be_p(haddr + 0, int128_gethi(newv));
+            stq_be_p(haddr + 1, int128_getlo(newv));
+        }
+        helper_retaddr = 0;
+#else
+        int mem_idx = cpu_mmu_index(env, false);
+        TCGMemOpIdx oi0 = make_memop_idx(MO_BEQ | MO_ALIGN_16, mem_idx);
+        TCGMemOpIdx oi1 = make_memop_idx(MO_BEQ, mem_idx);
+
+        o1 = helper_be_ldq_mmu(env, addr + 0, oi0, ra);
+        o0 = helper_be_ldq_mmu(env, addr + 8, oi1, ra);
+        oldv = int128_make128(o0, o1);
+
+        success = int128_eq(oldv, cmpv);
+        if (success) {
+            helper_be_stq_mmu(env, addr + 0, int128_gethi(newv), oi1, ra);
+            helper_be_stq_mmu(env, addr + 8, int128_getlo(newv), oi1, ra);
+        }
+#endif
+    }
 
     return !success;
 }
@@ -585,49 +669,13 @@ uint64_t HELPER(paired_cmpxchg64_le)(CPUARMState *env, uint64_t addr,
 uint64_t HELPER(paired_cmpxchg64_be)(CPUARMState *env, uint64_t addr,
                                      uint64_t new_lo, uint64_t new_hi)
 {
-    /*
-     * High and low need to be switched here because this is not actually a
-     * 128bit store but two doublewords stored consecutively
-     */
-    Int128 cmpv = int128_make128(env->exclusive_high, env->exclusive_val);
-    Int128 newv = int128_make128(new_hi, new_lo);
-    Int128 oldv;
-    uintptr_t ra = GETPC();
-    uint64_t o0, o1;
-    bool success;
+    return do_paired_cmpxchg64_be(env, addr, new_lo, new_hi, false);
+}
 
-#ifdef CONFIG_USER_ONLY
-    /* ??? Enforce alignment.  */
-    uint64_t *haddr = g2h(addr);
-
-    helper_retaddr = ra;
-    o1 = ldq_be_p(haddr + 0);
-    o0 = ldq_be_p(haddr + 1);
-    oldv = int128_make128(o0, o1);
-
-    success = int128_eq(oldv, cmpv);
-    if (success) {
-        stq_be_p(haddr + 0, int128_gethi(newv));
-        stq_be_p(haddr + 1, int128_getlo(newv));
-    }
-    helper_retaddr = 0;
-#else
-    int mem_idx = cpu_mmu_index(env, false);
-    TCGMemOpIdx oi0 = make_memop_idx(MO_BEQ | MO_ALIGN_16, mem_idx);
-    TCGMemOpIdx oi1 = make_memop_idx(MO_BEQ, mem_idx);
-
-    o1 = helper_be_ldq_mmu(env, addr + 0, oi0, ra);
-    o0 = helper_be_ldq_mmu(env, addr + 8, oi1, ra);
-    oldv = int128_make128(o0, o1);
-
-    success = int128_eq(oldv, cmpv);
-    if (success) {
-        helper_be_stq_mmu(env, addr + 0, int128_gethi(newv), oi1, ra);
-        helper_be_stq_mmu(env, addr + 8, int128_getlo(newv), oi1, ra);
-    }
-#endif
-
-    return !success;
+uint64_t HELPER(paired_cmpxchg64_be_parallel)(CPUARMState *env, uint64_t addr,
+                                     uint64_t new_lo, uint64_t new_hi)
+{
+    return do_paired_cmpxchg64_be(env, addr, new_lo, new_hi, true);
 }
 
 /* Writes back the old data into Rs.  */

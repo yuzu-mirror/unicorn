@@ -1556,12 +1556,12 @@ static void handle_hint(DisasContext *s, uint32_t insn,
         s->base.is_jmp = DISAS_WFI;
         break;
     case 0b00001: /* YIELD */
-        if (!s->uc->parallel_cpus) {
+        if (!(tb_cflags(s->base.tb) & CF_PARALLEL)) {
             s->base.is_jmp = DISAS_YIELD;
         }
         break;
     case 0b00010: /* WFE */
-        if (!s->uc->parallel_cpus) {
+        if (!(tb_cflags(s->base.tb) & CF_PARALLEL)) {
             s->base.is_jmp = DISAS_WFE;
         }
         break;
@@ -2465,11 +2465,25 @@ static void gen_store_exclusive(DisasContext *s, int rd, int rt, int rt2,
                                        MO_64 | MO_ALIGN | s->be_data);
             tcg_gen_setcond_i64(tcg_ctx, TCG_COND_NE, tmp, tmp, tcg_ctx->cpu_exclusive_val);
         } else if (s->be_data == MO_LE) {
-            gen_helper_paired_cmpxchg64_le(tcg_ctx, tmp, tcg_ctx->cpu_env, tcg_ctx->cpu_exclusive_addr,
-                                           cpu_reg(s, rt), cpu_reg(s, rt2));
+            if (tb_cflags(s->base.tb) & CF_PARALLEL) {
+                gen_helper_paired_cmpxchg64_le_parallel(tcg_ctx, tmp, tcg_ctx->cpu_env,
+                                                        tcg_ctx->cpu_exclusive_addr,
+                                                        cpu_reg(s, rt),
+                                                        cpu_reg(s, rt2));
+            } else {
+                gen_helper_paired_cmpxchg64_le(tcg_ctx, tmp, tcg_ctx->cpu_env, tcg_ctx->cpu_exclusive_addr,
+                                               cpu_reg(s, rt), cpu_reg(s, rt2));
+            }
         } else {
-            gen_helper_paired_cmpxchg64_be(tcg_ctx, tmp, tcg_ctx->cpu_env, tcg_ctx->cpu_exclusive_addr,
-                                           cpu_reg(s, rt), cpu_reg(s, rt2));
+            if (tb_cflags(s->base.tb) & CF_PARALLEL) {
+                gen_helper_paired_cmpxchg64_be_parallel(tcg_ctx, tmp, tcg_ctx->cpu_env,
+                                                        tcg_ctx->cpu_exclusive_addr,
+                                                        cpu_reg(s, rt),
+                                                        cpu_reg(s, rt2));
+            } else {
+                gen_helper_paired_cmpxchg64_be(tcg_ctx, tmp, tcg_ctx->cpu_env, tcg_ctx->cpu_exclusive_addr,
+                                               cpu_reg(s, rt), cpu_reg(s, rt2));
+            }
         }
     } else {
         tcg_gen_atomic_cmpxchg_i64(tcg_ctx, tmp, tcg_ctx->cpu_exclusive_addr, tcg_ctx->cpu_exclusive_val,
