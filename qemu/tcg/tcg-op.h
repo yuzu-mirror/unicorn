@@ -929,6 +929,7 @@ void tcg_gen_atomic_cmpxchg_i64(TCGContext *, TCGv_i64, TCGv, TCGv_i64, TCGv_i64
 
 void tcg_gen_atomic_xchg_i32(TCGContext *, TCGv_i32, TCGv, TCGv_i32, TCGArg, TCGMemOp);
 void tcg_gen_atomic_xchg_i64(TCGContext *, TCGv_i64, TCGv, TCGv_i64, TCGArg, TCGMemOp);
+
 void tcg_gen_atomic_fetch_add_i32(TCGContext *, TCGv_i32, TCGv, TCGv_i32, TCGArg, TCGMemOp);
 void tcg_gen_atomic_fetch_add_i64(TCGContext *, TCGv_i64, TCGv, TCGv_i64, TCGArg, TCGMemOp);
 void tcg_gen_atomic_fetch_and_i32(TCGContext *, TCGv_i32, TCGv, TCGv_i32, TCGArg, TCGMemOp);
