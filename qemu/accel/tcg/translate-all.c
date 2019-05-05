@@ -1147,7 +1147,7 @@ void tb_phys_invalidate(struct uc_struct *uc,
 
     /* remove the TB from the hash list */
     phys_pc = tb->page_addr[0] + (tb->pc & ~TARGET_PAGE_MASK);
-    h = tb_hash_func(phys_pc, tb->pc, tb->flags);
+    h = tb_hash_func(phys_pc, tb->pc, tb->flags, tb->cflags & CF_HASH_MASK);
     tb_hash_remove(&tcg_ctx->tb_ctx.tb_phys_hash[h], tb);
 
     /* remove the TB from the page list */
@@ -1304,7 +1304,7 @@ static void tb_link_page(struct uc_struct *uc,
     }
 
     /* add in the hash table */
-    h = tb_hash_func(phys_pc, tb->pc, tb->flags);
+    h = tb_hash_func(phys_pc, tb->pc, tb->flags, tb->cflags & CF_HASH_MASK);
     ptb = &tcg_ctx->tb_ctx.tb_phys_hash[h];
     tb->phys_hash_next = *ptb;
     *ptb = tb;
@@ -1658,7 +1658,8 @@ void tb_invalidate_phys_page_range(struct uc_struct *uc, tb_page_addr_t start, t
         /* we generate a block containing just the instruction
            modifying the memory. It will ensure that it cannot modify
            itself */
-        tb_gen_code(uc->cpu, current_pc, current_cs_base, current_flags, 1);
+        tb_gen_code(uc->cpu, current_pc, current_cs_base, current_flags,
+                    1 | curr_cflags(uc));
         cpu_loop_exit_noexc(uc->cpu);
     }
 #endif
@@ -1714,7 +1715,7 @@ void tb_invalidate_phys_page_fast(struct uc_struct* uc, tb_page_addr_t start, in
  * TB (because it was modified by this store and the guest CPU has
  * precise-SMC semantics).
  */
-static bool tb_invalidate_phys_page(tb_page_addr_t addr, uintptr_t pc)
+static bool tb_invalidate_phys_page(struct uc_struct *uc, tb_page_addr_t addr, uintptr_t pc)
 {
     TranslationBlock *tb;
     PageDesc *p;
@@ -1770,7 +1771,8 @@ static bool tb_invalidate_phys_page(tb_page_addr_t addr, uintptr_t pc)
         /* we generate a block containing just the instruction
            modifying the memory. It will ensure that it cannot modify
            itself */
-        tb_gen_code(cpu, current_pc, current_cs_base, current_flags, 1);
+        tb_gen_code(cpu, current_pc, current_cs_base, current_flags,
+                    1 | curr_cflags(uc));
         return true;
     }
 #endif
@@ -1903,6 +1905,7 @@ void cpu_io_recompile(CPUState *cpu, uintptr_t retaddr)
     }
 
     cflags = n | CF_LAST_IO;
+    cflags |= curr_cflags(cpu->uc);
     pc = tb->pc;
     cs_base = tb->cs_base;
     flags = tb->flags;
@@ -2177,7 +2180,7 @@ static void page_set_flags(struct uc_struct *uc, target_ulong start, target_ulon
         if (!(p->flags & PAGE_WRITE) &&
             (flags & PAGE_WRITE) &&
             p->first_tb) {
-            tb_invalidate_phys_page(addr, 0);
+            tb_invalidate_phys_page(uc, addr, 0);
         }
         p->flags = flags;
     }
@@ -2277,7 +2280,7 @@ int page_unprotect(struct uc_struct *uc, target_ulong address, uintptr_t pc)
 
             /* and since the content will be modified, we must invalidate
                the corresponding translated code. */
-            current_tb_invalidated |= tb_invalidate_phys_page(addr, pc);
+            current_tb_invalidated |= tb_invalidate_phys_page(uc, addr, pc);
 #ifdef CONFIG_USER_ONLY
             if (DEBUG_TB_CHECK_GATE) {
                 tb_invalidate_check(addr);

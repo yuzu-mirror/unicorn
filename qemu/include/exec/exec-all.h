@@ -23,6 +23,8 @@
 #include "qemu-common.h"
 #include "exec/tb-context.h"
 
+#include "uc_priv.h"
+
 /* allow to see translation results - the slowdown should be negligible, so we leave it */
 #define DEBUG_DISAS
 
@@ -248,6 +250,9 @@ struct TranslationBlock {
 #define CF_USE_ICOUNT  0x20000
 #define CF_IGNORE_ICOUNT 0x40000 /* Do not generate icount code */
 #define CF_INVALID     0x80000 /* TB is stale. Setters must acquire tb_lock */
+#define CF_PARALLEL    0x100000 /* Generate code for a parallel context */
+/* cflags' mask for hashing/comparison */
+#define CF_HASH_MASK (CF_PARALLEL)
 
     struct tb_tc tc;
     /* next matching tb for physical address. */
@@ -292,12 +297,19 @@ static inline uint32_t tb_cflags(const TranslationBlock *tb)
     return atomic_read(&tb->cflags);
 }
 
+/* current cflags for hashing/comparison */
+static inline uint32_t curr_cflags(struct uc_struct *uc)
+{
+    return uc->parallel_cpus ? CF_PARALLEL : 0;
+}
+
 void tb_free(struct uc_struct *uc, TranslationBlock *tb);
 void tb_flush(CPUState *cpu);
 void tb_phys_invalidate(struct uc_struct *uc,
     TranslationBlock *tb, tb_page_addr_t page_addr);
 TranslationBlock *tb_htable_lookup(CPUState *cpu, target_ulong pc,
-                                   target_ulong cs_base, uint32_t flags);
+                                   target_ulong cs_base, uint32_t flags,
+                                   uint32_t cf_mask);
 
 void tb_set_jmp_target(TranslationBlock *tb, int n, uintptr_t addr);
 
