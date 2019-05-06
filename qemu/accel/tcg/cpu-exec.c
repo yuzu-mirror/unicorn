@@ -91,16 +91,19 @@ static void cpu_exec_nocache(CPUState *cpu, int max_cycles,
 {
     TranslationBlock *tb;
     CPUArchState *env = (CPUArchState *)cpu->env_ptr;
+    uint32_t cflags = curr_cflags(cpu->uc) | CF_NOCACHE;
+
+    if (ignore_icount) {
+        cflags &= ~CF_USE_ICOUNT;
+    }
 
     /* Should never happen.
        We only end up here when an existing TB is too long.  */
-    if (max_cycles > CF_COUNT_MASK) {
-        max_cycles = CF_COUNT_MASK;
-    }
+    cflags |= MIN(max_cycles, CF_COUNT_MASK);
 
     mmap_lock();
-    tb = tb_gen_code(cpu, orig_tb->pc, orig_tb->cs_base, orig_tb->flags,
-                     max_cycles | CF_NOCACHE);
+    tb = tb_gen_code(cpu, orig_tb->pc, orig_tb->cs_base,
+                     orig_tb->flags, cflags);
     tb->orig_tb = orig_tb;
     mmap_unlock();
 
@@ -472,7 +475,7 @@ void cpu_exec_step_atomic(struct uc_struct *uc, CPUState *cpu)
     TranslationBlock *tb;
     target_ulong cs_base, pc;
     uint32_t flags;
-    uint32_t cflags = 1 | CF_IGNORE_ICOUNT;
+    uint32_t cflags = 1;
     uint32_t cf_mask = cflags & CF_HASH_MASK;
 
     cpu_get_tb_cpu_state(env, &pc, &cs_base, &flags);
