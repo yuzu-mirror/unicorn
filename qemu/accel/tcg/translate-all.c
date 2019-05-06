@@ -1360,6 +1360,7 @@ TranslationBlock *tb_gen_code(CPUState *cpu,
     tb->cs_base = cs_base;
     tb->flags = flags;
     tb->cflags = cflags;
+    tcg_ctx->tb_cflags = cflags;
  tb_overflow:
 
 #ifdef CONFIG_PROFILER

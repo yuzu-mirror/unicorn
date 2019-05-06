@@ -97,7 +97,7 @@ void tcg_gen_op6(TCGContext *ctx, TCGOpcode opc, TCGArg a1, TCGArg a2,
 
 void tcg_gen_mb(TCGContext *ctx, TCGBar mb_type)
 {
-    if (ctx->uc->parallel_cpus) {
+    if (ctx->tb_cflags & CF_PARALLEL) {
         tcg_gen_op1(ctx, INDEX_op_mb, mb_type);
     }
 }
@@ -3064,7 +3064,7 @@ void tcg_gen_atomic_cmpxchg_i32(TCGContext *s,
 {
     memop = tcg_canonicalize_memop(memop, 0, 0);
 
-    if (!s->uc->parallel_cpus) {
+    if (!(s->tb_cflags & CF_PARALLEL)) {
         TCGv_i32 t1 = tcg_temp_new_i32(s);
         TCGv_i32 t2 = tcg_temp_new_i32(s);
 
@@ -3109,7 +3109,7 @@ void tcg_gen_atomic_cmpxchg_i64(TCGContext *s,
 {
     memop = tcg_canonicalize_memop(memop, 1, 0);
 
-    if (!s->uc->parallel_cpus) {
+    if (!(s->tb_cflags & CF_PARALLEL)) {
         TCGv_i64 t1 = tcg_temp_new_i64(s);
         TCGv_i64 t2 = tcg_temp_new_i64(s);
 
@@ -3290,7 +3290,7 @@ static void * const table_##NAME[16] = {                                \
 void tcg_gen_atomic_##NAME##_i32                                        \
     (TCGContext *s, TCGv_i32 ret, TCGv addr, TCGv_i32 val, TCGArg idx, TCGMemOp memop) \
 {                                                                       \
-    if (s->uc->parallel_cpus) {                                         \
+    if (s->tb_cflags & CF_PARALLEL) {                                   \
         do_atomic_op_i32(s, ret, addr, val, idx, memop, table_##NAME);  \
     } else {                                                            \
         do_nonatomic_op_i32(s, ret, addr, val, idx, memop, NEW,         \
@@ -3300,7 +3300,7 @@ void tcg_gen_atomic_##NAME##_i32                                        \
 void tcg_gen_atomic_##NAME##_i64                                        \
     (TCGContext *s, TCGv_i64 ret, TCGv addr, TCGv_i64 val, TCGArg idx, TCGMemOp memop) \
 {                                                                       \
-    if (s->uc->parallel_cpus) {                                         \
+    if (s->tb_cflags & CF_PARALLEL) {                                   \
         do_atomic_op_i64(s, ret, addr, val, idx, memop, table_##NAME);  \
     } else {                                                            \
         do_nonatomic_op_i64(s, ret, addr, val, idx, memop, NEW,         \
