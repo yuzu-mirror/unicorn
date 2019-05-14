@@ -565,9 +565,8 @@ tb_page_addr_t get_page_addr_code(CPUArchState *env, target_ulong addr)
 }
 
 static uint64_t io_readx(CPUArchState *env, CPUIOTLBEntry *iotlbentry,
-                         int mmu_idx,
-                         target_ulong addr, uintptr_t retaddr,
-                         bool recheck, MMUAccessType access_type, int size)
+                         int mmu_idx, target_ulong addr, uintptr_t retaddr,
+                         MMUAccessType access_type, int size)
 {
     CPUState *cpu = ENV_GET_CPU(env);
     hwaddr mr_offset;
@@ -575,30 +574,6 @@ static uint64_t io_readx(CPUArchState *env, CPUIOTLBEntry *iotlbentry,
     MemoryRegion *mr;
     uint64_t val;
     MemTxResult r;
-
-    if (recheck) {
-        /*
-         * This is a TLB_RECHECK access, where the MMU protection
-         * covers a smaller range than a target page, and we must
-         * repeat the MMU check here. This tlb_fill() call might
-         * longjump out if this access should cause a guest exception.
-         */
-        CPUTLBEntry *entry;
-        target_ulong tlb_addr;
-
-        tlb_fill(cpu, addr, size, access_type, mmu_idx, retaddr);
-
-        entry = tlb_entry(env, mmu_idx, addr);
-        tlb_addr = (access_type == MMU_DATA_LOAD ?
-                    entry->addr_read : entry->addr_code);
-        if (!(tlb_addr & ~(TARGET_PAGE_MASK | TLB_RECHECK))) {
-            /* RAM access */
-            uintptr_t haddr = addr + entry->addend;
-
-            return ldn_p((void *)haddr, size);
-        }
-        /* Fall through for handling IO accesses */
-    }
 
     section = iotlb_to_section(cpu, iotlbentry->addr, iotlbentry->attrs);
     mr = section->mr;
@@ -625,39 +600,14 @@ static uint64_t io_readx(CPUArchState *env, CPUIOTLBEntry *iotlbentry,
 }
 
 static void io_writex(CPUArchState *env, CPUIOTLBEntry *iotlbentry,
-                      int mmu_idx,
-                      uint64_t val, target_ulong addr,
-                      uintptr_t retaddr, bool recheck, int size)
+                      int mmu_idx, uint64_t val, target_ulong addr,
+                      uintptr_t retaddr, int size)
 {
     CPUState *cpu = ENV_GET_CPU(env);
     hwaddr mr_offset;
     MemoryRegionSection *section;
     MemoryRegion *mr;
     MemTxResult r;
-
-    if (recheck) {
-        /*
-         * This is a TLB_RECHECK access, where the MMU protection
-         * covers a smaller range than a target page, and we must
-         * repeat the MMU check here. This tlb_fill() call might
-         * longjump out if this access should cause a guest exception.
-         */
-        CPUTLBEntry *entry;
-        target_ulong tlb_addr;
-
-        tlb_fill(cpu, addr, size, MMU_DATA_STORE, mmu_idx, retaddr);
-
-        entry = tlb_entry(env, mmu_idx, addr);
-        tlb_addr = tlb_addr_write(entry);
-        if (!(tlb_addr & ~(TARGET_PAGE_MASK | TLB_RECHECK))) {
-            /* RAM access */
-            uintptr_t haddr = addr + entry->addend;
-
-            stn_p((void *)haddr, size, val);
-            return;
-        }
-        /* Fall through for handling IO accesses */
-    }
 
     section = iotlb_to_section(cpu, iotlbentry->addr, iotlbentry->attrs);
     mr = section->mr;
@@ -863,6 +813,8 @@ static uint64_t load_helper(CPUArchState *env, target_ulong addr,
     target_ulong tlb_addr = code_read ? entry->addr_code : entry->addr_read;
     const size_t tlb_off = code_read ?
         offsetof(CPUTLBEntry, addr_code) : offsetof(CPUTLBEntry, addr_read);
+    const MMUAccessType access_type =
+        code_read ? MMU_INST_FETCH : MMU_DATA_LOAD;
     unsigned a_bits = get_alignment_bits(get_memop(oi));
     void *haddr;
     uint64_t res;
@@ -974,8 +926,7 @@ static uint64_t load_helper(CPUArchState *env, target_ulong addr,
 
     /* Handle CPU specific unaligned behaviour */
     if (addr & ((1 << a_bits) - 1)) {
-        cpu_unaligned_access(ENV_GET_CPU(env), addr,
-                             code_read ? MMU_INST_FETCH : MMU_DATA_LOAD,
+        cpu_unaligned_access(ENV_GET_CPU(env), addr, access_type,
                              mmu_idx, retaddr);
     }
 
@@ -984,8 +935,7 @@ static uint64_t load_helper(CPUArchState *env, target_ulong addr,
         if (!victim_tlb_hit(env, mmu_idx, index, tlb_off,
                             addr & TARGET_PAGE_MASK)) {
             tlb_fill(ENV_GET_CPU(env), addr, size,
-                     code_read ? MMU_INST_FETCH : MMU_DATA_LOAD,
-                     mmu_idx, retaddr);
+                     access_type, mmu_idx, retaddr);
             index = tlb_index(env, mmu_idx, addr);
             entry = tlb_entry(env, mmu_idx, addr);
         }
@@ -994,17 +944,33 @@ static uint64_t load_helper(CPUArchState *env, target_ulong addr,
 
     /* Handle an IO access.  */
     if (unlikely(tlb_addr & ~TARGET_PAGE_MASK)) {
-        CPUIOTLBEntry *iotlbentry = &env->iotlb[mmu_idx][index];
-        uint64_t tmp;
-
         if ((addr & (size - 1)) != 0) {
             goto do_unaligned_access;
         }
 
-        tmp = io_readx(env, iotlbentry, mmu_idx, addr, retaddr,
-                       tlb_addr & TLB_RECHECK,
-                       code_read ? MMU_INST_FETCH : MMU_DATA_LOAD, size);
-        return handle_bswap(tmp, size, big_endian);
+        if (tlb_addr & TLB_RECHECK) {
+            /*
+             * This is a TLB_RECHECK access, where the MMU protection
+             * covers a smaller range than a target page, and we must
+             * repeat the MMU check here. This tlb_fill() call might
+             * longjump out if this access should cause a guest exception.
+             */
+            tlb_fill(ENV_GET_CPU(env), addr, size,
+                     access_type, mmu_idx, retaddr);
+            index = tlb_index(env, mmu_idx, addr);
+            entry = tlb_entry(env, mmu_idx, addr);
+
+            tlb_addr = code_read ? entry->addr_code : entry->addr_read;
+            tlb_addr &= ~TLB_RECHECK;
+            if (!(tlb_addr & ~TARGET_PAGE_MASK)) {
+                /* RAM access */
+                goto do_aligned_access;
+            }
+        }
+
+        res = io_readx(env, &env->iotlb[mmu_idx][index], mmu_idx, addr,
+                       retaddr, access_type, size);
+        return handle_bswap(res, size, big_endian);
     }
 
     /* Handle slow unaligned access (it spans two pages or IO).  */
@@ -1032,8 +998,8 @@ static uint64_t load_helper(CPUArchState *env, target_ulong addr,
         goto finished;
     }
 
+ do_aligned_access:
     haddr = (void *)((uintptr_t)addr + entry->addend);
-
     switch (size) {
     case 1:
         res = ldub_p(haddr);
@@ -1270,15 +1236,33 @@ static void store_helper(CPUArchState *env, target_ulong addr, uint64_t val,
 
     /* Handle an IO access.  */
     if (unlikely(tlb_addr & ~TARGET_PAGE_MASK)) {
-        CPUIOTLBEntry *iotlbentry = &env->iotlb[mmu_idx][index];
-
         if ((addr & (size - 1)) != 0) {
             goto do_unaligned_access;
         }
 
-        io_writex(env, iotlbentry, mmu_idx,
+        if (tlb_addr & TLB_RECHECK) {
+            /*
+             * This is a TLB_RECHECK access, where the MMU protection
+             * covers a smaller range than a target page, and we must
+             * repeat the MMU check here. This tlb_fill() call might
+             * longjump out if this access should cause a guest exception.
+             */
+            tlb_fill(ENV_GET_CPU(env), addr, size, MMU_DATA_STORE,
+                     mmu_idx, retaddr);
+            index = tlb_index(env, mmu_idx, addr);
+            entry = tlb_entry(env, mmu_idx, addr);
+
+            tlb_addr = tlb_addr_write(entry);
+            tlb_addr &= ~TLB_RECHECK;
+            if (!(tlb_addr & ~TARGET_PAGE_MASK)) {
+                /* RAM access */
+                goto do_aligned_access;
+            }
+        }
+
+        io_writex(env, &env->iotlb[mmu_idx][index], mmu_idx,
                   handle_bswap(val, size, big_endian),
-                  addr, retaddr, tlb_addr & TLB_RECHECK, size);
+                  addr, retaddr, size);
         return;
     }
 
@@ -1326,8 +1310,8 @@ static void store_helper(CPUArchState *env, target_ulong addr, uint64_t val,
         return;
     }
 
+ do_aligned_access:
     haddr = (void *)((uintptr_t)addr + entry->addend);
-
     switch (size) {
     case 1:
         stb_p(haddr, val);
