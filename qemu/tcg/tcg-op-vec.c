@@ -588,3 +588,18 @@ void tcg_gen_umax_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv
 {
     do_op3(s, vece, r, a, b, INDEX_op_umax_vec);
 }
+
+void tcg_gen_shlv_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_vec b)
+{
+    do_op3(s, vece, r, a, b, INDEX_op_shlv_vec);
+}
+
+void tcg_gen_shrv_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_vec b)
+{
+    do_op3(s, vece, r, a, b, INDEX_op_shrv_vec);
+}
+
+void tcg_gen_sarv_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_vec b)
+{
+    do_op3(s, vece, r, a, b, INDEX_op_sarv_vec);
+}
