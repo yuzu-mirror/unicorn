@@ -848,9 +848,8 @@ static void sparc_cpu_class_init(struct uc_struct *uc, ObjectClass *oc, void *da
 #endif
     cc->set_pc = sparc_cpu_set_pc;
     cc->synchronize_from_tb = sparc_cpu_synchronize_from_tb;
-#ifdef CONFIG_USER_ONLY
-    cc->handle_mmu_fault = sparc_cpu_handle_mmu_fault;
-#else
+    cc->tlb_fill = sparc_cpu_tlb_fill;
+#ifndef CONFIG_USER_ONLY
     cc->do_unassigned_access = sparc_cpu_unassigned_access;
     cc->do_unaligned_access = sparc_cpu_do_unaligned_access;
     cc->get_phys_page_debug = sparc_cpu_get_phys_page_debug;
