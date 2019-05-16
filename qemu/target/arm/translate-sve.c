@@ -3459,51 +3459,33 @@ static bool trans_SUB_zzi(DisasContext *s, arg_rri_esz *a)
 
 static bool trans_SUBR_zzi(DisasContext *s, arg_rri_esz *a)
 {
+    static const TCGOpcode vecop_list[] = { INDEX_op_sub_vec, 0 };
     static const GVecGen2s op[4] = {
-        {
-            tcg_gen_vec_sub8_i64,
-            NULL,
-            tcg_gen_sub_vec,
-            gen_helper_sve_subri_b,
-            INDEX_op_sub_vec,
-            0,
-            MO_8,
-            false,
-            true
-        },
-        {
-            tcg_gen_vec_sub16_i64,
-            NULL,
-            tcg_gen_sub_vec,
-            gen_helper_sve_subri_h,
-            INDEX_op_sub_vec,
-            0,
-            MO_16,
-            false,
-            true
-        },
-        {
-            NULL,
-            tcg_gen_sub_i32,
-            tcg_gen_sub_vec,
-            gen_helper_sve_subri_s,
-            INDEX_op_sub_vec,
-            0,
-            MO_32,
-            false,
-            true
-        },
-        {
-            tcg_gen_sub_i64,
-            NULL,
-            tcg_gen_sub_vec,
-            gen_helper_sve_subri_d,
-            INDEX_op_sub_vec,
-            0,
-            MO_64,
-            TCG_TARGET_REG_BITS == 64,
-            true
-        }
+        { .fni8 = tcg_gen_vec_sub8_i64,
+          .fniv = tcg_gen_sub_vec,
+          .fno = gen_helper_sve_subri_b,
+          .opt_opc = vecop_list,
+          .vece = MO_8,
+          .scalar_first = true },
+        { .fni8 = tcg_gen_vec_sub16_i64,
+          .fniv = tcg_gen_sub_vec,
+          .fno = gen_helper_sve_subri_h,
+          .opt_opc = vecop_list,
+          .vece = MO_16,
+          .scalar_first = true },
+        { .fni4 = tcg_gen_sub_i32,
+          .fniv = tcg_gen_sub_vec,
+          .fno = gen_helper_sve_subri_s,
+          .opt_opc = vecop_list,
+          .vece = MO_32,
+          .scalar_first = true },
+        { .fni8 = tcg_gen_sub_i64,
+          .fniv = tcg_gen_sub_vec,
+          .fno = gen_helper_sve_subri_d,
+          .opt_opc = vecop_list,
+          .prefer_i64 = TCG_TARGET_REG_BITS == 64,
+          .vece = MO_64,
+          .scalar_first = true }
     };
 
     if (a->esz == 0 && extract32(s->insn, 13, 1)) {

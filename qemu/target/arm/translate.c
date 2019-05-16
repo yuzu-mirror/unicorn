@@ -6016,27 +6016,31 @@ static void gen_ssra_vec(TCGContext *s, unsigned vece, TCGv_vec d, TCGv_vec a, i
     tcg_gen_add_vec(s, vece, d, d, a);
 }
 
+static const TCGOpcode vecop_list_ssra[] = {
+    INDEX_op_sari_vec, INDEX_op_add_vec, 0
+};
+
 const GVecGen2i ssra_op[4] = {
     { .fni8 = gen_ssra8_i64,
       .fniv = gen_ssra_vec,
       .load_dest = true,
-      .opc = INDEX_op_sari_vec,
+      .opt_opc = vecop_list_ssra,
       .vece = MO_8 },
     { .fni8 = gen_ssra16_i64,
       .fniv = gen_ssra_vec,
       .load_dest = true,
-      .opc = INDEX_op_sari_vec,
+      .opt_opc = vecop_list_ssra,
       .vece = MO_16 },
     { .fni4 = gen_ssra32_i32,
       .fniv = gen_ssra_vec,
       .load_dest = true,
-      .opc = INDEX_op_sari_vec,
+      .opt_opc = vecop_list_ssra,
       .vece = MO_32 },
     { .fni8 = gen_ssra64_i64,
       .fniv = gen_ssra_vec,
       .prefer_i64 = TCG_TARGET_REG_BITS == 64,
       .load_dest = true,
-      .opc = INDEX_op_sari_vec,
+      .opt_opc = vecop_list_ssra,
       .vece = MO_64 },
 };
 
@@ -6070,27 +6074,31 @@ static void gen_usra_vec(TCGContext *s, unsigned vece, TCGv_vec d, TCGv_vec a, i
     tcg_gen_add_vec(s, vece, d, d, a);
 }
 
+static const TCGOpcode vecop_list_usra[] = {
+    INDEX_op_shri_vec, INDEX_op_add_vec, 0
+};
+
 const GVecGen2i usra_op[4] = {
     { .fni8 = gen_usra8_i64,
       .fniv = gen_usra_vec,
       .load_dest = true,
-      .opc = INDEX_op_shri_vec,
+      .opt_opc = vecop_list_usra,
       .vece = MO_8, },
     { .fni8 = gen_usra16_i64,
       .fniv = gen_usra_vec,
       .load_dest = true,
-      .opc = INDEX_op_shri_vec,
+      .opt_opc = vecop_list_usra,
       .vece = MO_16, },
     { .fni4 = gen_usra32_i32,
       .fniv = gen_usra_vec,
       .load_dest = true,
-      .opc = INDEX_op_shri_vec,
+      .opt_opc = vecop_list_usra,
       .vece = MO_32, },
     { .fni8 = gen_usra64_i64,
       .fniv = gen_usra_vec,
       .prefer_i64 = TCG_TARGET_REG_BITS == 64,
       .load_dest = true,
-      .opc = INDEX_op_shri_vec,
+      .opt_opc = vecop_list_usra,
       .vece = MO_64, },
 };
 
@@ -6148,27 +6156,29 @@ static void gen_shr_ins_vec(TCGContext *s, unsigned vece, TCGv_vec d, TCGv_vec a
     }
 }
 
+static const TCGOpcode vecop_list_sri[] = { INDEX_op_shri_vec, 0 };
+
 const GVecGen2i sri_op[4] = {
     { .fni8 = gen_shr8_ins_i64,
       .fniv = gen_shr_ins_vec,
       .load_dest = true,
-      .opc = INDEX_op_shri_vec,
+      .opt_opc = vecop_list_sri,
       .vece = MO_8 },
     { .fni8 = gen_shr16_ins_i64,
       .fniv = gen_shr_ins_vec,
       .load_dest = true,
-      .opc = INDEX_op_shri_vec,
+      .opt_opc = vecop_list_sri,
       .vece = MO_16 },
     { .fni4 = gen_shr32_ins_i32,
       .fniv = gen_shr_ins_vec,
       .load_dest = true,
-      .opc = INDEX_op_shri_vec,
+      .opt_opc = vecop_list_sri,
       .vece = MO_32 },
     { .fni8 = gen_shr64_ins_i64,
       .fniv = gen_shr_ins_vec,
       .prefer_i64 = TCG_TARGET_REG_BITS == 64,
       .load_dest = true,
-      .opc = INDEX_op_shri_vec,
+      .opt_opc = vecop_list_sri,
       .vece = MO_64 },
 };
 
@@ -6224,27 +6234,29 @@ static void gen_shl_ins_vec(TCGContext *s, unsigned vece, TCGv_vec d, TCGv_vec a
     }
 }
 
+static const TCGOpcode vecop_list_sli[] = { INDEX_op_shli_vec, 0 };
+
 const GVecGen2i sli_op[4] = {
     { .fni8 = gen_shl8_ins_i64,
       .fniv = gen_shl_ins_vec,
       .load_dest = true,
-      .opc = INDEX_op_shli_vec,
+      .opt_opc = vecop_list_sli,
       .vece = MO_8 },
     { .fni8 = gen_shl16_ins_i64,
       .fniv = gen_shl_ins_vec,
       .load_dest = true,
-      .opc = INDEX_op_shli_vec,
+      .opt_opc = vecop_list_sli,
       .vece = MO_16 },
     { .fni4 = gen_shl32_ins_i32,
       .fniv = gen_shl_ins_vec,
       .load_dest = true,
-      .opc = INDEX_op_shli_vec,
+      .opt_opc = vecop_list_sli,
       .vece = MO_32 },
     { .fni8 = gen_shl64_ins_i64,
       .fniv = gen_shl_ins_vec,
       .prefer_i64 = TCG_TARGET_REG_BITS == 64,
       .load_dest = true,
-      .opc = INDEX_op_shli_vec,
+      .opt_opc = vecop_list_sli,
       .vece = MO_64 },
 };
 
@@ -6311,25 +6323,34 @@ static void gen_mls_vec(TCGContext *s, unsigned vece, TCGv_vec d, TCGv_vec a, TC
 /* Note that while NEON does not support VMLA and VMLS as 64-bit ops,
  * these tables are shared with AArch64 which does support them.
  */
+
+static const TCGOpcode vecop_list_mla[] = {
+    INDEX_op_mul_vec, INDEX_op_add_vec, 0
+};
+
+static const TCGOpcode vecop_list_mls[] = {
+    INDEX_op_mul_vec, INDEX_op_sub_vec, 0
+};
+
 const GVecGen3 mla_op[4] = {
     { .fni4 = gen_mla8_i32,
       .fniv = gen_mla_vec,
-      .opc = INDEX_op_mul_vec,
+      .opt_opc = vecop_list_mla,
       .load_dest = true,
       .vece = MO_8 },
     { .fni4 = gen_mla16_i32,
       .fniv = gen_mla_vec,
-      .opc = INDEX_op_mul_vec,
+      .opt_opc = vecop_list_mla,
       .load_dest = true,
       .vece = MO_16 },
     { .fni4 = gen_mla32_i32,
       .fniv = gen_mla_vec,
-      .opc = INDEX_op_mul_vec,
+      .opt_opc = vecop_list_mla,
       .load_dest = true,
       .vece = MO_32 },
     { .fni8 = gen_mla64_i64,
       .fniv = gen_mla_vec,
-      .opc = INDEX_op_mul_vec,
+      .opt_opc = vecop_list_mla,
       .prefer_i64 = TCG_TARGET_REG_BITS == 64,
       .load_dest = true,
       .vece = MO_64 },
@@ -6338,22 +6359,22 @@ const GVecGen3 mla_op[4] = {
 const GVecGen3 mls_op[4] = {
     { .fni4 = gen_mls8_i32,
       .fniv = gen_mls_vec,
-      .opc = INDEX_op_mul_vec,
+      .opt_opc = vecop_list_mls,
       .load_dest = true,
       .vece = MO_8 },
     { .fni4 = gen_mls16_i32,
       .fniv = gen_mls_vec,
-      .opc = INDEX_op_mul_vec,
+      .opt_opc = vecop_list_mls,
       .load_dest = true,
       .vece = MO_16 },
     { .fni4 = gen_mls32_i32,
       .fniv = gen_mls_vec,
-      .opc = INDEX_op_mul_vec,
+      .opt_opc = vecop_list_mls,
       .load_dest = true,
       .vece = MO_32 },
     { .fni8 = gen_mls64_i64,
       .fniv = gen_mls_vec,
-      .opc = INDEX_op_mul_vec,
+      .opt_opc = vecop_list_mls,
       .prefer_i64 = TCG_TARGET_REG_BITS == 64,
       .load_dest = true,
       .vece = MO_64 },
@@ -6381,18 +6402,24 @@ static void gen_cmtst_vec(TCGContext *s, unsigned vece, TCGv_vec d, TCGv_vec a, 
     tcg_gen_cmp_vec(s, TCG_COND_NE, vece, d, d, a);
 }
 
+static const TCGOpcode vecop_list_cmtst[] = { INDEX_op_cmp_vec, 0 };
+
 const GVecGen3 cmtst_op[4] = {
     { .fni4 = gen_helper_neon_tst_u8,
       .fniv = gen_cmtst_vec,
+      .opt_opc = vecop_list_cmtst,
       .vece = MO_8 },
     { .fni4 = gen_helper_neon_tst_u16,
       .fniv = gen_cmtst_vec,
+      .opt_opc = vecop_list_cmtst,
       .vece = MO_16 },
     { .fni4 = gen_cmtst_i32,
       .fniv = gen_cmtst_vec,
+      .opt_opc = vecop_list_cmtst,
       .vece = MO_32 },
     { .fni8 = gen_cmtst_i64,
       .fniv = gen_cmtst_vec,
+      .opt_opc = vecop_list_cmtst,
       .prefer_i64 = TCG_TARGET_REG_BITS == 64,
       .vece = MO_64 },
 };
@@ -6408,25 +6435,29 @@ static void gen_uqadd_vec(TCGContext *s, unsigned vece, TCGv_vec t, TCGv_vec sat
     tcg_temp_free_vec(s, x);
 }
 
+static const TCGOpcode vecop_list_uqadd[] = {
+    INDEX_op_usadd_vec, INDEX_op_cmp_vec, INDEX_op_add_vec, 0
+};
+
 const GVecGen4 uqadd_op[4] = {
     { .fniv = gen_uqadd_vec,
       .fno = gen_helper_gvec_uqadd_b,
-      .opc = INDEX_op_usadd_vec,
+      .opt_opc = vecop_list_uqadd,
       .write_aofs = true,
       .vece = MO_8 },
     { .fniv = gen_uqadd_vec,
       .fno = gen_helper_gvec_uqadd_h,
-      .opc = INDEX_op_usadd_vec,
+      .opt_opc = vecop_list_uqadd,
       .write_aofs = true,
       .vece = MO_16 },
     { .fniv = gen_uqadd_vec,
       .fno = gen_helper_gvec_uqadd_s,
-      .opc = INDEX_op_usadd_vec,
+      .opt_opc = vecop_list_uqadd,
       .write_aofs = true,
       .vece = MO_32 },
     { .fniv = gen_uqadd_vec,
       .fno = gen_helper_gvec_uqadd_d,
-      .opc = INDEX_op_usadd_vec,
+      .opt_opc = vecop_list_uqadd,
       .write_aofs = true,
       .vece = MO_64 },
 };
@@ -6442,25 +6473,29 @@ static void gen_sqadd_vec(TCGContext *s, unsigned vece, TCGv_vec t, TCGv_vec sat
     tcg_temp_free_vec(s, x);
 }
 
+static const TCGOpcode vecop_list_sqadd[] = {
+    INDEX_op_ssadd_vec, INDEX_op_cmp_vec, INDEX_op_add_vec, 0
+};
+
 const GVecGen4 sqadd_op[4] = {
     { .fniv = gen_sqadd_vec,
       .fno = gen_helper_gvec_sqadd_b,
-      .opc = INDEX_op_ssadd_vec,
+      .opt_opc = vecop_list_sqadd,
       .write_aofs = true,
       .vece = MO_8 },
     { .fniv = gen_sqadd_vec,
       .fno = gen_helper_gvec_sqadd_h,
-      .opc = INDEX_op_ssadd_vec,
+      .opt_opc = vecop_list_sqadd,
       .write_aofs = true,
       .vece = MO_16 },
     { .fniv = gen_sqadd_vec,
       .fno = gen_helper_gvec_sqadd_s,
-      .opc = INDEX_op_ssadd_vec,
+      .opt_opc = vecop_list_sqadd,
       .write_aofs = true,
       .vece = MO_32 },
     { .fniv = gen_sqadd_vec,
       .fno = gen_helper_gvec_sqadd_d,
-      .opc = INDEX_op_ssadd_vec,
+      .opt_opc = vecop_list_sqadd,
       .write_aofs = true,
       .vece = MO_64 },
 };
@@ -6476,25 +6511,29 @@ static void gen_uqsub_vec(TCGContext *s, unsigned vece, TCGv_vec t, TCGv_vec sat
     tcg_temp_free_vec(s, x);
 }
 
+static const TCGOpcode vecop_list_uqsub[] = {
+    INDEX_op_ussub_vec, INDEX_op_cmp_vec, INDEX_op_sub_vec, 0
+};
+
 const GVecGen4 uqsub_op[4] = {
     { .fniv = gen_uqsub_vec,
       .fno = gen_helper_gvec_uqsub_b,
-      .opc = INDEX_op_ussub_vec,
+      .opt_opc = vecop_list_uqsub,
       .write_aofs = true,
       .vece = MO_8 },
     { .fniv = gen_uqsub_vec,
       .fno = gen_helper_gvec_uqsub_h,
-      .opc = INDEX_op_ussub_vec,
+      .opt_opc = vecop_list_uqsub,
       .write_aofs = true,
       .vece = MO_16 },
     { .fniv = gen_uqsub_vec,
       .fno = gen_helper_gvec_uqsub_s,
-      .opc = INDEX_op_ussub_vec,
+      .opt_opc = vecop_list_uqsub,
       .write_aofs = true,
       .vece = MO_32 },
     { .fniv = gen_uqsub_vec,
       .fno = gen_helper_gvec_uqsub_d,
-      .opc = INDEX_op_ussub_vec,
+      .opt_opc = vecop_list_uqsub,
       .write_aofs = true,
       .vece = MO_64 },
 };
@@ -6510,25 +6549,29 @@ static void gen_sqsub_vec(TCGContext *s, unsigned vece, TCGv_vec t, TCGv_vec sat
     tcg_temp_free_vec(s, x);
 }
 
+static const TCGOpcode vecop_list_sqsub[] = {
+    INDEX_op_sssub_vec, INDEX_op_cmp_vec, INDEX_op_sub_vec, 0
+};
+
 const GVecGen4 sqsub_op[4] = {
     { .fniv = gen_sqsub_vec,
       .fno = gen_helper_gvec_sqsub_b,
-      .opc = INDEX_op_sssub_vec,
+      .opt_opc = vecop_list_sqsub,
       .write_aofs = true,
       .vece = MO_8 },
     { .fniv = gen_sqsub_vec,
       .fno = gen_helper_gvec_sqsub_h,
-      .opc = INDEX_op_sssub_vec,
+      .opt_opc = vecop_list_sqsub,
       .write_aofs = true,
       .vece = MO_16 },
     { .fniv = gen_sqsub_vec,
       .fno = gen_helper_gvec_sqsub_s,
-      .opc = INDEX_op_sssub_vec,
+      .opt_opc = vecop_list_sqsub,
       .write_aofs = true,
       .vece = MO_32 },
     { .fniv = gen_sqsub_vec,
       .fno = gen_helper_gvec_sqsub_d,
-      .opc = INDEX_op_sssub_vec,
+      .opt_opc = vecop_list_sqsub,
       .write_aofs = true,
       .vece = MO_64 },
 };

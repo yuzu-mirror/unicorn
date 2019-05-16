@@ -2690,7 +2690,9 @@
 #define tcg_add_param_i64 tcg_add_param_i64_riscv64
 #define tcg_add_target_add_op_defs tcg_add_target_add_op_defs_riscv64
 #define tcg_allowed tcg_allowed_riscv64
+#define tcg_assert_listed_vecop tcg_assert_listed_vecop_riscv64
 #define tcg_can_emit_vec_op tcg_can_emit_vec_op_riscv64
+#define tcg_can_emit_vecop_list tcg_can_emit_vecop_list_riscv64
 #define tcg_canonicalize_memop tcg_canonicalize_memop_riscv64
 #define tcg_commit tcg_commit_riscv64
 #define tcg_cond_to_jcc tcg_cond_to_jcc_riscv64

@@ -2690,7 +2690,9 @@
 #define tcg_add_param_i64 tcg_add_param_i64_x86_64
 #define tcg_add_target_add_op_defs tcg_add_target_add_op_defs_x86_64
 #define tcg_allowed tcg_allowed_x86_64
+#define tcg_assert_listed_vecop tcg_assert_listed_vecop_x86_64
 #define tcg_can_emit_vec_op tcg_can_emit_vec_op_x86_64
+#define tcg_can_emit_vecop_list tcg_can_emit_vecop_list_x86_64
 #define tcg_canonicalize_memop tcg_canonicalize_memop_x86_64
 #define tcg_commit tcg_commit_x86_64
 #define tcg_cond_to_jcc tcg_cond_to_jcc_x86_64
