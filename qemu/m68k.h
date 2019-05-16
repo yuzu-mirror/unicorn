@@ -2731,6 +2731,8 @@
 #define tcg_flush_softmmu_tlb tcg_flush_softmmu_tlb_m68k
 #define tcg_func_start tcg_func_start_m68k
 #define tcg_gen_abs_i32 tcg_gen_abs_i32_m68k
+#define tcg_gen_abs_i64 tcg_gen_abs_i64_m68k
+#define tcg_gen_abs_vec tcg_gen_abs_vec_m68k
 #define tcg_gen_add2_i32 tcg_gen_add2_i32_m68k
 #define tcg_gen_add2_i64 tcg_gen_add2_i64_m68k
 #define tcg_gen_add_i32 tcg_gen_add_i32_m68k

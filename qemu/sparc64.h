@@ -2731,6 +2731,8 @@
 #define tcg_flush_softmmu_tlb tcg_flush_softmmu_tlb_sparc64
 #define tcg_func_start tcg_func_start_sparc64
 #define tcg_gen_abs_i32 tcg_gen_abs_i32_sparc64
+#define tcg_gen_abs_i64 tcg_gen_abs_i64_sparc64
+#define tcg_gen_abs_vec tcg_gen_abs_vec_sparc64
 #define tcg_gen_add2_i32 tcg_gen_add2_i32_sparc64
 #define tcg_gen_add2_i64 tcg_gen_add2_i64_sparc64
 #define tcg_gen_add_i32 tcg_gen_add_i32_sparc64

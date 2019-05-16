@@ -624,17 +624,6 @@ static void gen_sar(DisasContext *s, TCGv_i32 dest, TCGv_i32 t0, TCGv_i32 t1)
     tcg_temp_free_i32(tcg_ctx, tmp1);
 }
 
-static void tcg_gen_abs_i32(DisasContext *s, TCGv_i32 dest, TCGv_i32 src)
-{
-    TCGContext *tcg_ctx = s->uc->tcg_ctx;
-    TCGv_i32 c0 = tcg_const_i32(tcg_ctx, 0);
-    TCGv_i32 tmp = tcg_temp_new_i32(tcg_ctx);
-    tcg_gen_neg_i32(tcg_ctx, tmp, src);
-    tcg_gen_movcond_i32(tcg_ctx, TCG_COND_GT, dest, src, c0, src, tmp);
-    tcg_temp_free_i32(tcg_ctx, c0);
-    tcg_temp_free_i32(tcg_ctx, tmp);
-}
-
 static void shifter_out_im(DisasContext *s, TCGv_i32 var, int shift)
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
@@ -8395,7 +8384,7 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                             switch(size) {
                             case 0: gen_helper_neon_abs_s8(tcg_ctx, tmp, tmp); break;
                             case 1: gen_helper_neon_abs_s16(tcg_ctx, tmp, tmp); break;
-                            case 2: tcg_gen_abs_i32(s, tmp, tmp); break;
+                            case 2: tcg_gen_abs_i32(tcg_ctx, tmp, tmp); break;
                             default: abort();
                             }
                             break;

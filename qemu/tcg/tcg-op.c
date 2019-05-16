@@ -1099,6 +1099,16 @@ void tcg_gen_umax_i32(TCGContext *s, TCGv_i32 ret, TCGv_i32 a, TCGv_i32 b)
     tcg_gen_movcond_i32(s, TCG_COND_LTU, ret, a, b, b, a);
 }
 
+void tcg_gen_abs_i32(TCGContext *s, TCGv_i32 ret, TCGv_i32 a)
+{
+    TCGv_i32 t = tcg_temp_new_i32(s);
+
+    tcg_gen_sari_i32(s, t, a, 31);
+    tcg_gen_xor_i32(s, ret, a, t);
+    tcg_gen_sub_i32(s, ret, ret, t);
+    tcg_temp_free_i32(s, t);
+}
+
 /* 64-bit ops */
 
 #if TCG_TARGET_REG_BITS == 32
@@ -2563,6 +2573,16 @@ void tcg_gen_smax_i64(TCGContext *s, TCGv_i64 ret, TCGv_i64 a, TCGv_i64 b)
 void tcg_gen_umax_i64(TCGContext *s, TCGv_i64 ret, TCGv_i64 a, TCGv_i64 b)
 {
     tcg_gen_movcond_i64(s, TCG_COND_LTU, ret, a, b, b, a);
+}
+
+void tcg_gen_abs_i64(TCGContext *s, TCGv_i64 ret, TCGv_i64 a)
+{
+    TCGv_i64 t = tcg_temp_new_i64(s);
+
+    tcg_gen_sari_i64(s, t, a, 63);
+    tcg_gen_xor_i64(s, ret, a, t);
+    tcg_gen_sub_i64(s, ret, ret, t);
+    tcg_temp_free_i64(s, t);
 }
 
 /* Size changing operations.  */
