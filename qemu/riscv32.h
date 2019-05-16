@@ -3233,7 +3233,6 @@
 #define ti925t_initfn ti925t_initfn_riscv32
 #define tlb_add_large_page tlb_add_large_page_riscv32
 #define tlb_init tlb_init_riscv32
-#define tlb_fill tlb_fill_riscv32
 #define tlb_flush tlb_flush_riscv32
 #define tlb_flush_by_mmuidx tlb_flush_by_mmuidx_riscv32
 #define tlb_flush_entry tlb_flush_entry_riscv32
