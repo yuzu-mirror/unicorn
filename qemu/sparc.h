@@ -1458,8 +1458,6 @@
 #define helper_neon_abdl_u16 helper_neon_abdl_u16_sparc
 #define helper_neon_abdl_u32 helper_neon_abdl_u32_sparc
 #define helper_neon_abdl_u64 helper_neon_abdl_u64_sparc
-#define helper_neon_abs_s16 helper_neon_abs_s16_sparc
-#define helper_neon_abs_s8 helper_neon_abs_s8_sparc
 #define helper_neon_acge_f32 helper_neon_acge_f32_sparc
 #define helper_neon_acge_f64 helper_neon_acge_f64_sparc
 #define helper_neon_acgt_f32 helper_neon_acgt_f32_sparc

@@ -1464,8 +1464,6 @@ symbols = (
     'helper_neon_abdl_u16',
     'helper_neon_abdl_u32',
     'helper_neon_abdl_u64',
-    'helper_neon_abs_s16',
-    'helper_neon_abs_s8',
     'helper_neon_acge_f32',
     'helper_neon_acge_f64',
     'helper_neon_acgt_f32',

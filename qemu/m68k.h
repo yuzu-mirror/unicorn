@@ -1458,8 +1458,6 @@
 #define helper_neon_abdl_u16 helper_neon_abdl_u16_m68k
 #define helper_neon_abdl_u32 helper_neon_abdl_u32_m68k
 #define helper_neon_abdl_u64 helper_neon_abdl_u64_m68k
-#define helper_neon_abs_s16 helper_neon_abs_s16_m68k
-#define helper_neon_abs_s8 helper_neon_abs_s8_m68k
 #define helper_neon_acge_f32 helper_neon_acge_f32_m68k
 #define helper_neon_acge_f64 helper_neon_acge_f64_m68k
 #define helper_neon_acgt_f32 helper_neon_acgt_f32_m68k
