@@ -4320,9 +4320,9 @@
 #define mips_cpu_do_unaligned_access mips_cpu_do_unaligned_access_mips64
 #define mips_cpu_exec_interrupt mips_cpu_exec_interrupt_mips64
 #define mips_cpu_get_phys_page_debug mips_cpu_get_phys_page_debug_mips64
-#define mips_cpu_handle_mmu_fault mips_cpu_handle_mmu_fault_mips64
 #define mips_cpu_list mips_cpu_list_mips64
 #define mips_cpu_register_types mips_cpu_register_types_mips64
+#define mips_cpu_tlb_fill mips_cpu_tlb_fill_mips64
 #define mips_cpu_unassigned_access mips_cpu_unassigned_access_mips64
 #define mips_defs mips_defs_mips64
 #define mips_defs_number mips_defs_number_mips64
