@@ -48,8 +48,19 @@
 #define CPU_LDST_H
 
 #if defined(CONFIG_USER_ONLY)
+/* sparc32plus has 64bit long but 32bit space address
+ * this can make bad result with g2h() and h2g()
+ */
+#if TARGET_VIRT_ADDR_SPACE_BITS <= 32
+typedef uint32_t abi_ptr;
+#define TARGET_ABI_FMT_ptr "%x"
+#else
+typedef uint64_t abi_ptr;
+#define TARGET_ABI_FMT_ptr "%"PRIx64
+#endif
+
 /* All direct uses of g2h and h2g need to go away for usermode softmmu.  */
-#define g2h(x) ((void *)((unsigned long)(target_ulong)(x) + GUEST_BASE))
+#define g2h(x) ((void *)((unsigned long)(abi_ptr)(x) + GUEST_BASE))
 
 #if HOST_LONG_BITS <= TARGET_VIRT_ADDR_SPACE_BITS
 #define h2g_valid(x) 1
@@ -63,7 +74,7 @@
 
 #define h2g_nocheck(x) ({ \
     unsigned long __ret = (unsigned long)(x) - GUEST_BASE; \
-    (abi_ulong)__ret; \
+    (abi_ptr)__ret; \
 })
 
 #define h2g(x) ({ \
@@ -71,7 +82,9 @@
     assert(h2g_valid(x)); \
     h2g_nocheck(x); \
 })
-
+#else
+typedef target_ulong abi_ptr;
+#define TARGET_ABI_FMT_ptr TARGET_ABI_FMT_lx
 #endif
 
 #if defined(CONFIG_USER_ONLY)
@@ -420,14 +433,14 @@ static inline CPUTLBEntry *tlb_entry(CPUArchState *env, uintptr_t mmu_idx,
  * This is the equivalent of the initial fast-path code used by
  * TCG backends for guest load and store accesses.
  */
-static inline void *tlb_vaddr_to_host(CPUArchState *env, target_ulong addr,
+static inline void *tlb_vaddr_to_host(CPUArchState *env, abi_ptr addr,
                                       int access_type, int mmu_idx)
 {
 #if defined(CONFIG_USER_ONLY)
     return g2h(addr);
 #else
     CPUTLBEntry *tlbentry = tlb_entry(env, mmu_idx, addr);
-    target_ulong tlb_addr;
+    abi_ptr tlb_addr;
     uintptr_t haddr;
 
     switch (access_type) {
