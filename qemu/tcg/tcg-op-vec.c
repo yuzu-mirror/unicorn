@@ -603,3 +603,57 @@ void tcg_gen_sarv_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv
 {
     do_op3(s, vece, r, a, b, INDEX_op_sarv_vec);
 }
+
+static void do_shifts(TCGContext *tcg_ctx, unsigned vece, TCGv_vec r, TCGv_vec a,
+                      TCGv_i32 s, TCGOpcode opc_s, TCGOpcode opc_v)
+{
+    TCGTemp *rt = tcgv_vec_temp(tcg_ctx, r);
+    TCGTemp *at = tcgv_vec_temp(tcg_ctx, a);
+    TCGTemp *st = tcgv_i32_temp(tcg_ctx, s);
+    TCGArg ri = temp_arg(rt);
+    TCGArg ai = temp_arg(at);
+    TCGArg si = temp_arg(st);
+    TCGType type = rt->base_type;
+    const TCGOpcode *hold_list;
+    int can;
+
+    tcg_debug_assert(at->base_type >= type);
+    tcg_assert_listed_vecop(tcg_ctx, opc_s);
+    hold_list = tcg_swap_vecop_list(tcg_ctx, NULL);
+
+    can = tcg_can_emit_vec_op(opc_s, type, vece);
+    if (can > 0) {
+        vec_gen_3(tcg_ctx, opc_s, type, vece, ri, ai, si);
+    } else if (can < 0) {
+        tcg_expand_vec_op(tcg_ctx, opc_s, type, vece, ri, ai, si);
+    } else {
+        TCGv_vec vec_s = tcg_temp_new_vec(tcg_ctx, type);
+
+        if (vece == MO_64) {
+            TCGv_i64 s64 = tcg_temp_new_i64(tcg_ctx);
+            tcg_gen_extu_i32_i64(tcg_ctx, s64, s);
+            tcg_gen_dup_i64_vec(tcg_ctx, MO_64, vec_s, s64);
+            tcg_temp_free_i64(tcg_ctx, s64);
+        } else {
+            tcg_gen_dup_i32_vec(tcg_ctx, vece, vec_s, s);
+        }
+        do_op3(tcg_ctx, vece, r, a, vec_s, opc_v);
+        tcg_temp_free_vec(tcg_ctx, vec_s);
+    }
+    tcg_swap_vecop_list(tcg_ctx, hold_list);
+}
+
+void tcg_gen_shls_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_i32 b)
+{
+    do_shifts(s, vece, r, a, b, INDEX_op_shls_vec, INDEX_op_shlv_vec);
+}
+
+void tcg_gen_shrs_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_i32 b)
+{
+    do_shifts(s, vece, r, a, b, INDEX_op_shrs_vec, INDEX_op_shrv_vec);
+}
+
+void tcg_gen_sars_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_i32 b)
+{
+    do_shifts(s, vece, r, a, b, INDEX_op_sars_vec, INDEX_op_sarv_vec);
+}
