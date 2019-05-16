@@ -91,7 +91,7 @@ typedef struct {
     void (*fniv)(TCGContext *, unsigned, TCGv_vec, TCGv_vec);
     /* Expand out-of-line helper w/descriptor.  */
     gen_helper_gvec_2 *fno;
-    /* The opcode, if any, to which this corresponds.  */
+    /* The optional opcodes, if any, utilized by .fniv.  */
     const TCGOpcode *opt_opc;
     /* The data argument to the out-of-line helper.  */
     int32_t data;
@@ -112,7 +112,7 @@ typedef struct {
     gen_helper_gvec_2 *fno;
     /* Expand out-of-line helper w/descriptor, data as argument.  */
     gen_helper_gvec_2i *fnoi;
-    /* The opcode, if any, to which this corresponds.  */
+    /* The optional opcodes, if any, utilized by .fniv.  */
     const TCGOpcode *opt_opc;
     /* The vector element size, if applicable.  */
     uint8_t vece;
@@ -131,7 +131,7 @@ typedef struct {
     void (*fniv)(TCGContext *, unsigned, TCGv_vec, TCGv_vec, TCGv_vec);
     /* Expand out-of-line helper w/descriptor.  */
     gen_helper_gvec_2i *fno;
-    /* The opcode, if any, to which this corresponds.  */
+    /* The optional opcodes, if any, utilized by .fniv.  */
     const TCGOpcode *opt_opc;
     /* The data argument to the out-of-line helper.  */
     uint32_t data;
@@ -152,7 +152,7 @@ typedef struct {
     void (*fniv)(TCGContext *, unsigned, TCGv_vec, TCGv_vec, TCGv_vec);
     /* Expand out-of-line helper w/descriptor.  */
     gen_helper_gvec_3 *fno;
-    /* The opcode, if any, to which this corresponds.  */
+    /* The optional opcodes, if any, utilized by .fniv.  */
     const TCGOpcode *opt_opc;
     /* The data argument to the out-of-line helper.  */
     int32_t data;
@@ -175,7 +175,7 @@ typedef struct {
     void (*fniv)(TCGContext *, unsigned, TCGv_vec, TCGv_vec, TCGv_vec, int64_t);
     /* Expand out-of-line helper w/descriptor, data in descriptor.  */
     gen_helper_gvec_3 *fno;
-    /* The opcode, if any, to which this corresponds.  */
+    /* The optional opcodes, if any, utilized by .fniv.  */
     const TCGOpcode *opt_opc;
     /* The vector element size, if applicable.  */
     uint8_t vece;
@@ -194,7 +194,7 @@ typedef struct {
     void (*fniv)(TCGContext *s, unsigned, TCGv_vec, TCGv_vec, TCGv_vec, TCGv_vec);
     /* Expand out-of-line helper w/descriptor.  */
     gen_helper_gvec_4 *fno;
-    /* The opcode, if any, to which this corresponds.  */
+    /* The optional opcodes, if any, utilized by .fniv.  */
     const TCGOpcode *opt_opc;
     /* The data argument to the out-of-line helper.  */
     int32_t data;
@@ -308,6 +308,11 @@ void tcg_gen_gvec_dup_i32(TCGContext *, unsigned vece, uint32_t dofs, uint32_t s
 void tcg_gen_gvec_dup_i64(TCGContext *, unsigned vece, uint32_t dofs, uint32_t s,
                           uint32_t m, TCGv_i64);
 
+void tcg_gen_gvec_dup8i(TCGContext *, uint32_t dofs, uint32_t s, uint32_t m, uint8_t x);
+void tcg_gen_gvec_dup16i(TCGContext *, uint32_t dofs, uint32_t s, uint32_t m, uint16_t x);
+void tcg_gen_gvec_dup32i(TCGContext *, uint32_t dofs, uint32_t s, uint32_t m, uint32_t x);
+void tcg_gen_gvec_dup64i(TCGContext *, uint32_t dofs, uint32_t s, uint32_t m, uint64_t x);
+
 void tcg_gen_gvec_shli(TCGContext *s, unsigned vece, uint32_t dofs, uint32_t aofs,
                        int64_t shift, uint32_t oprsz, uint32_t maxsz);
 void tcg_gen_gvec_shri(TCGContext *s, unsigned vece, uint32_t dofs, uint32_t aofs,
@@ -336,11 +341,6 @@ void tcg_gen_gvec_sarv(TCGContext *, unsigned vece, uint32_t dofs, uint32_t aofs
 void tcg_gen_gvec_cmp(TCGContext *s, TCGCond cond, unsigned vece, uint32_t dofs,
                       uint32_t aofs, uint32_t bofs,
                       uint32_t oprsz, uint32_t maxsz);
-
-void tcg_gen_gvec_dup8i(TCGContext *, uint32_t dofs, uint32_t s, uint32_t m, uint8_t x);
-void tcg_gen_gvec_dup16i(TCGContext *, uint32_t dofs, uint32_t s, uint32_t m, uint16_t x);
-void tcg_gen_gvec_dup32i(TCGContext *, uint32_t dofs, uint32_t s, uint32_t m, uint32_t x);
-void tcg_gen_gvec_dup64i(TCGContext *, uint32_t dofs, uint32_t s, uint32_t m, uint64_t x);
 
 /*
  * 64-bit vector operations.  Use these when the register has been allocated

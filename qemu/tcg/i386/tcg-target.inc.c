@@ -917,6 +917,38 @@ static bool tcg_out_dup_vec(TCGContext *s, TCGType type, unsigned vece,
     return true;
 }
 
+static bool tcg_out_dupm_vec(TCGContext *s, TCGType type, unsigned vece,
+                             TCGReg r, TCGReg base, intptr_t offset)
+{
+    if (have_avx2) {
+        int vex_l = (type == TCG_TYPE_V256 ? P_VEXL : 0);
+        tcg_out_vex_modrm_offset(s, avx2_dup_insn[vece] + vex_l,
+                                 r, 0, base, offset);
+    } else {
+        switch (vece) {
+        case MO_64:
+            tcg_out_vex_modrm_offset(s, OPC_VBROADCASTSD, r, 0, base, offset);
+            break;
+        case MO_32:
+            tcg_out_vex_modrm_offset(s, OPC_VBROADCASTSS, r, 0, base, offset);
+            break;
+        case MO_16:
+            tcg_out_vex_modrm_offset(s, OPC_VPINSRW, r, r, base, offset);
+            tcg_out8(s, 0); /* imm8 */
+            tcg_out_dup_vec(s, type, vece, r, r);
+            break;
+        case MO_8:
+            tcg_out_vex_modrm_offset(s, OPC_VPINSRB, r, r, base, offset);
+            tcg_out8(s, 0); /* imm8 */
+            tcg_out_dup_vec(s, type, vece, r, r);
+            break;
+        default:
+            g_assert_not_reached();
+        }
+    }
+    return true;
+}
+
 static void tcg_out_dupi_vec(TCGContext *s, TCGType type,
                              TCGReg ret, tcg_target_long arg)
 {
@@ -948,38 +980,6 @@ static void tcg_out_dupi_vec(TCGContext *s, TCGType type,
         }
         new_pool_label(s, arg, R_386_32, s->code_ptr - 4, 0);
     }
-}
-
-static bool tcg_out_dupm_vec(TCGContext *s, TCGType type, unsigned vece,
-                             TCGReg r, TCGReg base, intptr_t offset)
-{
-    if (have_avx2) {
-        int vex_l = (type == TCG_TYPE_V256 ? P_VEXL : 0);
-        tcg_out_vex_modrm_offset(s, avx2_dup_insn[vece] + vex_l,
-                                 r, 0, base, offset);
-    } else {
-        switch (vece) {
-        case MO_64:
-            tcg_out_vex_modrm_offset(s, OPC_VBROADCASTSD, r, 0, base, offset);
-            break;
-        case MO_32:
-            tcg_out_vex_modrm_offset(s, OPC_VBROADCASTSS, r, 0, base, offset);
-            break;
-        case MO_16:
-            tcg_out_vex_modrm_offset(s, OPC_VPINSRW, r, r, base, offset);
-            tcg_out8(s, 0); /* imm8 */
-            tcg_out_dup_vec(s, type, vece, r, r);
-            break;
-        case MO_8:
-            tcg_out_vex_modrm_offset(s, OPC_VPINSRB, r, r, base, offset);
-            tcg_out8(s, 0); /* imm8 */
-            tcg_out_dup_vec(s, type, vece, r, r);
-            break;
-        default:
-            g_assert_not_reached();
-        }
-    }
-    return true;
 }
 
 static void tcg_out_movi(TCGContext *s, TCGType type,
@@ -3111,7 +3111,6 @@ static const TCGTargetOpDef *tcg_target_op_def(TCGOpcode op)
     case INDEX_op_ctpop_i32:
     case INDEX_op_ctpop_i64:
         return &r_r;
-
     case INDEX_op_extract2_i32:
     case INDEX_op_extract2_i64:
         return &r_0_r;

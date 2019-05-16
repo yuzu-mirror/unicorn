@@ -417,8 +417,6 @@ static bool do_op2(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a, TCGOpco
 void tcg_gen_not_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a)
 {
     if (!TCG_TARGET_HAS_not_vec || !do_op2(s, vece, r, a, INDEX_op_not_vec)) {
-        vec_gen_op2(s, INDEX_op_not_vec, 0, r, a);
-    } else {
         TCGv_vec t = tcg_const_ones_vec_matching(s, r);
         tcg_gen_xor_vec(s, 0, r, a, t);
         tcg_temp_free_vec(s, t);
@@ -433,8 +431,6 @@ void tcg_gen_neg_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a)
     hold_list = tcg_swap_vecop_list(s, NULL);
 
     if (!TCG_TARGET_HAS_neg_vec || !do_op2(s, vece, r, a, INDEX_op_neg_vec)) {
-        vec_gen_op2(s, INDEX_op_neg_vec, vece, r, a);
-    } else {
         TCGv_vec t = tcg_const_zeros_vec_matching(s, r);
         tcg_gen_sub_vec(s, vece, r, t, a);
         tcg_temp_free_vec(s, t);

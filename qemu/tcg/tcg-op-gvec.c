@@ -371,7 +371,6 @@ static TCGType choose_vector_type(const TCGOpcode *list, unsigned vece,
                                   uint32_t size, bool prefer_i64)
 {
     if (TCG_TARGET_HAS_v256 && check_size_impl(size, 32)) {
-
         /*
          * Recall that ARM SVE allows vector sizes that are not a
          * power of 2, but always a multiple of 16.  The intent is
@@ -1354,7 +1353,6 @@ void tcg_gen_gvec_4(TCGContext *s, uint32_t dofs, uint32_t aofs, uint32_t bofs, 
          * that e.g. size == 80 would be expanded with 2x32 + 1x16.
          */
         some = QEMU_ALIGN_DOWN(oprsz, 32);
-        uint32_t some = QEMU_ALIGN_DOWN(oprsz, 32);
         expand_4_vec(s, g->vece, dofs, aofs, bofs, cofs, some,
                      32, TCG_TYPE_V256, g->write_aofs, g->fniv);
         if (some == oprsz) {
