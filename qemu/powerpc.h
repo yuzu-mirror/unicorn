@@ -2842,6 +2842,7 @@
 #define tcg_gen_gvec_2_ool tcg_gen_gvec_2_ool_powerpc
 #define tcg_gen_gvec_2_ptr tcg_gen_gvec_2_ptr_powerpc
 #define tcg_gen_gvec_3 tcg_gen_gvec_3_powerpc
+#define tcg_gen_gvec_3i tcg_gen_gvec_3i_powerpc
 #define tcg_gen_gvec_3_ool tcg_gen_gvec_3_ool_powerpc
 #define tcg_gen_gvec_3_ptr tcg_gen_gvec_3_ptr_powerpc
 #define tcg_gen_gvec_4 tcg_gen_gvec_4_powerpc
