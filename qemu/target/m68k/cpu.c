@@ -251,7 +251,7 @@ static void m68k_cpu_class_init(struct uc_struct *uc, ObjectClass *c, void *data
     cc->do_interrupt = m68k_cpu_do_interrupt;
     cc->cpu_exec_interrupt = m68k_cpu_exec_interrupt;
     cc->set_pc = m68k_cpu_set_pc;
-    cc->handle_mmu_fault = m68k_cpu_handle_mmu_fault;
+    cc->tlb_fill = m68k_cpu_tlb_fill;
 #if defined(CONFIG_SOFTMMU)
     cc->do_unassigned_access = m68k_cpu_unassigned_access;
     cc->get_phys_page_debug = m68k_cpu_get_phys_page_debug;
