@@ -227,16 +227,6 @@ void tcg_gen_stl_vec(TCGContext *s, TCGv_vec r, TCGv_ptr b, TCGArg o, TCGType lo
     vec_gen_3(s, INDEX_op_st_vec, low_type, 0, ri, bi, o);
 }
 
-void tcg_gen_add_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_vec b)
-{
-    vec_gen_op3(s, INDEX_op_add_vec, vece, r, a, b);
-}
-
-void tcg_gen_sub_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_vec b)
-{
-    vec_gen_op3(s, INDEX_op_sub_vec, vece, r, a, b);
-}
-
 void tcg_gen_and_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_vec b)
 {
     vec_gen_op3(s, INDEX_op_and_vec, 0, r, a, b);
@@ -297,9 +287,30 @@ void tcg_gen_eqv_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_
     tcg_gen_not_vec(s, 0, r, r);
 }
 
+static bool do_op2(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a, TCGOpcode opc)
+{
+    TCGTemp *rt = tcgv_vec_temp(s, r);
+    TCGTemp *at = tcgv_vec_temp(s, a);
+    TCGArg ri = temp_arg(rt);
+    TCGArg ai = temp_arg(at);
+    TCGType type = rt->base_type;
+    int can;
+
+    tcg_debug_assert(at->base_type >= type);
+    can = tcg_can_emit_vec_op(opc, type, vece);
+    if (can > 0) {
+        vec_gen_2(s, opc, type, vece, ri, ai);
+    } else if (can < 0) {
+        tcg_expand_vec_op(s, opc, type, vece, ri, ai);
+    } else {
+        return false;
+    }
+    return true;
+}
+
 void tcg_gen_not_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a)
 {
-    if (TCG_TARGET_HAS_not_vec) {
+    if (!TCG_TARGET_HAS_not_vec || !do_op2(s, vece, r, a, INDEX_op_not_vec)) {
         vec_gen_op2(s, INDEX_op_not_vec, 0, r, a);
     } else {
         TCGv_vec t = tcg_const_ones_vec_matching(s, r);
@@ -310,7 +321,7 @@ void tcg_gen_not_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a)
 
 void tcg_gen_neg_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a)
 {
-    if (TCG_TARGET_HAS_neg_vec) {
+    if (!TCG_TARGET_HAS_neg_vec || !do_op2(s, vece, r, a, INDEX_op_neg_vec)) {
         vec_gen_op2(s, INDEX_op_neg_vec, vece, r, a);
     } else {
         TCGv_vec t = tcg_const_zeros_vec_matching(s, r);
@@ -408,6 +419,16 @@ static void do_op3(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a,
         tcg_debug_assert(can < 0);
         tcg_expand_vec_op(s, opc, type, vece, ri, ai, bi);
     }
+}
+
+void tcg_gen_add_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_vec b)
+{
+    do_op3(s, vece, r, a, b, INDEX_op_add_vec);
+}
+
+void tcg_gen_sub_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_vec b)
+{
+    do_op3(s, vece, r, a, b, INDEX_op_sub_vec);
 }
 
 void tcg_gen_mul_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_vec b)
