@@ -2810,8 +2810,10 @@
 #define tcg_gen_dup32i_vec tcg_gen_dup32i_vec_aarch64eb
 #define tcg_gen_dup64i_vec tcg_gen_dup64i_vec_aarch64eb
 #define tcg_gen_dupi_vec tcg_gen_dupi_vec_aarch64eb
+#define tcg_gen_dupm_vec tcg_gen_dupm_vec_aarch64eb
 #define tcg_gen_dup_i32_vec tcg_gen_dup_i32_vec_aarch64eb
 #define tcg_gen_dup_i64_vec tcg_gen_dup_i64_vec_aarch64eb
+#define tcg_gen_dup_mem_vec tcg_gen_dup_mem_vec_aarch64eb
 #define tcg_gen_eqv_i32 tcg_gen_eqv_i32_aarch64eb
 #define tcg_gen_eqv_i64 tcg_gen_eqv_i64_aarch64eb
 #define tcg_gen_eqv_vec tcg_gen_eqv_vec_aarch64eb

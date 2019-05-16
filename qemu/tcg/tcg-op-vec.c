@@ -279,6 +279,17 @@ void tcg_gen_dup_i32_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_i32 a)
     vec_gen_2(s, INDEX_op_dup_vec, type, vece, ri, ai);
 }
 
+void tcg_gen_dup_mem_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_ptr b,
+                         tcg_target_long ofs)
+{
+    TCGArg ri = tcgv_vec_arg(s, r);
+    TCGArg bi = tcgv_ptr_arg(s, b);
+    TCGTemp *rt = arg_temp(ri);
+    TCGType type = rt->base_type;
+
+    vec_gen_3(s, INDEX_op_dupm_vec, type, vece, ri, bi, ofs);
+}
+
 static void vec_gen_ldst(TCGContext *s, TCGOpcode opc, TCGv_vec r, TCGv_ptr b, TCGArg o)
 {
     TCGArg ri = tcgv_vec_arg(s, r);

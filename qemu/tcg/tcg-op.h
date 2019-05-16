@@ -967,6 +967,7 @@ void tcg_gen_atomic_umax_fetch_i64(TCGContext *, TCGv_i64, TCGv, TCGv_i64, TCGAr
 void tcg_gen_mov_vec(TCGContext *, TCGv_vec, TCGv_vec);
 void tcg_gen_dup_i32_vec(TCGContext *, unsigned vece, TCGv_vec, TCGv_i32);
 void tcg_gen_dup_i64_vec(TCGContext *, unsigned vece, TCGv_vec, TCGv_i64);
+void tcg_gen_dup_mem_vec(TCGContext *, unsigned vece, TCGv_vec, TCGv_ptr, tcg_target_long);
 void tcg_gen_dup8i_vec(TCGContext *, TCGv_vec, uint32_t);
 void tcg_gen_dup16i_vec(TCGContext *, TCGv_vec, uint32_t);
 void tcg_gen_dup32i_vec(TCGContext *, TCGv_vec, uint32_t);

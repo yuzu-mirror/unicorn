@@ -2810,8 +2810,10 @@
 #define tcg_gen_dup32i_vec tcg_gen_dup32i_vec_m68k
 #define tcg_gen_dup64i_vec tcg_gen_dup64i_vec_m68k
 #define tcg_gen_dupi_vec tcg_gen_dupi_vec_m68k
+#define tcg_gen_dupm_vec tcg_gen_dupm_vec_m68k
 #define tcg_gen_dup_i32_vec tcg_gen_dup_i32_vec_m68k
 #define tcg_gen_dup_i64_vec tcg_gen_dup_i64_vec_m68k
+#define tcg_gen_dup_mem_vec tcg_gen_dup_mem_vec_m68k
 #define tcg_gen_eqv_i32 tcg_gen_eqv_i32_m68k
 #define tcg_gen_eqv_i64 tcg_gen_eqv_i64_m68k
 #define tcg_gen_eqv_vec tcg_gen_eqv_vec_m68k
