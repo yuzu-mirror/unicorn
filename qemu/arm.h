@@ -1113,6 +1113,10 @@
 #define helper_get_cp_reg64 helper_get_cp_reg64_arm
 #define helper_get_r13_banked helper_get_r13_banked_arm
 #define helper_get_user_reg helper_get_user_reg_arm
+#define helper_gvec_abs8 helper_gvec_abs8_arm
+#define helper_gvec_abs16 helper_gvec_abs16_arm
+#define helper_gvec_abs32 helper_gvec_abs32_arm
+#define helper_gvec_abs64 helper_gvec_abs64_arm
 #define helper_gvec_add8 helper_gvec_add8_arm
 #define helper_gvec_add16 helper_gvec_add16_arm
 #define helper_gvec_add32 helper_gvec_add32_arm
@@ -2867,6 +2871,7 @@
 #define tcg_gen_gvec_4_ool tcg_gen_gvec_4_ool_arm
 #define tcg_gen_gvec_4_ptr tcg_gen_gvec_4_ptr_arm
 #define tcg_gen_gvec_5_ool tcg_gen_gvec_5_ool_arm
+#define tcg_gen_gvec_abs tcg_gen_gvec_abs_arm
 #define tcg_gen_gvec_add tcg_gen_gvec_add_arm
 #define tcg_gen_gvec_addi tcg_gen_gvec_addi_arm
 #define tcg_gen_gvec_adds tcg_gen_gvec_adds_arm

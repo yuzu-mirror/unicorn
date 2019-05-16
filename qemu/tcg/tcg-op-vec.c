@@ -111,6 +111,14 @@ bool tcg_can_emit_vecop_list(const TCGOpcode *list,
                 continue;
             }
             break;
+        case INDEX_op_abs_vec:
+            if (tcg_can_emit_vec_op(INDEX_op_sub_vec, type, vece)
+                && (tcg_can_emit_vec_op(INDEX_op_smax_vec, type, vece) > 0
+                    || tcg_can_emit_vec_op(INDEX_op_sari_vec, type, vece) > 0
+                    || tcg_can_emit_vec_op(INDEX_op_cmp_vec, type, vece))) {
+                continue;
+            }
+            break;
         default:
             break;
         }
@@ -429,6 +437,37 @@ void tcg_gen_neg_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a)
     } else {
         TCGv_vec t = tcg_const_zeros_vec_matching(s, r);
         tcg_gen_sub_vec(s, vece, r, t, a);
+        tcg_temp_free_vec(s, t);
+    }
+    tcg_swap_vecop_list(s, hold_list);
+}
+
+void tcg_gen_abs_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a)
+{
+    const TCGOpcode *hold_list;
+
+    tcg_assert_listed_vecop(s, INDEX_op_abs_vec);
+    hold_list = tcg_swap_vecop_list(s, NULL);
+
+    if (!do_op2(s, vece, r, a, INDEX_op_abs_vec)) {
+        TCGType type = tcgv_vec_temp(s, r)->base_type;
+        TCGv_vec t = tcg_temp_new_vec(s, type);
+
+        tcg_debug_assert(tcg_can_emit_vec_op(INDEX_op_sub_vec, type, vece));
+        if (tcg_can_emit_vec_op(INDEX_op_smax_vec, type, vece) > 0) {
+            tcg_gen_neg_vec(s, vece, t, a);
+            tcg_gen_smax_vec(s, vece, r, a, t);
+        } else {
+            if (tcg_can_emit_vec_op(INDEX_op_sari_vec, type, vece) > 0) {
+                tcg_gen_sari_vec(s, vece, t, a, (8 << vece) - 1);
+            } else {
+                do_dupi_vec(s, t, MO_REG, 0);
+                tcg_gen_cmp_vec(s, TCG_COND_LT, vece, t, a, t);
+            }
+            tcg_gen_xor_vec(s, vece, r, a, t);
+            tcg_gen_sub_vec(s, vece, r, r, t);
+        }
+
         tcg_temp_free_vec(s, t);
     }
     tcg_swap_vecop_list(s, hold_list);

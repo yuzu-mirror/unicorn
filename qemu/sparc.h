@@ -1113,6 +1113,10 @@
 #define helper_get_cp_reg64 helper_get_cp_reg64_sparc
 #define helper_get_r13_banked helper_get_r13_banked_sparc
 #define helper_get_user_reg helper_get_user_reg_sparc
+#define helper_gvec_abs8 helper_gvec_abs8_sparc
+#define helper_gvec_abs16 helper_gvec_abs16_sparc
+#define helper_gvec_abs32 helper_gvec_abs32_sparc
+#define helper_gvec_abs64 helper_gvec_abs64_sparc
 #define helper_gvec_add8 helper_gvec_add8_sparc
 #define helper_gvec_add16 helper_gvec_add16_sparc
 #define helper_gvec_add32 helper_gvec_add32_sparc
@@ -2867,6 +2871,7 @@
 #define tcg_gen_gvec_4_ool tcg_gen_gvec_4_ool_sparc
 #define tcg_gen_gvec_4_ptr tcg_gen_gvec_4_ptr_sparc
 #define tcg_gen_gvec_5_ool tcg_gen_gvec_5_ool_sparc
+#define tcg_gen_gvec_abs tcg_gen_gvec_abs_sparc
 #define tcg_gen_gvec_add tcg_gen_gvec_add_sparc
 #define tcg_gen_gvec_addi tcg_gen_gvec_addi_sparc
 #define tcg_gen_gvec_adds tcg_gen_gvec_adds_sparc
