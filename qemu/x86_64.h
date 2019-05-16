@@ -187,7 +187,6 @@
 #define arm_s1_regime_using_lpae_format arm_s1_regime_using_lpae_format_x86_64
 #define arm_singlestep_active arm_singlestep_active_x86_64
 #define arm_test_cc arm_test_cc_x86_64
-#define arm_tlb_fill arm_tlb_fill_x86_64
 #define arm_translate_init arm_translate_init_x86_64
 #define arm_v7m_class_init arm_v7m_class_init_x86_64
 #define arm_v7m_cpu_do_interrupt arm_v7m_cpu_do_interrupt_x86_64

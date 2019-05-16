@@ -187,7 +187,6 @@
 #define arm_s1_regime_using_lpae_format arm_s1_regime_using_lpae_format_sparc64
 #define arm_singlestep_active arm_singlestep_active_sparc64
 #define arm_test_cc arm_test_cc_sparc64
-#define arm_tlb_fill arm_tlb_fill_sparc64
 #define arm_translate_init arm_translate_init_sparc64
 #define arm_v7m_class_init arm_v7m_class_init_sparc64
 #define arm_v7m_cpu_do_interrupt arm_v7m_cpu_do_interrupt_sparc64

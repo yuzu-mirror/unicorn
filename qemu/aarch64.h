@@ -187,7 +187,6 @@
 #define arm_s1_regime_using_lpae_format arm_s1_regime_using_lpae_format_aarch64
 #define arm_singlestep_active arm_singlestep_active_aarch64
 #define arm_test_cc arm_test_cc_aarch64
-#define arm_tlb_fill arm_tlb_fill_aarch64
 #define arm_translate_init arm_translate_init_aarch64
 #define arm_v7m_class_init arm_v7m_class_init_aarch64
 #define arm_v7m_cpu_do_interrupt arm_v7m_cpu_do_interrupt_aarch64
@@ -3389,6 +3388,8 @@
 #define arm64_reg_reset arm64_reg_reset_aarch64
 #define arm64_reg_write arm64_reg_write_aarch64
 #define arm64_release arm64_release_aarch64
+#define arm_cpu_tlb_fill arm_cpu_tlb_fill_aarch64
+#define arm_deliver_fault arm_deliver_fault_aarch64
 #define arm_v7m_mmu_idx_all arm_v7m_mmu_idx_all_aarch64
 #define arm_v7m_mmu_idx_for_secstate arm_v7m_mmu_idx_for_secstate_aarch64
 #define arm_v7m_mmu_idx_for_secstate_and_priv arm_v7m_mmu_idx_for_secstate_and_priv_aarch64

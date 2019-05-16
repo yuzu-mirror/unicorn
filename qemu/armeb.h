@@ -187,7 +187,6 @@
 #define arm_s1_regime_using_lpae_format arm_s1_regime_using_lpae_format_armeb
 #define arm_singlestep_active arm_singlestep_active_armeb
 #define arm_test_cc arm_test_cc_armeb
-#define arm_tlb_fill arm_tlb_fill_armeb
 #define arm_translate_init arm_translate_init_armeb
 #define arm_v7m_class_init arm_v7m_class_init_armeb
 #define arm_v7m_cpu_do_interrupt arm_v7m_cpu_do_interrupt_armeb
@@ -3380,6 +3379,8 @@
 #define aa64_va_parameters aa64_va_parameters_armeb
 #define aa64_va_parameters_both aa64_va_parameters_both_armeb
 #define aarch64_translator_ops aarch64_translator_ops_armeb
+#define arm_cpu_tlb_fill arm_cpu_tlb_fill_armeb
+#define arm_deliver_fault arm_deliver_fault_armeb
 #define arm_v7m_mmu_idx_all arm_v7m_mmu_idx_all_armeb
 #define arm_v7m_mmu_idx_for_secstate arm_v7m_mmu_idx_for_secstate_armeb
 #define arm_v7m_mmu_idx_for_secstate_and_priv arm_v7m_mmu_idx_for_secstate_and_priv_armeb
