@@ -3860,6 +3860,7 @@ static TCGv rotate_x(DisasContext *s, TCGv reg, TCGv shift, int left, int size)
         tcg_gen_sub_i32(tcg_ctx, shl, shl, shift); /* shl = size + 1 - shift */
         tcg_gen_sub_i32(tcg_ctx, shx, sz, shift); /* shx = size - shift */
     }
+    tcg_temp_free_i32(tcg_ctx, sz);
 
     /* reg = (reg << shl) | (reg >> shr) | (x << shx); */
 
@@ -3875,9 +3876,7 @@ static TCGv rotate_x(DisasContext *s, TCGv reg, TCGv shift, int left, int size)
     /* X = (reg >> size) & 1 */
 
     X = tcg_temp_new(tcg_ctx);
-    tcg_gen_shr_i32(tcg_ctx, X, reg, sz);
-    tcg_gen_andi_i32(tcg_ctx, X, X, 1);
-    tcg_temp_free(tcg_ctx, sz);
+    tcg_gen_extract_i32(tcg_ctx, X, reg, size, 1);
 
     return X;
 }
