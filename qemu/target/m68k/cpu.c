@@ -253,7 +253,7 @@ static void m68k_cpu_class_init(struct uc_struct *uc, ObjectClass *c, void *data
     cc->set_pc = m68k_cpu_set_pc;
     cc->tlb_fill = m68k_cpu_tlb_fill;
 #if defined(CONFIG_SOFTMMU)
-    cc->do_unassigned_access = m68k_cpu_unassigned_access;
+    cc->do_transaction_failed = m68k_cpu_transaction_failed;
     cc->get_phys_page_debug = m68k_cpu_get_phys_page_debug;
 #endif
     cc->tcg_initialize = m68k_tcg_init;
