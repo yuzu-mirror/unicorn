@@ -268,6 +268,7 @@ static void aarch64_max_initfn(struct uc_struct *uc, Object *obj, void *opaque)
     t = FIELD_DP64(t, ID_AA64ISAR0, DP, 1);
     t = FIELD_DP64(t, ID_AA64ISAR0, FHM, 1);
     t = FIELD_DP64(t, ID_AA64ISAR0, TS, 2); /* v8.5-CondM */
+    t = FIELD_DP64(t, ID_AA64ISAR0, RNDR, 1);
     cpu->isar.id_aa64isar0 = t;
 
     t = cpu->isar.id_aa64isar1;
