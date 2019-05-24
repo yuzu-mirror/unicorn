@@ -3274,6 +3274,7 @@ int tcg_can_emit_vec_op(TCGOpcode opc, TCGType type, unsigned vece)
     case INDEX_op_andc_vec:
         return 1;
     case INDEX_op_cmp_vec:
+    case INDEX_op_cmpsel_vec:
         return -1;
 
     case INDEX_op_shli_vec:
@@ -3492,8 +3493,8 @@ static void expand_vec_mul(TCGContext *s, TCGType type, unsigned vece,
     }
 }
 
-static void expand_vec_cmp(TCGContext *s, TCGType type, unsigned vece, TCGv_vec v0,
-                           TCGv_vec v1, TCGv_vec v2, TCGCond cond)
+static bool expand_vec_cmp_noinv(TCGContext *s, TCGType type, unsigned vece, TCGv_vec v0,
+                                 TCGv_vec v1, TCGv_vec v2, TCGCond cond)
 {
     enum {
         NEED_SWAP = 1,
@@ -3550,9 +3551,32 @@ static void expand_vec_cmp(TCGContext *s, TCGType type, unsigned vece, TCGv_vec 
             tcg_temp_free_vec(s, t2);
         }
     }
-    if (fixup & NEED_INV) {
+    return fixup & NEED_INV;
+}
+
+static void expand_vec_cmp(TCGContext *s, TCGType type, unsigned vece, TCGv_vec v0,
+                           TCGv_vec v1, TCGv_vec v2, TCGCond cond)
+{
+    if (expand_vec_cmp_noinv(s, type, vece, v0, v1, v2, cond)) {
         tcg_gen_not_vec(s, vece, v0, v0);
     }
+}
+
+static void expand_vec_cmpsel(TCGContext *s, TCGType type, unsigned vece, TCGv_vec v0,
+                              TCGv_vec c1, TCGv_vec c2,
+                              TCGv_vec v3, TCGv_vec v4, TCGCond cond)
+{
+    TCGv_vec t = tcg_temp_new_vec(s, type);
+
+    if (expand_vec_cmp_noinv(s, type, vece, t, c1, c2, cond)) {
+        /* Invert the sense of the compare by swapping arguments.  */
+        TCGv_vec x;
+        x = v3, v3 = v4, v4 = x;
+    }
+    vec_gen_4(s, INDEX_op_x86_vpblendvb_vec, type, vece,
+              tcgv_vec_arg(s, v0), tcgv_vec_arg(s, v4),
+              tcgv_vec_arg(s, v3), tcgv_vec_arg(s, t));
+    tcg_temp_free_vec(s, t);
 }
 
 static void expand_vec_minmax(TCGContext *s, TCGType type, unsigned vece,
@@ -3579,7 +3603,7 @@ void tcg_expand_vec_op(TCGContext *s, TCGOpcode opc, TCGType type, unsigned vece
 {
     va_list va;
     TCGArg a2;
-    TCGv_vec v0, v1, v2;
+    TCGv_vec v0, v1, v2, v3, v4;
 
     va_start(va, a0);
     v0 = temp_tcgv_vec(s, arg_temp(a0));
@@ -3604,6 +3628,13 @@ void tcg_expand_vec_op(TCGContext *s, TCGOpcode opc, TCGType type, unsigned vece
     case INDEX_op_cmp_vec:
         v2 = temp_tcgv_vec(s, arg_temp(a2));
         expand_vec_cmp(s, type, vece, v0, v1, v2, va_arg(va, TCGArg));
+        break;
+
+    case INDEX_op_cmpsel_vec:
+        v2 = temp_tcgv_vec(s, arg_temp(a2));
+        v3 = temp_tcgv_vec(s, arg_temp(va_arg(va, TCGArg)));
+        v4 = temp_tcgv_vec(s, arg_temp(va_arg(va, TCGArg)));
+        expand_vec_cmpsel(s, type, vece, v0, v1, v2, v3, v4, va_arg(va, TCGArg));
         break;
 
     case INDEX_op_smin_vec:
