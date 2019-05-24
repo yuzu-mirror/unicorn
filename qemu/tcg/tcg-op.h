@@ -1013,6 +1013,9 @@ void tcg_gen_sarv_vec(TCGContext *, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_
 void tcg_gen_cmp_vec(TCGContext *, TCGCond cond, unsigned vece, TCGv_vec r,
                      TCGv_vec a, TCGv_vec b);
 
+void tcg_gen_bitsel_vec(TCGContext *, unsigned vece, TCGv_vec r, TCGv_vec a,
+                        TCGv_vec b, TCGv_vec c);
+
 void tcg_gen_ld_vec(TCGContext *, TCGv_vec r, TCGv_ptr base, TCGArg offset);
 void tcg_gen_st_vec(TCGContext *, TCGv_vec r, TCGv_ptr base, TCGArg offset);
 void tcg_gen_stl_vec(TCGContext *, TCGv_vec r, TCGv_ptr base, TCGArg offset, TCGType t);

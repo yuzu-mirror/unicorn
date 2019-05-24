@@ -1127,6 +1127,7 @@
 #define helper_gvec_and helper_gvec_and_mipsel
 #define helper_gvec_andc helper_gvec_andc_mipsel
 #define helper_gvec_ands helper_gvec_ands_mipsel
+#define helper_gvec_bitsel helper_gvec_bitsel_mipsel
 #define helper_gvec_dup8 helper_gvec_dup8_mipsel
 #define helper_gvec_dup16 helper_gvec_dup16_mipsel
 #define helper_gvec_dup32 helper_gvec_dup32_mipsel
@@ -2785,6 +2786,7 @@
 #define tcg_gen_atomic_xchg_i64 tcg_gen_atomic_xchg_i64_mipsel
 #define tcg_gen_atomic_xor_fetch_i32 tcg_gen_atomic_xor_fetch_i32_mipsel
 #define tcg_gen_atomic_xor_fetch_i64 tcg_gen_atomic_xor_fetch_i64_mipsel
+#define tcg_gen_bitsel_vec tcg_gen_bitsel_vec_mipsel
 #define tcg_gen_br tcg_gen_br_mipsel
 #define tcg_gen_brcond_i32 tcg_gen_brcond_i32_mipsel
 #define tcg_gen_brcond_i64 tcg_gen_brcond_i64_mipsel
@@ -2880,6 +2882,7 @@
 #define tcg_gen_gvec_andc tcg_gen_gvec_andc_mipsel
 #define tcg_gen_gvec_andi tcg_gen_gvec_andi_mipsel
 #define tcg_gen_gvec_ands tcg_gen_gvec_ands_mipsel
+#define tcg_gen_gvec_bitsel tcg_gen_gvec_bitsel_mipsel
 #define tcg_gen_gvec_cmp tcg_gen_gvec_cmp_mipsel
 #define tcg_gen_gvec_dup8i tcg_gen_gvec_dup8i_mipsel
 #define tcg_gen_gvec_dup16i tcg_gen_gvec_dup16i_mipsel
