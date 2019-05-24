@@ -2805,6 +2805,7 @@
 #define tcg_gen_clzi_i32 tcg_gen_clzi_i32_aarch64eb
 #define tcg_gen_clzi_i64 tcg_gen_clzi_i64_aarch64eb
 #define tcg_gen_cmp_vec tcg_gen_cmp_vec_aarch64eb
+#define tcg_gen_cmpsel_vec tcg_gen_cmpsel_vec_aarch64eb
 #define tcg_gen_ctpop_i32 tcg_gen_ctpop_i32_aarch64eb
 #define tcg_gen_ctpop_i64 tcg_gen_ctpop_i64_aarch64eb
 #define tcg_gen_ctz_i32 tcg_gen_ctz_i32_aarch64eb
