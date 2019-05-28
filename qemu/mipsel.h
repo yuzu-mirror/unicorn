@@ -3860,7 +3860,10 @@
 #define helper_msa_clt_u_df helper_msa_clt_u_df_mipsel
 #define helper_msa_clti_s_df helper_msa_clti_s_df_mipsel
 #define helper_msa_clti_u_df helper_msa_clti_u_df_mipsel
-#define helper_msa_copy_s_df helper_msa_copy_s_df_mipsel
+#define helper_msa_copy_s_b helper_msa_copy_s_b_mipsel
+#define helper_msa_copy_s_d helper_msa_copy_s_d_mipsel
+#define helper_msa_copy_s_h helper_msa_copy_s_h_mipsel
+#define helper_msa_copy_s_w helper_msa_copy_s_w_mipsel
 #define helper_msa_copy_u_df helper_msa_copy_u_df_mipsel
 #define helper_msa_ctcmsa helper_msa_ctcmsa_mipsel
 #define helper_msa_div_s_df helper_msa_div_s_df_mipsel
