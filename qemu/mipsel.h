@@ -3936,7 +3936,10 @@
 #define helper_msa_ilvl_df helper_msa_ilvl_df_mipsel
 #define helper_msa_ilvod_df helper_msa_ilvod_df_mipsel
 #define helper_msa_ilvr_df helper_msa_ilvr_df_mipsel
-#define helper_msa_insert_df helper_msa_insert_df_mipsel
+#define helper_msa_insert_b helper_msa_insert_b_mipsel
+#define helper_msa_insert_d helper_msa_insert_d_mipsel
+#define helper_msa_insert_h helper_msa_insert_h_mipsel
+#define helper_msa_insert_w helper_msa_insert_w_mipsel
 #define helper_msa_insve_df helper_msa_insve_df_mipsel
 #define helper_msa_ld_df helper_msa_ld_df_mipsel
 #define helper_msa_ldi_df helper_msa_ldi_df_mipsel
