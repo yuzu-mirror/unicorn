@@ -590,8 +590,24 @@ static int ex_rvc_shifti(DisasContext *ctx, int imm)
 /* Include the auto-generated decoder for 32 bit insn */
 #include "decode_insn32.inc.c"
 
-static bool gen_arith_imm(DisasContext *ctx, arg_i *a,
-                          void(*func)(TCGContext *, TCGv, TCGv, TCGv))
+static bool gen_arith_imm_fn(DisasContext *ctx, arg_i *a,
+                             void(*func)(TCGContext *, TCGv, TCGv, target_long))
+{
+    TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
+    TCGv source1;
+    source1 = tcg_temp_new(tcg_ctx);
+
+    gen_get_gpr(ctx, source1, a->rs1);
+
+    (*func)(tcg_ctx, source1, source1, a->imm);
+
+    gen_set_gpr(ctx, a->rd, source1);
+    tcg_temp_free(tcg_ctx, source1);
+    return true;
+}
+
+static bool gen_arith_imm_tl(DisasContext *ctx, arg_i *a,
+                             void (*func)(TCGContext *, TCGv, TCGv, TCGv))
 {
     TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
     TCGv source1, source2;
