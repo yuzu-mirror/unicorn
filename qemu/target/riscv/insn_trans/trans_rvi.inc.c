@@ -63,7 +63,7 @@ static bool trans_jalr(DisasContext *ctx, arg_jalr *a)
     if (a->rd != 0) {
         tcg_gen_movi_tl(tcg_ctx, tcg_ctx->cpu_gpr_risc[a->rd], ctx->pc_succ_insn);
     }
-    tcg_gen_lookup_and_goto_ptr(tcg_ctx);
+    lookup_and_goto_ptr(ctx);
 
     if (misaligned) {
         gen_set_label(tcg_ctx, misaligned);
@@ -503,7 +503,7 @@ static bool trans_fence_i(DisasContext *ctx, arg_fence_i *a)
      * however we need to end the translation block
      */
     tcg_gen_movi_tl(tcg_ctx, tcg_ctx->cpu_pc_risc, ctx->pc_succ_insn);
-    tcg_gen_exit_tb(tcg_ctx, NULL, 0);
+    exit_tb(ctx);
     ctx->base.is_jmp = DISAS_NORETURN;
     return true;
 }
@@ -522,7 +522,7 @@ static bool trans_fence_i(DisasContext *ctx, arg_fence_i *a)
 #define RISCV_OP_CSR_POST do {\
     gen_set_gpr(ctx, a->rd, dest); \
     tcg_gen_movi_tl(tcg_ctx, tcg_ctx->cpu_pc_risc, ctx->pc_succ_insn); \
-    tcg_gen_exit_tb(tcg_ctx, NULL, 0); \
+    exit_tb(ctx); \
     ctx->base.is_jmp = DISAS_NORETURN; \
     tcg_temp_free(tcg_ctx, source1); \
     tcg_temp_free(tcg_ctx, csr_store); \

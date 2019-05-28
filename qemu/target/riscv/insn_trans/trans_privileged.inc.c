@@ -20,20 +20,17 @@
 
 static bool trans_ecall(DisasContext *ctx, arg_ecall *a)
 {
-    TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
-
     /* always generates U-level ECALL, fixed in do_interrupt handler */
     generate_exception(ctx, RISCV_EXCP_U_ECALL);
-    tcg_gen_exit_tb(tcg_ctx, NULL, 0); /* no chaining */
+    exit_tb(ctx); /* no chaining */
     ctx->base.is_jmp = DISAS_NORETURN;
     return true;
 }
 
 static bool trans_ebreak(DisasContext *ctx, arg_ebreak *a)
 {
-    TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
     generate_exception(ctx, RISCV_EXCP_BREAKPOINT);
-    tcg_gen_exit_tb(tcg_ctx, NULL, 0); /* no chaining */
+    exit_tb(ctx); /* no chaining */
     ctx->base.is_jmp = DISAS_NORETURN;
     return true;
 }
@@ -51,7 +48,7 @@ static bool trans_sret(DisasContext *ctx, arg_sret *a)
 
     if (has_ext(ctx, RVS)) {
         gen_helper_sret(tcg_ctx, tcg_ctx->cpu_pc_risc, tcg_ctx->cpu_env, tcg_ctx->cpu_pc_risc);
-        tcg_gen_exit_tb(tcg_ctx, NULL, 0); /* no chaining */
+        exit_tb(ctx); /* no chaining */
         ctx->base.is_jmp = DISAS_NORETURN;
     } else {
         return false;
@@ -73,7 +70,7 @@ static bool trans_mret(DisasContext *ctx, arg_mret *a)
     TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
     tcg_gen_movi_tl(tcg_ctx, tcg_ctx->cpu_pc_risc, ctx->base.pc_next);
     gen_helper_mret(tcg_ctx, tcg_ctx->cpu_pc_risc, tcg_ctx->cpu_env, tcg_ctx->cpu_pc_risc);
-    tcg_gen_exit_tb(tcg_ctx, NULL, 0); /* no chaining */
+    exit_tb(ctx); /* no chaining */
     ctx->base.is_jmp = DISAS_NORETURN;
     return true;
 #else
