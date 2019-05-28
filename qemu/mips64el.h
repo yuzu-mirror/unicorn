@@ -3864,7 +3864,9 @@
 #define helper_msa_copy_s_d helper_msa_copy_s_d_mips64el
 #define helper_msa_copy_s_h helper_msa_copy_s_h_mips64el
 #define helper_msa_copy_s_w helper_msa_copy_s_w_mips64el
-#define helper_msa_copy_u_df helper_msa_copy_u_df_mips64el
+#define helper_msa_copy_u_b helper_msa_copy_u_b_mips64el
+#define helper_msa_copy_u_h helper_msa_copy_u_h_mips64el
+#define helper_msa_copy_u_w helper_msa_copy_u_w_mips64el
 #define helper_msa_ctcmsa helper_msa_ctcmsa_mips64el
 #define helper_msa_div_s_df helper_msa_div_s_df_mips64el
 #define helper_msa_div_u_df helper_msa_div_u_df_mips64el
