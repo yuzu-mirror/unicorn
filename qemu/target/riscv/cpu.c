@@ -112,6 +112,12 @@ static void riscv_any_cpu_init(struct uc_struct *uc, Object *obj, void *opaque)
 
 #if defined(TARGET_RISCV32)
 
+static void riscv_base32_cpu_init(struct uc_struct *uc, Object *obj, void *opaque)
+{
+    CPURISCVState *env = &RISCV_CPU(uc, obj)->env;
+    set_misa(env, RV32 | RVI | RVM | RVA | RVF | RVD | RVC | RVS | RVU);
+}
+
 static void rv32gcsu_priv1_09_1_cpu_init(struct uc_struct *uc, Object *obj, void *opaque)
 {
     CPURISCVState *env = &RISCV_CPU(uc, obj)->env;
@@ -142,6 +148,12 @@ static void rv32imacu_nommu_cpu_init(struct uc_struct *uc, Object *obj, void *op
 }
 
 #elif defined(TARGET_RISCV64)
+
+static void riscv_base64_cpu_init(struct uc_struct *uc, Object *obj, void *opaque)
+{
+    CPURISCVState *env = &RISCV_CPU(uc, obj)->env;
+    set_misa(env, RV64 | RVI | RVM | RVA | RVF | RVD | RVC | RVS | RVU);
+}
 
 static void rv64gcsu_priv1_09_1_cpu_init(struct uc_struct *uc, Object *obj, void *opaque)
 {
@@ -366,12 +378,14 @@ static void riscv_cpu_class_init(struct uc_struct *uc, ObjectClass *oc, void *da
 static const TypeInfo riscv_cpu_type_infos[] = {
     DEFINE_CPU(TYPE_RISCV_CPU_ANY,              riscv_any_cpu_init),
 #if defined(TARGET_RISCV32)
+    DEFINE_CPU(TYPE_RISCV_CPU_BASE32,           riscv_base32_cpu_init),
     DEFINE_CPU(TYPE_RISCV_CPU_RV32GCSU_V1_09_1, rv32gcsu_priv1_09_1_cpu_init),
     DEFINE_CPU(TYPE_RISCV_CPU_RV32GCSU_V1_10_0, rv32gcsu_priv1_10_0_cpu_init),
     DEFINE_CPU(TYPE_RISCV_CPU_RV32IMACU_NOMMU,  rv32imacu_nommu_cpu_init),
     DEFINE_CPU(TYPE_RISCV_CPU_SIFIVE_E31,       rv32imacu_nommu_cpu_init),
     DEFINE_CPU(TYPE_RISCV_CPU_SIFIVE_U34,       rv32gcsu_priv1_10_0_cpu_init),
 #elif defined(TARGET_RISCV64)
+    DEFINE_CPU(TYPE_RISCV_CPU_BASE64,           riscv_base64_cpu_init),
     DEFINE_CPU(TYPE_RISCV_CPU_RV64GCSU_V1_09_1, rv64gcsu_priv1_09_1_cpu_init),
     DEFINE_CPU(TYPE_RISCV_CPU_RV64GCSU_V1_10_0, rv64gcsu_priv1_10_0_cpu_init),
     DEFINE_CPU(TYPE_RISCV_CPU_RV64IMACU_NOMMU,  rv64imacu_nommu_cpu_init),
