@@ -64,6 +64,10 @@
 
 void tlb_init(CPUState *cpu)
 {
+    CPUArchState *env = cpu->env_ptr;
+
+    /* Ensure that cpu_reset performs a full flush.  */
+    env->tlb_c.dirty = ALL_MMUIDX_BITS;
 }
 
 static void tlb_flush_one_mmuidx_locked(CPUArchState *env, int mmu_idx)
@@ -78,15 +82,19 @@ static void tlb_flush_one_mmuidx_locked(CPUArchState *env, int mmu_idx)
 static void tlb_flush_by_mmuidx_async_work(CPUState *cpu, run_on_cpu_data data)
 {
     CPUArchState *env = cpu->env_ptr;
-    unsigned long mmu_idx_bitmask = data.host_int;
-    int mmu_idx;
+    uint16_t asked = data.host_int;
+    uint16_t all_dirty, work, to_clean;
 
-    tlb_debug("mmu_idx:0x%04lx\n", mmu_idx_bitmask);
+    tlb_debug("mmu_idx:0x%04" PRIx16 "\n", asked);
 
-    for (mmu_idx = 0; mmu_idx < NB_MMU_MODES; mmu_idx++) {
-        if (test_bit(mmu_idx, &mmu_idx_bitmask)) {
-            tlb_flush_one_mmuidx_locked(env, mmu_idx);
-        }
+    all_dirty = env->tlb_c.dirty;
+    to_clean = asked & all_dirty;
+    all_dirty &= ~to_clean;
+    env->tlb_c.dirty = all_dirty;
+
+    for (work = to_clean; work != 0; work &= work - 1) {
+        int mmu_idx = ctz32(work);
+        tlb_flush_one_mmuidx_locked(env, mmu_idx);
     }
 
     cpu_tb_jmp_cache_clear(cpu);
@@ -354,10 +362,9 @@ void tlb_set_page_with_attrs(CPUState *cpu, target_ulong vaddr,
     target_ulong address;
     target_ulong code_address;
     uintptr_t addend;
-    CPUTLBEntry *te;
+    CPUTLBEntry *te, tn;
     hwaddr iotlb, xlat, sz, paddr_page;
     target_ulong vaddr_page;
-    unsigned vidx = env->tlb_d[mmu_idx].vindex++ % CPU_VTLB_SIZE;
     int asidx = cpu_asidx_from_attrs(cpu, attrs);
 
     if (size <= TARGET_PAGE_SIZE) {
@@ -402,9 +409,24 @@ void tlb_set_page_with_attrs(CPUState *cpu, target_ulong vaddr,
     index = tlb_index(env, mmu_idx, vaddr_page);
     te = tlb_entry(env, mmu_idx, vaddr_page);
 
-    /* do not discard the translation in te, evict it into a victim tlb */
-    env->tlb_v_table[mmu_idx][vidx] = *te;
-    env->iotlb_v[mmu_idx][vidx] = env->iotlb[mmu_idx][index];
+    /* Note that the tlb is no longer clean.  */
+    env->tlb_c.dirty |= 1 << mmu_idx;
+
+    /* Make sure there's no cached translation for the new page.  */
+    tlb_flush_vtlb_page_locked(env, mmu_idx, vaddr_page);
+
+    /*
+     * Only evict the old entry to the victim tlb if it's for a
+     * different page; otherwise just overwrite the stale data.
+     */
+    if (!tlb_hit_page_anyprot(te, vaddr_page)) {
+        unsigned vidx = env->tlb_d[mmu_idx].vindex++ % CPU_VTLB_SIZE;
+        CPUTLBEntry *tv = &env->tlb_v_table[mmu_idx][vidx];
+
+        /* Evict the old entry into the victim tlb.  */
+        copy_tlb_helper_locked(tv, te);
+        env->iotlb_v[mmu_idx][vidx] = env->iotlb[mmu_idx][index];
+    }
 
     /* refill the tlb */
     /*
@@ -421,31 +443,39 @@ void tlb_set_page_with_attrs(CPUState *cpu, target_ulong vaddr,
      */
     env->iotlb[mmu_idx][index].addr = iotlb - vaddr_page;
     env->iotlb[mmu_idx][index].attrs = attrs;
-    te->addend = addend - vaddr_page;
+
+    /* Now calculate the new entry */
+    tn.addend = addend - vaddr_page;
     if (prot & PAGE_READ) {
-        te->addr_read = address;
+        tn.addr_read = address;
     } else {
-        te->addr_read = -1;
+        tn.addr_read = -1;
     }
 
     if (prot & PAGE_EXEC) {
-        te->addr_code = code_address;
+        tn.addr_code = code_address;
     } else {
-        te->addr_code = -1;
+        tn.addr_code = -1;
     }
+
+    tn.addr_write = -1;
     if (prot & PAGE_WRITE) {
         if ((memory_region_is_ram(section->mr) && section->readonly)
             || memory_region_is_romd(section->mr)) {
             /* Write access calls the I/O callback.  */
-            te->addr_write = address | TLB_MMIO;
+            tn.addr_write = address | TLB_MMIO;
         } else if (memory_region_is_ram(section->mr)) {
-            te->addr_write = address | TLB_NOTDIRTY;
+            tn.addr_write = address | TLB_NOTDIRTY;
         } else {
-            te->addr_write = address;
+            tn.addr_write = address;
         }
-    } else {
-        te->addr_write = -1;
+
+        if (prot & PAGE_WRITE_INV) {
+            tn.addr_write |= TLB_INVALID_MASK;
+        }
     }
+
+    copy_tlb_helper_locked(te, &tn);
 }
 
 /* Add a new TLB entry, but without specifying the memory
