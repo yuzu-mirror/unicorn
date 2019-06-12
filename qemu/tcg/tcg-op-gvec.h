@@ -28,6 +28,9 @@
  * Operands may completely, but not partially, overlap.
  */
 
+#ifndef TCG_TCG_OP_GVEC_H
+#define TCG_TCG_OP_GVEC_H
+
 /* Expand a call to a gvec-style helper, with pointers to two vector
    operands, and a descriptor (see tcg-gvec-desc.h).  */
 typedef void gen_helper_gvec_2(TCGContext *, TCGv_ptr, TCGv_ptr, TCGv_i32);
@@ -373,3 +376,5 @@ void tcg_gen_vec_shr8i_i64(TCGContext *, TCGv_i64 d, TCGv_i64 a, int64_t);
 void tcg_gen_vec_shr16i_i64(TCGContext *, TCGv_i64 d, TCGv_i64 a, int64_t);
 void tcg_gen_vec_sar8i_i64(TCGContext *, TCGv_i64 d, TCGv_i64 a, int64_t);
 void tcg_gen_vec_sar16i_i64(TCGContext *, TCGv_i64 d, TCGv_i64 a, int64_t);
+
+#endif
