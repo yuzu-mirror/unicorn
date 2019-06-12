@@ -330,6 +330,7 @@ void riscv_get_csr_ops(int csrno, riscv_csr_operations *ops);
 void riscv_set_csr_ops(int csrno, riscv_csr_operations *ops);
 
 typedef CPURISCVState CPUArchState;
+typedef RISCVCPU ArchCPU;
 
 #include "exec/cpu-all.h"
 
