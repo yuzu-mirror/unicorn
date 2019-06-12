@@ -1398,11 +1398,6 @@ struct X86CPU {
     bool cpu_globals_initialized;
 };
 
-static inline X86CPU *x86_env_get_cpu(CPUX86State *env)
-{
-    return container_of(env, X86CPU, env);
-}
-
 #define ENV_OFFSET offsetof(X86CPU, env)
 
 #ifndef CONFIG_USER_ONLY
