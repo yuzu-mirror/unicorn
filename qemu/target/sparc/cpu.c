@@ -817,7 +817,7 @@ static void sparc_cpu_initfn(struct uc_struct *uc, Object *obj, void *opaque)
     SPARCCPUClass *scc = SPARC_CPU_GET_CLASS(uc, obj);
     CPUSPARCState *env = &cpu->env;
 
-    cs->env_ptr = env;
+    cpu_set_cpustate_pointers(cpu);
     cpu_exec_init(cs, &error_abort, opaque);
 
     if (scc->cpu_def) {

@@ -568,7 +568,7 @@ static void arm_cpu_initfn(struct uc_struct *uc, Object *obj, void *opaque)
     ARMCPU *cpu = ARM_CPU(uc, obj);
     uint32_t Aff1, Aff0;
 
-    cs->env_ptr = &cpu->env;
+    cpu_set_cpustate_pointers(cpu);
     cpu_exec_init(cs, &error_abort, opaque);
     cpu->cp_regs = g_hash_table_new_full(g_int_hash, g_int_equal,
                                          g_free, cpreg_hashtable_data_destroy);

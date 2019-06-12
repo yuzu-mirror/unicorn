@@ -376,6 +376,17 @@ int cpu_memory_rw_debug(CPUState *cpu, target_ulong addr,
 int cpu_exec(struct uc_struct *uc, CPUState *cpu);
 
 /**
+ * cpu_set_cpustate_pointers(cpu)
+ * @cpu: The cpu object
+ *
+ * Set the generic pointers in CPUState into the outer object.
+ */
+static inline void cpu_set_cpustate_pointers(ArchCPU *cpu)
+{
+    cpu->parent_obj.env_ptr = &cpu->env;
+}
+
+/**
  * env_archcpu(env)
  * @env: The architecture environment
  *

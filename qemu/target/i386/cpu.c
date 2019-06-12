@@ -4783,7 +4783,7 @@ static void x86_cpu_initfn(struct uc_struct *uc, Object *obj, void *opaque)
     X86CPUClass *xcc = X86_CPU_GET_CLASS(uc, obj);
     CPUX86State *env = &cpu->env;
 
-    cs->env_ptr = env;
+    cpu_set_cpustate_pointers(cpu);
     cpu_exec_init(cs, &error_abort, opaque);
 
     object_property_add(uc, obj, "family", "int",

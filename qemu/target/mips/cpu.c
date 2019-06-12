@@ -128,7 +128,7 @@ static void mips_cpu_initfn(struct uc_struct *uc, Object *obj, void *opaque)
     CPUMIPSState *env = &cpu->env;
     MIPSCPUClass *mcc = MIPS_CPU_GET_CLASS(uc, obj);
 
-    cs->env_ptr = env;
+    cpu_set_cpustate_pointers(cpu);
     env->cpu_model = mcc->cpu_def;
     cpu_exec_init(cs, &error_abort, opaque);
 }
