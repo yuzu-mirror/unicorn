@@ -892,8 +892,6 @@ static inline ARMCPU *arm_env_get_cpu(CPUARMState *env)
     return container_of(env, ARMCPU, env);
 }
 
-#define ENV_GET_CPU(e) CPU(arm_env_get_cpu(e))
-
 #define ENV_OFFSET offsetof(ARMCPU, env)
 
 #ifndef CONFIG_USER_ONLY

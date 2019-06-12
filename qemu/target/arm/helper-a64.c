@@ -551,7 +551,7 @@ static uint64_t do_paired_cmpxchg64_le(CPUARMState *env, uint64_t addr,
 
     if (parallel) {
 #ifndef CONFIG_ATOMIC128
-        cpu_loop_exit_atomic(ENV_GET_CPU(env), ra);
+        cpu_loop_exit_atomic(env_cpu(env), ra);
 #else
         int mem_idx = cpu_mmu_index(env, false);
         TCGMemOpIdx oi = make_memop_idx(MO_LEQ | MO_ALIGN_16, mem_idx);
@@ -621,7 +621,7 @@ static uint64_t do_paired_cmpxchg64_be(CPUARMState *env, uint64_t addr,
 
     if (parallel) {
 #ifndef CONFIG_ATOMIC128
-        cpu_loop_exit_atomic(ENV_GET_CPU(env), ra);
+        cpu_loop_exit_atomic(env_cpu(env), ra);
 #else
         int mem_idx = cpu_mmu_index(env, false);
         TCGMemOpIdx oi = make_memop_idx(MO_BEQ | MO_ALIGN_16, mem_idx);

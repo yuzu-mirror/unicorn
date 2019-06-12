@@ -136,7 +136,7 @@ static inline void tlb_flush_vtlb_page_locked(CPUArchState *env, int mmu_idx,
                                               target_ulong page)
 {
     int k;
-    //assert_cpu_is_self(ENV_GET_CPU(env));
+    //assert_cpu_is_self(env_cpu(env));
     for (k = 0; k < CPU_VTLB_SIZE; k++) {
         tlb_flush_entry_locked(&env->tlb_v_table[mmu_idx][k], page);
     }
@@ -535,7 +535,7 @@ tb_page_addr_t get_page_addr_code(CPUArchState *env, target_ulong addr)
     MemoryRegion *mr;
     MemoryRegionSection *section;
     ram_addr_t  ram_addr;
-    CPUState *cpu = ENV_GET_CPU(env);
+    CPUState *cpu = env_cpu(env);
     CPUIOTLBEntry *iotlbentry;
     hwaddr physaddr, mr_offset;
 
@@ -617,7 +617,7 @@ static uint64_t io_readx(CPUArchState *env, CPUIOTLBEntry *iotlbentry,
                          int mmu_idx, target_ulong addr, uintptr_t retaddr,
                          MMUAccessType access_type, int size)
 {
-    CPUState *cpu = ENV_GET_CPU(env);
+    CPUState *cpu = env_cpu(env);
     hwaddr mr_offset;
     MemoryRegionSection *section;
     MemoryRegion *mr;
@@ -652,7 +652,7 @@ static void io_writex(CPUArchState *env, CPUIOTLBEntry *iotlbentry,
                       int mmu_idx, uint64_t val, target_ulong addr,
                       uintptr_t retaddr, int size)
 {
-    CPUState *cpu = ENV_GET_CPU(env);
+    CPUState *cpu = env_cpu(env);
     hwaddr mr_offset;
     MemoryRegionSection *section;
     MemoryRegion *mr;
@@ -737,7 +737,7 @@ void probe_write(CPUArchState *env, target_ulong addr, int size, int mmu_idx,
     if (!tlb_hit(tlb_addr_write(entry), addr)) {
         /* TLB entry is for a different page */
         if (!VICTIM_TLB_HIT(addr_write, addr)) {
-            tlb_fill(ENV_GET_CPU(env), addr, size, MMU_DATA_STORE,
+            tlb_fill(env_cpu(env), addr, size, MMU_DATA_STORE,
                      mmu_idx, retaddr);
         }
     }
@@ -771,7 +771,7 @@ void *tlb_vaddr_to_host(CPUArchState *env, abi_ptr addr,
         uintptr_t index = tlb_index(env, mmu_idx, addr);
 
         if (!victim_tlb_hit(env, mmu_idx, index, elt_ofs, page)) {
-            CPUState *cs = ENV_GET_CPU(env);
+            CPUState *cs = env_cpu(env);
             CPUClass *cc = CPU_GET_CLASS(cs->uc, cs);
 
             if (!cc->tlb_fill(cs, addr, 0, access_type, mmu_idx, true, 0)) {
@@ -812,7 +812,7 @@ static void *atomic_mmu_lookup(CPUArchState *env, target_ulong addr,
     /* Enforce guest required alignment.  */
     if (unlikely(a_bits > 0 && (addr & ((1 << a_bits) - 1)))) {
         /* ??? Maybe indicate atomic op to cpu_unaligned_access */
-        cpu_unaligned_access(ENV_GET_CPU(env), addr, MMU_DATA_STORE,
+        cpu_unaligned_access(env_cpu(env), addr, MMU_DATA_STORE,
                              mmu_idx, retaddr);
     }
 
@@ -828,7 +828,7 @@ static void *atomic_mmu_lookup(CPUArchState *env, target_ulong addr,
     /* Check TLB entry and enforce page permissions.  */
     if (!tlb_hit(tlb_addr, addr)) {
         if (!VICTIM_TLB_HIT(addr_write, addr)) {
-            tlb_fill(ENV_GET_CPU(env), addr, 1 << s_bits, MMU_DATA_STORE,
+            tlb_fill(env_cpu(env), addr, 1 << s_bits, MMU_DATA_STORE,
                      mmu_idx, retaddr);
             index = tlb_index(env, mmu_idx, addr);
             tlbe = tlb_entry(env, mmu_idx, addr);
@@ -838,7 +838,7 @@ static void *atomic_mmu_lookup(CPUArchState *env, target_ulong addr,
 
     /* Check notdirty */
     if (unlikely(tlb_addr & TLB_NOTDIRTY)) {
-        tlb_set_dirty(ENV_GET_CPU(env), addr);
+        tlb_set_dirty(env_cpu(env), addr);
         tlb_addr = tlb_addr & ~TLB_NOTDIRTY;
     }
 
@@ -851,7 +851,7 @@ static void *atomic_mmu_lookup(CPUArchState *env, target_ulong addr,
 
     /* Let the guest notice RMW on a write-only page.  */
     if (unlikely(tlbe->addr_read != (tlb_addr & ~TLB_NOTDIRTY))) {
-        tlb_fill(ENV_GET_CPU(env), addr, 1 << s_bits, MMU_DATA_LOAD,
+        tlb_fill(env_cpu(env), addr, 1 << s_bits, MMU_DATA_LOAD,
                  mmu_idx, retaddr);
         /* Since we don't support reads and writes to different addresses,
            and we do have the proper page loaded for write, this shouldn't
@@ -862,7 +862,7 @@ static void *atomic_mmu_lookup(CPUArchState *env, target_ulong addr,
     return (void *)((uintptr_t)addr + tlbe->addend);
 
  stop_the_world:
-    cpu_loop_exit_atomic(ENV_GET_CPU(env), retaddr);
+    cpu_loop_exit_atomic(env_cpu(env), retaddr);
 }
 
 #ifdef TARGET_WORDS_BIGENDIAN
@@ -1033,7 +1033,7 @@ load_helper(CPUArchState *env, target_ulong addr, TCGMemOpIdx oi,
 
     /* Handle CPU specific unaligned behaviour */
     if (addr & ((1 << a_bits) - 1)) {
-        cpu_unaligned_access(ENV_GET_CPU(env), addr, access_type,
+        cpu_unaligned_access(env_cpu(env), addr, access_type,
                              mmu_idx, retaddr);
     }
 
@@ -1041,7 +1041,7 @@ load_helper(CPUArchState *env, target_ulong addr, TCGMemOpIdx oi,
     if (!tlb_hit(tlb_addr, addr)) {
         if (!victim_tlb_hit(env, mmu_idx, index, tlb_off,
                             addr & TARGET_PAGE_MASK)) {
-            tlb_fill(ENV_GET_CPU(env), addr, size,
+            tlb_fill(env_cpu(env), addr, size,
                      access_type, mmu_idx, retaddr);
             index = tlb_index(env, mmu_idx, addr);
             entry = tlb_entry(env, mmu_idx, addr);
@@ -1062,7 +1062,7 @@ load_helper(CPUArchState *env, target_ulong addr, TCGMemOpIdx oi,
              * repeat the MMU check here. This tlb_fill() call might
              * longjump out if this access should cause a guest exception.
              */
-            tlb_fill(ENV_GET_CPU(env), addr, size,
+            tlb_fill(env_cpu(env), addr, size,
                      access_type, mmu_idx, retaddr);
             index = tlb_index(env, mmu_idx, addr);
             entry = tlb_entry(env, mmu_idx, addr);
@@ -1355,7 +1355,7 @@ store_helper(CPUArchState *env, target_ulong addr, uint64_t val,
 
     /* Handle CPU specific unaligned behaviour */
     if (addr & ((1 << a_bits) - 1)) {
-        cpu_unaligned_access(ENV_GET_CPU(env), addr, MMU_DATA_STORE,
+        cpu_unaligned_access(env_cpu(env), addr, MMU_DATA_STORE,
                              mmu_idx, retaddr);
     }
 
@@ -1363,7 +1363,7 @@ store_helper(CPUArchState *env, target_ulong addr, uint64_t val,
     if (!tlb_hit(tlb_addr, addr)) {
         if (!victim_tlb_hit(env, mmu_idx, index, tlb_off,
             addr & TARGET_PAGE_MASK)) {
-            tlb_fill(ENV_GET_CPU(env), addr, size, MMU_DATA_STORE,
+            tlb_fill(env_cpu(env), addr, size, MMU_DATA_STORE,
                      mmu_idx, retaddr);
             index = tlb_index(env, mmu_idx, addr);
             entry = tlb_entry(env, mmu_idx, addr);
@@ -1384,7 +1384,7 @@ store_helper(CPUArchState *env, target_ulong addr, uint64_t val,
              * repeat the MMU check here. This tlb_fill() call might
              * longjump out if this access should cause a guest exception.
              */
-            tlb_fill(ENV_GET_CPU(env), addr, size, MMU_DATA_STORE,
+            tlb_fill(env_cpu(env), addr, size, MMU_DATA_STORE,
                      mmu_idx, retaddr);
             index = tlb_index(env, mmu_idx, addr);
             entry = tlb_entry(env, mmu_idx, addr);
@@ -1424,7 +1424,7 @@ store_helper(CPUArchState *env, target_ulong addr, uint64_t val,
         if (!tlb_hit_page(tlb_addr2, page2)
             && !victim_tlb_hit(env, mmu_idx, index2, tlb_off,
                                page2 & TARGET_PAGE_MASK)) {
-            tlb_fill(ENV_GET_CPU(env), page2, size, MMU_DATA_STORE,
+            tlb_fill(env_cpu(env), page2, size, MMU_DATA_STORE,
                      mmu_idx, retaddr);
         }
 

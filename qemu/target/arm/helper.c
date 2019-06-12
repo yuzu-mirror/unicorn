@@ -429,7 +429,7 @@ static void contextidr_write(CPUARMState *env, const ARMCPRegInfo *ri,
 static void tlbiall_is_write(CPUARMState *env, const ARMCPRegInfo *ri,
                              uint64_t value)
 {
-    //CPUState *cs = ENV_GET_CPU(env);
+    //CPUState *cs = env_cpu(env);
 
     //tlb_flush_all_cpus_synced(cs);
 }
@@ -437,7 +437,7 @@ static void tlbiall_is_write(CPUARMState *env, const ARMCPRegInfo *ri,
 static void tlbiasid_is_write(CPUARMState *env, const ARMCPRegInfo *ri,
                              uint64_t value)
 {
-    //CPUState *cs = ENV_GET_CPU(env);
+    //CPUState *cs = env_cpu(env);
 
     //tlb_flush_all_cpus_synced(cs);
 }
@@ -445,7 +445,7 @@ static void tlbiasid_is_write(CPUARMState *env, const ARMCPRegInfo *ri,
 static void tlbimva_is_write(CPUARMState *env, const ARMCPRegInfo *ri,
                              uint64_t value)
 {
-    //CPUState *cs = ENV_GET_CPU(env);
+    //CPUState *cs = env_cpu(env);
 
     //tlb_flush_page_all_cpus_synced(cs, value & TARGET_PAGE_MASK);
 }
@@ -453,7 +453,7 @@ static void tlbimva_is_write(CPUARMState *env, const ARMCPRegInfo *ri,
 static void tlbimvaa_is_write(CPUARMState *env, const ARMCPRegInfo *ri,
                              uint64_t value)
 {
-    //CPUState *cs = ENV_GET_CPU(env);
+    //CPUState *cs = env_cpu(env);
 
     //tlb_flush_page_all_cpus_synced(cs, value & TARGET_PAGE_MASK);
 }
@@ -528,7 +528,7 @@ static void tlbimvaa_write(CPUARMState *env, const ARMCPRegInfo *ri,
 static void tlbiall_nsnh_write(CPUARMState *env, const ARMCPRegInfo *ri,
                                uint64_t value)
 {
-    CPUState *cs = ENV_GET_CPU(env);
+    CPUState *cs = env_cpu(env);
 
     tlb_flush_by_mmuidx(cs,
                         ARMMMUIdxBit_S12NSE1 |
@@ -541,7 +541,7 @@ static void tlbiall_nsnh_is_write(CPUARMState *env, const ARMCPRegInfo *ri,
 {
   // Unicorn: if'd out. See issue 642
 #if 0
-    CPUState *cs = ENV_GET_CPU(env);
+    CPUState *cs = env_cpu(env);
 
     tlb_flush_by_mmuidx_all_cpus_synced(cs,
                                         ARMMMUIdxBit_S12NSE1 |
@@ -559,7 +559,7 @@ static void tlbiipas2_write(CPUARMState *env, const ARMCPRegInfo *ri,
      * translation information.
      * This must NOP if EL2 isn't implemented or SCR_EL3.NS is zero.
      */
-    CPUState *cs = ENV_GET_CPU(env);
+    CPUState *cs = env_cpu(env);
     uint64_t pageaddr;
 
     if (!arm_feature(env, ARM_FEATURE_EL2) || !(env->cp15.scr_el3 & SCR_NS)) {
@@ -593,7 +593,7 @@ static void tlbiipas2_is_write(CPUARMState *env, const ARMCPRegInfo *ri,
 static void tlbiall_hyp_write(CPUARMState *env, const ARMCPRegInfo *ri,
                               uint64_t value)
 {
-    CPUState *cs = ENV_GET_CPU(env);
+    CPUState *cs = env_cpu(env);
 
     tlb_flush_by_mmuidx(cs, ARMMMUIdxBit_S1E2);
 }
@@ -603,7 +603,7 @@ static void tlbiall_hyp_is_write(CPUARMState *env, const ARMCPRegInfo *ri,
 {
     // Unicorn: if'd out. See issue 642
 #if 0
-    CPUState *cs = ENV_GET_CPU(env);
+    CPUState *cs = env_cpu(env);
 
     tlb_flush_by_mmuidx_all_cpus_synced(cs, ARMMMUIdxBit_S1E2);
 #endif
@@ -612,7 +612,7 @@ static void tlbiall_hyp_is_write(CPUARMState *env, const ARMCPRegInfo *ri,
 static void tlbimva_hyp_write(CPUARMState *env, const ARMCPRegInfo *ri,
                               uint64_t value)
 {
-    CPUState *cs = ENV_GET_CPU(env);
+    CPUState *cs = env_cpu(env);
     uint64_t pageaddr = value & ~MAKE_64BIT_MASK(0, 12);
 
     tlb_flush_page_by_mmuidx(cs, pageaddr, ARMMMUIdxBit_S1E2);
@@ -623,7 +623,7 @@ static void tlbimva_hyp_is_write(CPUARMState *env, const ARMCPRegInfo *ri,
 {
   // Unicorn: if'd out. See issue 642.
 #if 0
-    CPUState *cs = ENV_GET_CPU(env);
+    CPUState *cs = env_cpu(env);
     uint64_t pageaddr = value & ~MAKE_64BIT_MASK(0, 12);
 
     tlb_flush_page_by_mmuidx_all_cpus_synced(cs, pageaddr,
@@ -1702,7 +1702,7 @@ static void csselr_write(CPUARMState *env, const ARMCPRegInfo *ri,
 
 static uint64_t isr_read(CPUARMState *env, const ARMCPRegInfo *ri)
 {
-    CPUState *cs = ENV_GET_CPU(env);
+    CPUState *cs = env_cpu(env);
     uint64_t hcr_el2 = arm_hcr_el2_eff(env);
     uint64_t ret = 0;
 
@@ -3563,7 +3563,7 @@ static void tlbi_aa64_vmalle1is_write(CPUARMState *env, const ARMCPRegInfo *ri,
 // UNICORN: TODO: issue #642
 #if 0
     bool sec = arm_is_secure_below_el3(env);
-    CPUState *cs = ENV_GET_CPU(env);
+    CPUState *cs = env_cpu(env);
 
     if (sec) {
         tlb_flush_by_mmuidx_all_cpus_synced(cs,
@@ -3580,7 +3580,7 @@ static void tlbi_aa64_vmalle1is_write(CPUARMState *env, const ARMCPRegInfo *ri,
 static void tlbi_aa64_vmalle1_write(CPUARMState *env, const ARMCPRegInfo *ri,
                                     uint64_t value)
 {
-    CPUState *cs = ENV_GET_CPU(env);
+    CPUState *cs = env_cpu(env);
 
     if (tlb_force_broadcast(env)) {
         tlbi_aa64_vmalle1is_write(env, NULL, value);
@@ -3655,7 +3655,7 @@ static void tlbi_aa64_alle1is_write(CPUARMState *env, const ARMCPRegInfo *ri,
 #if 0
     bool sec = arm_is_secure_below_el3(env);
     bool has_el2 = arm_feature(env, ARM_FEATURE_EL2);
-    CPUState *cs = ENV_GET_CPU(env);
+    CPUState *cs = env_cpu(env);
 
     if (sec) {
         tlb_flush_by_mmuidx_all_cpus_synced(cs,
@@ -3679,7 +3679,7 @@ static void tlbi_aa64_alle2is_write(CPUARMState *env, const ARMCPRegInfo *ri,
 {
 // UNICORN: TODO: issue #642
 #if 0
-    CPUState *cs = ENV_GET_CPU(env);
+    CPUState *cs = env_cpu(env);
 
     tlb_flush_by_mmuidx_all_cpus_synced(cs, ARMMMUIdxBit_S1E2);
 #endif
@@ -3690,7 +3690,7 @@ static void tlbi_aa64_alle3is_write(CPUARMState *env, const ARMCPRegInfo *ri,
 {
 // UNICORN: TODO: issue #642
 #if 0
-    CPUState *cs = ENV_GET_CPU(env);
+    CPUState *cs = env_cpu(env);
 
     tlb_flush_by_mmuidx_all_cpus_synced(cs, ARMMMUIdxBit_S1E3);
 #endif
@@ -3730,7 +3730,7 @@ static void tlbi_aa64_vae1is_write(CPUARMState *env, const ARMCPRegInfo *ri,
 // UNICORN: TODO: issue #642
 #if 0
     bool sec = arm_is_secure_below_el3(env);
-    CPUState *cs = ENV_GET_CPU(env)
+    CPUState *cs = env_cpu(env)
     uint64_t pageaddr = sextract64(value << 12, 0, 56);
 
     if (sec) {
@@ -3778,7 +3778,7 @@ static void tlbi_aa64_vae2is_write(CPUARMState *env, const ARMCPRegInfo *ri,
 {
 // UNICORN: TODO: issue #642
 #if 0
-    CPUState *cs = ENV_GET_CPU(env);
+    CPUState *cs = env_cpu(env);
     uint64_t pageaddr = sextract64(value << 12, 0, 56);
 
     tlb_flush_page_by_mmuidx_all_cpus_synced(cs, pageaddr,
@@ -3791,7 +3791,7 @@ static void tlbi_aa64_vae3is_write(CPUARMState *env, const ARMCPRegInfo *ri,
 {
 // UNICORN: TODO: issue #642
 #if 0
-    CPUState *cs = ENV_GET_CPU(env);
+    CPUState *cs = env_cpu(env);
     uint64_t pageaddr = sextract64(value << 12, 0, 56);
 
     tlb_flush_page_by_mmuidx_all_cpus_synced(cs, pageaddr,
@@ -3826,7 +3826,7 @@ static void tlbi_aa64_ipas2e1is_write(CPUARMState *env, const ARMCPRegInfo *ri,
 {
 // UNICORN: TODO: issue #642
 #if 0
-    CPUState *cs = ENV_GET_CPU(env);
+    CPUState *cs = env_cpu(env);
     uint64_t pageaddr;
 
     if (!arm_feature(env, ARM_FEATURE_EL2) || !(env->cp15.scr_el3 & SCR_NS)) {
