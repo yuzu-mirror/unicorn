@@ -528,11 +528,6 @@ struct SPARCCPU {
     CPUSPARCState env;
 };
 
-static inline SPARCCPU *sparc_env_get_cpu(CPUSPARCState *env)
-{
-    return container_of(env, SPARCCPU, env);
-}
-
 #define ENV_OFFSET offsetof(SPARCCPU, env)
 
 void sparc_cpu_do_interrupt(CPUState *cpu);
