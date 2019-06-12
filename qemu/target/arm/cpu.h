@@ -887,11 +887,6 @@ struct ARMCPU {
     uint32_t sve_max_vq;
 };
 
-static inline ARMCPU *arm_env_get_cpu(CPUARMState *env)
-{
-    return container_of(env, ARMCPU, env);
-}
-
 #define ENV_OFFSET offsetof(ARMCPU, env)
 
 #ifndef CONFIG_USER_ONLY

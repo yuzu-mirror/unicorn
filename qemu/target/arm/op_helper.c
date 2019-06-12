@@ -30,7 +30,7 @@
 static CPUState *do_raise_exception(CPUARMState *env, uint32_t excp,
                                     uint32_t syndrome, uint32_t target_el)
 {
-    CPUState *cs = CPU(arm_env_get_cpu(env));
+    CPUState *cs = env_cpu(env);
 
     if (target_el == 1 && (arm_hcr_el2_eff(env) & HCR_TGE)) {
         /*
@@ -223,7 +223,7 @@ void HELPER(v8m_stackcheck)(CPUARMState *env, uint32_t newvalue)
      * raising an exception if the limit is breached.
      */
     if (newvalue < v7m_sp_limit(env)) {
-        CPUState *cs = CPU(arm_env_get_cpu(env));
+        CPUState *cs = env_cpu(env);
 
         /*
          * Stack limit exceptions are a rare case, so rather than syncing
@@ -426,7 +426,7 @@ static inline int check_wfx_trap(CPUARMState *env, bool is_wfe)
 
 void HELPER(wfi)(CPUARMState *env, uint32_t insn_len)
 {
-    CPUState *cs = CPU(arm_env_get_cpu(env));
+    CPUState *cs = env_cpu(env);
     int target_el = check_wfx_trap(env, false);
 
     if (cpu_has_work(cs)) {
@@ -461,8 +461,7 @@ void HELPER(wfe)(CPUARMState *env)
 
 void HELPER(yield)(CPUARMState *env)
 {
-    ARMCPU *cpu = arm_env_get_cpu(env);
-    CPUState *cs = CPU(cpu);
+    CPUState *cs = env_cpu(env);
 
     /* This is a non-trappable hint instruction that generally indicates
      * that the guest is currently busy-looping. Yield control back to the
@@ -480,7 +479,7 @@ void HELPER(yield)(CPUARMState *env)
  */
 void HELPER(exception_internal)(CPUARMState *env, uint32_t excp)
 {
-    CPUState *cs = CPU(arm_env_get_cpu(env));
+    CPUState *cs = env_cpu(env);
 
     assert(excp_is_internal(excp));
     cs->exception_index = excp;
@@ -522,7 +521,7 @@ void HELPER(cpsr_write)(CPUARMState *env, uint32_t val, uint32_t mask)
 /* Write the CPSR for a 32-bit exception return */
 void HELPER(cpsr_write_eret)(CPUARMState *env, uint32_t val)
 {
-    arm_call_pre_el_change_hook(arm_env_get_cpu(env));
+    arm_call_pre_el_change_hook(env_archcpu(env));
 
     cpsr_write(env, val, CPSR_ERET_MASK, CPSRWriteExceptionReturn);
 
@@ -533,7 +532,7 @@ void HELPER(cpsr_write_eret)(CPUARMState *env, uint32_t val)
      */
     env->regs[15] &= (env->thumb ? ~1 : ~3);
 
-    arm_call_el_change_hook(arm_env_get_cpu(env));
+    arm_call_el_change_hook(env_archcpu(env));
 }
 
 /* Access to user mode registers from privileged modes.  */
@@ -815,7 +814,7 @@ uint64_t HELPER(get_cp_reg64)(CPUARMState *env, void *rip)
 
 void HELPER(pre_hvc)(CPUARMState *env)
 {
-    ARMCPU *cpu = arm_env_get_cpu(env);
+    ARMCPU *cpu = env_archcpu(env);
     int cur_el = arm_current_el(env);
     /* FIXME: Use actual secure state.  */
     bool secure = false;
@@ -855,7 +854,7 @@ void HELPER(pre_hvc)(CPUARMState *env)
 
 void HELPER(pre_smc)(CPUARMState *env, uint32_t syndrome)
 {
-    ARMCPU *cpu = arm_env_get_cpu(env);
+    ARMCPU *cpu = env_archcpu(env);
     int cur_el = arm_current_el(env);
     bool secure = arm_is_secure(env);
     bool smd_flag = env->cp15.scr_el3 & SCR_SMD;
@@ -1130,7 +1129,7 @@ static bool check_breakpoints(ARMCPU *cpu)
 
 void HELPER(check_breakpoints)(CPUARMState *env)
 {
-    ARMCPU *cpu = arm_env_get_cpu(env);
+    ARMCPU *cpu = env_archcpu(env);
 
     if (check_breakpoints(cpu)) {
         HELPER(exception_internal(env, EXCP_DEBUG));
