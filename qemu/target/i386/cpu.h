@@ -1398,8 +1398,6 @@ struct X86CPU {
     bool cpu_globals_initialized;
 };
 
-#define ENV_OFFSET offsetof(X86CPU, env)
-
 #ifndef CONFIG_USER_ONLY
 extern struct VMStateDescription vmstate_x86_cpu;
 #endif

@@ -30,6 +30,9 @@
 #include "tcg-op.h"
 #include "tcg-mo.h"
 
+/* Unicorn: Necessary for check_exit_request */
+#include "exec/gen-icount.h"
+
 /* Reduce the number of ifdefs below.  This assumes that all uses of
    TCGV_HIGH and TCGV_LOW are properly protected by a conditional that
    the compiler can eliminate.  */

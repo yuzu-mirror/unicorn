@@ -887,8 +887,6 @@ struct ARMCPU {
     uint32_t sve_max_vq;
 };
 
-#define ENV_OFFSET offsetof(ARMCPU, env)
-
 #ifndef CONFIG_USER_ONLY
 extern const struct VMStateDescription vmstate_arm_cpu;
 #endif
