@@ -29,8 +29,6 @@
 
 #define TCG_GUEST_DEFAULT_MO 0
 
-#define CPUArchState struct CPURISCVState
-
 #define TYPE_RISCV_CPU "riscv-cpu"
 
 #define RISCV_CPU_TYPE_SUFFIX "-" TYPE_RISCV_CPU
@@ -91,6 +89,8 @@ enum {
 #define MMU_USER_IDX 3
 
 #define MAX_RISCV_PMPS (16)
+
+typedef struct CPURISCVState CPURISCVState;
 
 #include "pmp.h"
 
@@ -217,11 +217,6 @@ typedef struct RISCVCPU {
     /*< public >*/
     CPURISCVState env;
 } RISCVCPU;
-
-static inline RISCVCPU *riscv_env_get_cpu(CPURISCVState *env)
-{
-    return container_of(env, RISCVCPU, env);
-}
 
 static inline int riscv_has_ext(CPURISCVState *env, target_ulong ext)
 {
