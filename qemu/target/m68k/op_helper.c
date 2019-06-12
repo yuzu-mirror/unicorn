@@ -199,7 +199,7 @@ static const char *m68k_exception_name(int index)
 
 static void cf_interrupt_all(CPUM68KState *env, int is_hw)
 {
-    CPUState *cs = CPU(m68k_env_get_cpu(env));
+    CPUState *cs = env_cpu(env);
     uint32_t sp;
     uint32_t sr;
     uint32_t fmt;
@@ -267,7 +267,7 @@ static inline void do_stack_frame(CPUM68KState *env, uint32_t *sp,
 {
     if (m68k_feature(env, M68K_FEATURE_QUAD_MULDIV)) {
         /*  all except 68000 */
-        CPUState *cs = CPU(m68k_env_get_cpu(env));
+        CPUState *cs = env_cpu(env);
         switch (format) {
         case 4:
             *sp -= 4;
@@ -292,7 +292,7 @@ static inline void do_stack_frame(CPUM68KState *env, uint32_t *sp,
 
 static void m68k_interrupt_all(CPUM68KState *env, int is_hw)
 {
-    CPUState *cs = CPU(m68k_env_get_cpu(env));
+    CPUState *cs = env_cpu(env);
     uint32_t sp;
     uint32_t retaddr;
     uint32_t vector;
@@ -514,7 +514,7 @@ bool m68k_cpu_exec_interrupt(CPUState *cs, int interrupt_request)
 
 static void raise_exception_ra(CPUM68KState *env, int tt, uintptr_t raddr)
 {
-    CPUState *cs = CPU(m68k_env_get_cpu(env));
+    CPUState *cs = env_cpu(env);
 
     cs->exception_index = tt;
     cpu_loop_exit_restore(cs, raddr);
@@ -1046,7 +1046,7 @@ void HELPER(chk)(CPUM68KState *env, int32_t val, int32_t ub)
     env->cc_c = 0 <= ub ? val < 0 || val > ub : val > ub && val < 0;
 
     if (val < 0 || val > ub) {
-        CPUState *cs = CPU(m68k_env_get_cpu(env));
+        CPUState *cs = env_cpu(env);
 
         /* Recover PC and CC_OP for the beginning of the insn.  */
         cpu_restore_state(cs, GETPC(), true);
@@ -1077,7 +1077,7 @@ void HELPER(chk2)(CPUM68KState *env, int32_t val, int32_t lb, int32_t ub)
     env->cc_c = lb <= ub ? val < lb || val > ub : val > ub && val < lb;
 
     if (env->cc_c) {
-        CPUState *cs = CPU(m68k_env_get_cpu(env));
+        CPUState *cs = env_cpu(env);
 
         /* Recover PC and CC_OP for the beginning of the insn.  */
         cpu_restore_state(cs, GETPC(), true);
