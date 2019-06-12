@@ -26,8 +26,6 @@
 #include "cpu-qom.h"
 #include "exec/cpu-defs.h"
 
-#define CPUArchState struct CPUM68KState
-
 #define OS_BYTE     0
 #define OS_WORD     1
 #define OS_LONG     2
@@ -532,6 +530,8 @@ void m68k_cpu_transaction_failed(CPUState *cs, hwaddr physaddr, vaddr addr,
                                  unsigned size, MMUAccessType access_type,
                                  int mmu_idx, MemTxAttrs attrs,
                                  MemTxResult response, uintptr_t retaddr);
+
+typedef CPUM68KState CPUArchState;
 
 #include "exec/cpu-all.h"
 

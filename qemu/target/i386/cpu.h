@@ -42,8 +42,6 @@
 #define ELF_MACHINE_UNAME "i686"
 #endif
 
-#define CPUArchState struct CPUX86State
-
 #include "exec/cpu-defs.h"
 
 #define R_EAX 0
@@ -1671,6 +1669,8 @@ static inline target_long lshift(target_long x, int n)
 
 /* translate.c */
 void tcg_x86_init(struct uc_struct *);
+
+typedef CPUX86State CPUArchState;
 
 #include "exec/cpu-all.h"
 #include "svm.h"

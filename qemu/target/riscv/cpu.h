@@ -92,8 +92,6 @@ enum {
 
 #define MAX_RISCV_PMPS (16)
 
-typedef struct CPURISCVState CPURISCVState;
-
 #include "pmp.h"
 
 struct CPURISCVState {
@@ -330,6 +328,8 @@ typedef struct {
 
 void riscv_get_csr_ops(int csrno, riscv_csr_operations *ops);
 void riscv_set_csr_ops(int csrno, riscv_csr_operations *ops);
+
+typedef CPURISCVState CPUArchState;
 
 #include "exec/cpu-all.h"
 
