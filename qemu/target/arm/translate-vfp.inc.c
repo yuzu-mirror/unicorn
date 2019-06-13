@@ -1933,3 +1933,23 @@ static bool trans_VNEG_dp(DisasContext *s, arg_VNEG_dp *a)
 {
     return do_vfp_2op_dp(s, gen_helper_vfp_negd, a->vd, a->vm);
 }
+
+static void gen_VSQRT_sp(TCGContext *tcg_ctx, TCGv_i32 vd, TCGv_i32 vm)
+{
+    gen_helper_vfp_sqrts(tcg_ctx, vd, vm, tcg_ctx->cpu_env);
+}
+
+static bool trans_VSQRT_sp(DisasContext *s, arg_VSQRT_sp *a)
+{
+    return do_vfp_2op_sp(s, gen_VSQRT_sp, a->vd, a->vm);
+}
+
+static void gen_VSQRT_dp(TCGContext *tcg_ctx, TCGv_i64 vd, TCGv_i64 vm)
+{
+    gen_helper_vfp_sqrtd(tcg_ctx, vd, vm, tcg_ctx->cpu_env);
+}
+
+static bool trans_VSQRT_dp(DisasContext *s, arg_VSQRT_dp *a)
+{
+    return do_vfp_2op_dp(s, gen_VSQRT_dp, a->vd, a->vm);
+}
