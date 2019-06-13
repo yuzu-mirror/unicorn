@@ -189,17 +189,25 @@ typedef struct CPUClass {
     bool tcg_initialized;
 } CPUClass;
 
+/*
+ * Low 16 bits: number of cycles left, used only in icount mode.
+ * High 16 bits: Set to -1 to force TCG to stop executing linked TBs
+ * for this CPU and return to its top level loop (even in non-icount mode).
+ * This allows a single read-compare-cbranch-write sequence to test
+ * for both decrementer underflow and exceptions.
+ */
+typedef union IcountDecr {
+    uint32_t u32;
+    struct {
 #ifdef HOST_WORDS_BIGENDIAN
-typedef struct icount_decr_u16 {
-    uint16_t high;
-    uint16_t low;
-} icount_decr_u16;
+        uint16_t high;
+        uint16_t low;
 #else
-typedef struct icount_decr_u16 {
-    uint16_t low;
-    uint16_t high;
-} icount_decr_u16;
+        uint16_t low;
+        uint16_t high;
 #endif
+    } u16;
+} IcountDecr;
 
 typedef struct CPUBreakpoint {
     vaddr pc;
@@ -286,6 +294,7 @@ struct CPUAddressSpace {
  * @as: Pointer to the first AddressSpace, for the convenience of targets which
  *      only have a single AddressSpace
  * @env_ptr: Pointer to subclass-specific CPUArchState field.
+ * @icount_decr_ptr: Pointer to IcountDecr field within subclass.
  * @next_cpu: Next CPU sharing TB cache.
  * @opaque: User data.
  * @mem_io_pc: Host Program Counter at which the memory was accessed.
@@ -329,6 +338,7 @@ struct CPUState {
     MemoryRegion *memory;
 
     void *env_ptr; /* CPUArchState */
+    IcountDecr *icount_decr_ptr;
 
     /* Accessed in parallel; all accesses must be atomic */
     struct TranslationBlock *tb_jmp_cache[TB_JMP_CACHE_SIZE];
@@ -364,10 +374,6 @@ struct CPUState {
     int cpu_index;
     int cluster_index;
     uint32_t halted;
-    union {
-        uint32_t u32;
-        icount_decr_u16 u16;
-    } icount_decr;
     uint32_t can_do_io;
     int32_t exception_index;
 

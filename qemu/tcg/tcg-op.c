@@ -2807,7 +2807,7 @@ void check_exit_request(TCGContext *tcg_ctx)
 
     flag = tcg_temp_new_i32(tcg_ctx);
     tcg_gen_ld_i32(tcg_ctx, flag, tcg_ctx->cpu_env,
-            offsetof(CPUState, tcg_exit_req) - ENV_OFFSET);
+            offsetof(CPUState, tcg_exit_req) - offsetof(ArchCPU, env));
     tcg_gen_brcondi_i32(tcg_ctx, TCG_COND_NE, flag, 0, tcg_ctx->exitreq_label);
     tcg_temp_free_i32(tcg_ctx, flag);
 }

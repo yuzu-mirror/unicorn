@@ -34,6 +34,7 @@
 #include "exec/hwaddr.h"
 #endif
 #include "exec/memattrs.h"
+#include "qom/cpu.h"
 
 #include "cpu-param.h"
 
@@ -220,7 +221,7 @@ typedef struct CPUTLBDesc {
  * before CPUArchState, as a field named "neg".
  */
 typedef struct CPUNegativeOffsetState {
-    /* Empty */
+    IcountDecr icount_decr;
 } CPUNegativeOffsetState;
 
 #endif

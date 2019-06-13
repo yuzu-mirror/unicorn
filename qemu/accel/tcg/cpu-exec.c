@@ -442,14 +442,14 @@ static inline void cpu_loop_exec_tb(CPUState *cpu, TranslationBlock *tb,
 #ifdef CONFIG_USER_ONLY
         abort();
 #else
-        int insns_left = cpu->icount_decr.u32;
+        int insns_left = atomic_read(&cpu_neg(cpu)->icount_decr.u32);
         *last_tb = NULL;
         if (cpu->icount_extra && insns_left >= 0) {
             /* Refill decrementer and continue execution.  */
             cpu->icount_extra += insns_left;
             insns_left = MIN(0xffff, cpu->icount_extra);
             cpu->icount_extra -= insns_left;
-            cpu->icount_decr.u16.low = insns_left;
+            cpu_neg(cpu)->icount_decr.u16.low = insns_left;
         } else {
             if (insns_left > 0) {
                 /* Execute remaining instructions.  */

@@ -5,8 +5,6 @@
 
 /* Helpers for instruction counting code generation.  */
 
-#define ENV_OFFSET   offsetof(ArchCPU, env)
-
 //static TCGOp *icount_start_insn;
 
 static inline void gen_tb_start(TCGContext *tcg_ctx, TranslationBlock *tb)
@@ -17,7 +15,7 @@ static inline void gen_tb_start(TCGContext *tcg_ctx, TranslationBlock *tb)
     tcg_ctx->exitreq_label = gen_new_label(tcg_ctx);
     flag = tcg_temp_new_i32(tcg_ctx);
     tcg_gen_ld_i32(tcg_ctx, flag, tcg_ctx->cpu_env,
-                   offsetof(CPUState, tcg_exit_req) - ENV_OFFSET);
+                   offsetof(CPUState, tcg_exit_req) - offsetof(ArchCPU, env));
     tcg_gen_brcondi_i32(tcg_ctx, TCG_COND_NE, flag, 0, tcg_ctx->exitreq_label);
     tcg_temp_free_i32(tcg_ctx, flag);
 
@@ -30,7 +28,8 @@ static inline void gen_tb_start(TCGContext *tcg_ctx, TranslationBlock *tb)
     }
 
     tcg_gen_ld_i32(tcg_ctx, count, tcg_ctx->cpu_env,
-                   -ENV_OFFSET + offsetof(CPUState, icount_decr.u32));
+                   offsetof(ArchCPU, neg.icount_decr.u32) -
+                   offsetof(ArchCPU, env));
 
     if (tb_cflags(tb) & CF_USE_ICOUNT) {
         imm = tcg_temp_new_i32(tcg_ctx);
@@ -48,7 +47,8 @@ static inline void gen_tb_start(TCGContext *tcg_ctx, TranslationBlock *tb)
 
     if (tb_cflags(tb) & CF_USE_ICOUNT) {
         tcg_gen_st16_i32(tcg_ctx, count, tcg_ctx, cpu_env,
-                         -ENV_OFFSET + offsetof(CPUState, icount_decr.u16.low));
+                         offsetof(ArchCPU, neg.icount_decr.u16.low) -
+                         offsetof(ArchCPU, env));
     }
 
     tcg_temp_free_i32(tcg_ctx, count);
@@ -69,20 +69,26 @@ static inline void gen_tb_end(TCGContext *tcg_ctx, TranslationBlock *tb, int num
     tcg_gen_exit_tb(tcg_ctx, tb, TB_EXIT_REQUESTED);
 }
 
-#if 0
 static inline void gen_io_start(TCGContext *tcg_ctx)
 {
+#if 0
     TCGv_i32 tmp = tcg_const_i32(tcg_ctx, 1);
-    tcg_gen_st_i32(tcg_ctx, tmp, tcg_ctx->tcg_env, -ENV_OFFSET + offsetof(CPUState, can_do_io));
+    tcg_gen_st_i32(tcg_ctx, tmp, tcg_ctx->tcg_env,
+                   offsetof(ArchCPU, parent_obj.can_do_io) -
+                   offsetof(ArchCPU, env));
     tcg_temp_free_i32(tcg_ctx, tmp);
+#endif
 }
 
 static inline void gen_io_end(TCGContext *tcg_ctx)
 {
+#if 0
     TCGv_i32 tmp = tcg_const_i32(tcg_ctx, 0);
-    tcg_gen_st_i32(tcg_ctx, tmp, tcg_ctx->tcg_env, -ENV_OFFSET + offsetof(CPUState, can_do_io));
+    tcg_gen_st_i32(tcg_ctx, tmp, tcg_ctx->tcg_env,
+                   offsetof(ArchCPU, parent_obj.can_do_io) -
+                   offsetof(ArchCPU, env));
     tcg_temp_free_i32(tcg_ctx, tmp);
-}
 #endif
+}
 
 #endif

@@ -315,13 +315,15 @@ static int cpu_restore_state_from_tb(CPUState *cpu, TranslationBlock *tb,
     return -1;
 
 found:
-    // UNICORN: Commented out
-    //if (reset_icount && (tb_cflags(tb) & CF_USE_ICOUNT)) {
-    //    assert(use_icount);
-    //    /* Reset the cycle counter to the start of the block
-    //       and shift if to the number of actually executed instructions */
-    //    cpu->icount_decr.u16.low += num_insns - i;
-    //}
+    // UNICORN: If'd out
+#if 0
+    if (reset_icount && (tb_cflags(tb) & CF_USE_ICOUNT)) {
+        assert(use_icount);
+        /* Reset the cycle counter to the start of the block
+           and shift if to the number of actually executed instructions */
+        cpu_neg(cpu)->icount_decr.u16.low += num_insns - i;
+    }
+#endif
     restore_state_to_opc(env, tb, data);
 
 #ifdef CONFIG_PROFILER
@@ -1865,11 +1867,11 @@ void cpu_io_recompile(CPUState *cpu, uintptr_t retaddr)
         cpu_abort(cpu, "cpu_io_recompile: could not find TB for pc=%p",
                   (void *)retaddr);
     }
-    n = cpu->icount_decr.u16.low + tb->icount;
+    n = cpu_neg(cpu)->icount_decr.u16.low + tb->icount;
     cpu_restore_state_from_tb(cpu, tb, retaddr, true);
     /* Calculate how many instructions had been executed before the fault
        occurred.  */
-    n = n - cpu->icount_decr.u16.low;
+    n = n - cpu_neg(cpu)->icount_decr.u16.low;
     /* Generate a new TB ending on the I/O insn.  */
     n++;
     /* On MIPS and SH, delay slot instructions can only be restarted if
@@ -1879,14 +1881,14 @@ void cpu_io_recompile(CPUState *cpu, uintptr_t retaddr)
 #if defined(TARGET_MIPS)
     if ((env->hflags & MIPS_HFLAG_BMASK) != 0 && n > 1) {
         env->active_tc.PC -= (env->hflags & MIPS_HFLAG_B16 ? 2 : 4);
-        cpu->icount_decr.u16.low++;
+        cpu_neg(cpu)->icount_decr.u16.low++;
         env->hflags &= ~MIPS_HFLAG_BMASK;
     }
 #elif defined(TARGET_SH4)
     if ((env->flags & ((DELAY_SLOT | DELAY_SLOT_CONDITIONAL))) != 0
             && n > 1) {
         env->pc -= 2;
-        cpu->icount_decr.u16.low++;
+        cpu_neg(cpu)->icount_decr.u16.low++;
         env->flags &= ~(DELAY_SLOT | DELAY_SLOT_CONDITIONAL);
     }
 #endif
@@ -2003,6 +2005,7 @@ void cpu_interrupt(CPUState *cpu, int mask)
 {
     cpu->interrupt_request |= mask;
     cpu->tcg_exit_req = 1;
+    atomic_set(&cpu_neg(cpu)->icount_decr.u16.high, -1);
 }
 
 #if 0
