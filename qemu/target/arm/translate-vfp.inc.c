@@ -182,8 +182,8 @@ static bool trans_VSEL(DisasContext *s, arg_VSEL *a)
         tcg_gen_ext_i32_i64(tcg_ctx, nf, tcg_ctx->cpu_NF);
         tcg_gen_ext_i32_i64(tcg_ctx, vf, tcg_ctx->cpu_VF);
 
-        tcg_gen_ld_f64(tcg_ctx, frn, tcg_ctx->cpu_env, vfp_reg_offset(dp, rn));
-        tcg_gen_ld_f64(tcg_ctx, frm, tcg_ctx->cpu_env, vfp_reg_offset(dp, rm));
+        neon_load_reg64(s, frn, rn);
+        neon_load_reg64(s, frm, rm);
         switch (a->cc) {
         case 0: /* eq: Z */
             tcg_gen_movcond_i64(tcg_ctx, TCG_COND_EQ, dest, zf, zero,
@@ -210,7 +210,7 @@ static bool trans_VSEL(DisasContext *s, arg_VSEL *a)
             tcg_temp_free_i64(tcg_ctx, tmp);
             break;
         }
-        tcg_gen_st_f64(tcg_ctx, dest, tcg_ctx->cpu_env, vfp_reg_offset(dp, rd));
+        neon_store_reg64(s, dest, rd);
         tcg_temp_free_i64(tcg_ctx, frn);
         tcg_temp_free_i64(tcg_ctx, frm);
         tcg_temp_free_i64(tcg_ctx, dest);
@@ -229,8 +229,8 @@ static bool trans_VSEL(DisasContext *s, arg_VSEL *a)
         frn = tcg_temp_new_i32(tcg_ctx);
         frm = tcg_temp_new_i32(tcg_ctx);
         dest = tcg_temp_new_i32(tcg_ctx);
-        tcg_gen_ld_f32(tcg_ctx, frn, tcg_ctx->cpu_env, vfp_reg_offset(dp, rn));
-        tcg_gen_ld_f32(tcg_ctx, frm, tcg_ctx->cpu_env, vfp_reg_offset(dp, rm));
+        neon_load_reg32(s, frn, rn);
+        neon_load_reg32(s, frm, rm);
         switch (a->cc) {
         case 0: /* eq: Z */
             tcg_gen_movcond_i32(tcg_ctx, TCG_COND_EQ, dest, tcg_ctx->cpu_ZF, zero,
@@ -257,7 +257,7 @@ static bool trans_VSEL(DisasContext *s, arg_VSEL *a)
             tcg_temp_free_i32(tcg_ctx, tmp);
             break;
         }
-        tcg_gen_st_f32(tcg_ctx, dest, tcg_ctx->cpu_env, vfp_reg_offset(dp, rd));
+        neon_store_reg32(s, dest, rd);
         tcg_temp_free_i32(tcg_ctx, frn);
         tcg_temp_free_i32(tcg_ctx, frm);
         tcg_temp_free_i32(tcg_ctx, dest);
@@ -302,14 +302,14 @@ static bool trans_VMINMAXNM(DisasContext *s, arg_VMINMAXNM *a)
         frm = tcg_temp_new_i64(tcg_ctx);
         dest = tcg_temp_new_i64(tcg_ctx);
 
-        tcg_gen_ld_f64(tcg_ctx, frn, tcg_ctx->cpu_env, vfp_reg_offset(dp, rn));
-        tcg_gen_ld_f64(tcg_ctx, frm, tcg_ctx->cpu_env, vfp_reg_offset(dp, rm));
+        neon_load_reg64(s, frn, rn);
+        neon_load_reg64(s, frm, rm);
         if (vmin) {
             gen_helper_vfp_minnumd(tcg_ctx, dest, frn, frm, fpst);
         } else {
             gen_helper_vfp_maxnumd(tcg_ctx, dest, frn, frm, fpst);
         }
-        tcg_gen_st_f64(tcg_ctx, dest, tcg_ctx->cpu_env, vfp_reg_offset(dp, rd));
+        neon_store_reg64(s, dest, rd);
         tcg_temp_free_i64(tcg_ctx, frn);
         tcg_temp_free_i64(tcg_ctx, frm);
         tcg_temp_free_i64(tcg_ctx, dest);
@@ -320,14 +320,14 @@ static bool trans_VMINMAXNM(DisasContext *s, arg_VMINMAXNM *a)
         frm = tcg_temp_new_i32(tcg_ctx);
         dest = tcg_temp_new_i32(tcg_ctx);
 
-        tcg_gen_ld_f32(tcg_ctx, frn, tcg_ctx->cpu_env, vfp_reg_offset(dp, rn));
-        tcg_gen_ld_f32(tcg_ctx, frm, tcg_ctx->cpu_env, vfp_reg_offset(dp, rm));
+        neon_load_reg32(s, frn, rn);
+        neon_load_reg32(s, frm, rm);
         if (vmin) {
             gen_helper_vfp_minnums(tcg_ctx, dest, frn, frm, fpst);
         } else {
             gen_helper_vfp_maxnums(tcg_ctx, dest, frn, frm, fpst);
         }
-        tcg_gen_st_f32(tcg_ctx, dest, tcg_ctx->cpu_env, vfp_reg_offset(dp, rd));
+        neon_store_reg32(s, dest, rd);
         tcg_temp_free_i32(tcg_ctx, frn);
         tcg_temp_free_i32(tcg_ctx, frm);
         tcg_temp_free_i32(tcg_ctx, dest);
@@ -384,9 +384,9 @@ static bool trans_VRINT(DisasContext *s, arg_VRINT *a)
         TCGv_i64 tcg_res;
         tcg_op = tcg_temp_new_i64(tcg_ctx);
         tcg_res = tcg_temp_new_i64(tcg_ctx);
-        tcg_gen_ld_f64(tcg_ctx, tcg_op, tcg_ctx->cpu_env, vfp_reg_offset(dp, rm));
+        neon_load_reg64(s, tcg_op, rm);
         gen_helper_rintd(tcg_ctx, tcg_res, tcg_op, fpst);
-        tcg_gen_st_f64(tcg_ctx, tcg_res, tcg_ctx->cpu_env, vfp_reg_offset(dp, rd));
+        neon_store_reg64(s, tcg_res, rd);
         tcg_temp_free_i64(tcg_ctx, tcg_op);
         tcg_temp_free_i64(tcg_ctx, tcg_res);
     } else {
@@ -394,9 +394,9 @@ static bool trans_VRINT(DisasContext *s, arg_VRINT *a)
         TCGv_i32 tcg_res;
         tcg_op = tcg_temp_new_i32(tcg_ctx);
         tcg_res = tcg_temp_new_i32(tcg_ctx);
-        tcg_gen_ld_f32(tcg_ctx, tcg_op, tcg_ctx->cpu_env, vfp_reg_offset(dp, rm));
+        neon_load_reg32(s, tcg_op, rm);
         gen_helper_rints(tcg_ctx, tcg_res, tcg_op, fpst);
-        tcg_gen_st_f32(tcg_ctx, tcg_res, tcg_ctx->cpu_env, vfp_reg_offset(dp, rd));
+        neon_store_reg32(s, tcg_res, rd);
         tcg_temp_free_i32(tcg_ctx, tcg_op);
         tcg_temp_free_i32(tcg_ctx, tcg_res);
     }
@@ -446,14 +446,14 @@ static bool trans_VCVT(DisasContext *s, arg_VCVT *a)
         tcg_double = tcg_temp_new_i64(tcg_ctx);
         tcg_res = tcg_temp_new_i64(tcg_ctx);
         tcg_tmp = tcg_temp_new_i32(tcg_ctx);
-        tcg_gen_ld_f64(tcg_ctx, tcg_double, tcg_ctx->cpu_env, vfp_reg_offset(1, rm));
+        neon_load_reg64(s, tcg_double, rm);
         if (is_signed) {
             gen_helper_vfp_tosld(tcg_ctx, tcg_res, tcg_double, tcg_shift, fpst);
         } else {
             gen_helper_vfp_tould(tcg_ctx, tcg_res, tcg_double, tcg_shift, fpst);
         }
         tcg_gen_extrl_i64_i32(tcg_ctx, tcg_tmp, tcg_res);
-        tcg_gen_st_f32(tcg_ctx, tcg_tmp, tcg_ctx->cpu_env, vfp_reg_offset(0, rd));
+        neon_store_reg32(s, tcg_tmp, rd);
         tcg_temp_free_i32(tcg_ctx, tcg_tmp);
         tcg_temp_free_i64(tcg_ctx, tcg_res);
         tcg_temp_free_i64(tcg_ctx, tcg_double);
@@ -461,13 +461,13 @@ static bool trans_VCVT(DisasContext *s, arg_VCVT *a)
         TCGv_i32 tcg_single, tcg_res;
         tcg_single = tcg_temp_new_i32(tcg_ctx);
         tcg_res = tcg_temp_new_i32(tcg_ctx);
-        tcg_gen_ld_f32(tcg_ctx, tcg_single, tcg_ctx->cpu_env, vfp_reg_offset(0, rm));
+        neon_load_reg32(s, tcg_single, rm);
         if (is_signed) {
             gen_helper_vfp_tosls(tcg_ctx, tcg_res, tcg_single, tcg_shift, fpst);
         } else {
             gen_helper_vfp_touls(tcg_ctx, tcg_res, tcg_single, tcg_shift, fpst);
         }
-        tcg_gen_st_f32(tcg_ctx, tcg_res, tcg_ctx->cpu_env, vfp_reg_offset(0, rd));
+        neon_store_reg32(s, tcg_res, rd);
         tcg_temp_free_i32(tcg_ctx, tcg_res);
         tcg_temp_free_i32(tcg_ctx, tcg_single);
     }
