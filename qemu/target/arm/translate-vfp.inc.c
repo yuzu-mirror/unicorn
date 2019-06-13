@@ -2407,3 +2407,63 @@ static bool trans_VCVT_dp(DisasContext *s, arg_VCVT_dp *a)
     tcg_temp_free_i64(tcg_ctx, vm);
     return true;
 }
+
+static bool trans_VCVT_int_sp(DisasContext *s, arg_VCVT_int_sp *a)
+{
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+    TCGv_i32 vm;
+    TCGv_ptr fpst;
+
+    if (!vfp_access_check(s)) {
+        return true;
+    }
+
+    vm = tcg_temp_new_i32(tcg_ctx);
+    neon_load_reg32(s, vm, a->vm);
+    fpst = get_fpstatus_ptr(s, false);
+    if (a->s) {
+        /* i32 -> f32 */
+        gen_helper_vfp_sitos(tcg_ctx, vm, vm, fpst);
+    } else {
+        /* u32 -> f32 */
+        gen_helper_vfp_uitos(tcg_ctx, vm, vm, fpst);
+    }
+    neon_store_reg32(s, vm, a->vd);
+    tcg_temp_free_i32(tcg_ctx, vm);
+    tcg_temp_free_ptr(tcg_ctx, fpst);
+    return true;
+}
+
+static bool trans_VCVT_int_dp(DisasContext *s, arg_VCVT_int_dp *a)
+{
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+    TCGv_i32 vm;
+    TCGv_i64 vd;
+    TCGv_ptr fpst;
+
+    /* UNDEF accesses to D16-D31 if they don't exist. */
+    if (!dc_isar_feature(aa32_fp_d32, s) && (a->vd & 0x10)) {
+        return false;
+    }
+
+    if (!vfp_access_check(s)) {
+        return true;
+    }
+
+    vm = tcg_temp_new_i32(tcg_ctx);
+    vd = tcg_temp_new_i64(tcg_ctx);
+    neon_load_reg32(s, vm, a->vm);
+    fpst = get_fpstatus_ptr(s, false);
+    if (a->s) {
+        /* i32 -> f64 */
+        gen_helper_vfp_sitod(tcg_ctx, vd, vm, fpst);
+    } else {
+        /* u32 -> f64 */
+        gen_helper_vfp_uitod(tcg_ctx, vd, vm, fpst);
+    }
+    neon_store_reg64(s, vd, a->vd);
+    tcg_temp_free_i32(tcg_ctx, vm);
+    tcg_temp_free_i64(tcg_ctx, vd);
+    tcg_temp_free_ptr(tcg_ctx, fpst);
+    return true;
+}
