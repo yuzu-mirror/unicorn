@@ -1304,6 +1304,8 @@ static void cortex_r5f_initfn(struct uc_struct *uc, Object *obj, void *opaque)
 
     cortex_r5_initfn(uc, obj, opaque);
     set_feature(&cpu->env, ARM_FEATURE_VFP3);
+    cpu->isar.mvfr0 = 0x10110221;
+    cpu->isar.mvfr1 = 0x00000011;
 }
 
 static const ARMCPRegInfo cortexa8_cp_reginfo[] = {
