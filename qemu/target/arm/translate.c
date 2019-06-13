@@ -3199,7 +3199,7 @@ static int disas_vfp_insn(DisasContext *s, uint32_t insn)
                 return 1;
             case 15:
                 switch (rn) {
-                case 1:
+                case 1 ... 2:
                     /* Already handled by decodetree */
                     return 1;
                 default:
@@ -3213,7 +3213,6 @@ static int disas_vfp_insn(DisasContext *s, uint32_t insn)
                 /* rn is opcode, encoded as per VFP_SREG_N. */
                 switch (rn) {
                 case 0x00: /* vmov */
-                case 0x02: /* vneg */
                 case 0x03: /* vsqrt */
                     break;
 
@@ -3391,9 +3390,6 @@ static int disas_vfp_insn(DisasContext *s, uint32_t insn)
                     switch (rn) {
                     case 0: /* cpy */
                         /* no-op */
-                        break;
-                    case 2: /* neg */
-                        gen_vfp_neg(s, dp);
                         break;
                     case 3: /* sqrt */
                         gen_vfp_sqrt(s, dp);
