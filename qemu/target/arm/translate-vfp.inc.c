@@ -631,3 +631,166 @@ static bool trans_VDUP(DisasContext *s, arg_VDUP *a)
 
     return true;
 }
+
+static bool trans_VMSR_VMRS(DisasContext *s, arg_VMSR_VMRS *a)
+{
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+    TCGv_i32 tmp;
+    bool ignore_vfp_enabled = false;
+
+    if (arm_dc_feature(s, ARM_FEATURE_M)) {
+        /*
+         * The only M-profile VFP vmrs/vmsr sysreg is FPSCR.
+         * Writes to R15 are UNPREDICTABLE; we choose to undef.
+         */
+        if (a->rt == 15 || a->reg != ARM_VFP_FPSCR) {
+            return false;
+        }
+    }
+
+    switch (a->reg) {
+    case ARM_VFP_FPSID:
+        /*
+         * VFPv2 allows access to FPSID from userspace; VFPv3 restricts
+         * all ID registers to privileged access only.
+         */
+        if (IS_USER(s) && arm_dc_feature(s, ARM_FEATURE_VFP3)) {
+            return false;
+        }
+        ignore_vfp_enabled = true;
+        break;
+    case ARM_VFP_MVFR0:
+    case ARM_VFP_MVFR1:
+        if (IS_USER(s) || !arm_dc_feature(s, ARM_FEATURE_MVFR)) {
+            return false;
+        }
+        ignore_vfp_enabled = true;
+        break;
+    case ARM_VFP_MVFR2:
+        if (IS_USER(s) || !arm_dc_feature(s, ARM_FEATURE_V8)) {
+            return false;
+        }
+        ignore_vfp_enabled = true;
+        break;
+    case ARM_VFP_FPSCR:
+        break;
+    case ARM_VFP_FPEXC:
+        if (IS_USER(s)) {
+            return false;
+        }
+        ignore_vfp_enabled = true;
+        break;
+    case ARM_VFP_FPINST:
+    case ARM_VFP_FPINST2:
+        /* Not present in VFPv3 */
+        if (IS_USER(s) || arm_dc_feature(s, ARM_FEATURE_VFP3)) {
+            return false;
+        }
+        break;
+    default:
+        return false;
+    }
+
+    if (!full_vfp_access_check(s, ignore_vfp_enabled)) {
+        return true;
+    }
+
+    if (a->l) {
+        /* VMRS, move VFP special register to gp register */
+        switch (a->reg) {
+        case ARM_VFP_FPSID:
+        case ARM_VFP_FPEXC:
+        case ARM_VFP_FPINST:
+        case ARM_VFP_FPINST2:
+        case ARM_VFP_MVFR0:
+        case ARM_VFP_MVFR1:
+        case ARM_VFP_MVFR2:
+            tmp = load_cpu_field(s, vfp.xregs[a->reg]);
+            break;
+        case ARM_VFP_FPSCR:
+            if (a->rt == 15) {
+                tmp = load_cpu_field(s, vfp.xregs[ARM_VFP_FPSCR]);
+                tcg_gen_andi_i32(tcg_ctx, tmp, tmp, 0xf0000000);
+            } else {
+                tmp = tcg_temp_new_i32(tcg_ctx);
+                gen_helper_vfp_get_fpscr(tcg_ctx, tmp, tcg_ctx->cpu_env);
+            }
+            break;
+        default:
+            g_assert_not_reached();
+        }
+
+        if (a->rt == 15) {
+            /* Set the 4 flag bits in the CPSR.  */
+            gen_set_nzcv(s, tmp);
+            tcg_temp_free_i32(tcg_ctx, tmp);
+        } else {
+            store_reg(s, a->rt, tmp);
+        }
+    } else {
+        /* VMSR, move gp register to VFP special register */
+        switch (a->reg) {
+        case ARM_VFP_FPSID:
+        case ARM_VFP_MVFR0:
+        case ARM_VFP_MVFR1:
+        case ARM_VFP_MVFR2:
+            /* Writes are ignored.  */
+            break;
+        case ARM_VFP_FPSCR:
+            tmp = load_reg(s, a->rt);
+            gen_helper_vfp_set_fpscr(tcg_ctx, tcg_ctx->cpu_env, tmp);
+            tcg_temp_free_i32(tcg_ctx, tmp);
+            gen_lookup_tb(s);
+            break;
+        case ARM_VFP_FPEXC:
+            /*
+             * TODO: VFP subarchitecture support.
+             * For now, keep the EN bit only
+             */
+            tmp = load_reg(s, a->rt);
+            tcg_gen_andi_i32(tcg_ctx, tmp, tmp, 1 << 30);
+            store_cpu_field(s, tmp, vfp.xregs[a->reg]);
+            gen_lookup_tb(s);
+            break;
+        case ARM_VFP_FPINST:
+        case ARM_VFP_FPINST2:
+            tmp = load_reg(s, a->rt);
+            store_cpu_field(s, tmp, vfp.xregs[a->reg]);
+            break;
+        default:
+            g_assert_not_reached();
+        }
+    }
+
+    return true;
+}
+
+static bool trans_VMOV_single(DisasContext *s, arg_VMOV_single *a)
+{
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+    TCGv_i32 tmp;
+
+    if (!vfp_access_check(s)) {
+        return true;
+    }
+
+    if (a->l) {
+        /* VFP to general purpose register */
+        tmp = tcg_temp_new_i32(tcg_ctx);
+        neon_load_reg32(s, tmp, a->vn);
+        if (a->rt == 15) {
+            /* Set the 4 flag bits in the CPSR.  */
+            gen_set_nzcv(s, tmp);
+            tcg_temp_free_i32(tcg_ctx, tmp);
+        } else {
+            store_reg(s, a->rt, tmp);
+        }
+    } else {
+        /* general purpose register to VFP */
+        tmp = load_reg(s, a->rt);
+        neon_store_reg32(s, tmp, a->vn);
+        tcg_temp_free_i32(tcg_ctx, tmp);
+    }
+
+    return true;
+}
