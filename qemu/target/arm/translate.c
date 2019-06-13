@@ -1449,17 +1449,6 @@ VFP_OP2(div)
 
 #undef VFP_OP2
 
-static inline void gen_vfp_F1_neg(DisasContext *s, int dp)
-{
-    TCGContext *tcg_ctx = s->uc->tcg_ctx;
-    /* Like gen_vfp_neg() but put result in F1 */
-    if (dp) {
-        gen_helper_vfp_negd(tcg_ctx, s->F1d, s->F0d);
-    } else {
-        gen_helper_vfp_negs(tcg_ctx, s->F1s, s->F0s);
-    }
-}
-
 static inline void gen_vfp_abs(DisasContext *s, int dp)
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
@@ -3228,6 +3217,7 @@ static int disas_vfp_insn(DisasContext *s, uint32_t insn)
             case 0:
             case 1:
             case 2:
+            case 3:
                 /* Already handled by decodetree */
                 return 1;
             default:
@@ -3413,13 +3403,6 @@ static int disas_vfp_insn(DisasContext *s, uint32_t insn)
             for (;;) {
                 /* Perform the calculation.  */
                 switch (op) {
-                case 3: /* VNMLA: -fd + -(fn * fm) */
-                    gen_vfp_mul(s, dp);
-                    gen_vfp_F1_neg(s, dp);
-                    gen_mov_F0_vreg(s, dp, rd);
-                    gen_vfp_neg(s, dp);
-                    gen_vfp_add(s, dp);
-                    break;
                 case 4: /* mul: fn * fm */
                     gen_vfp_mul(s, dp);
                     break;

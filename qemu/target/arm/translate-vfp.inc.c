@@ -1402,3 +1402,37 @@ static bool trans_VNMLS_dp(DisasContext *s, arg_VNMLS_sp *a)
 {
     return do_vfp_3op_dp(s, gen_VNMLS_dp, a->vd, a->vn, a->vm, true);
 }
+
+static void gen_VNMLA_sp(TCGContext *tcg_ctx, TCGv_i32 vd, TCGv_i32 vn, TCGv_i32 vm, TCGv_ptr fpst)
+{
+    /* VNMLA: -fd + -(fn * fm) */
+    TCGv_i32 tmp = tcg_temp_new_i32(tcg_ctx);
+
+    gen_helper_vfp_muls(tcg_ctx, tmp, vn, vm, fpst);
+    gen_helper_vfp_negs(tcg_ctx, tmp, tmp);
+    gen_helper_vfp_negs(tcg_ctx, vd, vd);
+    gen_helper_vfp_adds(tcg_ctx, vd, vd, tmp, fpst);
+    tcg_temp_free_i32(tcg_ctx, tmp);
+}
+
+static bool trans_VNMLA_sp(DisasContext *s, arg_VNMLA_sp *a)
+{
+    return do_vfp_3op_sp(s, gen_VNMLA_sp, a->vd, a->vn, a->vm, true);
+}
+
+static void gen_VNMLA_dp(TCGContext *tcg_ctx, TCGv_i64 vd, TCGv_i64 vn, TCGv_i64 vm, TCGv_ptr fpst)
+{
+    /* VNMLA: -fd + (fn * fm) */
+    TCGv_i64 tmp = tcg_temp_new_i64(tcg_ctx);
+
+    gen_helper_vfp_muld(tcg_ctx, tmp, vn, vm, fpst);
+    gen_helper_vfp_negd(tcg_ctx, tmp, tmp);
+    gen_helper_vfp_negd(tcg_ctx, vd, vd);
+    gen_helper_vfp_addd(tcg_ctx, vd, vd, tmp, fpst);
+    tcg_temp_free_i64(tcg_ctx, tmp);
+}
+
+static bool trans_VNMLA_dp(DisasContext *s, arg_VNMLA_sp *a)
+{
+    return do_vfp_3op_dp(s, gen_VNMLA_dp, a->vd, a->vn, a->vm, true);
+}
