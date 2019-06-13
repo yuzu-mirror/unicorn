@@ -3163,7 +3163,7 @@ static int disas_vfp_insn(DisasContext *s, uint32_t insn)
                 return 1;
             case 15:
                 switch (rn) {
-                case 0 ... 3:
+                case 0 ... 5:
                 case 8 ... 11:
                     /* Already handled by decodetree */
                     return 1;
@@ -3177,24 +3177,6 @@ static int disas_vfp_insn(DisasContext *s, uint32_t insn)
             if (op == 15) {
                 /* rn is opcode, encoded as per VFP_SREG_N. */
                 switch (rn) {
-                case 0x04: /* vcvtb.f64.f16, vcvtb.f32.f16 */
-                case 0x05: /* vcvtt.f64.f16, vcvtt.f32.f16 */
-                    /*
-                     * VCVTB, VCVTT: only present with the halfprec extension
-                     * UNPREDICTABLE if bit 8 is set prior to ARMv8
-                     * (we choose to UNDEF)
-                     */
-                    if (dp) {
-                        if (!dc_isar_feature(aa32_fp16_dpconv, s)) {
-                            return 1;
-                        }
-                    } else {
-                        if (!dc_isar_feature(aa32_fp16_spconv, s)) {
-                            return 1;
-                        }
-                    }
-                    rm_is_dp = false;
-                    break;
                 case 0x06: /* vcvtb.f16.f32, vcvtb.f16.f64 */
                 case 0x07: /* vcvtt.f16.f32, vcvtt.f16.f64 */
                     if (dp) {
@@ -3336,42 +3318,6 @@ static int disas_vfp_insn(DisasContext *s, uint32_t insn)
                 switch (op) {
                 case 15: /* extension space */
                     switch (rn) {
-                    case 4: /* vcvtb.f32.f16, vcvtb.f64.f16 */
-                    {
-                        TCGv_ptr fpst = get_fpstatus_ptr(s, false);
-                        TCGv_i32 ahp_mode = get_ahp_flag(s);
-                        tmp = gen_vfp_mrs(s);
-                        tcg_gen_ext16u_i32(tcg_ctx, tmp, tmp);
-                        if (dp) {
-                            gen_helper_vfp_fcvt_f16_to_f64(tcg_ctx, s->F0d, tmp,
-                                                           fpst, ahp_mode);
-                        } else {
-                            gen_helper_vfp_fcvt_f16_to_f32(tcg_ctx, s->F0s, tmp,
-                                                           fpst, ahp_mode);
-                        }
-                        tcg_temp_free_i32(tcg_ctx, ahp_mode);
-                        tcg_temp_free_ptr(tcg_ctx, fpst);
-                        tcg_temp_free_i32(tcg_ctx, tmp);
-                        break;
-                    }
-                    case 5: /* vcvtt.f32.f16, vcvtt.f64.f16 */
-                    {
-                        TCGv_ptr fpst = get_fpstatus_ptr(s, false);
-                        TCGv_i32 ahp = get_ahp_flag(s);
-                        tmp = gen_vfp_mrs(s);
-                        tcg_gen_shri_i32(tcg_ctx, tmp, tmp, 16);
-                        if (dp) {
-                            gen_helper_vfp_fcvt_f16_to_f64(tcg_ctx, s->F0d, tmp,
-                                                           fpst, ahp);
-                        } else {
-                            gen_helper_vfp_fcvt_f16_to_f32(tcg_ctx, s->F0s, tmp,
-                                                           fpst, ahp);
-                        }
-                        tcg_temp_free_i32(tcg_ctx, tmp);
-                        tcg_temp_free_i32(tcg_ctx, ahp);
-                        tcg_temp_free_ptr(tcg_ctx, fpst);
-                        break;
-                    }
                     case 6: /* vcvtb.f16.f32, vcvtb.f16.f64 */
                     {
                         TCGv_ptr fpst = get_fpstatus_ptr(s, false);
