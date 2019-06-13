@@ -1449,19 +1449,6 @@ VFP_OP2(div)
 
 #undef VFP_OP2
 
-static inline void gen_vfp_F1_mul(DisasContext *s, int dp)
-{
-    TCGContext *tcg_ctx = s->uc->tcg_ctx;
-    /* Like gen_vfp_mul() but put result in F1 */
-    TCGv_ptr fpst = get_fpstatus_ptr(s, 0);
-    if (dp) {
-        gen_helper_vfp_muld(tcg_ctx, s->F1d, s->F0d, s->F1d, fpst);
-    } else {
-        gen_helper_vfp_muls(tcg_ctx, s->F1s, s->F0s, s->F1s, fpst);
-    }
-    tcg_temp_free_ptr(tcg_ctx, fpst);
-}
-
 static inline void gen_vfp_F1_neg(DisasContext *s, int dp)
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
@@ -3240,6 +3227,7 @@ static int disas_vfp_insn(DisasContext *s, uint32_t insn)
             switch (op) {
             case 0:
             case 1:
+            case 2:
                 /* Already handled by decodetree */
                 return 1;
             default:
@@ -3425,16 +3413,6 @@ static int disas_vfp_insn(DisasContext *s, uint32_t insn)
             for (;;) {
                 /* Perform the calculation.  */
                 switch (op) {
-                case 2: /* VNMLS: -fd + (fn * fm) */
-                    /* Note that it isn't valid to replace (-A + B) with (B - A)
-                     * or similar plausible looking simplifications
-                     * because this will give wrong results for NaNs.
-                     */
-                    gen_vfp_F1_mul(s, dp);
-                    gen_mov_F0_vreg(s, dp, rd);
-                    gen_vfp_neg(s, dp);
-                    gen_vfp_add(s, dp);
-                    break;
                 case 3: /* VNMLA: -fd + -(fn * fm) */
                     gen_vfp_mul(s, dp);
                     gen_vfp_F1_neg(s, dp);
