@@ -1500,3 +1500,126 @@ static bool trans_VDIV_dp(DisasContext *s, arg_VDIV_sp *a)
 {
     return do_vfp_3op_dp(s, gen_helper_vfp_divd, a->vd, a->vn, a->vm, false);
 }
+
+static bool trans_VFM_sp(DisasContext *s, arg_VFM_sp *a)
+{
+    /*
+     * VFNMA : fd = muladd(-fd,  fn, fm)
+     * VFNMS : fd = muladd(-fd, -fn, fm)
+     * VFMA  : fd = muladd( fd,  fn, fm)
+     * VFMS  : fd = muladd( fd, -fn, fm)
+     *
+     * These are fused multiply-add, and must be done as one floating
+     * point operation with no rounding between the multiplication and
+     * addition steps.  NB that doing the negations here as separate
+     * steps is correct : an input NaN should come out with its sign
+     * bit flipped if it is a negated-input.
+     */
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+    TCGv_ptr fpst;
+    TCGv_i32 vn, vm, vd;
+
+    /*
+     * Present in VFPv4 only.
+     * In v7A, UNPREDICTABLE with non-zero vector length/stride; from
+     * v8A, must UNDEF. We choose to UNDEF for both v7A and v8A.
+     */
+    if (!arm_dc_feature(s, ARM_FEATURE_VFP4) ||
+        (s->vec_len != 0 || s->vec_stride != 0)) {
+        return false;
+    }
+
+    if (!vfp_access_check(s)) {
+        return true;
+    }
+
+    vn = tcg_temp_new_i32(tcg_ctx);
+    vm = tcg_temp_new_i32(tcg_ctx);
+    vd = tcg_temp_new_i32(tcg_ctx);
+
+    neon_load_reg32(s, vn, a->vn);
+    neon_load_reg32(s, vm, a->vm);
+    if (a->o2) {
+        /* VFNMS, VFMS */
+        gen_helper_vfp_negs(tcg_ctx, vn, vn);
+    }
+    neon_load_reg32(s, vd, a->vd);
+    if (a->o1 & 1) {
+        /* VFNMA, VFNMS */
+        gen_helper_vfp_negs(tcg_ctx, vd, vd);
+    }
+    fpst = get_fpstatus_ptr(s, 0);
+    gen_helper_vfp_muladds(tcg_ctx, vd, vn, vm, vd, fpst);
+    neon_store_reg32(s, vd, a->vd);
+
+    tcg_temp_free_ptr(tcg_ctx, fpst);
+    tcg_temp_free_i32(tcg_ctx, vn);
+    tcg_temp_free_i32(tcg_ctx, vm);
+    tcg_temp_free_i32(tcg_ctx, vd);
+
+    return true;
+}
+
+static bool trans_VFM_dp(DisasContext *s, arg_VFM_sp *a)
+{
+    /*
+     * VFNMA : fd = muladd(-fd,  fn, fm)
+     * VFNMS : fd = muladd(-fd, -fn, fm)
+     * VFMA  : fd = muladd( fd,  fn, fm)
+     * VFMS  : fd = muladd( fd, -fn, fm)
+     *
+     * These are fused multiply-add, and must be done as one floating
+     * point operation with no rounding between the multiplication and
+     * addition steps.  NB that doing the negations here as separate
+     * steps is correct : an input NaN should come out with its sign
+     * bit flipped if it is a negated-input.
+     */
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+    TCGv_ptr fpst;
+    TCGv_i64 vn, vm, vd;
+
+    /*
+     * Present in VFPv4 only.
+     * In v7A, UNPREDICTABLE with non-zero vector length/stride; from
+     * v8A, must UNDEF. We choose to UNDEF for both v7A and v8A.
+     */
+    if (!arm_dc_feature(s, ARM_FEATURE_VFP4) ||
+        (s->vec_len != 0 || s->vec_stride != 0)) {
+        return false;
+    }
+
+    /* UNDEF accesses to D16-D31 if they don't exist. */
+    if (!dc_isar_feature(aa32_fp_d32, s) && ((a->vd | a->vn | a->vm) & 0x10)) {
+        return false;
+    }
+
+    if (!vfp_access_check(s)) {
+        return true;
+    }
+
+    vn = tcg_temp_new_i64(tcg_ctx);
+    vm = tcg_temp_new_i64(tcg_ctx);
+    vd = tcg_temp_new_i64(tcg_ctx);
+
+    neon_load_reg64(s, vn, a->vn);
+    neon_load_reg64(s, vm, a->vm);
+    if (a->o2) {
+        /* VFNMS, VFMS */
+        gen_helper_vfp_negd(tcg_ctx, vn, vn);
+    }
+    neon_load_reg64(s, vd, a->vd);
+    if (a->o1 & 1) {
+        /* VFNMA, VFNMS */
+        gen_helper_vfp_negd(tcg_ctx, vd, vd);
+    }
+    fpst = get_fpstatus_ptr(s, 0);
+    gen_helper_vfp_muladdd(tcg_ctx, vd, vn, vm, vd, fpst);
+    neon_store_reg64(s, vd, a->vd);
+
+    tcg_temp_free_ptr(tcg_ctx, fpst);
+    tcg_temp_free_i64(tcg_ctx, vn);
+    tcg_temp_free_i64(tcg_ctx, vm);
+    tcg_temp_free_i64(tcg_ctx, vd);
+
+    return true;
+}

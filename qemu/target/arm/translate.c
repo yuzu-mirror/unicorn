@@ -3194,7 +3194,7 @@ static int disas_vfp_insn(DisasContext *s, uint32_t insn)
             rn = VFP_SREG_N(insn);
 
             switch (op) {
-            case 0 ... 8:
+            case 0 ... 13:
                 /* Already handled by decodetree */
                 return 1;
             default:
@@ -3380,57 +3380,6 @@ static int disas_vfp_insn(DisasContext *s, uint32_t insn)
             for (;;) {
                 /* Perform the calculation.  */
                 switch (op) {
-                case 10: /* VFNMA : fd = muladd(-fd,  fn, fm) */
-                case 11: /* VFNMS : fd = muladd(-fd, -fn, fm) */
-                case 12: /* VFMA  : fd = muladd( fd,  fn, fm) */
-                case 13: /* VFMS  : fd = muladd( fd, -fn, fm) */
-                    /* These are fused multiply-add, and must be done as one
-                     * floating point operation with no rounding between the
-                     * multiplication and addition steps.
-                     * NB that doing the negations here as separate steps is
-                     * correct : an input NaN should come out with its sign bit
-                     * flipped if it is a negated-input.
-                     */
-                    if (!arm_dc_feature(s, ARM_FEATURE_VFP4)) {
-                        return 1;
-                    }
-                    if (dp) {
-                        TCGv_ptr fpst;
-                        TCGv_i64 frd;
-                        if (op & 1) {
-                            /* VFNMS, VFMS */
-                            gen_helper_vfp_negd(tcg_ctx, s->F0d, s->F0d);
-                        }
-                        frd = tcg_temp_new_i64(tcg_ctx);
-                        tcg_gen_ld_f64(tcg_ctx, frd, tcg_ctx->cpu_env, vfp_reg_offset(dp, rd));
-                        if (op & 2) {
-                            /* VFNMA, VFNMS */
-                            gen_helper_vfp_negd(tcg_ctx, frd, frd);
-                        }
-                        fpst = get_fpstatus_ptr(s, 0);
-                        gen_helper_vfp_muladdd(tcg_ctx, s->F0d, s->F0d,
-                                               s->F1d, frd, fpst);
-                        tcg_temp_free_ptr(tcg_ctx, fpst);
-                        tcg_temp_free_i64(tcg_ctx, frd);
-                    } else {
-                        TCGv_ptr fpst;
-                        TCGv_i32 frd;
-                        if (op & 1) {
-                            /* VFNMS, VFMS */
-                            gen_helper_vfp_negs(tcg_ctx, s->F0s, s->F0s);
-                        }
-                        frd = tcg_temp_new_i32(tcg_ctx);
-                        tcg_gen_ld_f32(tcg_ctx, frd, tcg_ctx->cpu_env, vfp_reg_offset(dp, rd));
-                        if (op & 2) {
-                            gen_helper_vfp_negs(tcg_ctx, frd, frd);
-                        }
-                        fpst = get_fpstatus_ptr(s, 0);
-                        gen_helper_vfp_muladds(tcg_ctx, s->F0s, s->F0s,
-                                               s->F1s, frd, fpst);
-                        tcg_temp_free_ptr(tcg_ctx, fpst);
-                        tcg_temp_free_i32(tcg_ctx, frd);
-                    }
-                    break;
                 case 14: /* fconst */
                     if (!arm_dc_feature(s, ARM_FEATURE_VFP3)) {
                         return 1;
