@@ -3177,11 +3177,28 @@ static void gen_neon_dup_high16(DisasContext *s, TCGv_i32 var)
     tcg_temp_free_i32(tcg_ctx, tmp);
 }
 
-static int handle_vsel(DisasContext *s, uint32_t insn, uint32_t rd, uint32_t rn, uint32_t rm,
-                       uint32_t dp)
+static bool trans_VSEL(DisasContext *s, arg_VSEL *a)
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
-    uint32_t cc = extract32(insn, 20, 2);
+    uint32_t rd, rn, rm;
+    bool dp = a->dp;
+
+    if (!dc_isar_feature(aa32_vsel, s)) {
+        return false;
+    }
+
+    /* UNDEF accesses to D16-D31 if they don't exist */
+    if (dp && !dc_isar_feature(aa32_fp_d32, s) &&
+        ((a->vm | a->vn | a->vd) & 0x10)) {
+        return false;
+    }
+    rd = a->vd;
+    rn = a->vn;
+    rm = a->vm;
+
+    if (!vfp_access_check(s)) {
+        return true;
+    }
 
     if (dp) {
         TCGv_i64 frn, frm, dest;
@@ -3203,7 +3220,7 @@ static int handle_vsel(DisasContext *s, uint32_t insn, uint32_t rd, uint32_t rn,
 
         tcg_gen_ld_f64(tcg_ctx, frn, tcg_ctx->cpu_env, vfp_reg_offset(dp, rn));
         tcg_gen_ld_f64(tcg_ctx, frm, tcg_ctx->cpu_env, vfp_reg_offset(dp, rm));
-        switch (cc) {
+        switch (a->cc) {
         case 0: /* eq: Z */
             tcg_gen_movcond_i64(tcg_ctx, TCG_COND_EQ, dest, zf, zero,
                                 frn, frm);
@@ -3250,7 +3267,7 @@ static int handle_vsel(DisasContext *s, uint32_t insn, uint32_t rd, uint32_t rn,
         dest = tcg_temp_new_i32(tcg_ctx);
         tcg_gen_ld_f32(tcg_ctx, frn, tcg_ctx->cpu_env, vfp_reg_offset(dp, rn));
         tcg_gen_ld_f32(tcg_ctx, frm, tcg_ctx->cpu_env, vfp_reg_offset(dp, rm));
-        switch (cc) {
+        switch (a->cc) {
         case 0: /* eq: Z */
             tcg_gen_movcond_i32(tcg_ctx, TCG_COND_EQ, dest, tcg_ctx->cpu_ZF, zero,
                                 frn, frm);
@@ -3284,7 +3301,7 @@ static int handle_vsel(DisasContext *s, uint32_t insn, uint32_t rd, uint32_t rn,
         tcg_temp_free_i32(tcg_ctx, zero);
     }
 
-    return 0;
+    return true;
 }
 
 static int handle_vminmaxnm(DisasContext *s, uint32_t insn, uint32_t rd, uint32_t rn,
@@ -3459,10 +3476,8 @@ static int disas_vfp_misc_insn(DisasContext *s, uint32_t insn)
         rm = VFP_SREG_M(insn);
     }
 
-    if ((insn & 0x0f800e50) == 0x0e000a00 && dc_isar_feature(aa32_vsel, s)) {
-        return handle_vsel(s, insn, rd, rn, rm, dp);
-    } else if ((insn & 0x0fb00e10) == 0x0e800a00 &&
-               dc_isar_feature(aa32_vminmaxnm, s)) {
+    if ((insn & 0x0fb00e10) == 0x0e800a00 &&
+        dc_isar_feature(aa32_vminmaxnm, s)) {
         return handle_vminmaxnm(s, insn, rd, rn, rm, dp);
     } else if ((insn & 0x0fbc0ed0) == 0x0eb80a40 &&
                dc_isar_feature(aa32_vrint, s)) {
