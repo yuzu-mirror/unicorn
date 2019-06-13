@@ -3239,6 +3239,7 @@ static int disas_vfp_insn(DisasContext *s, uint32_t insn)
 
             switch (op) {
             case 0:
+            case 1:
                 /* Already handled by decodetree */
                 return 1;
             default:
@@ -3424,12 +3425,6 @@ static int disas_vfp_insn(DisasContext *s, uint32_t insn)
             for (;;) {
                 /* Perform the calculation.  */
                 switch (op) {
-                case 1: /* VMLS: fd + -(fn * fm) */
-                    gen_vfp_mul(s, dp);
-                    gen_vfp_F1_neg(s, dp);
-                    gen_mov_F0_vreg(s, dp, rd);
-                    gen_vfp_add(s, dp);
-                    break;
                 case 2: /* VNMLS: -fd + (fn * fm) */
                     /* Note that it isn't valid to replace (-A + B) with (B - A)
                      * or similar plausible looking simplifications
