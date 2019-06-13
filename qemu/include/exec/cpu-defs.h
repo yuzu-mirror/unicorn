@@ -214,4 +214,13 @@ typedef struct CPUTLBDesc {
     CPU_COMMON_TLB                                                      \
     uint64_t invalid_addr; \
     int invalid_error;
+
+/*
+ * This structure must be placed in ArchCPU immedately
+ * before CPUArchState, as a field named "neg".
+ */
+typedef struct CPUNegativeOffsetState {
+    /* Empty */
+} CPUNegativeOffsetState;
+
 #endif
