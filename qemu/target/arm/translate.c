@@ -3196,9 +3196,8 @@ static void gen_neon_dup_high16(DisasContext *s, TCGv_i32 var)
 static int disas_vfp_insn(DisasContext *s, uint32_t insn)
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
-    uint32_t rd, rn, rm, op, i, n, offset, delta_d, delta_m, bank_mask;
+    uint32_t rd, rn, rm, op, i, n, delta_d, delta_m, bank_mask;
     int dp, veclen;
-    TCGv_i32 addr;
     TCGv_i32 tmp;
     TCGv_i32 tmp2;
 
@@ -3806,98 +3805,8 @@ static int disas_vfp_insn(DisasContext *s, uint32_t insn)
         break;
     case 0xc:
     case 0xd:
-        if ((insn & 0x03e00000) == 0x00400000) {
-            /* Already handled by decodetree */
-            return 1;
-        } else {
-            /* Load/store */
-            rn = (insn >> 16) & 0xf;
-            if (dp)
-                VFP_DREG_D(rd, insn);
-            else
-                rd = VFP_SREG_D(insn);
-            if ((insn & 0x01200000) == 0x01000000) {
-                /* Already handled by decodetree */
-                return 1;
-            } else {
-                /* load/store multiple */
-                int w = insn & (1 << 21);
-                if (dp)
-                    n = (insn >> 1) & 0x7f;
-                else
-                    n = insn & 0xff;
-
-                if (w && !(((insn >> 23) ^ (insn >> 24)) & 1)) {
-                    /* P == U , W == 1  => UNDEF */
-                    return 1;
-                }
-                if (n == 0 || (rd + n) > 32 || (dp && n > 16)) {
-                    /* UNPREDICTABLE cases for bad immediates: we choose to
-                     * UNDEF to avoid generating huge numbers of TCG ops
-                     */
-                    return 1;
-                }
-                if (rn == 15 && w) {
-                    /* writeback to PC is UNPREDICTABLE, we choose to UNDEF */
-                    return 1;
-                }
-
-                if (s->thumb && rn == 15) {
-                    /* This is actually UNPREDICTABLE */
-                    addr = tcg_temp_new_i32(tcg_ctx);
-                    tcg_gen_movi_i32(tcg_ctx, addr, s->pc & ~2);
-                } else {
-                    addr = load_reg(s, rn);
-                }
-                if (insn & (1 << 24)) /* pre-decrement */
-                    tcg_gen_addi_i32(tcg_ctx, addr, addr, 0-((insn & 0xff) << 2));
-
-                if (s->v8m_stackcheck && rn == 13 && w) {
-                    /*
-                     * Here 'addr' is the lowest address we will store to,
-                     * and is either the old SP (if post-increment) or
-                     * the new SP (if pre-decrement). For post-increment
-                     * where the old value is below the limit and the new
-                     * value is above, it is UNKNOWN whether the limit check
-                     * triggers; we choose to trigger.
-                     */
-                    gen_helper_v8m_stackcheck(tcg_ctx, tcg_ctx->cpu_env, addr);
-                }
-
-                if (dp)
-                    offset = 8;
-                else
-                    offset = 4;
-                for (i = 0; i < n; i++) {
-                    if (insn & ARM_CP_RW_BIT) {
-                        /* load */
-                        gen_vfp_ld(s, dp, addr);
-                        gen_mov_vreg_F0(s, dp, rd + i);
-                    } else {
-                        /* store */
-                        gen_mov_F0_vreg(s, dp, rd + i);
-                        gen_vfp_st(s, dp, addr);
-                    }
-                    tcg_gen_addi_i32(tcg_ctx, addr, addr, offset);
-                }
-                if (w) {
-                    /* writeback */
-                    if (insn & (1 << 24))
-                        offset = (0-offset) * n;
-                    else if (dp && (insn & 1))
-                        offset = 4;
-                    else
-                        offset = 0;
-
-                    if (offset != 0)
-                        tcg_gen_addi_i32(tcg_ctx, addr, addr, offset);
-                    store_reg(s, rn, addr);
-                } else {
-                    tcg_temp_free_i32(tcg_ctx, addr);
-                }
-            }
-        }
-        break;
+        /* Already handled by decodetree */
+        return 1;
     default:
         /* Should never happen.  */
         return 1;
