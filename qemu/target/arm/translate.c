@@ -3081,7 +3081,6 @@ static void gen_neon_dup_high16(DisasContext *s, TCGv_i32 var)
  */
 static int disas_vfp_insn(DisasContext *s, uint32_t insn)
 {
-    TCGContext *tcg_ctx = s->uc->tcg_ctx;
     uint32_t rd, rn, rm, op, delta_d, delta_m, bank_mask;
     int dp, veclen;
 
@@ -3145,7 +3144,7 @@ static int disas_vfp_insn(DisasContext *s, uint32_t insn)
                 return 1;
             case 15:
                 switch (rn) {
-                case 0 ... 17:
+                case 0 ... 19:
                     /* Already handled by decodetree */
                     return 1;
                 default:
@@ -3178,13 +3177,6 @@ static int disas_vfp_insn(DisasContext *s, uint32_t insn)
                     }
                     /* Immediate frac_bits has same format as SREG_M.  */
                     rm_is_dp = false;
-                    break;
-
-                case 0x13: /* vjcvt */
-                    if (!dp || !dc_isar_feature(aa32_jscvt, s)) {
-                        return 1;
-                    }
-                    rd_is_dp = false;
                     break;
 
                 default:
@@ -3272,9 +3264,6 @@ static int disas_vfp_insn(DisasContext *s, uint32_t insn)
                 switch (op) {
                 case 15: /* extension space */
                     switch (rn) {
-                    case 19: /* vjcvt */
-                        gen_helper_vjcvt(tcg_ctx, s->F0s, s->F0d, tcg_ctx->cpu_env);
-                        break;
                     case 20: /* fshto */
                         gen_vfp_shto(s, dp, 16 - rm, 0);
                         break;

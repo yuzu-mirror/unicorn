@@ -2467,3 +2467,32 @@ static bool trans_VCVT_int_dp(DisasContext *s, arg_VCVT_int_dp *a)
     tcg_temp_free_ptr(tcg_ctx, fpst);
     return true;
 }
+
+static bool trans_VJCVT(DisasContext *s, arg_VJCVT *a)
+{
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+    TCGv_i32 vd;
+    TCGv_i64 vm;
+
+    if (!dc_isar_feature(aa32_jscvt, s)) {
+        return false;
+    }
+
+    /* UNDEF accesses to D16-D31 if they don't exist. */
+    if (!dc_isar_feature(aa32_fp_d32, s) && (a->vm & 0x10)) {
+        return false;
+    }
+
+    if (!vfp_access_check(s)) {
+        return true;
+    }
+
+    vm = tcg_temp_new_i64(tcg_ctx);
+    vd = tcg_temp_new_i32(tcg_ctx);
+    neon_load_reg64(s, vm, a->vm);
+    gen_helper_vjcvt(tcg_ctx, vd, vm, tcg_ctx->cpu_env);
+    neon_store_reg32(s, vd, a->vd);
+    tcg_temp_free_i64(tcg_ctx, vm);
+    tcg_temp_free_i32(tcg_ctx, vd);
+    return true;
+}
