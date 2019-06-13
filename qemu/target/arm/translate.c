@@ -3237,6 +3237,14 @@ static int disas_vfp_insn(DisasContext *s, uint32_t insn)
             op = ((insn >> 20) & 8) | ((insn >> 19) & 6) | ((insn >> 6) & 1);
             rn = VFP_SREG_N(insn);
 
+            switch (op) {
+            case 0:
+                /* Already handled by decodetree */
+                return 1;
+            default:
+                break;
+            }
+
             if (op == 15) {
                 /* rn is opcode, encoded as per VFP_SREG_N. */
                 switch (rn) {
@@ -3416,12 +3424,6 @@ static int disas_vfp_insn(DisasContext *s, uint32_t insn)
             for (;;) {
                 /* Perform the calculation.  */
                 switch (op) {
-                case 0: /* VMLA: fd + (fn * fm) */
-                    /* Note that order of inputs to the add matters for NaNs */
-                    gen_vfp_F1_mul(s, dp);
-                    gen_mov_F0_vreg(s, dp, rd);
-                    gen_vfp_add(s, dp);
-                    break;
                 case 1: /* VMLS: fd + -(fn * fm) */
                     gen_vfp_mul(s, dp);
                     gen_vfp_F1_neg(s, dp);
