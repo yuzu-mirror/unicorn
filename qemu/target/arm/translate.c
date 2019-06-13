@@ -1442,7 +1442,6 @@ static inline void gen_vfp_##name(DisasContext *s, int dp)                      
     tcg_temp_free_ptr(tcg_ctx, fpst);                                          \
 }
 
-VFP_OP2(add)
 VFP_OP2(sub)
 VFP_OP2(div)
 
@@ -3213,7 +3212,7 @@ static int disas_vfp_insn(DisasContext *s, uint32_t insn)
             rn = VFP_SREG_N(insn);
 
             switch (op) {
-            case 0 ... 5:
+            case 0 ... 6:
                 /* Already handled by decodetree */
                 return 1;
             default:
@@ -3399,9 +3398,6 @@ static int disas_vfp_insn(DisasContext *s, uint32_t insn)
             for (;;) {
                 /* Perform the calculation.  */
                 switch (op) {
-                case 6: /* add: fn + fm */
-                    gen_vfp_add(s, dp);
-                    break;
                 case 7: /* sub: fn - fm */
                     gen_vfp_sub(s, dp);
                     break;
