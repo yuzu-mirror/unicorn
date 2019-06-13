@@ -1429,23 +1429,6 @@ static TCGv_ptr get_fpstatus_ptr(DisasContext *s, int neon)
     return statusptr;
 }
 
-#define VFP_OP2(name)                                                 \
-static inline void gen_vfp_##name(DisasContext *s, int dp)                             \
-{                                                                     \
-    TCGContext *tcg_ctx = s->uc->tcg_ctx; \
-    TCGv_ptr fpst = get_fpstatus_ptr(s, 0);                              \
-    if (dp) {                                                         \
-        gen_helper_vfp_##name##d(tcg_ctx, s->F0d, s->F0d, s->F1d, fpst);    \
-    } else {                                                          \
-        gen_helper_vfp_##name##s(tcg_ctx, s->F0s, s->F0s, s->F1s, fpst);    \
-    }                                                                 \
-    tcg_temp_free_ptr(tcg_ctx, fpst);                                          \
-}
-
-VFP_OP2(div)
-
-#undef VFP_OP2
-
 static inline void gen_vfp_abs(DisasContext *s, int dp)
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
@@ -3211,7 +3194,7 @@ static int disas_vfp_insn(DisasContext *s, uint32_t insn)
             rn = VFP_SREG_N(insn);
 
             switch (op) {
-            case 0 ... 7:
+            case 0 ... 8:
                 /* Already handled by decodetree */
                 return 1;
             default:
@@ -3397,9 +3380,6 @@ static int disas_vfp_insn(DisasContext *s, uint32_t insn)
             for (;;) {
                 /* Perform the calculation.  */
                 switch (op) {
-                case 8: /* div: fn / fm */
-                    gen_vfp_div(s, dp);
-                    break;
                 case 10: /* VFNMA : fd = muladd(-fd,  fn, fm) */
                 case 11: /* VFNMS : fd = muladd(-fd, -fn, fm) */
                 case 12: /* VFMA  : fd = muladd( fd,  fn, fm) */
