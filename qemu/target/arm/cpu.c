@@ -1715,9 +1715,9 @@ static void arm_max_initfn(struct uc_struct *uc, Object *obj, void *opaque)
     ARMCPU *cpu = ARM_CPU(uc, obj);
 
     cortex_a15_initfn(uc, obj, opaque);
-    /* In future we might add feature bits here even if the
-     * real-world A15 doesn't implement them.
-     */
+
+    /* old-style VFP short-vector support */
+    cpu->isar.mvfr0 = FIELD_DP32(cpu->isar.mvfr0, MVFR0, FPSHVEC, 1);
 
     // Unicorn: We lie and enable them anyway.
     /* We don't set these in system emulation mode for the moment,
