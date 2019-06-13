@@ -2622,3 +2622,77 @@ static bool trans_VCVT_fix_dp(DisasContext *s, arg_VCVT_fix_dp *a)
     tcg_temp_free_ptr(tcg_ctx, fpst);
     return true;
 }
+
+static bool trans_VCVT_sp_int(DisasContext *s, arg_VCVT_sp_int *a)
+{
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+    TCGv_i32 vm;
+    TCGv_ptr fpst;
+
+    if (!vfp_access_check(s)) {
+        return true;
+    }
+
+    fpst = get_fpstatus_ptr(s, false);
+    vm = tcg_temp_new_i32(tcg_ctx);
+    neon_load_reg32(s, vm, a->vm);
+
+    if (a->s) {
+        if (a->rz) {
+            gen_helper_vfp_tosizs(tcg_ctx, vm, vm, fpst);
+        } else {
+            gen_helper_vfp_tosis(tcg_ctx, vm, vm, fpst);
+        }
+    } else {
+        if (a->rz) {
+            gen_helper_vfp_touizs(tcg_ctx, vm, vm, fpst);
+        } else {
+            gen_helper_vfp_touis(tcg_ctx, vm, vm, fpst);
+        }
+    }
+    neon_store_reg32(s, vm, a->vd);
+    tcg_temp_free_i32(tcg_ctx, vm);
+    tcg_temp_free_ptr(tcg_ctx, fpst);
+    return true;
+}
+
+static bool trans_VCVT_dp_int(DisasContext *s, arg_VCVT_dp_int *a)
+{
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+    TCGv_i32 vd;
+    TCGv_i64 vm;
+    TCGv_ptr fpst;
+
+    /* UNDEF accesses to D16-D31 if they don't exist. */
+    if (!dc_isar_feature(aa32_fp_d32, s) && (a->vm & 0x10)) {
+        return false;
+    }
+
+    if (!vfp_access_check(s)) {
+        return true;
+    }
+
+    fpst = get_fpstatus_ptr(s, false);
+    vm = tcg_temp_new_i64(tcg_ctx);
+    vd = tcg_temp_new_i32(tcg_ctx);
+    neon_load_reg64(s, vm, a->vm);
+
+    if (a->s) {
+        if (a->rz) {
+            gen_helper_vfp_tosizd(tcg_ctx, vd, vm, fpst);
+        } else {
+            gen_helper_vfp_tosid(tcg_ctx, vd, vm, fpst);
+        }
+    } else {
+        if (a->rz) {
+            gen_helper_vfp_touizd(tcg_ctx, vd, vm, fpst);
+        } else {
+            gen_helper_vfp_touid(tcg_ctx, vd, vm, fpst);
+        }
+    }
+    neon_store_reg32(s, vd, a->vd);
+    tcg_temp_free_i32(tcg_ctx, vd);
+    tcg_temp_free_i64(tcg_ctx, vm);
+    tcg_temp_free_ptr(tcg_ctx, fpst);
+    return true;
+}
