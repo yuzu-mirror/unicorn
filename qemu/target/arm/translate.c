@@ -5909,72 +5909,6 @@ static int do_v81_helper(DisasContext *s, gen_helper_gvec_3_ptr *fn,
     return 1;
 }
 
-/*
- * Expanders for VBitOps_VBIF, VBIT, VBSL.
- */
-static void gen_bsl_i64(TCGContext* s, TCGv_i64 rd, TCGv_i64 rn, TCGv_i64 rm)
-{
-    tcg_gen_xor_i64(s, rn, rn, rm);
-    tcg_gen_and_i64(s, rn, rn, rd);
-    tcg_gen_xor_i64(s, rd, rm, rn);
-}
-
-static void gen_bit_i64(TCGContext* s, TCGv_i64 rd, TCGv_i64 rn, TCGv_i64 rm)
-{
-    tcg_gen_xor_i64(s, rn, rn, rd);
-    tcg_gen_and_i64(s, rn, rn, rm);
-    tcg_gen_xor_i64(s, rd, rd, rn);
-}
-
-static void gen_bif_i64(TCGContext *s, TCGv_i64 rd, TCGv_i64 rn, TCGv_i64 rm)
-{
-    tcg_gen_xor_i64(s, rn, rn, rd);
-    tcg_gen_andc_i64(s, rn, rn, rm);
-    tcg_gen_xor_i64(s, rd, rd, rn);
-}
-
-static void gen_bsl_vec(TCGContext* s, unsigned vece, TCGv_vec rd, TCGv_vec rn, TCGv_vec rm)
-{
-    tcg_gen_xor_vec(s, vece, rn, rn, rm);
-    tcg_gen_and_vec(s, vece, rn, rn, rd);
-    tcg_gen_xor_vec(s, vece, rd, rm, rn);
-}
-
-static void gen_bit_vec(TCGContext* s, unsigned vece, TCGv_vec rd, TCGv_vec rn, TCGv_vec rm)
-{
-    tcg_gen_xor_vec(s, vece, rn, rn, rd);
-    tcg_gen_and_vec(s, vece, rn, rn, rm);
-    tcg_gen_xor_vec(s, vece, rd, rd, rn);
-}
-
-static void gen_bif_vec(TCGContext *s, unsigned vece, TCGv_vec rd, TCGv_vec rn, TCGv_vec rm)
-{
-    tcg_gen_xor_vec(s, vece, rn, rn, rd);
-    tcg_gen_andc_vec(s, vece, rn, rn, rm);
-    tcg_gen_xor_vec(s, vece, rd, rd, rn);
-}
-
-const GVecGen3 bsl_op = {
-    .fni8 = gen_bsl_i64,
-    .fniv = gen_bsl_vec,
-    .prefer_i64 = TCG_TARGET_REG_BITS == 64,
-    .load_dest = true
-};
-
-const GVecGen3 bit_op = {
-    .fni8 = gen_bit_i64,
-    .fniv = gen_bit_vec,
-    .prefer_i64 = TCG_TARGET_REG_BITS == 64,
-    .load_dest = true
-};
-
-const GVecGen3 bif_op = {
-    .fni8 = gen_bif_i64,
-    .fniv = gen_bif_vec,
-    .prefer_i64 = TCG_TARGET_REG_BITS == 64,
-    .load_dest = true
-};
-
 static void gen_ssra8_i64(TCGContext *s, TCGv_i64 d, TCGv_i64 a, int64_t shift)
 {
     tcg_gen_vec_sar8i_i64(s, a, a, shift);
@@ -6725,16 +6659,16 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                                  vec_size, vec_size);
                 break;
             case 5: /* VBSL */
-                tcg_gen_gvec_3(tcg_ctx, rd_ofs, rn_ofs, rm_ofs,
-                               vec_size, vec_size, &bsl_op);
+                tcg_gen_gvec_bitsel(tcg_ctx, MO_8, rd_ofs, rd_ofs, rn_ofs, rm_ofs,
+                                    vec_size, vec_size);
                 break;
             case 6: /* VBIT */
-                tcg_gen_gvec_3(tcg_ctx, rd_ofs, rn_ofs, rm_ofs,
-                               vec_size, vec_size, &bit_op);
+                tcg_gen_gvec_bitsel(tcg_ctx, MO_8, rd_ofs, rm_ofs, rn_ofs, rd_ofs,
+                                    vec_size, vec_size);
                 break;
             case 7: /* VBIF */
-                tcg_gen_gvec_3(tcg_ctx, rd_ofs, rn_ofs, rm_ofs,
-                               vec_size, vec_size, &bif_op);
+                tcg_gen_gvec_bitsel(tcg_ctx, MO_8, rd_ofs, rm_ofs, rd_ofs, rn_ofs,
+                                    vec_size, vec_size);
                 break;
             }
             return 0;
