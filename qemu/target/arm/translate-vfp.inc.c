@@ -2124,3 +2124,67 @@ static bool trans_VCVT_f64_f16(DisasContext *s, arg_VCVT_f64_f16 *a)
     tcg_temp_free_i64(tcg_ctx, vd);
     return true;
 }
+
+static bool trans_VCVT_f16_f32(DisasContext *s, arg_VCVT_f16_f32 *a)
+{
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+    TCGv_ptr fpst;
+    TCGv_i32 ahp_mode;
+    TCGv_i32 tmp;
+
+    if (!dc_isar_feature(aa32_fp16_spconv, s)) {
+        return false;
+    }
+
+    if (!vfp_access_check(s)) {
+        return true;
+    }
+
+    fpst = get_fpstatus_ptr(s, false);
+    ahp_mode = get_ahp_flag(s);
+    tmp = tcg_temp_new_i32(tcg_ctx);
+
+    neon_load_reg32(s, tmp, a->vm);
+    gen_helper_vfp_fcvt_f32_to_f16(tcg_ctx, tmp, tmp, fpst, ahp_mode);
+    tcg_gen_st16_i32(tcg_ctx, tmp, tcg_ctx->cpu_env, vfp_f16_offset(a->vd, a->t));
+    tcg_temp_free_i32(tcg_ctx, ahp_mode);
+    tcg_temp_free_ptr(tcg_ctx, fpst);
+    tcg_temp_free_i32(tcg_ctx, tmp);
+    return true;
+}
+
+static bool trans_VCVT_f16_f64(DisasContext *s, arg_VCVT_f16_f64 *a)
+{
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+    TCGv_ptr fpst;
+    TCGv_i32 ahp_mode;
+    TCGv_i32 tmp;
+    TCGv_i64 vm;
+
+    if (!dc_isar_feature(aa32_fp16_dpconv, s)) {
+        return false;
+    }
+
+    /* UNDEF accesses to D16-D31 if they don't exist. */
+    if (!dc_isar_feature(aa32_fp_d32, s) && (a->vm  & 0x10)) {
+        return false;
+    }
+
+    if (!vfp_access_check(s)) {
+        return true;
+    }
+
+    fpst = get_fpstatus_ptr(s, false);
+    ahp_mode = get_ahp_flag(s);
+    tmp = tcg_temp_new_i32(tcg_ctx);
+    vm = tcg_temp_new_i64(tcg_ctx);
+
+    neon_load_reg64(s, vm, a->vm);
+    gen_helper_vfp_fcvt_f64_to_f16(tcg_ctx, tmp, vm, fpst, ahp_mode);
+    tcg_temp_free_i64(tcg_ctx, vm);
+    tcg_gen_st16_i32(tcg_ctx, tmp, tcg_ctx->cpu_env, vfp_f16_offset(a->vd, a->t));
+    tcg_temp_free_i32(tcg_ctx, ahp_mode);
+    tcg_temp_free_ptr(tcg_ctx, fpst);
+    tcg_temp_free_i32(tcg_ctx, tmp);
+    return true;
+}
