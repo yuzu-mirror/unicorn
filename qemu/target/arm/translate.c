@@ -170,15 +170,15 @@ static inline int get_a32_user_mem_index(DisasContext *s)
     }
 }
 
-static inline TCGv_i32 load_cpu_offset(struct uc_struct *uc, int offset)
+static inline TCGv_i32 load_cpu_offset(DisasContext *s, int offset)
 {
-    TCGContext *tcg_ctx = uc->tcg_ctx;
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
     TCGv_i32 tmp = tcg_temp_new_i32(tcg_ctx);
     tcg_gen_ld_i32(tcg_ctx, tmp, tcg_ctx->cpu_env, offset);
     return tmp;
 }
 
-#define load_cpu_field(uc, name) load_cpu_offset(uc, offsetof(CPUARMState, name))
+#define load_cpu_field(s, name) load_cpu_offset(s, offsetof(CPUARMState, name))
 
 static inline void store_cpu_offset(DisasContext *s, TCGv_i32 var, int offset)
 {
@@ -1954,7 +1954,7 @@ static void gen_op_iwmmxt_set_mup(DisasContext *s)
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
     TCGv_i32 tmp;
-    tmp = load_cpu_field(s->uc, iwmmxt.cregs[ARM_IWMMXT_wCon]);
+    tmp = load_cpu_field(s, iwmmxt.cregs[ARM_IWMMXT_wCon]);
     tcg_gen_ori_i32(tcg_ctx, tmp, tmp, 2);
     store_cpu_field(s, tmp, iwmmxt.cregs[ARM_IWMMXT_wCon]);
 }
@@ -1963,7 +1963,7 @@ static void gen_op_iwmmxt_set_cup(DisasContext *s)
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
     TCGv_i32 tmp;
-    tmp = load_cpu_field(s->uc, iwmmxt.cregs[ARM_IWMMXT_wCon]);
+    tmp = load_cpu_field(s, iwmmxt.cregs[ARM_IWMMXT_wCon]);
     tcg_gen_ori_i32(tcg_ctx, tmp, tmp, 1);
     store_cpu_field(s, tmp, iwmmxt.cregs[ARM_IWMMXT_wCon]);
 }
@@ -3659,12 +3659,12 @@ static int disas_vfp_insn(DisasContext *s, uint32_t insn)
                                 && arm_dc_feature(s, ARM_FEATURE_VFP3)) {
                                 return 1;
                             }
-                            tmp = load_cpu_field(s->uc, vfp.xregs[rn]);
+                            tmp = load_cpu_field(s, vfp.xregs[rn]);
                             break;
                         case ARM_VFP_FPEXC:
                             if (IS_USER(s))
                                 return 1;
-                            tmp = load_cpu_field(s->uc, vfp.xregs[rn]);
+                            tmp = load_cpu_field(s, vfp.xregs[rn]);
                             break;
                         case ARM_VFP_FPINST:
                         case ARM_VFP_FPINST2:
@@ -3673,11 +3673,11 @@ static int disas_vfp_insn(DisasContext *s, uint32_t insn)
                                 || arm_dc_feature(s, ARM_FEATURE_VFP3)) {
                                 return 1;
                             }
-                            tmp = load_cpu_field(s->uc, vfp.xregs[rn]);
+                            tmp = load_cpu_field(s, vfp.xregs[rn]);
                             break;
                         case ARM_VFP_FPSCR:
                             if (rd == 15) {
-                                tmp = load_cpu_field(s->uc, vfp.xregs[ARM_VFP_FPSCR]);
+                                tmp = load_cpu_field(s, vfp.xregs[ARM_VFP_FPSCR]);
                                 tcg_gen_andi_i32(tcg_ctx, tmp, tmp, 0xf0000000);
                             } else {
                                 tmp = tcg_temp_new_i32(tcg_ctx);
@@ -3695,7 +3695,7 @@ static int disas_vfp_insn(DisasContext *s, uint32_t insn)
                                 || !arm_dc_feature(s, ARM_FEATURE_MVFR)) {
                                 return 1;
                             }
-                            tmp = load_cpu_field(s->uc, vfp.xregs[rn]);
+                            tmp = load_cpu_field(s, vfp.xregs[rn]);
                             break;
                         default:
                             return 1;
@@ -4585,7 +4585,7 @@ static int gen_set_psr(DisasContext *s, uint32_t mask, int spsr, TCGv_i32 t0)
         if (IS_USER(s))
             return 1;
 
-        tmp = load_cpu_field(s->uc, spsr);
+        tmp = load_cpu_field(s, spsr);
         tcg_gen_andi_i32(tcg_ctx, tmp, tmp, ~mask);
         tcg_gen_andi_i32(tcg_ctx, t0, t0, mask);
         tcg_gen_or_i32(tcg_ctx, tmp, tmp, t0);
@@ -4852,7 +4852,7 @@ static void gen_rfe(DisasContext *s, TCGv_i32 pc, TCGv_i32 cpsr)
 /* Generate an old-style exception return. Marks pc as dead. */
 static void gen_exception_return(DisasContext *s, TCGv_i32 pc)
 {
-    gen_rfe(s, pc, load_cpu_field(s->uc, spsr));
+    gen_rfe(s, pc, load_cpu_field(s, spsr));
 }
 
 /*
@@ -8906,7 +8906,7 @@ static int disas_coproc_insn(DisasContext *s, uint32_t insn)
                     gen_helper_get_cp_reg(tcg_ctx, tmp, tcg_ctx->cpu_env, tmpptr);
                     tcg_temp_free_ptr(tcg_ctx, tmpptr);
                 } else {
-                    tmp = load_cpu_offset(s->uc, ri->fieldoffset);
+                    tmp = load_cpu_offset(s, ri->fieldoffset);
                 }
                 if (rt == 15) {
                     /* Destination register of r15 for 32 bit loads sets
@@ -9282,7 +9282,7 @@ static void gen_srs(DisasContext *s,
     tmp = load_reg(s, 14);
     gen_aa32_st32(s, tmp, addr, get_mem_index(s));
     tcg_temp_free_i32(tcg_ctx, tmp);
-    tmp = load_cpu_field(s->uc, spsr);
+    tmp = load_cpu_field(s, spsr);
     tcg_gen_addi_i32(tcg_ctx, addr, addr, 4);
     gen_aa32_st32(s, tmp, addr, get_mem_index(s));
     tcg_temp_free_i32(tcg_ctx, tmp);
@@ -9654,7 +9654,7 @@ static void disas_arm_insn(DisasContext *s, unsigned int insn)
                 if (op1 & 2) {
                     if (IS_USER(s))
                         goto illegal_op;
-                    tmp = load_cpu_field(s->uc, spsr);
+                    tmp = load_cpu_field(s, spsr);
                 } else {
                     tmp = tcg_temp_new_i32(tcg_ctx);
                     gen_helper_cpsr_read(tcg_ctx, tmp, tcg_ctx->cpu_env);
@@ -9763,7 +9763,7 @@ static void disas_arm_insn(DisasContext *s, unsigned int insn)
             }
 
             if (s->current_el == 2) {
-                tmp = load_cpu_field(s->uc, elr_el[2]);
+                tmp = load_cpu_field(s, elr_el[2]);
             } else {
                 tmp = load_reg(s, 14);
             }
@@ -10843,7 +10843,7 @@ static void disas_arm_insn(DisasContext *s, unsigned int insn)
                 }
                 if (exc_return) {
                     /* Restore CPSR from SPSR.  */
-                    tmp = load_cpu_field(s->uc, spsr);
+                    tmp = load_cpu_field(s, spsr);
                     gen_helper_cpsr_write_eret(tcg_ctx, tcg_ctx->cpu_env, tmp);
                     tcg_temp_free_i32(tcg_ctx, tmp);
                     /* Must exit loop to check un-masked IRQs */
@@ -12138,7 +12138,7 @@ static void disas_thumb2_insn(DisasContext *s, uint32_t insn)
                             if (insn & 0xff) {
                                 goto illegal_op;
                             }
-                            tmp = load_cpu_field(s->uc, elr_el[2]);
+                            tmp = load_cpu_field(s, elr_el[2]);
                         } else {
                             tmp = load_reg(s, rn);
                             tcg_gen_subi_i32(tcg_ctx, tmp, tmp, insn & 0xff);
@@ -12197,7 +12197,7 @@ static void disas_thumb2_insn(DisasContext *s, uint32_t insn)
                             goto illegal_op;
                         }
 
-                        tmp = load_cpu_field(s->uc, spsr);
+                        tmp = load_cpu_field(s, spsr);
                         store_reg(s, rd, tmp);
                         break;
                     }
