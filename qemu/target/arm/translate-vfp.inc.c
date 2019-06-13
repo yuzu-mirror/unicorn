@@ -2496,3 +2496,129 @@ static bool trans_VJCVT(DisasContext *s, arg_VJCVT *a)
     tcg_temp_free_i32(tcg_ctx, vd);
     return true;
 }
+
+static bool trans_VCVT_fix_sp(DisasContext *s, arg_VCVT_fix_sp *a)
+{
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+    TCGv_i32 vd, shift;
+    TCGv_ptr fpst;
+    int frac_bits;
+
+    if (!arm_dc_feature(s, ARM_FEATURE_VFP3)) {
+        return false;
+    }
+
+    if (!vfp_access_check(s)) {
+        return true;
+    }
+
+    frac_bits = (a->opc & 1) ? (32 - a->imm) : (16 - a->imm);
+
+    vd = tcg_temp_new_i32(tcg_ctx);
+    neon_load_reg32(s, vd, a->vd);
+
+    fpst = get_fpstatus_ptr(s, false);
+    shift = tcg_const_i32(tcg_ctx, frac_bits);
+
+    /* Switch on op:U:sx bits */
+    switch (a->opc) {
+    case 0:
+        gen_helper_vfp_shtos(tcg_ctx, vd, vd, shift, fpst);
+        break;
+    case 1:
+        gen_helper_vfp_sltos(tcg_ctx, vd, vd, shift, fpst);
+        break;
+    case 2:
+        gen_helper_vfp_uhtos(tcg_ctx, vd, vd, shift, fpst);
+        break;
+    case 3:
+        gen_helper_vfp_ultos(tcg_ctx, vd, vd, shift, fpst);
+        break;
+    case 4:
+        gen_helper_vfp_toshs_round_to_zero(tcg_ctx, vd, vd, shift, fpst);
+        break;
+    case 5:
+        gen_helper_vfp_tosls_round_to_zero(tcg_ctx, vd, vd, shift, fpst);
+        break;
+    case 6:
+        gen_helper_vfp_touhs_round_to_zero(tcg_ctx, vd, vd, shift, fpst);
+        break;
+    case 7:
+        gen_helper_vfp_touls_round_to_zero(tcg_ctx, vd, vd, shift, fpst);
+        break;
+    default:
+        g_assert_not_reached();
+    }
+
+    neon_store_reg32(s, vd, a->vd);
+    tcg_temp_free_i32(tcg_ctx, vd);
+    tcg_temp_free_i32(tcg_ctx, shift);
+    tcg_temp_free_ptr(tcg_ctx, fpst);
+    return true;
+}
+
+static bool trans_VCVT_fix_dp(DisasContext *s, arg_VCVT_fix_dp *a)
+{
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+    TCGv_i64 vd;
+    TCGv_i32 shift;
+    TCGv_ptr fpst;
+    int frac_bits;
+
+    if (!arm_dc_feature(s, ARM_FEATURE_VFP3)) {
+        return false;
+    }
+
+    /* UNDEF accesses to D16-D31 if they don't exist. */
+    if (!dc_isar_feature(aa32_fp_d32, s) && (a->vd & 0x10)) {
+        return false;
+    }
+
+    if (!vfp_access_check(s)) {
+        return true;
+    }
+
+    frac_bits = (a->opc & 1) ? (32 - a->imm) : (16 - a->imm);
+
+    vd = tcg_temp_new_i64(tcg_ctx);
+    neon_load_reg64(s, vd, a->vd);
+
+    fpst = get_fpstatus_ptr(s, false);
+    shift = tcg_const_i32(tcg_ctx, frac_bits);
+
+    /* Switch on op:U:sx bits */
+    switch (a->opc) {
+    case 0:
+        gen_helper_vfp_shtod(tcg_ctx, vd, vd, shift, fpst);
+        break;
+    case 1:
+        gen_helper_vfp_sltod(tcg_ctx, vd, vd, shift, fpst);
+        break;
+    case 2:
+        gen_helper_vfp_uhtod(tcg_ctx, vd, vd, shift, fpst);
+        break;
+    case 3:
+        gen_helper_vfp_ultod(tcg_ctx, vd, vd, shift, fpst);
+        break;
+    case 4:
+        gen_helper_vfp_toshd_round_to_zero(tcg_ctx, vd, vd, shift, fpst);
+        break;
+    case 5:
+        gen_helper_vfp_tosld_round_to_zero(tcg_ctx, vd, vd, shift, fpst);
+        break;
+    case 6:
+        gen_helper_vfp_touhd_round_to_zero(tcg_ctx, vd, vd, shift, fpst);
+        break;
+    case 7:
+        gen_helper_vfp_tould_round_to_zero(tcg_ctx, vd, vd, shift, fpst);
+        break;
+    default:
+        g_assert_not_reached();
+    }
+
+    neon_store_reg64(s, vd, a->vd);
+    tcg_temp_free_i64(tcg_ctx, vd);
+    tcg_temp_free_i32(tcg_ctx, shift);
+    tcg_temp_free_ptr(tcg_ctx, fpst);
+    return true;
+}

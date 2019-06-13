@@ -1499,13 +1499,9 @@ static inline void gen_vfp_##name(DisasContext *s, int dp, int shift, int neon) 
     tcg_temp_free_i32(tcg_ctx, tmp_shift); \
     tcg_temp_free_ptr(tcg_ctx, statusptr); \
 }
-VFP_GEN_FIX(tosh, _round_to_zero)
 VFP_GEN_FIX(tosl, _round_to_zero)
-VFP_GEN_FIX(touh, _round_to_zero)
 VFP_GEN_FIX(toul, _round_to_zero)
-VFP_GEN_FIX(shto, )
 VFP_GEN_FIX(slto, )
-VFP_GEN_FIX(uhto, )
 VFP_GEN_FIX(ulto, )
 #undef VFP_GEN_FIX
 
@@ -3144,7 +3140,8 @@ static int disas_vfp_insn(DisasContext *s, uint32_t insn)
                 return 1;
             case 15:
                 switch (rn) {
-                case 0 ... 19:
+                case 0 ... 23:
+                case 28 ... 31:
                     /* Already handled by decodetree */
                     return 1;
                 default:
@@ -3162,21 +3159,6 @@ static int disas_vfp_insn(DisasContext *s, uint32_t insn)
                 case 0x1a: /* vcvtr.s32.fxx */
                 case 0x1b: /* vcvtz.s32.fxx */
                     rd_is_dp = false;
-                    break;
-
-                case 0x14: /* vcvt fp <-> fixed */
-                case 0x15:
-                case 0x16:
-                case 0x17:
-                case 0x1c:
-                case 0x1d:
-                case 0x1e:
-                case 0x1f:
-                    if (!arm_dc_feature(s, ARM_FEATURE_VFP3)) {
-                        return 1;
-                    }
-                    /* Immediate frac_bits has same format as SREG_M.  */
-                    rm_is_dp = false;
                     break;
 
                 default:
@@ -3237,17 +3219,6 @@ static int disas_vfp_insn(DisasContext *s, uint32_t insn)
             /* Load the initial operands.  */
             if (op == 15) {
                 switch (rn) {
-                case 0x14: /* vcvt fp <-> fixed */
-                case 0x15:
-                case 0x16:
-                case 0x17:
-                case 0x1c:
-                case 0x1d:
-                case 0x1e:
-                case 0x1f:
-                    /* Source and destination the same.  */
-                    gen_mov_F0_vreg(s, dp, rd);
-                    break;
                 default:
                     /* One source operand.  */
                     gen_mov_F0_vreg(s, rm_is_dp, rm);
@@ -3264,18 +3235,6 @@ static int disas_vfp_insn(DisasContext *s, uint32_t insn)
                 switch (op) {
                 case 15: /* extension space */
                     switch (rn) {
-                    case 20: /* fshto */
-                        gen_vfp_shto(s, dp, 16 - rm, 0);
-                        break;
-                    case 21: /* fslto */
-                        gen_vfp_slto(s, dp, 32 - rm, 0);
-                        break;
-                    case 22: /* fuhto */
-                        gen_vfp_uhto(s, dp, 16 - rm, 0);
-                        break;
-                    case 23: /* fulto */
-                        gen_vfp_ulto(s, dp, 32 - rm, 0);
-                        break;
                     case 24: /* ftoui */
                         gen_vfp_toui(s, dp, 0);
                         break;
@@ -3287,18 +3246,6 @@ static int disas_vfp_insn(DisasContext *s, uint32_t insn)
                         break;
                     case 27: /* ftosiz */
                         gen_vfp_tosiz(s, dp, 0);
-                        break;
-                    case 28: /* ftosh */
-                        gen_vfp_tosh(s, dp, 16 - rm, 0);
-                        break;
-                    case 29: /* ftosl */
-                        gen_vfp_tosl(s, dp, 32 - rm, 0);
-                        break;
-                    case 30: /* ftouh */
-                        gen_vfp_touh(s, dp, 16 - rm, 0);
-                        break;
-                    case 31: /* ftoul */
-                        gen_vfp_toul(s, dp, 32 - rm, 0);
                         break;
                     default: /* undefined */
                         g_assert_not_reached();
