@@ -1447,33 +1447,6 @@ static inline void gen_vfp_neg(DisasContext *s, int dp)
         gen_helper_vfp_negs(tcg_ctx, s->F0s, s->F0s);
 }
 
-static inline void gen_vfp_cmp(DisasContext *s, int dp)
-{
-    TCGContext *tcg_ctx = s->uc->tcg_ctx;
-    if (dp)
-        gen_helper_vfp_cmpd(tcg_ctx, s->F0d, s->F1d, tcg_ctx->cpu_env);
-    else
-        gen_helper_vfp_cmps(tcg_ctx, s->F0s, s->F1s, tcg_ctx->cpu_env);
-}
-
-static inline void gen_vfp_cmpe(DisasContext *s, int dp)
-{
-    TCGContext *tcg_ctx = s->uc->tcg_ctx;
-    if (dp)
-        gen_helper_vfp_cmped(tcg_ctx, s->F0d, s->F1d, tcg_ctx->cpu_env);
-    else
-        gen_helper_vfp_cmpes(tcg_ctx, s->F0s, s->F1s, tcg_ctx->cpu_env);
-}
-
-static inline void gen_vfp_F1_ld0(DisasContext *s, int dp)
-{
-    TCGContext *tcg_ctx = s->uc->tcg_ctx;
-    if (dp)
-        tcg_gen_movi_i64(tcg_ctx, s->F1d, 0);
-    else
-        tcg_gen_movi_i32(tcg_ctx, s->F1s, 0);
-}
-
 #define VFP_GEN_ITOF(name) \
 static inline void gen_vfp_##name(DisasContext *s, int dp, int neon) \
 { \
@@ -3191,6 +3164,7 @@ static int disas_vfp_insn(DisasContext *s, uint32_t insn)
             case 15:
                 switch (rn) {
                 case 0 ... 3:
+                case 8 ... 11:
                     /* Already handled by decodetree */
                     return 1;
                 default:
@@ -3233,11 +3207,6 @@ static int disas_vfp_insn(DisasContext *s, uint32_t insn)
                         }
                     }
                     rd_is_dp = false;
-                    break;
-
-                case 0x08: case 0x0a: /* vcmp, vcmpz */
-                case 0x09: case 0x0b: /* vcmpe, vcmpez */
-                    no_output = true;
                     break;
 
                 case 0x0c: /* vrintr */
@@ -3340,14 +3309,6 @@ static int disas_vfp_insn(DisasContext *s, uint32_t insn)
             /* Load the initial operands.  */
             if (op == 15) {
                 switch (rn) {
-                case 0x08: case 0x09: /* Compare */
-                    gen_mov_F0_vreg(s, dp, rd);
-                    gen_mov_F1_vreg(s, dp, rm);
-                    break;
-                case 0x0a: case 0x0b: /* Compare with zero */
-                    gen_mov_F0_vreg(s, dp, rd);
-                    gen_vfp_F1_ld0(s, dp);
-                    break;
                 case 0x14: /* vcvt fp <-> fixed */
                 case 0x15:
                 case 0x16:
@@ -3457,19 +3418,6 @@ static int disas_vfp_insn(DisasContext *s, uint32_t insn)
                         gen_vfp_msr(s, tmp);
                         break;
                     }
-                    case 8: /* cmp */
-                        gen_vfp_cmp(s, dp);
-                        break;
-                    case 9: /* cmpe */
-                        gen_vfp_cmpe(s, dp);
-                        break;
-                    case 10: /* cmpz */
-                        gen_vfp_cmp(s, dp);
-                        break;
-                    case 11: /* cmpez */
-                        gen_vfp_F1_ld0(s, dp);
-                        gen_vfp_cmpe(s, dp);
-                        break;
                     case 12: /* vrintr */
                     {
                         TCGv_ptr fpst = get_fpstatus_ptr(s, 0);
