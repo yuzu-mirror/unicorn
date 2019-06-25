@@ -65,6 +65,8 @@ static const char *regnames[] =
 /* Function prototypes for gen_ functions calling Neon helpers.  */
 typedef void NeonGenThreeOpEnvFn(TCGContext *, TCGv_i32, TCGv_env, TCGv_i32,
                                  TCGv_i32, TCGv_i32);
+/* Function prototypes for gen_ functions for fix point conversions */
+typedef void VFPGenFixPointFn(TCGContext *, TCGv_i32, TCGv_i32, TCGv_i32, TCGv_ptr);
 
 /* initialize TCG globals.  */
 void arm_translate_init(struct uc_struct *uc)
@@ -1428,28 +1430,6 @@ static TCGv_ptr get_fpstatus_ptr(DisasContext *s, int neon)
     tcg_gen_addi_ptr(tcg_ctx, statusptr, tcg_ctx->cpu_env, offset);
     return statusptr;
 }
-
-#define VFP_GEN_FIX(name, round) \
-static inline void gen_vfp_##name(DisasContext *s, int dp, int shift, int neon) \
-{ \
-    TCGContext *tcg_ctx = s->uc->tcg_ctx; \
-    TCGv_i32 tmp_shift = tcg_const_i32(tcg_ctx, shift); \
-    TCGv_ptr statusptr = get_fpstatus_ptr(s, neon); \
-    if (dp) { \
-        gen_helper_vfp_##name##d##round(tcg_ctx, s->F0d, s->F0d, tmp_shift, \
-                                        statusptr); \
-    } else { \
-        gen_helper_vfp_##name##s##round(tcg_ctx, s->F0s, s->F0s, tmp_shift, \
-                                        statusptr); \
-    } \
-    tcg_temp_free_i32(tcg_ctx, tmp_shift); \
-    tcg_temp_free_ptr(tcg_ctx, statusptr); \
-}
-VFP_GEN_FIX(tosl, _round_to_zero)
-VFP_GEN_FIX(toul, _round_to_zero)
-VFP_GEN_FIX(slto, )
-VFP_GEN_FIX(ulto, )
-#undef VFP_GEN_FIX
 
 static inline long vfp_reg_offset(bool dp, unsigned reg)
 {
@@ -5856,28 +5836,41 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                 }
             } else if (op >= 14) {
                 /* VCVT fixed-point.  */
+                TCGv_ptr fpst;
+                TCGv_i32 shiftv;
+                VFPGenFixPointFn *fn;
+
                 if (!(insn & (1 << 21)) || (q && ((rd | rm) & 1))) {
                     return 1;
                 }
+
+                if (!(op & 1)) {
+                    if (u) {
+                        fn = gen_helper_vfp_ultos;
+                    } else {
+                        fn = gen_helper_vfp_sltos;
+                    }
+                } else {
+                    if (u) {
+                        fn = gen_helper_vfp_touls_round_to_zero;
+                    } else {
+                        fn = gen_helper_vfp_tosls_round_to_zero;
+                    }
+                }
+
                 /* We have already masked out the must-be-1 top bit of imm6,
                  * hence this 32-shift where the ARM ARM has 64-imm6.
                  */
                 shift = 32 - shift;
+                fpst = get_fpstatus_ptr(s, 1);
+                shiftv = tcg_const_i32(tcg_ctx, shift);
                 for (pass = 0; pass < (q ? 4 : 2); pass++) {
-                    tcg_gen_ld_f32(tcg_ctx, s->F0s, tcg_ctx->cpu_env, neon_reg_offset(rm, pass));
-                    if (!(op & 1)) {
-                        if (u)
-                            gen_vfp_ulto(s, 0, shift, 1);
-                        else
-                            gen_vfp_slto(s, 0, shift, 1);
-                    } else {
-                        if (u)
-                            gen_vfp_toul(s, 0, shift, 1);
-                        else
-                            gen_vfp_tosl(s, 0, shift, 1);
-                    }
-                    tcg_gen_st_f32(tcg_ctx, s->F0s, tcg_ctx->cpu_env, neon_reg_offset(rd, pass));
+                    TCGv_i32 tmpf = neon_load_reg(s, rm, pass);
+                    fn(tcg_ctx, tmpf, tmpf, shiftv, fpst);
+                    neon_store_reg(s, rd, pass, tmpf);
                 }
+                tcg_temp_free_ptr(tcg_ctx, fpst);
+                tcg_temp_free_i32(tcg_ctx, shiftv);
             } else {
                 return 1;
             }
