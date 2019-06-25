@@ -93,10 +93,6 @@ typedef struct DisasContext {
     TCGv_i64 V0;
     TCGv_i64 V1;
     TCGv_i64 M0;
-    TCGv_i32 F0s;
-    TCGv_i32 F1s;
-    TCGv_i64 F0d;
-    TCGv_i64 F1d;
 
     // Unicorn engine
     struct uc_struct *uc;
