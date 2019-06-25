@@ -1608,8 +1608,6 @@ static TCGv_ptr vfp_reg_ptr(DisasContext *s, bool dp, int reg)
     return ret;
 }
 
-#define tcg_gen_st_f32 tcg_gen_st_i32
-
 #define ARM_CP_RW_BIT   (1 << 20)
 
 /* Include the VFP decoder */
@@ -6594,20 +6592,18 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                     tmp = neon_load_reg(s, rm, 0);
                     tmp2 = neon_load_reg(s, rm, 1);
                     tcg_gen_ext16u_i32(tcg_ctx, tmp3, tmp);
-                    gen_helper_vfp_fcvt_f16_to_f32(tcg_ctx, s->F0s, tmp3, fpst, ahp);
-                    tcg_gen_st_f32(tcg_ctx, s->F0s, tcg_ctx->cpu_env, neon_reg_offset(rd, 0));
-                    tcg_gen_shri_i32(tcg_ctx, tmp3, tmp, 16);
-                    gen_helper_vfp_fcvt_f16_to_f32(tcg_ctx, s->F0s, tmp3, fpst, ahp);
-                    tcg_gen_st_f32(tcg_ctx, s->F0s, tcg_ctx->cpu_env, neon_reg_offset(rd, 1));
-                    tcg_temp_free_i32(tcg_ctx, tmp);
+                    gen_helper_vfp_fcvt_f16_to_f32(tcg_ctx, tmp3, tmp3, fpst, ahp);
+                    neon_store_reg(s, rd, 0, tmp3);
+                    tcg_gen_shri_i32(tcg_ctx, tmp, tmp, 16);
+                    gen_helper_vfp_fcvt_f16_to_f32(tcg_ctx, tmp, tmp, fpst, ahp);
+                    neon_store_reg(s, rd, 1, tmp);
+                    tmp3 = tcg_temp_new_i32(tcg_ctx);
                     tcg_gen_ext16u_i32(tcg_ctx, tmp3, tmp2);
-                    gen_helper_vfp_fcvt_f16_to_f32(tcg_ctx, s->F0s, tmp3, fpst, ahp);
-                    tcg_gen_st_f32(tcg_ctx, s->F0s, tcg_ctx->cpu_env, neon_reg_offset(rd, 2));
-                    tcg_gen_shri_i32(tcg_ctx, tmp3, tmp2, 16);
-                    gen_helper_vfp_fcvt_f16_to_f32(tcg_ctx, s->F0s, tmp3, fpst, ahp);
-                    tcg_gen_st_f32(tcg_ctx, s->F0s, tcg_ctx->cpu_env, neon_reg_offset(rd, 3));
-                    tcg_temp_free_i32(tcg_ctx, tmp2);
-                    tcg_temp_free_i32(tcg_ctx, tmp3);
+                    gen_helper_vfp_fcvt_f16_to_f32(tcg_ctx, tmp3, tmp3, fpst, ahp);
+                    neon_store_reg(s, rd, 2, tmp3);
+                    tcg_gen_shri_i32(tcg_ctx, tmp2, tmp2, 16);
+                    gen_helper_vfp_fcvt_f16_to_f32(tcg_ctx, tmp2, tmp2, fpst, ahp);
+                    neon_store_reg(s, rd, 3, tmp2);
                     tcg_temp_free_i32(tcg_ctx, ahp);
                     tcg_temp_free_ptr(tcg_ctx, fpst);
                     break;
