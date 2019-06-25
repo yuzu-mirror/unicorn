@@ -1608,7 +1608,6 @@ static TCGv_ptr vfp_reg_ptr(DisasContext *s, bool dp, int reg)
     return ret;
 }
 
-#define tcg_gen_ld_f32 tcg_gen_ld_i32
 #define tcg_gen_st_f32 tcg_gen_st_i32
 
 #define ARM_CP_RW_BIT   (1 << 20)
@@ -6559,25 +6558,23 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                         q || (rm & 1)) {
                         return 1;
                     }
-                    tmp = tcg_temp_new_i32(tcg_ctx);
-                    tmp2 = tcg_temp_new_i32(tcg_ctx);
                     fpst = get_fpstatus_ptr(s, true);
                     ahp = get_ahp_flag(s);
-                    tcg_gen_ld_f32(tcg_ctx, s->F0s, tcg_ctx->cpu_env, neon_reg_offset(rm, 0));
-                    gen_helper_vfp_fcvt_f32_to_f16(tcg_ctx, tmp, s->F0s, fpst, ahp);
-                    tcg_gen_ld_f32(tcg_ctx, s->F0s, tcg_ctx->cpu_env, neon_reg_offset(rm, 1));
-                    gen_helper_vfp_fcvt_f32_to_f16(tcg_ctx, tmp2, s->F0s, fpst, ahp);
+                    tmp = neon_load_reg(s, rm, 0);
+                    gen_helper_vfp_fcvt_f32_to_f16(tcg_ctx, tmp, tmp, fpst, ahp);
+                    tmp2 = neon_load_reg(s, rm, 1);
+                    gen_helper_vfp_fcvt_f32_to_f16(tcg_ctx, tmp2, tmp2, fpst, ahp);
                     tcg_gen_shli_i32(tcg_ctx, tmp2, tmp2, 16);
                     tcg_gen_or_i32(tcg_ctx, tmp2, tmp2, tmp);
-                    tcg_gen_ld_f32(tcg_ctx, s->F0s, tcg_ctx->cpu_env, neon_reg_offset(rm, 2));
-                    gen_helper_vfp_fcvt_f32_to_f16(tcg_ctx, tmp, s->F0s, fpst, ahp);
-                    tcg_gen_ld_f32(tcg_ctx, s->F0s, tcg_ctx->cpu_env, neon_reg_offset(rm, 3));
+                    tcg_temp_free_i32(tcg_ctx, tmp);
+                    tmp = neon_load_reg(s, rm, 2);
+                    gen_helper_vfp_fcvt_f32_to_f16(tcg_ctx, tmp, tmp, fpst, ahp);
+                    tmp3 = neon_load_reg(s, rm, 3);
                     neon_store_reg(s, rd, 0, tmp2);
-                    tmp2 = tcg_temp_new_i32(tcg_ctx);
-                    gen_helper_vfp_fcvt_f32_to_f16(tcg_ctx, tmp2, s->F0s, fpst, ahp);
-                    tcg_gen_shli_i32(tcg_ctx, tmp2, tmp2, 16);
-                    tcg_gen_or_i32(tcg_ctx, tmp2, tmp2, tmp);
-                    neon_store_reg(s, rd, 1, tmp2);
+                    gen_helper_vfp_fcvt_f32_to_f16(tcg_ctx, tmp3, tmp3, fpst, ahp);
+                    tcg_gen_shli_i32(tcg_ctx, tmp3, tmp3, 16);
+                    tcg_gen_or_i32(tcg_ctx, tmp3, tmp3, tmp);
+                    neon_store_reg(s, rd, 1, tmp3);
                     tcg_temp_free_i32(tcg_ctx, tmp);
                     tcg_temp_free_i32(tcg_ctx, ahp);
                     tcg_temp_free_ptr(tcg_ctx, fpst);
