@@ -1429,15 +1429,6 @@ static TCGv_ptr get_fpstatus_ptr(DisasContext *s, int neon)
     return statusptr;
 }
 
-static inline void gen_vfp_abs(DisasContext *s, int dp)
-{
-    TCGContext *tcg_ctx = s->uc->tcg_ctx;
-    if (dp)
-        gen_helper_vfp_absd(tcg_ctx, s->F0d, s->F0d);
-    else
-        gen_helper_vfp_abss(tcg_ctx, s->F0s, s->F0s);
-}
-
 static inline void gen_vfp_neg(DisasContext *s, int dp)
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
@@ -4327,8 +4318,13 @@ static const uint8_t neon_3r_sizes[] = {
 
 static int neon_2rm_is_float_op(int op)
 {
-    /* Return true if this neon 2reg-misc op is float-to-float */
-    return (op == NEON_2RM_VABS_F || op == NEON_2RM_VNEG_F ||
+    /*
+     * Return true if this neon 2reg-misc op is float-to-float.
+     * This is not a property of the operation but of our code --
+     * what we are asking here is "does the code for this case in
+     * the Neon for-each-pass loop use cpu_F0s?".
+     */
+    return (op == NEON_2RM_VNEG_F ||
             (op >= NEON_2RM_VRINTN && op <= NEON_2RM_VRINTZ) ||
             op == NEON_2RM_VRINTM ||
             (op >= NEON_2RM_VRINTP && op <= NEON_2RM_VCVTMS) ||
@@ -6900,7 +6896,7 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                             break;
                         }
                         case NEON_2RM_VABS_F:
-                            gen_vfp_abs(s, 0);
+                            gen_helper_vfp_abss(tcg_ctx, tmp, tmp);
                             break;
                         case NEON_2RM_VNEG_F:
                             gen_vfp_neg(s, 0);
