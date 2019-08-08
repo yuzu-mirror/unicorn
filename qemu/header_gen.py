@@ -5546,6 +5546,7 @@ riscv_symbols = (
     'riscv_cpu_set_fflags',
     'riscv_cpu_set_mode',
     'riscv_cpu_tlb_fill',
+    'riscv_cpu_unassigned_access',
     'riscv_cpu_update_mip',
     'riscv_csrrw',
     'riscv_csrrw_debug',

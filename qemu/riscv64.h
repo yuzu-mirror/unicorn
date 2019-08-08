@@ -3453,6 +3453,7 @@
 #define riscv_cpu_set_fflags riscv_cpu_set_fflags_riscv64
 #define riscv_cpu_set_mode riscv_cpu_set_mode_riscv64
 #define riscv_cpu_tlb_fill riscv_cpu_tlb_fill_riscv64
+#define riscv_cpu_unassigned_access riscv_cpu_unassigned_access_riscv64
 #define riscv_cpu_update_mip riscv_cpu_update_mip_riscv64
 #define riscv_csrrw riscv_csrrw_riscv64
 #define riscv_csrrw_debug riscv_csrrw_debug_riscv64
