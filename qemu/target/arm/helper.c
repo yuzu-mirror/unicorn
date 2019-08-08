@@ -19,7 +19,6 @@
 #include "exec/exec-all.h"
 #include "exec/cpu_ldst.h"
 #include "arm_ldst.h"
-#include "fpu/softfloat.h"
 #include "qemu/range.h"
 
 #define ARM_CPU_FREQ 1000000000 /* FIXME: 1 GHz, should be configurable */
