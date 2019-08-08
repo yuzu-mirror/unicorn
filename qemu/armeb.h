@@ -3405,6 +3405,7 @@
 #define pmu_init pmu_init_armeb
 #define mla_op mla_op_armeb
 #define mls_op mls_op_armeb
+#define pmsav8_mpu_lookup pmsav8_mpu_lookup_armeb
 #define pmu_op_start pmu_op_start_armeb
 #define pmu_op_finish pmu_op_finish_armeb
 #define pmu_pre_el_change pmu_pre_el_change_armeb
@@ -3421,5 +3422,6 @@
 #define uqadd_op uqadd_op_armeb
 #define uqsub_op uqsub_op_armeb
 #define usra_op usra_op_armeb
+#define v8m_security_lookup v8m_security_lookup_armeb
 #define vfp_expand_imm vfp_expand_imm_armeb
 #endif

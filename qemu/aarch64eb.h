@@ -4402,6 +4402,7 @@
 #define mls_op mls_op_aarch64eb
 #define new_tmp_a64 new_tmp_a64_aarch64eb
 #define new_tmp_a64_zero new_tmp_a64_zero_aarch64eb
+#define pmsav8_mpu_lookup pmsav8_mpu_lookup_aarch64eb
 #define pmu_op_start pmu_op_start_aarch64eb
 #define pmu_op_finish pmu_op_finish_aarch64eb
 #define pmu_pre_el_change pmu_pre_el_change_aarch64eb
@@ -4423,6 +4424,7 @@
 #define uqadd_op uqadd_op_aarch64eb
 #define uqsub_op uqsub_op_aarch64eb
 #define usra_op usra_op_aarch64eb
+#define v8m_security_lookup v8m_security_lookup_aarch64eb
 #define vfp_expand_imm vfp_expand_imm_aarch64eb
 #define write_fp_dreg write_fp_dreg_aarch64eb
 #endif

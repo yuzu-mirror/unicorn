@@ -3414,6 +3414,7 @@ arm_symbols = (
     'pmu_init',
     'mla_op',
     'mls_op',
+    'pmsav8_mpu_lookup',
     'pmu_op_start',
     'pmu_op_finish',
     'pmu_pre_el_change',
@@ -3430,6 +3431,7 @@ arm_symbols = (
     'uqadd_op',
     'uqsub_op',
     'usra_op',
+    'v8m_security_lookup',
     'vfp_expand_imm',
 )
 
@@ -4457,6 +4459,7 @@ aarch64_symbols = (
     'mls_op',
     'new_tmp_a64',
     'new_tmp_a64_zero',
+    'pmsav8_mpu_lookup',
     'pmu_op_start',
     'pmu_op_finish',
     'pmu_pre_el_change',
@@ -4478,6 +4481,7 @@ aarch64_symbols = (
     'uqadd_op',
     'uqsub_op',
     'usra_op',
+    'v8m_security_lookup',
     'vfp_expand_imm',
     'write_fp_dreg',
 )
