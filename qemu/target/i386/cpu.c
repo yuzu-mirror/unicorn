@@ -1537,7 +1537,17 @@ static ObjectClass *x86_cpu_class_by_name(struct uc_struct *uc, const char *cpu_
     return oc;
 }
 
-struct X86CPUDefinition {
+typedef struct PropValue {
+    const char *prop, *value;
+} PropValue;
+
+typedef struct X86CPUVersionDefinition {
+    X86CPUVersion version;
+    PropValue *props;
+} X86CPUVersionDefinition;
+
+/* Base definition for a CPU model */
+typedef struct X86CPUDefinition {
     const char *name;
     uint32_t level;
     uint32_t xlevel;
@@ -1550,7 +1560,40 @@ struct X86CPUDefinition {
     const char *model_id;
     bool cache_info_passthrough;
     CPUCaches *cache_info;
+    /*
+     * Definitions for alternative versions of CPU model.
+     * List is terminated by item with version == 0.
+     * If NULL, version 1 will be registered automatically.
+     */
+    const X86CPUVersionDefinition *versions;
+} X86CPUDefinition;
+
+/* Reference to a specific CPU model version */
+struct X86CPUModel {
+    /* Base CPU definition */
+    X86CPUDefinition *cpudef;
+    /* CPU model version */
+    X86CPUVersion version;
 };
+
+/* Get full model name for CPU version */
+static char *x86_cpu_versioned_model_name(X86CPUDefinition *cpudef,
+                                          X86CPUVersion version)
+{
+    assert(version > 0);
+    return g_strdup_printf("%s-v%d", cpudef->name, (int)version);
+}
+
+static const X86CPUVersionDefinition *x86_cpu_def_get_versions(X86CPUDefinition *def)
+{
+    /* When X86CPUDefinition::versions is NULL, we register only v1 */
+    static const X86CPUVersionDefinition default_version_list[] = {
+        { 1 },
+        { /* end of list */ }
+    };
+
+    return def->versions ?: default_version_list;
+}
 
 static CPUCacheInfo epyc_l1d_cache = {
     .type = DATA_CACHE,
@@ -1946,6 +1989,11 @@ static X86CPUDefinition builtin_x86_defs[] = {
             CPUID_EXT3_LAHF_LM,
         .xlevel = 0x80000008,
         .model_id = "Intel Core i7 9xx (Nehalem Core i7, IBRS update)",
+        /*
+         * This CPU model will eventually be replaced by an alias,
+         * don't register any versions for it.
+         */
+        .versions = (X86CPUVersionDefinition[]) { { /* end of list */ } },
     },
     {
         .name = "Westmere",
@@ -2000,6 +2048,11 @@ static X86CPUDefinition builtin_x86_defs[] = {
             CPUID_6_EAX_ARAT,
         .xlevel = 0x80000008,
         .model_id = "Westmere E56xx/L56xx/X56xx (IBRS update)",
+        /*
+         * This CPU model will eventually be replaced by an alias,
+         * don't register any versions for it.
+         */
+        .versions = (X86CPUVersionDefinition[]) { { /* end of list */ } },
     },
     {
         .name = "SandyBridge",
@@ -2064,6 +2117,11 @@ static X86CPUDefinition builtin_x86_defs[] = {
             CPUID_6_EAX_ARAT,
         .xlevel = 0x80000008,
         .model_id = "Intel Xeon E312xx (Sandy Bridge, IBRS update)",
+        /*
+         * This CPU model will eventually be replaced by an alias,
+         * don't register any versions for it.
+         */
+        .versions = (X86CPUVersionDefinition[]) { { /* end of list */ } },
     },
     {
         .name = "IvyBridge",
@@ -2134,6 +2192,11 @@ static X86CPUDefinition builtin_x86_defs[] = {
             CPUID_6_EAX_ARAT,
         .xlevel = 0x80000008,
         .model_id = "Intel Xeon E3-12xx v2 (Ivy Bridge, IBRS)",
+        /*
+         * This CPU model will eventually be replaced by an alias,
+         * don't register any versions for it.
+         */
+        .versions = (X86CPUVersionDefinition[]) { { /* end of list */ } },
     },
     {
         .name = "Haswell-noTSX",
@@ -2170,6 +2233,11 @@ static X86CPUDefinition builtin_x86_defs[] = {
             CPUID_6_EAX_ARAT,
         .xlevel = 0x80000008,
         .model_id = "Intel Core Processor (Haswell, no TSX)",
+        /*
+         * This CPU model will eventually be replaced by an alias,
+         * don't register any versions for it.
+         */
+        .versions = (X86CPUVersionDefinition[]) { { /* end of list */ } },
     },
     {
         .name = "Haswell-noTSX-IBRS",
@@ -2208,6 +2276,11 @@ static X86CPUDefinition builtin_x86_defs[] = {
             CPUID_6_EAX_ARAT,
         .xlevel = 0x80000008,
         .model_id = "Intel Core Processor (Haswell, no TSX, IBRS)",
+        /*
+         * This CPU model will eventually be replaced by an alias,
+         * don't register any versions for it.
+         */
+        .versions = (X86CPUVersionDefinition[]) { { /* end of list */ } },
     },
     {
         .name = "Haswell",
@@ -2284,6 +2357,11 @@ static X86CPUDefinition builtin_x86_defs[] = {
             CPUID_6_EAX_ARAT,
         .xlevel = 0x80000008,
         .model_id = "Intel Core Processor (Haswell, IBRS)",
+        /*
+         * This CPU model will eventually be replaced by an alias,
+         * don't register any versions for it.
+         */
+        .versions = (X86CPUVersionDefinition[]) { { /* end of list */ } },
     },
     {
         .name = "Broadwell-noTSX",
@@ -2322,6 +2400,11 @@ static X86CPUDefinition builtin_x86_defs[] = {
             CPUID_6_EAX_ARAT,
         .xlevel = 0x80000008,
         .model_id = "Intel Core Processor (Broadwell, no TSX)",
+        /*
+         * This CPU model will eventually be replaced by an alias,
+         * don't register any versions for it.
+         */
+        .versions = (X86CPUVersionDefinition[]) { { /* end of list */ } },
     },
     {
         .name = "Broadwell-noTSX-IBRS",
@@ -2362,6 +2445,11 @@ static X86CPUDefinition builtin_x86_defs[] = {
             CPUID_6_EAX_ARAT,
         .xlevel = 0x80000008,
         .model_id = "Intel Core Processor (Broadwell, no TSX, IBRS)",
+        /*
+         * This CPU model will eventually be replaced by an alias,
+         * don't register any versions for it.
+         */
+        .versions = (X86CPUVersionDefinition[]) { { /* end of list */ } },
     },
     {
         .name = "Broadwell",
@@ -2440,6 +2528,11 @@ static X86CPUDefinition builtin_x86_defs[] = {
             CPUID_6_EAX_ARAT,
         .xlevel = 0x80000008,
         .model_id = "Intel Core Processor (Broadwell, IBRS)",
+        /*
+         * This CPU model will eventually be replaced by an alias,
+         * don't register any versions for it.
+         */
+        .versions = (X86CPUVersionDefinition[]) { { /* end of list */ } },
     },
     {
         .name = "Skylake-Client",
@@ -2532,6 +2625,11 @@ static X86CPUDefinition builtin_x86_defs[] = {
             CPUID_6_EAX_ARAT,
         .xlevel = 0x80000008,
         .model_id = "Intel Core Processor (Skylake, IBRS)",
+        /*
+         * This CPU model will eventually be replaced by an alias,
+         * don't register any versions for it.
+         */
+        .versions = (X86CPUVersionDefinition[]) { { /* end of list */ } },
     },
     {
         .name = "Skylake-Server",
@@ -2634,6 +2732,11 @@ static X86CPUDefinition builtin_x86_defs[] = {
             CPUID_6_EAX_ARAT,
         .xlevel = 0x80000008,
         .model_id = "Intel Xeon Processor (Skylake, IBRS)",
+        /*
+         * This CPU model will eventually be replaced by an alias,
+         * don't register any versions for it.
+         */
+        .versions = (X86CPUVersionDefinition[]) { { /* end of list */ } },
     },
     {
         .name = "Cascadelake-Server",
@@ -3142,6 +3245,11 @@ static X86CPUDefinition builtin_x86_defs[] = {
         .xlevel = 0x8000001E,
         .model_id = "AMD EPYC Processor (with IBPB)",
         .cache_info = &epyc_cache_info,
+        /*
+         * This CPU model will eventually be replaced by an alias,
+         * don't register any versions for it.
+         */
+        .versions = (X86CPUVersionDefinition[]) { { /* end of list */ } },
     },
     {
         .name = "Dhyana",
@@ -3194,10 +3302,6 @@ static X86CPUDefinition builtin_x86_defs[] = {
         .cache_info = &epyc_cache_info,
     },
 };
-
-typedef struct PropValue {
-    const char *prop, *value;
-} PropValue;
 
 /* TCG-specific defaults that override all CPU models when using TCG
  */
@@ -3745,10 +3849,62 @@ static void x86_cpu_apply_props(X86CPU *cpu, PropValue *props)
     }
 }
 
+static X86CPUVersion x86_cpu_model_last_version(const X86CPUModel *model)
+{
+    int v = 0;
+    const X86CPUVersionDefinition *vdef =
+        x86_cpu_def_get_versions(model->cpudef);
+    while (vdef->version) {
+        v = vdef->version;
+        vdef++;
+    }
+    return v;
+}
+
+/* Return the actual version being used for a specific CPU model */
+static X86CPUVersion x86_cpu_model_resolve_version(const X86CPUModel *model)
+{
+    X86CPUVersion v = model->version;
+    if (v == CPU_VERSION_LATEST) {
+        return x86_cpu_model_last_version(model);
+    }
+    return v;
+}
+
+/* Apply properties for the CPU model version specified in model */
+static void x86_cpu_apply_version_props(X86CPU *cpu, X86CPUModel *model)
+{
+    const X86CPUVersionDefinition *vdef;
+    X86CPUVersion version = x86_cpu_model_resolve_version(model);
+
+    if (version == CPU_VERSION_LEGACY) {
+        return;
+    }
+
+    for (vdef = x86_cpu_def_get_versions(model->cpudef); vdef->version; vdef++) {
+        PropValue *p;
+
+        for (p = vdef->props; p && p->prop; p++) {
+            object_property_parse(cpu->env.uc, OBJECT(cpu), p->value, p->prop,
+                                  &error_abort);
+        }
+
+        if (vdef->version == version) {
+            break;
+        }
+    }
+
+    /*
+     * If we reached the end of the list, version number was invalid
+     */
+    assert(vdef->version == version);
+}
+
 /* Load data from X86CPUDefinition
  */
-static void x86_cpu_load_def(X86CPU *cpu, X86CPUDefinition *def, Error **errp)
+static void x86_cpu_load_model(X86CPU *cpu, X86CPUModel *model, Error **errp)
 {
+    X86CPUDefinition *def = model->cpudef;
     CPUX86State *env = &cpu->env;
     const char *vendor;
     FeatureWord w;
@@ -3784,41 +3940,63 @@ static void x86_cpu_load_def(X86CPU *cpu, X86CPUDefinition *def, Error **errp)
     vendor = def->vendor;
 
     object_property_set_str(env->uc, OBJECT(cpu), vendor, "vendor", errp);
+
+    x86_cpu_apply_version_props(cpu, model);
 }
 
 static void x86_cpu_cpudef_class_init(struct uc_struct *uc, ObjectClass *oc, void *data)
 {
-    X86CPUDefinition *cpudef = data;
+    X86CPUModel *model = data;
     X86CPUClass *xcc = X86_CPU_CLASS(uc, oc);
 
-    xcc->cpu_def = cpudef;
+    xcc->model = model;
 }
 
-static void x86_register_cpudef_type(struct uc_struct *uc, X86CPUDefinition *def)
+static void x86_register_cpu_model_type(struct uc_struct *uc, const char *name, X86CPUModel *model)
 {
-    char *typename = x86_cpu_type_name(def->name);
+    char *typename = x86_cpu_type_name(name);
     TypeInfo ti = {
-        typename,
-        TYPE_X86_CPU,
-
-        0,
-        0,
-        NULL,
-
-        NULL,
-        NULL,
-        NULL,
-
-        def,
-
-        x86_cpu_cpudef_class_init,
+        .name = typename,
+        .parent = TYPE_X86_CPU,
+        .class_init = x86_cpu_cpudef_class_init,
+        .class_data = model,
     };
-
-    /* catch mistakes instead of silently truncating model_id when too long */
-    assert(def->model_id && strlen(def->model_id) <= 48);
 
     type_register(uc, &ti);
     g_free(typename);
+}
+
+
+static void x86_register_cpudef_types(struct uc_struct *uc, X86CPUDefinition *def)
+{
+    X86CPUModel *m;
+    const X86CPUVersionDefinition *vdef;
+    char *name;
+
+    /* AMD aliases are handled at runtime based on CPUID vendor, so
+     * they shouldn't be set on the CPU model table.
+     */
+    assert(!(def->features[FEAT_8000_0001_EDX] & CPUID_EXT2_AMD_ALIASES));
+    /* catch mistakes instead of silently truncating model_id when too long */
+    assert(def->model_id && strlen(def->model_id) <= 48);
+
+    /* Unversioned model: */
+    m = g_new0(X86CPUModel, 1);
+    m->cpudef = def;
+    m->version = CPU_VERSION_LEGACY;
+    x86_register_cpu_model_type(uc, def->name, m);
+
+    /* Versioned models: */
+
+    for (vdef = x86_cpu_def_get_versions(def); vdef->version; vdef++) {
+        X86CPUModel *m = g_new0(X86CPUModel, 1);
+        m->cpudef = def;
+        m->version = vdef->version;
+        name = x86_cpu_versioned_model_name(def, vdef->version);
+        x86_register_cpu_model_type(uc, name, m);
+        g_free(name);
+    }
+
 }
 
 #if !defined(CONFIG_USER_ONLY)
@@ -4580,7 +4758,7 @@ static void x86_cpu_enable_xsave_components(X86CPU *cpu)
  * involved in setting up CPUID data are:
  *
  * 1) Loading CPU model definition (X86CPUDefinition). This is
- *    implemented by x86_cpu_load_def() and should be completely
+ *    implemented by x86_cpu_load_model() and should be completely
  *    transparent, as it is done automatically by instance_init.
  *    No code should need to look at X86CPUDefinition structs
  *    outside instance_init.
@@ -4805,7 +4983,7 @@ static int x86_cpu_realizefn(struct uc_struct *uc, DeviceState *dev, Error **err
     /* Cache information initialization */
     if (!cpu->legacy_cache) {
         /* Unicorn: commented out
-        if (!xcc->cpu_def || !xcc->cpu_def->cache_info) {
+        if (!xcc->model || !xcc->model->cpudef->cache_info) {
             char *name = x86_cpu_class_get_model_name(xcc);
             error_setg(errp,
                        "CPU model '%s' doesn't support legacy-cache=off", name);
@@ -4814,7 +4992,7 @@ static int x86_cpu_realizefn(struct uc_struct *uc, DeviceState *dev, Error **err
         }
         */
         env->cache_info_cpuid2 = env->cache_info_cpuid4 = env->cache_info_amd =
-            *xcc->cpu_def->cache_info;
+            *xcc->model->cpudef->cache_info;
     } else {
         /* Build legacy cache information */
         env->cache_info_cpuid2.l1d_cache = &legacy_l1d_cache;
@@ -4966,7 +5144,7 @@ static void x86_cpu_initfn(struct uc_struct *uc, Object *obj, void *opaque)
     //          from qemu, but left this in to keep the member value initialized
     cpu->apic_id = UNASSIGNED_APIC_ID;
 
-    x86_cpu_load_def(cpu, xcc->cpu_def, &error_abort);
+    x86_cpu_load_model(cpu, xcc->model, &error_abort);
 }
 
 static int64_t x86_cpu_get_arch_id(CPUState *cs)
@@ -5115,6 +5293,6 @@ void x86_cpu_register_types(void *opaque)
 
     type_register(opaque, &x86_cpu_type_info);
     for (i = 0; i < ARRAY_SIZE(builtin_x86_defs); i++) {
-        x86_register_cpudef_type(opaque, &builtin_x86_defs[i]);
+        x86_register_cpudef_types(opaque, &builtin_x86_defs[i]);
     }
 }
