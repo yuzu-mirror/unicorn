@@ -1,9 +1,9 @@
 obj-y += helper.o vfp_helper.o
 obj-y += cpu.o
-obj-$(CONFIG_SOFTMMU) += psci.o
 obj-$(TARGET_AARCH64) += cpu64.o unicorn_aarch64.o
 obj-$(TARGET_ARM) += unicorn_arm.o
-obj-y += arm-powerctl.o
+
+obj-$(CONFIG_SOFTMMU) += arm-powerctl.o
 
 DECODETREE = $(SRC_PATH)/scripts/decodetree.py
 
@@ -29,6 +29,8 @@ target/arm/translate.o: target/arm/decode-vfp-uncond.inc.c
 obj-y += translate.o op_helper.o
 obj-y += crypto_helper.o
 obj-y += iwmmxt_helper.o vec_helper.o neon_helper.o
+
+obj-$(CONFIG_SOFTMMU) += psci.o
 
 obj-$(TARGET_AARCH64) += translate-a64.o helper-a64.o
 obj-$(TARGET_AARCH64) += translate-sve.o sve_helper.o
