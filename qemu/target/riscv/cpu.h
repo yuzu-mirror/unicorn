@@ -221,6 +221,10 @@ typedef struct RISCVCPU {
     /*< public >*/
     CPUNegativeOffsetState neg;
     CPURISCVState env;
+
+    struct {
+        bool ext_ifencei;
+    } cfg;
 } RISCVCPU;
 
 static inline int riscv_has_ext(CPURISCVState *env, target_ulong ext)
