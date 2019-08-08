@@ -12070,8 +12070,8 @@ static void arm_tr_init_disas_context(DisasContextBase *dcbase, CPUState *cs)
         dc->base.max_insns = MIN(dc->base.max_insns, bound);
     }
 
-    dc->V0 = tcg_temp_new_i32(tcg_ctx);
-    dc->V1 = tcg_temp_new_i32(tcg_ctx);
+    dc->V0 = tcg_temp_new_i64(tcg_ctx);
+    dc->V1 = tcg_temp_new_i64(tcg_ctx);
     /* FIXME: dc->M0 can probably be the same as dc->V0.  */
     dc->M0 = tcg_temp_new_i64(tcg_ctx);
 }
