@@ -96,7 +96,8 @@ static inline uint32_t merge_syn_data_abort(uint32_t template_syn,
 {
     uint32_t syn;
 
-    /* ISV is only set for data aborts routed to EL2 and
+    /*
+     * ISV is only set for data aborts routed to EL2 and
      * never for stage-1 page table walks faulting on stage 2.
      *
      * Furthermore, ISV is only set for certain kinds of load/stores.
@@ -111,7 +112,8 @@ static inline uint32_t merge_syn_data_abort(uint32_t template_syn,
         syn = syn_data_abort_no_iss(same_el,
                                     ea, 0, s1ptw, is_write, fsc);
     } else {
-        /* Fields: IL, ISV, SAS, SSE, SRT, SF and AR come from the template
+        /*
+         * Fields: IL, ISV, SAS, SSE, SRT, SF and AR come from the template
          * syndrome created at translation time.
          * Now we create the runtime syndrome with the remaining fields.
          */
@@ -143,14 +145,16 @@ void arm_deliver_fault(ARMCPU *cpu, vaddr addr, MMUAccessType access_type,
 
     if (target_el == 2 || arm_el_is_aa64(env, target_el) ||
         arm_s1_regime_using_lpae_format(env, arm_mmu_idx)) {
-        /* LPAE format fault status register : bottom 6 bits are
+        /*
+         * LPAE format fault status register : bottom 6 bits are
          * status code in the same form as needed for syndrome
          */
         fsr = arm_fi_to_lfsc(fi);
         fsc = extract32(fsr, 0, 6);
     } else {
         fsr = arm_fi_to_sfsc(fi);
-        /* Short format FSR : this fault will never actually be reported
+        /*
+         * Short format FSR : this fault will never actually be reported
          * to an EL that uses a syndrome register. Use a (currently)
          * reserved FSR code in case the constructed syndrome does leak
          * into the guest somehow.
@@ -193,7 +197,8 @@ void arm_cpu_do_unaligned_access(CPUState *cs, vaddr vaddr,
     arm_deliver_fault(cpu, vaddr, access_type, mmu_idx, &fi);
 }
 
-/* arm_cpu_do_transaction_failed: handle a memory system error response
+/*
+ * arm_cpu_do_transaction_failed: handle a memory system error response
  * (eg "no device/memory present at address") by raising an external abort
  * exception
  */
@@ -369,7 +374,8 @@ void HELPER(setend)(CPUARMState *env)
     env->uncached_cpsr ^= CPSR_E;
 }
 
-/* Function checks whether WFx (WFI/WFE) instructions are set up to be trapped.
+/*
+ * Function checks whether WFx (WFI/WFE) instructions are set up to be trapped.
  * The function returns the target EL (1-3) if the instruction is to be trapped;
  * otherwise it returns 0 indicating it is not trapped.
  */
@@ -383,7 +389,8 @@ static inline int check_wfx_trap(CPUARMState *env, bool is_wfe)
         return 0;
     }
 
-    /* If we are currently in EL0 then we need to check if SCTLR is set up for
+    /*
+     * If we are currently in EL0 then we need to check if SCTLR is set up for
      * WFx instructions being trapped to EL1. These trap bits don't exist in v7.
      */
     if (cur_el < 1 && arm_feature(env, ARM_FEATURE_V8)) {
@@ -402,7 +409,8 @@ static inline int check_wfx_trap(CPUARMState *env, bool is_wfe)
         }
     }
 
-    /* We are not trapping to EL1; trap to EL2 if HCR_EL2 requires it
+    /*
+     * We are not trapping to EL1; trap to EL2 if HCR_EL2 requires it
      * No need for ARM_FEATURE check as if HCR_EL2 doesn't exist the
      * bits will be zero indicating no trap.
      */
@@ -430,7 +438,8 @@ void HELPER(wfi)(CPUARMState *env, uint32_t insn_len)
     int target_el = check_wfx_trap(env, false);
 
     if (cpu_has_work(cs)) {
-        /* Don't bother to go into our "low power state" if
+        /*
+         * Don't bother to go into our "low power state" if
          * we would just wake up immediately.
          */
         return;
@@ -449,7 +458,8 @@ void HELPER(wfi)(CPUARMState *env, uint32_t insn_len)
 
 void HELPER(wfe)(CPUARMState *env)
 {
-    /* This is a hint instruction that is semantically different
+    /*
+     * This is a hint instruction that is semantically different
      * from YIELD even though we currently implement it identically.
      * Don't actually halt the CPU, just yield back to top
      * level loop. This is not going into a "low power state"
@@ -463,7 +473,8 @@ void HELPER(yield)(CPUARMState *env)
 {
     CPUState *cs = env_cpu(env);
 
-    /* This is a non-trappable hint instruction that generally indicates
+    /*
+     * This is a non-trappable hint instruction that generally indicates
      * that the guest is currently busy-looping. Yield control back to the
      * top level loop so that a more deserving VCPU has a chance to run.
      */
@@ -471,7 +482,8 @@ void HELPER(yield)(CPUARMState *env)
     cpu_loop_exit(cs);
 }
 
-/* Raise an internal-to-QEMU exception. This is limited to only
+/*
+ * Raise an internal-to-QEMU exception. This is limited to only
  * those EXCP values which are special cases for QEMU to interrupt
  * execution and not to be used for exceptions which are passed to
  * the guest (those must all have syndrome information and thus should
@@ -493,14 +505,16 @@ void HELPER(exception_with_syndrome)(CPUARMState *env, uint32_t excp,
     raise_exception(env, excp, syndrome, target_el);
 }
 
-/* Raise an EXCP_BKPT with the specified syndrome register value,
+/*
+ * Raise an EXCP_BKPT with the specified syndrome register value,
  * targeting the correct exception level for debug exceptions.
  */
 void HELPER(exception_bkpt_insn)(CPUARMState *env, uint32_t syndrome)
 {
     /* FSR will only be used if the debug target EL is AArch32. */
     env->exception.fsr = arm_debug_exception_fsr(env);
-    /* FAR is UNKNOWN: clear vaddress to avoid potentially exposing
+    /*
+     * FAR is UNKNOWN: clear vaddress to avoid potentially exposing
      * values to the guest that it shouldn't be able to see at its
      * exception/security level.
      */
@@ -525,7 +539,8 @@ void HELPER(cpsr_write_eret)(CPUARMState *env, uint32_t val)
 
     cpsr_write(env, val, CPSR_ERET_MASK, CPSRWriteExceptionReturn);
 
-    /* Generated code has already stored the new PC value, but
+    /*
+     * Generated code has already stored the new PC value, but
      * without masking out its low bits, because which bits need
      * masking depends on whether we're returning to Thumb or ARM
      * state. Do the masking now.
@@ -579,7 +594,8 @@ void HELPER(set_r13_banked)(CPUARMState *env, uint32_t mode, uint32_t val)
 uint32_t HELPER(get_r13_banked)(CPUARMState *env, uint32_t mode)
 {
     if ((env->uncached_cpsr & CPSR_M) == ARM_CPU_MODE_SYS) {
-        /* SRS instruction is UNPREDICTABLE from System mode; we UNDEF.
+        /*
+         * SRS instruction is UNPREDICTABLE from System mode; we UNDEF.
          * Other UNPREDICTABLE and UNDEF cases were caught at translate time.
          */
         raise_exception(env, EXCP_UDEF, syn_uncategorized(),
@@ -596,7 +612,8 @@ uint32_t HELPER(get_r13_banked)(CPUARMState *env, uint32_t mode)
 static void msr_mrs_banked_exc_checks(CPUARMState *env, uint32_t tgtmode,
                                       uint32_t regno)
 {
-    /* Raise an exception if the requested access is one of the UNPREDICTABLE
+    /*
+     * Raise an exception if the requested access is one of the UNPREDICTABLE
      * cases; otherwise return. This broadly corresponds to the pseudocode
      * BankedRegisterAccessValid() and SPSRAccessValid(),
      * except that we have already handled some cases at translate time.
@@ -743,7 +760,8 @@ void HELPER(access_check_cp_reg)(CPUARMState *env, void *rip, uint32_t syndrome,
         target_el = exception_target_el(env);
         break;
     case CP_ACCESS_TRAP_EL2:
-        /* Requesting a trap to EL2 when we're in EL3 or S-EL0/1 is
+        /*
+         * Requesting a trap to EL2 when we're in EL3 or S-EL0/1 is
          * a bug in the access function.
          */
         assert(!arm_is_secure(env) && arm_current_el(env) != 3);
@@ -766,7 +784,8 @@ void HELPER(access_check_cp_reg)(CPUARMState *env, void *rip, uint32_t syndrome,
         break;
     case CP_ACCESS_TRAP_FP_EL2:
         target_el = 2;
-        /* Since we are an implementation that takes exceptions on a trapped
+        /*
+         * Since we are an implementation that takes exceptions on a trapped
          * conditional insn only if the insn has passed its condition code
          * check, we take the IMPDEF choice to always report CV=1 COND=0xe
          * (which is also the required value for AArch64 traps).
@@ -821,7 +840,8 @@ void HELPER(pre_hvc)(CPUARMState *env)
     bool undef;
 
     if (arm_is_psci_call(cpu, EXCP_HVC)) {
-        /* If PSCI is enabled and this looks like a valid PSCI call then
+        /*
+         * If PSCI is enabled and this looks like a valid PSCI call then
          * that overrides the architecturally mandated HVC behaviour.
          */
         return;
@@ -837,7 +857,8 @@ void HELPER(pre_hvc)(CPUARMState *env)
         undef = env->cp15.hcr_el2 & HCR_HCD;
     }
 
-    /* In ARMv7 and ARMv8/AArch32, HVC is undef in secure state.
+    /*
+     * In ARMv7 and ARMv8/AArch32, HVC is undef in secure state.
      * For ARMv8/AArch64, HVC is allowed in EL3.
      * Note that we've already trapped HVC from EL0 at translation
      * time.
@@ -889,7 +910,8 @@ void HELPER(pre_smc)(CPUARMState *env, uint32_t syndrome)
      *  Conduit not SMC          Undef insn          Undef insn
      */
 
-    /* On ARMv8 with EL3 AArch64, SMD applies to both S and NS state.
+    /*
+     * On ARMv8 with EL3 AArch64, SMD applies to both S and NS state.
      * On ARMv8 with EL3 AArch32, or ARMv7 with the Virtualization
      *  extensions, SMD only applies to NS state.
      * On ARMv7 without the Virtualization extensions, the SMD bit
@@ -901,7 +923,8 @@ void HELPER(pre_smc)(CPUARMState *env, uint32_t syndrome)
 
     if (!arm_feature(env, ARM_FEATURE_EL3) &&
         cpu->psci_conduit != QEMU_PSCI_CONDUIT_SMC) {
-        /* If we have no EL3 then SMC always UNDEFs and can't be
+        /*
+         * If we have no EL3 then SMC always UNDEFs and can't be
          * trapped to EL2. PSCI-via-SMC is a sort of ersatz EL3
          * firmware within QEMU, and we want an EL2 guest to be able
          * to forbid its EL1 from making PSCI calls into QEMU's
@@ -914,7 +937,8 @@ void HELPER(pre_smc)(CPUARMState *env, uint32_t syndrome)
     }
 
     if (cur_el == 1 && (arm_hcr_el2_eff(env) & HCR_TSC)) {
-        /* In NS EL1, HCR controlled routing to EL2 has priority over SMD.
+        /*
+         * In NS EL1, HCR controlled routing to EL2 has priority over SMD.
          * We also want an EL2 guest to be able to forbid its EL1 from
          * making PSCI calls into QEMU's "firmware" via HCR.TSC.
          * This handles all the "Trap to EL2" cases of the previous table.
@@ -922,7 +946,8 @@ void HELPER(pre_smc)(CPUARMState *env, uint32_t syndrome)
         raise_exception(env, EXCP_HYP_TRAP, syndrome, 2);
     }
 
-    /* Catch the two remaining "Undef insn" cases of the previous table:
+    /*
+     * Catch the two remaining "Undef insn" cases of the previous table:
      *    - PSCI conduit is SMC but we don't have a valid PCSI call,
      *    - We don't have EL3 or SMD is set.
      */
@@ -943,7 +968,8 @@ static bool linked_bp_matches(ARMCPU *cpu, int lbn)
     int bt;
     uint32_t contextidr;
 
-    /* Links to unimplemented or non-context aware breakpoints are
+    /*
+     * Links to unimplemented or non-context aware breakpoints are
      * CONSTRAINED UNPREDICTABLE: either behave as if disabled, or
      * as if linked to an UNKNOWN context-aware breakpoint (in which
      * case DBGWCR<n>_EL1.LBN must indicate that breakpoint).
@@ -962,7 +988,8 @@ static bool linked_bp_matches(ARMCPU *cpu, int lbn)
 
     bt = extract64(bcr, 20, 4);
 
-    /* We match the whole register even if this is AArch32 using the
+    /*
+     * We match the whole register even if this is AArch32 using the
      * short descriptor format (in which case it holds both PROCID and ASID),
      * since we don't implement the optional v7 context ID masking.
      */
@@ -979,7 +1006,8 @@ static bool linked_bp_matches(ARMCPU *cpu, int lbn)
     case 9: /* linked VMID match (reserved if no EL2) */
     case 11: /* linked context ID and VMID match (reserved if no EL2) */
     default:
-        /* Links to Unlinked context breakpoints must generate no
+        /*
+         * Links to Unlinked context breakpoints must generate no
          * events; we choose to do the same for reserved values too.
          */
         return false;
@@ -993,7 +1021,8 @@ static bool bp_wp_matches(ARMCPU *cpu, int n, bool is_wp)
     CPUARMState *env = &cpu->env;
     uint64_t cr;
     int pac, hmc, ssc, wt, lbn;
-    /* Note that for watchpoints the check is against the CPU security
+    /*
+     * Note that for watchpoints the check is against the CPU security
      * state, not the S/NS attribute on the offending data access.
      */
     bool is_secure = arm_is_secure(env);
@@ -1022,7 +1051,8 @@ static bool bp_wp_matches(ARMCPU *cpu, int n, bool is_wp)
         }
         cr = env->cp15.dbgbcr[n];
     }
-    /* The WATCHPOINT_HIT flag guarantees us that the watchpoint is
+    /*
+     * The WATCHPOINT_HIT flag guarantees us that the watchpoint is
      * enabled and that the address and access type match; for breakpoints
      * we know the address matched; check the remaining fields, including
      * linked breakpoints. We rely on WCR and BCR having the same layout
@@ -1090,7 +1120,8 @@ static bool check_watchpoints(ARMCPU *cpu)
     CPUARMState *env = &cpu->env;
     int n;
 
-    /* If watchpoints are disabled globally or we can't take debug
+    /*
+     * If watchpoints are disabled globally or we can't take debug
      * exceptions here then watchpoint firings are ignored.
      */
     if (extract32(env->cp15.mdscr_el1, 15, 1) == 0
@@ -1111,7 +1142,8 @@ static bool check_breakpoints(ARMCPU *cpu)
     CPUARMState *env = &cpu->env;
     int n;
 
-    /* If breakpoints are disabled globally or we can't take debug
+    /*
+     * If breakpoints are disabled globally or we can't take debug
      * exceptions here then breakpoint firings are ignored.
      */
     if (extract32(env->cp15.mdscr_el1, 15, 1) == 0
@@ -1138,7 +1170,8 @@ void HELPER(check_breakpoints)(CPUARMState *env)
 
 bool arm_debug_check_watchpoint(CPUState *cs, CPUWatchpoint *wp)
 {
-    /* Called by core code when a CPU watchpoint fires; need to check if this
+    /*
+     * Called by core code when a CPU watchpoint fires; need to check if this
      * is also an architectural watchpoint match.
      */
     ARMCPU *cpu = ARM_CPU(cs->uc, cs);
@@ -1151,7 +1184,8 @@ vaddr arm_adjust_watchpoint_address(CPUState *cs, vaddr addr, int len)
     ARMCPU *cpu = ARM_CPU(cs->uc, cs);
     CPUARMState *env = &cpu->env;
 
-    /* In BE32 system mode, target memory is stored byteswapped (on a
+    /*
+     * In BE32 system mode, target memory is stored byteswapped (on a
      * little-endian host system), and by the time we reach here (via an
      * opcode helper) the addresses of subword accesses have been adjusted
      * to account for that, which means that watchpoints will not match.
@@ -1170,7 +1204,8 @@ vaddr arm_adjust_watchpoint_address(CPUState *cs, vaddr addr, int len)
 
 void arm_debug_excp_handler(CPUState *cs)
 {
-    /* Called by core code when a watchpoint or breakpoint fires;
+    /*
+     * Called by core code when a watchpoint or breakpoint fires;
      * need to check which one and raise the appropriate exception.
      */
     ARMCPU *cpu = ARM_CPU(cs->uc, cs);
@@ -1194,7 +1229,8 @@ void arm_debug_excp_handler(CPUState *cs)
         uint64_t pc = is_a64(env) ? env->pc : env->regs[15];
         bool same_el = (arm_debug_target_el(env) == arm_current_el(env));
 
-        /* (1) GDB breakpoints should be handled first.
+        /*
+         * (1) GDB breakpoints should be handled first.
          * (2) Do not raise a CPU exception if no CPU breakpoint has fired,
          * since singlestep is also done by generating a debug internal
          * exception.
@@ -1205,7 +1241,8 @@ void arm_debug_excp_handler(CPUState *cs)
         }
 
         env->exception.fsr = arm_debug_exception_fsr(env);
-        /* FAR is UNKNOWN: clear vaddress to avoid potentially exposing
+        /*
+         * FAR is UNKNOWN: clear vaddress to avoid potentially exposing
          * values to the guest that it shouldn't be able to see at its
          * exception/security level.
          */
@@ -1216,9 +1253,11 @@ void arm_debug_excp_handler(CPUState *cs)
     }
 }
 
-/* ??? Flag setting arithmetic is awkward because we need to do comparisons.
-   The only way to do that in TCG is a conditional branch, which clobbers
-   all our temporaries.  For now implement these as helper functions.  */
+/*
+ * ??? Flag setting arithmetic is awkward because we need to do comparisons.
+ * The only way to do that in TCG is a conditional branch, which clobbers
+ * all our temporaries.  For now implement these as helper functions.
+ */
 
 /* Similarly for variable shift instructions.  */
 

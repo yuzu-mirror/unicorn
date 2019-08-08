@@ -25,9 +25,11 @@
 #include "internals.h"
 
 
-/* VFP support.  We follow the convention used for VFP instructions:
-   Single precision routines have a "s" suffix, double precision a
-   "d" suffix.  */
+/*
+ * VFP support.  We follow the convention used for VFP instructions:
+ * Single precision routines have a "s" suffix, double precision a
+ * "d" suffix.
+ */
 
 /* Convert host exception flags to vfp form.  */
 static inline int vfp_exceptbits_from_host(int host_bits)
@@ -170,7 +172,8 @@ void HELPER(vfp_set_fpscr)(CPUARMState *env, uint32_t val)
         set_default_nan_mode(dnan_enabled, &env->vfp.fp_status_f16);
     }
 
-    /* The exception flags are ORed together when we read fpscr so we
+    /*
+     * The exception flags are ORed together when we read fpscr so we
      * only need to preserve the current state in one of our
      * float_status values.
      */
@@ -451,7 +454,8 @@ uint64_t HELPER(vfp_touqh)(uint32_t x, uint32_t shift, void *fpst)
                                     shift, fpst);
 }
 
-/* Set the current fp rounding mode and return the old one.
+/*
+ * Set the current fp rounding mode and return the old one.
  * The argument is a softfloat float_round_ value.
  */
 uint32_t HELPER(set_rmode)(uint32_t rmode, void *fpstp)
@@ -464,7 +468,8 @@ uint32_t HELPER(set_rmode)(uint32_t rmode, void *fpstp)
     return prev_rmode;
 }
 
-/* Set the current fp rounding mode in the standard fp status and return
+/*
+ * Set the current fp rounding mode in the standard fp status and return
  * the old one. This is for NEON instructions that need to change the
  * rounding mode but wish to use the standard FPSCR values for everything
  * else. Always set the rounding mode back to the correct value after
@@ -484,7 +489,8 @@ uint32_t HELPER(set_neon_rmode)(uint32_t rmode, CPUARMState *env)
 /* Half precision conversions.  */
 float32 HELPER(vfp_fcvt_f16_to_f32)(uint32_t a, void *fpstp, uint32_t ahp_mode)
 {
-    /* Squash FZ16 to 0 for the duration of conversion.  In this case,
+    /*
+     * Squash FZ16 to 0 for the duration of conversion.  In this case,
      * it would affect flushing input denormals.
      */
     float_status *fpst = fpstp;
@@ -497,7 +503,8 @@ float32 HELPER(vfp_fcvt_f16_to_f32)(uint32_t a, void *fpstp, uint32_t ahp_mode)
 
 uint32_t HELPER(vfp_fcvt_f32_to_f16)(float32 a, void *fpstp, uint32_t ahp_mode)
 {
-    /* Squash FZ16 to 0 for the duration of conversion.  In this case,
+    /*
+     * Squash FZ16 to 0 for the duration of conversion.  In this case,
      * it would affect flushing output denormals.
      */
     float_status *fpst = fpstp;
@@ -510,7 +517,8 @@ uint32_t HELPER(vfp_fcvt_f32_to_f16)(float32 a, void *fpstp, uint32_t ahp_mode)
 
 float64 HELPER(vfp_fcvt_f16_to_f64)(uint32_t a, void *fpstp, uint32_t ahp_mode)
 {
-    /* Squash FZ16 to 0 for the duration of conversion.  In this case,
+    /*
+     * Squash FZ16 to 0 for the duration of conversion.  In this case,
      * it would affect flushing input denormals.
      */
     float_status *fpst = fpstp;
@@ -523,7 +531,8 @@ float64 HELPER(vfp_fcvt_f16_to_f64)(uint32_t a, void *fpstp, uint32_t ahp_mode)
 
 uint32_t HELPER(vfp_fcvt_f64_to_f16)(float64 a, void *fpstp, uint32_t ahp_mode)
 {
-    /* Squash FZ16 to 0 for the duration of conversion.  In this case,
+    /*
+     * Squash FZ16 to 0 for the duration of conversion.  In this case,
      * it would affect flushing output denormals.
      */
     float_status *fpst = fpstp;
@@ -568,21 +577,25 @@ float32 HELPER(rsqrts_f32)(float32 a, float32 b, CPUARMState *env)
 
 /* NEON helpers.  */
 
-/* Constants 256 and 512 are used in some helpers; we avoid relying on
- * int->float conversions at run-time.  */
+/*
+ * Constants 256 and 512 are used in some helpers; we avoid relying on
+ * int->float conversions at run-time.
+ */
 #define float64_256 make_float64(0x4070000000000000LL)
 #define float64_512 make_float64(0x4080000000000000LL)
 #define float16_maxnorm make_float16(0x7bff)
 #define float32_maxnorm make_float32(0x7f7fffff)
 #define float64_maxnorm make_float64(0x7fefffffffffffffLL)
 
-/* Reciprocal functions
+/*
+ * Reciprocal functions
  *
  * The algorithm that must be used to calculate the estimate
  * is specified by the ARM ARM, see FPRecipEstimate()/RecipEstimate
  */
 
-/* See RecipEstimate()
+/*
+ * See RecipEstimate()
  *
  * input is a 9 bit fixed point number
  * input range 256 .. 511 for a number from 0.5 <= x < 1.0.
@@ -805,7 +818,8 @@ float64 HELPER(recpe_f64)(float64 input, void *fpstp)
     return make_float64(f64_val);
 }
 
-/* The algorithm that must be used to calculate the estimate
+/*
+ * The algorithm that must be used to calculate the estimate
  * is specified by the ARM ARM.
  */
 
@@ -887,8 +901,10 @@ uint32_t HELPER(rsqrte_f16)(uint32_t input, void *fpstp)
         return float16_zero;
     }
 
-    /* Scale and normalize to a double-precision value between 0.25 and 1.0,
-     * preserving the parity of the exponent.  */
+    /*
+     * Scale and normalize to a double-precision value between 0.25 and 1.0,
+     * preserving the parity of the exponent.
+     */
 
     f64_frac = ((uint64_t) f16_frac) << (52 - 10);
 
@@ -931,8 +947,10 @@ float32 HELPER(rsqrte_f32)(float32 input, void *fpstp)
         return float32_zero;
     }
 
-    /* Scale and normalize to a double-precision value between 0.25 and 1.0,
-     * preserving the parity of the exponent.  */
+    /*
+     * Scale and normalize to a double-precision value between 0.25 and 1.0,
+     * preserving the parity of the exponent.
+     */
 
     f64_frac = ((uint64_t) f32_frac) << 29;
 
