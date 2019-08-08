@@ -10116,6 +10116,7 @@ static void gen_mttr(CPUMIPSState *env, DisasContext *ctx, int rd, int rt,
                 gen_mtc0(ctx, t0, rd, sel);
                 break;
             }
+            break;
         case 12:
             switch (sel) {
             case 0:
@@ -10125,6 +10126,7 @@ static void gen_mttr(CPUMIPSState *env, DisasContext *ctx, int rd, int rt,
                 gen_mtc0(ctx, t0, rd, sel);
                 break;
             }
+            break;
         case 13:
             switch (sel) {
             case 0:
