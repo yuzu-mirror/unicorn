@@ -120,15 +120,16 @@ all: $(TOOLS) $(HELPERS-y) recurse-all modules
 config-host.h: config-host.h-timestamp
 config-host.h-timestamp: config-host.mak
 
-SUBDIR_RULES=$(patsubst %,subdir-%, $(TARGET_DIRS))
-SOFTMMU_SUBDIR_RULES=$(filter %-softmmu,$(SUBDIR_RULES))
+SUBDIR_RULES=$(addsuffix /all, $(TARGET_DIRS))
+SOFTMMU_SUBDIR_RULES=$(filter %-softmmu/all,$(SUBDIR_RULES))
 
 $(SOFTMMU_SUBDIR_RULES): $(block-obj-y)
 $(SOFTMMU_SUBDIR_RULES): $(crypto-obj-y)
 $(SOFTMMU_SUBDIR_RULES): config-all-devices.mak
 
-subdir-%:
-	$(call quiet-command,$(MAKE) $(SUBDIR_MAKEFLAGS) -C $* V="$(V)" TARGET_DIR="$*/" all,)
+.PHONY: $(SUBDIR_RULES)
+$(SUBDIR_RULES):
+	$(call quiet-command,$(MAKE) $(SUBDIR_MAKEFLAGS) -C $(dir $@) V="$(V)" TARGET_DIR="$(dir $@)" all,)
 
 $(SUBDIR_RULES): qapi/qapi-types.c qapi/qapi-types.h qapi/qapi-visit.c qapi/qapi-visit.h $(common-obj-y) $(util-obj-y)
 
