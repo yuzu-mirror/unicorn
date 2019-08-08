@@ -106,7 +106,7 @@ static void riscv_any_cpu_init(struct uc_struct *uc, Object *obj, void *opaque)
 {
     CPURISCVState *env = &RISCV_CPU(uc, obj)->env;
     set_misa(env, RVXLEN | RVI | RVM | RVA | RVF | RVD | RVC | RVU);
-    set_versions(env, USER_VERSION_2_02_0, PRIV_VERSION_1_10_0);
+    set_versions(env, USER_VERSION_2_02_0, PRIV_VERSION_1_11_0);
     set_resetvec(env, DEFAULT_RSTVEC);
 }
 
