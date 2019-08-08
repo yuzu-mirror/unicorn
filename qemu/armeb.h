@@ -3383,7 +3383,6 @@
 #define aa64_va_parameters_both aa64_va_parameters_both_armeb
 #define aarch64_translator_ops aarch64_translator_ops_armeb
 #define arm_cpu_tlb_fill arm_cpu_tlb_fill_armeb
-#define arm_deliver_fault arm_deliver_fault_armeb
 #define arm_v7m_mmu_idx_all arm_v7m_mmu_idx_all_armeb
 #define arm_v7m_mmu_idx_for_secstate arm_v7m_mmu_idx_for_secstate_armeb
 #define arm_v7m_mmu_idx_for_secstate_and_priv arm_v7m_mmu_idx_for_secstate_and_priv_armeb
