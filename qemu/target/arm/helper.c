@@ -18,8 +18,10 @@
 #include "qemu/crc32c.h"
 #include "exec/exec-all.h"
 #include "exec/cpu_ldst.h"
-#include "arm_ldst.h"
 #include "qemu/range.h"
+#ifdef CONFIG_TCG
+#include "arm_ldst.h"
+#endif
 
 #define ARM_CPU_FREQ 1000000000 /* FIXME: 1 GHz, should be configurable */
 
@@ -10214,6 +10216,7 @@ static inline bool check_for_semihosting(CPUState *cs)
 
 // Unicorn: ifdefd out
 #if 0
+#ifdef CONFIG_TCG
     /*
      * Check whether this exception is a semihosting call; if so
      * then handle it and return true; otherwise return false.
@@ -10293,6 +10296,9 @@ static inline bool check_for_semihosting(CPUState *cs)
         env->regs[0] = do_arm_semihosting(env);
         return true;
     }
+#else
+    return false;
+#endif
 #endif
 }
 
