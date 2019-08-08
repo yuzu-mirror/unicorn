@@ -108,9 +108,11 @@ typedef struct CPUM68KState {
     float_status fp_status;
 
     uint64_t mactmp;
-    /* EMAC Hardware deals with 48-bit values composed of one 32-bit and
-       two 8-bit parts.  We store a single 64-bit value and
-       rearrange/extend this when changing modes.  */
+    /*
+     * EMAC Hardware deals with 48-bit values composed of one 32-bit and
+     * two 8-bit parts.  We store a single 64-bit value and
+     * rearrange/extend this when changing modes.
+     */
     uint64_t macc[4];
     uint32_t macsr;
     uint32_t mac_mask;
@@ -153,7 +155,7 @@ typedef struct CPUM68KState {
     struct uc_struct *uc;
 } CPUM68KState;
 
-/**
+/*
  * M68kCPU:
  * @env: #CPUM68KState
  *
@@ -177,9 +179,11 @@ int m68k_cpu_gdb_read_register(CPUState *cpu, uint8_t *buf, int reg);
 int m68k_cpu_gdb_write_register(CPUState *cpu, uint8_t *buf, int reg);
 
 void m68k_tcg_init(struct uc_struct *uc);
-/* you can call this signal handler from your SIGBUS and SIGSEGV
-   signal handlers to inform the virtual CPU of exceptions. non zero
-   is returned if the signal was handled by the virtual CPU.  */
+/*
+ * you can call this signal handler from your SIGBUS and SIGSEGV
+ * signal handlers to inform the virtual CPU of exceptions. non zero
+ * is returned if the signal was handled by the virtual CPU.
+ */
 int cpu_m68k_signal_handler(int host_signum, void *pinfo,
                            void *puc);
 uint32_t cpu_m68k_get_ccr(CPUM68KState *env);
@@ -444,9 +448,11 @@ void m68k_switch_sp(CPUM68KState *env);
 
 void do_m68k_semihosting(CPUM68KState *env, int nr);
 
-/* There are 4 ColdFire core ISA revisions: A, A+, B and C.
-   Each feature covers the subset of instructions common to the
-   ISA revisions mentioned.  */
+/*
+ * There are 4 ColdFire core ISA revisions: A, A+, B and C.
+ * Each feature covers the subset of instructions common to the
+ * ISA revisions mentioned.
+ */
 
 enum m68k_features {
     M68K_FEATURE_M68000,

@@ -241,8 +241,10 @@ static void set_cc_op(DisasContext *s, CCOp op)
     s->cc_op = op;
     s->cc_op_synced = 0;
 
-    /* Discard CC computation that will no longer be used.
-       Note that X and N are never dead.  */
+    /*
+     * Discard CC computation that will no longer be used.
+     * Note that X and N are never dead.
+     */
     dead = cc_op_live[old_op] & ~cc_op_live[op];
     if (dead & CCF_C) {
         tcg_gen_discard_i32(tcg_ctx, tcg_ctx->QREG_CC_C);
@@ -307,8 +309,10 @@ static inline void gen_addr_fault(DisasContext *s)
     gen_exception(s, s->base.pc_next, EXCP_ADDRESS);
 }
 
-/* Generate a load from the specified address.  Narrow values are
-   sign extended to full register width.  */
+/*
+ * Generate a load from the specified address.  Narrow values are
+ *  sign extended to full register width.
+ */
 static inline TCGv gen_load(DisasContext *s, int opsize, TCGv addr,
                             int sign, int index)
 {
@@ -362,8 +366,10 @@ typedef enum {
     EA_LOADS
 } ea_what;
 
-/* Generate an unsigned load if VAL is 0 a signed load if val is -1,
-   otherwise generate a store.  */
+/*
+ * Generate an unsigned load if VAL is 0 a signed load if val is -1,
+ * otherwise generate a store.
+ */
 static TCGv gen_ldst(DisasContext *s, int opsize, TCGv addr, TCGv val,
                      ea_what what, int index)
 {
@@ -430,8 +436,10 @@ static TCGv gen_addr_index(DisasContext *s, uint16_t ext, TCGv tmp)
     return add;
 }
 
-/* Handle a base + index + displacement effective addresss.
-   A NULL_QREG base means pc-relative.  */
+/*
+ * Handle a base + index + displacement effective addresss.
+ * A NULL_QREG base means pc-relative.
+ */
 static TCGv gen_lea_indexed(CPUM68KState *env, DisasContext *s, TCGv base)
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
@@ -730,8 +738,10 @@ static inline int ext_opsize(int ext, int pos)
     }
 }
 
-/* Assign value to a register.  If the width is less than the register width
-   only the low part of the register is set.  */
+/*
+ * Assign value to a register.  If the width is less than the register width
+ * only the low part of the register is set.
+ */
 static void gen_partset_reg(DisasContext *s, int opsize, TCGv reg, TCGv val)
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
@@ -760,8 +770,10 @@ static void gen_partset_reg(DisasContext *s, int opsize, TCGv reg, TCGv val)
     }
 }
 
-/* Generate code for an "effective address".  Does not adjust the base
-   register for autoincrement addressing modes.  */
+/*
+ * Generate code for an "effective address".  Does not adjust the base
+ * register for autoincrement addressing modes.
+ */
 static TCGv gen_lea_mode(CPUM68KState *env, DisasContext *s,
                          int mode, int reg0, int opsize)
 {
@@ -835,9 +847,11 @@ static TCGv gen_lea(CPUM68KState *env, DisasContext *s, uint16_t insn,
     return gen_lea_mode(env, s, mode, reg0, opsize);
 }
 
-/* Generate code to load/store a value from/into an EA.  If WHAT > 0 this is
-   a write otherwise it is a read (0 == sign extend, -1 == zero extend).
-   ADDRP is non-null for readwrite operands.  */
+/*
+ * Generate code to load/store a value from/into an EA.  If WHAT > 0 this is
+ * a write otherwise it is a read (0 == sign extend, -1 == zero extend).
+ * ADDRP is non-null for readwrite operands.
+ */
 static TCGv gen_ea_mode(CPUM68KState *env, DisasContext *s, int mode, int reg0,
                         int opsize, TCGv val, TCGv *addrp, ea_what what,
                         int index)
@@ -1038,7 +1052,8 @@ static void gen_load_fp(DisasContext *s, int opsize, TCGv addr, TCGv_ptr fp,
         tcg_gen_st_i64(tcg_ctx, t64, fp, offsetof(FPReg, l.lower));
         break;
     case OS_PACKED:
-        /* unimplemented data type on 68040/ColdFire
+        /*
+         * unimplemented data type on 68040/ColdFire
          * FIXME if needed for another FPU
          */
         gen_exception(s, s->base.pc_next, EXCP_FP_UNIMP);
@@ -1093,7 +1108,8 @@ static void gen_store_fp(DisasContext *s, int opsize, TCGv addr, TCGv_ptr fp,
         tcg_gen_qemu_st64(s->uc, t64, tmp, index);
         break;
     case OS_PACKED:
-        /* unimplemented data type on 68040/ColdFire
+        /*
+         * unimplemented data type on 68040/ColdFire
          * FIXME if needed for another FPU
          */
         gen_exception(s, s->base.pc_next, EXCP_FP_UNIMP);
@@ -1240,7 +1256,8 @@ static int gen_ea_mode_fp(CPUM68KState *env, DisasContext *s, int mode,
                 tcg_temp_free_i64(tcg_ctx, t64);
                 break;
             case OS_PACKED:
-                /* unimplemented data type on 68040/ColdFire
+                /*
+                 * unimplemented data type on 68040/ColdFire
                  * FIXME if needed for another FPU
                  */
                 gen_exception(s, s->base.pc_next, EXCP_FP_UNIMP);
@@ -1328,9 +1345,11 @@ static void gen_cc_cond(DisasCompare *c, DisasContext *s, int cond)
         goto done;
     case 14: /* GT (!(Z || (N ^ V))) */
     case 15: /* LE (Z || (N ^ V)) */
-        /* Logic operations clear V, which simplifies LE to (Z || N),
-           and since Z and N are co-located, this becomes a normal
-           comparison vs N.  */
+        /*
+         * Logic operations clear V, which simplifies LE to (Z || N),
+         * and since Z and N are co-located, this becomes a normal
+         * comparison vs N.
+         */
         if (op == CC_OP_LOGIC) {
             c->v1 = tcg_ctx->QREG_CC_N;
             tcond = TCG_COND_LE;
@@ -1587,9 +1606,11 @@ DISAS_INSN(undef_fpu)
 
 DISAS_INSN(undef)
 {
-    /* ??? This is both instructions that are as yet unimplemented
-       for the 680x0 series, as well as those that are implemented
-       but actually illegal for CPU32 or pre-68020.  */
+    /*
+     * ??? This is both instructions that are as yet unimplemented
+     * for the 680x0 series, as well as those that are implemented
+     * but actually illegal for CPU32 or pre-68020.
+     */
     qemu_log_mask(LOG_UNIMP, "Illegal instruction: %04x @ %08x\n",
                   insn, s->base.pc_next);
     gen_exception(s, s->base.pc_next, EXCP_ILLEGAL);
@@ -1697,7 +1718,8 @@ static void bcd_add(DisasContext *s, TCGv dest, TCGv src)
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
     TCGv t0, t1;
 
-    /*  dest10 = dest10 + src10 + X
+    /*
+     * dest10 = dest10 + src10 + X
      *
      *        t1 = src
      *        t2 = t1 + 0x066
@@ -1709,7 +1731,8 @@ static void bcd_add(DisasContext *s, TCGv dest, TCGv src)
      *        return t3 - t7
      */
 
-    /* t1 = (src + 0x066) + dest + X
+    /*
+     * t1 = (src + 0x066) + dest + X
      *    = result with some possible exceding 0x6
      */
 
@@ -1722,20 +1745,23 @@ static void bcd_add(DisasContext *s, TCGv dest, TCGv src)
 
     /* we will remove exceding 0x6 where there is no carry */
 
-    /* t0 = (src + 0x0066) ^ dest
+    /*
+     * t0 = (src + 0x0066) ^ dest
      *    = t1 without carries
      */
 
     tcg_gen_xor_i32(tcg_ctx, t0, t0, dest);
 
-    /* extract the carries
+    /*
+     * extract the carries
      * t0 = t0 ^ t1
      *    = only the carries
      */
 
     tcg_gen_xor_i32(tcg_ctx, t0, t0, t1);
 
-    /* generate 0x1 where there is no carry
+    /*
+     * generate 0x1 where there is no carry
      * and for each 0x10, generate a 0x6
      */
 
@@ -1746,7 +1772,8 @@ static void bcd_add(DisasContext *s, TCGv dest, TCGv src)
     tcg_gen_add_i32(tcg_ctx, dest, dest, t0);
     tcg_temp_free(tcg_ctx, t0);
 
-    /* remove the exceding 0x6
+    /*
+     * remove the exceding 0x6
      * for digits that have not generated a carry
      */
 
@@ -1759,7 +1786,8 @@ static void bcd_sub(DisasContext *s, TCGv dest, TCGv src)
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
     TCGv t0, t1, t2;
 
-    /*  dest10 = dest10 - src10 - X
+    /*
+     *  dest10 = dest10 - src10 - X
      *         = bcd_add(dest + 1 - X, 0x199 - src)
      */
 
@@ -1784,7 +1812,8 @@ static void bcd_sub(DisasContext *s, TCGv dest, TCGv src)
 
     tcg_gen_xor_i32(tcg_ctx, t0, t1, t2);
 
-    /* t2 = ~t0 & 0x110
+    /*
+     * t2 = ~t0 & 0x110
      * t0 = (t2 >> 2) | (t2 >> 3)
      *
      * to fit on 8bit operands, changed in:
@@ -2090,8 +2119,10 @@ DISAS_INSN(movem)
             /* pre-decrement is not allowed */
             goto do_addr_fault;
         }
-        /* We want a bare copy of the address reg, without any pre-decrement
-           adjustment, as gen_lea would provide.  */
+        /*
+         * We want a bare copy of the address reg, without any pre-decrement
+         * adjustment, as gen_lea would provide.
+         */
         break;
 
     default:
@@ -2133,7 +2164,8 @@ DISAS_INSN(movem)
                     tcg_gen_sub_i32(tcg_ctx, addr, addr, incr);
                     if (reg0 + 8 == i &&
                         m68k_feature(s->env, M68K_FEATURE_EXT_FULL)) {
-                        /* M68020+: if the addressing register is the
+                        /*
+                         * M68020+: if the addressing register is the
                          * register moved to memory, the value written
                          * is the initial value decremented by the size of
                          * the operation, regardless of how many actual
@@ -2485,7 +2517,8 @@ DISAS_INSN(cas)
 
     cmp = gen_extend(s, DREG(ext, 0), opsize, 1);
 
-    /* if  <EA> == Dc then
+    /*
+     * if  <EA> == Dc then
      *     <EA> = Du
      *     Dc = <EA> (because <EA> == Dc)
      * else
@@ -2539,7 +2572,8 @@ DISAS_INSN(cas2w)
         addr2 = DREG(ext2, 12);
     }
 
-    /* if (R1) == Dc1 && (R2) == Dc2 then
+    /*
+     * if (R1) == Dc1 && (R2) == Dc2 then
      *     (R1) = Du1
      *     (R2) = Du2
      * else
@@ -2590,7 +2624,8 @@ DISAS_INSN(cas2l)
         addr2 = DREG(ext2, 12);
     }
 
-    /* if (R1) == Dc1 && (R2) == Dc2 then
+    /*
+     * if (R1) == Dc1 && (R2) == Dc2 then
      *     (R1) = Du1
      *     (R2) = Du2
      * else
@@ -2680,7 +2715,8 @@ DISAS_INSN(negx)
 
     gen_flush_flags(s); /* compute old Z */
 
-    /* Perform substract with borrow.
+    /*
+     * Perform substract with borrow.
      * (X, N) =  -(src + X);
      */
 
@@ -2692,7 +2728,8 @@ DISAS_INSN(negx)
 
     tcg_gen_andi_i32(tcg_ctx, QREG_CC_X, QREG_CC_X, 1);
 
-    /* Compute signed-overflow for negation.  The normal formula for
+    /*
+     * Compute signed-overflow for negation.  The normal formula for
      * subtraction is (res ^ src) & (src ^ dest), but with dest==0
      * this simplies to res & src.
      */
@@ -2942,8 +2979,10 @@ DISAS_INSN(mull)
 
         set_cc_op(s, CC_OP_FLAGS);
     } else {
-        /* The upper 32 bits of the product are discarded, so
-           muls.l and mulu.l are functionally equivalent.  */
+        /*
+         * The upper 32 bits of the product are discarded, so
+         * muls.l and mulu.l are functionally equivalent.
+         */
         tcg_gen_mul_i32(tcg_ctx, DREG(ext, 12), src1, DREG(ext, 12));
         gen_logic_cc(s, DREG(ext, 12), OS_LONG);
     }
@@ -3043,8 +3082,10 @@ DISAS_INSN(jump)
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
     TCGv tmp;
 
-    /* Load the target address first to ensure correct exception
-       behavior.  */
+    /*
+     * Load the target address first to ensure correct exception
+     * behavior.
+     */
     tmp = gen_lea(env, s, insn, OS_LONG);
     if (IS_NULL_QREG(tmp)) {
         gen_addr_fault(s);
@@ -3082,8 +3123,10 @@ DISAS_INSN(addsubq)
     dest = tcg_temp_new(tcg_ctx);
     tcg_gen_mov_i32(tcg_ctx, dest, src);
     if ((insn & 0x38) == 0x08) {
-        /* Don't update condition codes if the destination is an
-           address register.  */
+        /*
+         * Don't update condition codes if the destination is an
+         * address register.
+         */
         if (insn & 0x0100) {
             tcg_gen_sub_i32(tcg_ctx, dest, dest, val);
         } else {
@@ -3228,7 +3271,8 @@ static inline void gen_subx(DisasContext *s, TCGv src, TCGv dest, int opsize)
 
     gen_flush_flags(s); /* compute old Z */
 
-    /* Perform substract with borrow.
+    /*
+     * Perform substract with borrow.
      * (X, N) = dest - (src + X);
      */
 
@@ -3459,7 +3503,8 @@ static inline void gen_addx(DisasContext *s, TCGv src, TCGv dest, int opsize)
 
     gen_flush_flags(s); /* compute old Z */
 
-    /* Perform addition with carry.
+    /*
+     * Perform addition with carry.
      * (X, N) = src + dest + X;
      */
 
@@ -3552,9 +3597,11 @@ static inline void shift_im(DisasContext *s, uint16_t insn, int opsize)
         tcg_gen_shri_i32(tcg_ctx, QREG_CC_C, reg, bits - count);
         tcg_gen_shli_i32(tcg_ctx, QREG_CC_N, reg, count);
 
-        /* Note that ColdFire always clears V (done above),
-           while M68000 sets if the most significant bit is changed at
-           any time during the shift operation */
+        /*
+         * Note that ColdFire always clears V (done above),
+         * while M68000 sets if the most significant bit is changed at
+         * any time during the shift operation.
+         */
         if (!logical && m68k_feature(s->env, M68K_FEATURE_M68000)) {
             /* if shift count >= bits, V is (reg != 0) */
             if (count >= bits) {
@@ -3606,9 +3653,11 @@ static inline void shift_reg(DisasContext *s, uint16_t insn, int opsize)
     s64 = tcg_temp_new_i64(tcg_ctx);
     s32 = tcg_temp_new(tcg_ctx);
 
-    /* Note that m68k truncates the shift count modulo 64, not 32.
-       In addition, a 64-bit shift makes it easy to find "the last
-       bit shifted out", for the carry flag.  */
+    /*
+     * Note that m68k truncates the shift count modulo 64, not 32.
+     * In addition, a 64-bit shift makes it easy to find "the last
+     * bit shifted out", for the carry flag.
+     */
     tcg_gen_andi_i32(tcg_ctx, s32, DREG(insn, 9), 63);
     tcg_gen_extu_i32_i64(tcg_ctx, s64, s32);
     tcg_gen_extu_i32_i64(tcg_ctx, t64, reg);
@@ -3635,7 +3684,8 @@ static inline void shift_reg(DisasContext *s, uint16_t insn, int opsize)
         tcg_gen_movcond_i32(tcg_ctx, TCG_COND_NE, QREG_CC_X, s32, QREG_CC_V,
                             QREG_CC_C, QREG_CC_X);
 
-        /* M68000 sets V if the most significant bit is changed at
+        /*
+         * M68000 sets V if the most significant bit is changed at
          * any time during the shift operation.  Do this via creating
          * an extension of the sign bit, comparing, and discarding
          * the bits below the sign bit.  I.e.
@@ -3738,9 +3788,11 @@ DISAS_INSN(shift_mem)
         tcg_gen_shri_i32(tcg_ctx, QREG_CC_C, src, 15);
         tcg_gen_shli_i32(tcg_ctx, QREG_CC_N, src, 1);
 
-        /* Note that ColdFire always clears V,
-           while M68000 sets if the most significant bit is changed at
-           any time during the shift operation */
+        /*
+         * Note that ColdFire always clears V,
+         * while M68000 sets if the most significant bit is changed at
+         * any time during the shift operation
+         */
         if (!logical && m68k_feature(s->env, M68K_FEATURE_M68000)) {
             src = gen_extend(s, src, OS_WORD, 1);
             tcg_gen_xor_i32(tcg_ctx, QREG_CC_V, QREG_CC_N, src);
@@ -4172,9 +4224,11 @@ DISAS_INSN(bfext_reg)
     TCGv tmp = tcg_temp_new(tcg_ctx);
     TCGv shift;
 
-    /* In general, we're going to rotate the field so that it's at the
-       top of the word and then right-shift by the complement of the
-       width to extend the field.  */
+    /*
+     * In general, we're going to rotate the field so that it's at the
+     * top of the word and then right-shift by the complement of the
+     * width to extend the field.
+     */
     if (ext & 0x20) {
         /* Variable width.  */
         if (ext & 0x800) {
@@ -4204,8 +4258,10 @@ DISAS_INSN(bfext_reg)
             src = tmp;
             pos = 32 - len;
         } else {
-            /* Immediate offset.  If the field doesn't wrap around the
-               end of the word, rely on (s)extract completely.  */
+            /*
+             * Immediate offset.  If the field doesn't wrap around the
+             * end of the word, rely on (s)extract completely.
+             */
             if (pos < 0) {
                 tcg_gen_rotli_i32(tcg_ctx, tmp, src, ofs);
                 src = tmp;
@@ -5095,7 +5151,8 @@ static void gen_op_fmove_fcr(CPUM68KState *env, DisasContext *s,
     addr = tcg_temp_new(tcg_ctx);
     tcg_gen_mov_i32(tcg_ctx, addr, tmp);
 
-    /* mask:
+    /*
+     * mask:
      *
      * 0b100 Floating-Point Control Register
      * 0b010 Floating-Point Status Register
@@ -5164,7 +5221,8 @@ static void gen_op_fmovem(CPUM68KState *env, DisasContext *s,
     }
 
     if (!is_load && (mode & 2) == 0) {
-        /* predecrement addressing mode
+        /*
+         * predecrement addressing mode
          * only available to store register to memory
          */
         if (opsize == OS_EXTENDED) {
@@ -5194,8 +5252,10 @@ static void gen_op_fmovem(CPUM68KState *env, DisasContext *s,
     tcg_temp_free(tcg_ctx, tmp);
 }
 
-/* ??? FP exceptions are not implemented.  Most exceptions are deferred until
-   immediately before the next FP instruction is executed.  */
+/*
+ * ??? FP exceptions are not implemented.  Most exceptions are deferred until
+ * immediately before the next FP instruction is executed.
+ */
 DISAS_INSN(fpu)
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
@@ -5731,8 +5791,10 @@ DISAS_INSN(mac)
         tmp = gen_lea(env, s, insn, OS_LONG);
         addr = tcg_temp_new(tcg_ctx);
         tcg_gen_and_i32(tcg_ctx, addr, tmp, tcg_ctx->QREG_MAC_MASK);
-        /* Load the value now to ensure correct exception behavior.
-           Perform writeback after reading the MAC inputs.  */
+        /*
+         * Load the value now to ensure correct exception behavior.
+         * Perform writeback after reading the MAC inputs.
+         */
         loadval = gen_load(s, OS_LONG, addr, 0, IS_USER(s));
 
         acc ^= 1;
@@ -5853,8 +5915,10 @@ DISAS_INSN(mac)
         TCGv rw;
         rw = (insn & 0x40) ? AREG(insn, 9) : DREG(insn, 9);
         tcg_gen_mov_i32(tcg_ctx, rw, loadval);
-        /* FIXME: Should address writeback happen with the masked or
-           unmasked value?  */
+        /*
+         * FIXME: Should address writeback happen with the masked or
+         * unmasked value?
+         */
         switch ((insn >> 3) & 7) {
         case 3: /* Post-increment.  */
             tcg_gen_addi_i32(tcg_ctx, AREG(insn, 0), addr, 4);
@@ -6012,8 +6076,10 @@ register_opcode(TCGContext *tcg_ctx, disas_proc proc, uint16_t opcode, uint16_t 
               opcode, mask);
       abort();
   }
-  /* This could probably be cleverer.  For now just optimize the case where
-     the top bits are known.  */
+  /*
+   * This could probably be cleverer.  For now just optimize the case where
+   * the top bits are known.
+   */
   /* Find the first zero bit in the mask.  */
   i = 0x8000;
   while ((i & mask) != 0)
@@ -6032,19 +6098,24 @@ register_opcode(TCGContext *tcg_ctx, disas_proc proc, uint16_t opcode, uint16_t 
   }
 }
 
-/* Register m68k opcode handlers.  Order is important.
-   Later insn override earlier ones.  */
+/*
+ * Register m68k opcode handlers.  Order is important.
+ * Later insn override earlier ones.
+ */
 void register_m68k_insns (CPUM68KState *env)
 {
     TCGContext *tcg_ctx = env->uc->tcg_ctx;
 
-    /* Build the opcode table only once to avoid
-       multithreading issues. */
+    /*
+     * Build the opcode table only once to avoid
+     * multithreading issues.
+     */
     if (tcg_ctx->opcode_table[0] != NULL) {
         return;
     }
 
-    /* use BASE() for instruction available
+    /*
+     * use BASE() for instruction available
      * for CF_ISA_A and M68000.
      */
 #define BASE(name, opcode, mask) \
@@ -6325,10 +6396,12 @@ static bool m68k_tr_breakpoint_check(DisasContextBase *dcbase, CPUState *cpu,
     DisasContext *dc = container_of(dcbase, DisasContext, base);
 
     gen_exception(dc, dc->base.pc_next, EXCP_DEBUG);
-    /* The address covered by the breakpoint must be included in
-       [tb->pc, tb->pc + tb->size) in order to for it to be
-       properly cleared -- thus we increment the PC here so that
-       the logic setting tb->size below does the right thing.  */
+    /*
+     * The address covered by the breakpoint must be included in
+     * [tb->pc, tb->pc + tb->size) in order to for it to be
+     * properly cleared -- thus we increment the PC here so that
+     * the logic setting tb->size below does the right thing.
+     */
     dc->base.pc_next += 2;
 
     return true;
@@ -6361,7 +6434,8 @@ static void m68k_tr_translate_insn(DisasContextBase *dcbase, CPUState *cpu)
     }
 
     if (dc->base.is_jmp == DISAS_NEXT) {
-        /* Stop translation when the next insn might touch a new page.
+        /*
+         * Stop translation when the next insn might touch a new page.
          * This ensures that prefetch aborts at the right place.
          *
          * We cannot determine the size of the next insn without
@@ -6405,8 +6479,10 @@ static void m68k_tr_tb_stop(DisasContextBase *dcbase, CPUState *cpu)
         tcg_gen_lookup_and_goto_ptr(tcg_ctx);
         break;
     case DISAS_EXIT:
-        /* We updated CC_OP and PC in gen_exit_tb, but also modified
-           other state that may require returning to the main loop.  */
+        /*
+         * We updated CC_OP and PC in gen_exit_tb, but also modified
+         * other state that may require returning to the main loop.
+         */
         tcg_gen_exit_tb(tcg_ctx, NULL, 0);
         break;
     default:
