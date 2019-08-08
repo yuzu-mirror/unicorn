@@ -1298,6 +1298,8 @@ typedef struct CPUX86State {
 
     TPRAccess tpr_access_type;
 
+    unsigned nr_dies;
+
     // Unicorn engine
     struct uc_struct *uc;
 } CPUX86State;

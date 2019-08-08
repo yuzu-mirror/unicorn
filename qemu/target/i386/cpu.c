@@ -4803,6 +4803,7 @@ static void x86_cpu_initfn(struct uc_struct *uc, Object *obj, void *opaque)
     X86CPUClass *xcc = X86_CPU_GET_CLASS(uc, obj);
     CPUX86State *env = &cpu->env;
 
+    env->nr_dies = 1;
     cpu_set_cpustate_pointers(cpu);
     cpu_exec_init(cs, &error_abort, opaque);
 
