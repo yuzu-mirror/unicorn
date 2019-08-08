@@ -3421,4 +3421,5 @@
 #define uqadd_op uqadd_op_armeb
 #define uqsub_op uqsub_op_armeb
 #define usra_op usra_op_armeb
+#define vfp_expand_imm vfp_expand_imm_armeb
 #endif

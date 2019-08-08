@@ -3430,6 +3430,7 @@ arm_symbols = (
     'uqadd_op',
     'uqsub_op',
     'usra_op',
+    'vfp_expand_imm',
 )
 
 aarch64_symbols = (
