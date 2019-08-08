@@ -3400,6 +3400,7 @@
 #define cpu_mmu_index cpu_mmu_index_arm
 #define fp_exception_el fp_exception_el_arm
 #define gen_cmtst_i64 gen_cmtst_i64_arm
+#define get_phys_addr get_phys_addr_arm
 #define helper_fjcvtzs helper_fjcvtzs_arm
 #define helper_vjcvt helper_vjcvt_arm
 #define pmu_init pmu_init_arm
