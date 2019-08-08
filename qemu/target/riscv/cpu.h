@@ -224,6 +224,7 @@ typedef struct RISCVCPU {
 
     struct {
         bool ext_ifencei;
+        bool ext_icsr;
     } cfg;
 } RISCVCPU;
 
