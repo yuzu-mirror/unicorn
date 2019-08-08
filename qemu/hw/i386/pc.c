@@ -194,7 +194,7 @@ uint32_t x86_cpu_apic_id_from_index(unsigned int cpu_index)
 {
     uint32_t correct_id;
 
-    correct_id = x86_apicid_from_cpu_idx(smp_cores, smp_threads, cpu_index);
+    correct_id = x86_apicid_from_cpu_idx(1, smp_cores, smp_threads, cpu_index);
     if (compat_apic_id_mode) {
         if (cpu_index != correct_id) {
             //error_report("APIC IDs set in compatibility mode, "
