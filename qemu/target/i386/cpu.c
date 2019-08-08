@@ -1964,6 +1964,20 @@ static X86CPUDefinition builtin_x86_defs[] = {
             CPUID_EXT3_LAHF_LM,
         .xlevel = 0x80000008,
         .model_id = "Intel Core i7 9xx (Nehalem Class Core i7)",
+        .versions = (X86CPUVersionDefinition[]) {
+            { .version = 1 },
+            {
+                .version = 2,
+                /* Equivalent to Nehalem-IBRS */
+                .props = (PropValue[]) {
+                    { "spec-ctrl", "on" },
+                    { "model-id",
+                      "Intel Core i7 9xx (Nehalem Core i7, IBRS update)" },
+                    { /* end of list */ }
+                }
+            },
+            { /* end of list */ }
+        }
     },
     {
         .name = "Nehalem-IBRS",
@@ -2020,6 +2034,20 @@ static X86CPUDefinition builtin_x86_defs[] = {
             CPUID_6_EAX_ARAT,
         .xlevel = 0x80000008,
         .model_id = "Westmere E56xx/L56xx/X56xx (Nehalem-C)",
+        .versions = (X86CPUVersionDefinition[]) {
+            { .version = 1 },
+            {
+                .version = 2,
+                /* Equivalent to Westmere-IBRS */
+                .props = (PropValue[]) {
+                    { "spec-ctrl", "on" },
+                    { "model-id",
+                      "Westmere E56xx/L56xx/X56xx (IBRS update)" },
+                    { /* end of list */ }
+                }
+            },
+            { /* end of list */ }
+        }
     },
     {
         .name = "Westmere-IBRS",
@@ -2084,6 +2112,20 @@ static X86CPUDefinition builtin_x86_defs[] = {
             CPUID_6_EAX_ARAT,
         .xlevel = 0x80000008,
         .model_id = "Intel Xeon E312xx (Sandy Bridge)",
+        .versions = (X86CPUVersionDefinition[]) {
+            { .version = 1 },
+            {
+                .version = 2,
+                /* Equivalent to SandyBridge-IBRS */
+                .props = (PropValue[]) {
+                    { "spec-ctrl", "on" },
+                    { "model-id",
+                      "Intel Xeon E312xx (Sandy Bridge, IBRS update)" },
+                    { /* end of list */ }
+                }
+            },
+            { /* end of list */ }
+        }
     },
     {
         .name = "SandyBridge-IBRS",
@@ -2156,6 +2198,20 @@ static X86CPUDefinition builtin_x86_defs[] = {
             CPUID_6_EAX_ARAT,
         .xlevel = 0x80000008,
         .model_id = "Intel Xeon E3-12xx v2 (Ivy Bridge)",
+        .versions = (X86CPUVersionDefinition[]) {
+            { .version = 1 },
+            {
+                .version = 2,
+                /* Equivalent to IvyBridge-IBRS */
+                .props = (PropValue[]) {
+                    { "spec-ctrl", "on" },
+                    { "model-id",
+                      "Intel Xeon E3-12xx v2 (Ivy Bridge, IBRS)" },
+                    { /* end of list */ }
+                }
+            },
+            { /* end of list */ }
+        }
     },
     {
         .name = "IvyBridge-IBRS",
@@ -2318,6 +2374,52 @@ static X86CPUDefinition builtin_x86_defs[] = {
             CPUID_6_EAX_ARAT,
         .xlevel = 0x80000008,
         .model_id = "Intel Core Processor (Haswell)",
+        .versions = (X86CPUVersionDefinition[]) {
+            { .version = 1 },
+            {
+                .version = 2,
+                /* Equivalent to Haswell-noTSX */
+                .props = (PropValue[]) {
+                    { "hle", "off" },
+                    { "rtm", "off" },
+                    { "stepping", "1" },
+                    { "model-id", "Intel Core Processor (Haswell, no TSX)", },
+                    { /* end of list */ }
+                },
+            },
+            {
+                .version = 3,
+                /* Equivalent to Haswell-IBRS */
+                .props = (PropValue[]) {
+                    /* Restore TSX features removed by -v2 above */
+                    { "hle", "on" },
+                    { "rtm", "on" },
+                    /*
+                     * Haswell and Haswell-IBRS had stepping=4 in
+                     * QEMU 4.0 and older
+                     */
+                    { "stepping", "4" },
+                    { "spec-ctrl", "on" },
+                    { "model-id",
+                      "Intel Core Processor (Haswell, IBRS)" },
+                    { /* end of list */ }
+                }
+            },
+            {
+                .version = 4,
+                /* Equivalent to Haswell-noTSX-IBRS */
+                .props = (PropValue[]) {
+                    { "hle", "off" },
+                    { "rtm", "off" },
+                    /* spec-ctrl was already enabled by -v3 above */
+                    { "stepping", "1" },
+                    { "model-id",
+                      "Intel Core Processor (Haswell, no TSX, IBRS)" },
+                    { /* end of list */ }
+                }
+            },
+            { /* end of list */ }
+        }
     },
     {
         .name = "Haswell-IBRS",
@@ -2488,6 +2590,45 @@ static X86CPUDefinition builtin_x86_defs[] = {
             CPUID_6_EAX_ARAT,
         .xlevel = 0x80000008,
         .model_id = "Intel Core Processor (Broadwell)",
+        .versions = (X86CPUVersionDefinition[]) {
+            { .version = 1 },
+            {
+                .version = 2,
+                /* Equivalent to Broadwell-noTSX */
+                .props = (PropValue[]) {
+                    { "hle", "off" },
+                    { "rtm", "off" },
+                    { "model-id", "Intel Core Processor (Broadwell, no TSX)", },
+                    { /* end of list */ }
+                },
+            },
+            {
+                .version = 3,
+                /* Equivalent to Broadwell-IBRS */
+                .props = (PropValue[]) {
+                    /* Restore TSX features removed by -v2 above */
+                    { "hle", "on" },
+                    { "rtm", "on" },
+                    { "spec-ctrl", "on" },
+                    { "model-id",
+                      "Intel Core Processor (Broadwell, IBRS)" },
+                    { /* end of list */ }
+                }
+            },
+            {
+                .version = 4,
+                /* Equivalent to Broadwell-noTSX-IBRS */
+                .props = (PropValue[]) {
+                    { "hle", "off" },
+                    { "rtm", "off" },
+                    /* spec-ctrl was already enabled by -v3 above */
+                    { "model-id",
+                      "Intel Core Processor (Broadwell, no TSX, IBRS)" },
+                    { /* end of list */ }
+                }
+            },
+            { /* end of list */ }
+        }
     },
     {
         .name = "Broadwell-IBRS",
@@ -2578,6 +2719,20 @@ static X86CPUDefinition builtin_x86_defs[] = {
             CPUID_6_EAX_ARAT,
         .xlevel = 0x80000008,
         .model_id = "Intel Core Processor (Skylake)",
+        .versions = (X86CPUVersionDefinition[]) {
+            { .version = 1 },
+            {
+                .version = 2,
+                /* Equivalent to Skylake-Client-IBRS */
+                .props = (PropValue[]) {
+                    { "spec-ctrl", "on" },
+                    { "model-id",
+                      "Intel Core Processor (Skylake, IBRS)" },
+                    { /* end of list */ }
+                }
+            },
+            { /* end of list */ }
+        }
     },
     {
         .name = "Skylake-Client-IBRS",
@@ -2680,6 +2835,23 @@ static X86CPUDefinition builtin_x86_defs[] = {
             CPUID_6_EAX_ARAT,
         .xlevel = 0x80000008,
         .model_id = "Intel Xeon Processor (Skylake)",
+        .versions = (X86CPUVersionDefinition[]) {
+            { .version = 1 },
+            {
+                .version = 2,
+                /* Equivalent to Skylake-Server-IBRS */
+                .props = (PropValue[]) {
+                    /* clflushopt was not added to Skylake-Server-IBRS */
+                    /* TODO: add -v3 including clflushopt */
+                    { "clflushopt", "off" },
+                    { "spec-ctrl", "on" },
+                    { "model-id",
+                      "Intel Xeon Processor (Skylake, IBRS)" },
+                    { /* end of list */ }
+                }
+            },
+            { /* end of list */ }
+        }
     },
     {
         .name = "Skylake-Server-IBRS",
@@ -3195,6 +3367,20 @@ static X86CPUDefinition builtin_x86_defs[] = {
         .xlevel = 0x8000001E,
         .model_id = "AMD EPYC Processor",
         .cache_info = &epyc_cache_info,
+        .versions = (X86CPUVersionDefinition[]) {
+            { .version = 1 },
+            {
+                .version = 2,
+                /* Equivalent to EPYC-IBPB */
+                .props = (PropValue[]) {
+                    { "ibpb", "on" },
+                    { "model-id",
+                      "AMD EPYC Processor (with IBPB)" },
+                    { /* end of list */ }
+                }
+            },
+            { /* end of list */ }
+        }
     },
     {
         .name = "EPYC-IBPB",
