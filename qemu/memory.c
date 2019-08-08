@@ -383,7 +383,7 @@ static bool can_merge(FlatRange *r1, FlatRange *r2)
 /* Attempt to simplify a view by merging adjacent ranges */
 static void flatview_simplify(FlatView *view)
 {
-    unsigned i, j;
+    unsigned i, j, k;
 
     i = 0;
     while (i < view->nr) {
@@ -394,6 +394,9 @@ static void flatview_simplify(FlatView *view)
             ++j;
         }
         ++i;
+        for (k = i; k < j; k++) {
+            memory_region_unref(view->ranges[k].mr);
+        }
         memmove(&view->ranges[i], &view->ranges[j],
                 (view->nr - j) * sizeof(view->ranges[j]));
         view->nr -= j - i;
