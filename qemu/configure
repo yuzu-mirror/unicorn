@@ -133,8 +133,15 @@ path_of() {
     return 1
 }
 
+# make source path absolute
+source_path=$(cd "$(dirname -- "$0")"; pwd)
+
+if printf %s\\n "$source_path" "$PWD" | grep -q "[[:space:]:]";
+then
+  error_exit "main directory cannot contain spaces nor colons"
+fi
+
 # default parameters
-source_path=$(dirname "$0")
 cpu=""
 static="no"
 cross_prefix=""
