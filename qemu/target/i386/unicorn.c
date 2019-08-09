@@ -336,6 +336,9 @@ int x86_reg_read(struct uc_struct *uc, unsigned int *regs, void **vals, int coun
                     case UC_X86_REG_GS:
                         *(int16_t *)value = state->segs[R_GS].selector;
                         continue;
+                    case UC_X86_REG_FS_BASE:
+                        *(uint32_t *)value = (uint32_t)state->segs[R_FS].base;
+                        continue;
                 }
                 // fall-thru
             case UC_MODE_32:
@@ -482,7 +485,10 @@ int x86_reg_read(struct uc_struct *uc, unsigned int *regs, void **vals, int coun
                         x86_msr_read(uc, (uc_x86_msr *)value);
                         break;
                     case UC_X86_REG_MXCSR:
-                        *(uint32_t *)value = X86_CPU(uc, mycpu)->env.mxcsr;
+                        *(uint32_t *)value = state->mxcsr;
+                        break;
+                    case UC_X86_REG_FS_BASE:
+                        *(uint32_t *)value = (uint32_t)state->segs[R_FS].base;
                         break;
                 }
                 break;
@@ -767,7 +773,7 @@ int x86_reg_read(struct uc_struct *uc, unsigned int *regs, void **vals, int coun
                         x86_msr_read(uc, (uc_x86_msr *)value);
                         break;
                     case UC_X86_REG_MXCSR:
-                        *(uint32_t *)value = X86_CPU(uc, mycpu)->env.mxcsr;
+                        *(uint32_t *)value = state->mxcsr;
                         break;
                     case UC_X86_REG_XMM8:
                     case UC_X86_REG_XMM9:
@@ -779,11 +785,14 @@ int x86_reg_read(struct uc_struct *uc, unsigned int *regs, void **vals, int coun
                     case UC_X86_REG_XMM15:
                         {
                             float64 *dst = (float64*)value;
-                            XMMReg *reg = &X86_CPU(uc, mycpu)->env.xmm_regs[regid - UC_X86_REG_XMM0];
-                            dst[0] = reg->_d[0];
-                            dst[1] = reg->_d[1];
+                            ZMMReg *reg = &state->xmm_regs[regid - UC_X86_REG_XMM0];
+                            dst[0] = reg->ZMM_D(0);
+                            dst[1] = reg->ZMM_D(1);
                             break;
                         }
+                    case UC_X86_REG_FS_BASE:
+                        *(uint64_t *)value = (uint64_t)state->segs[R_FS].base;
+                        break;
                 }
                 break;
 #endif
@@ -904,6 +913,9 @@ int x86_reg_write(struct uc_struct *uc, unsigned int *regs, void *const *vals, i
                         continue;
                     case UC_X86_REG_GS:
                         load_seg_16_helper(state, R_GS, *(uint16_t *)value);
+                        continue;
+                    case UC_X86_REG_FS_BASE:
+                        state->segs[R_FS].base = *(uint32_t *)value;
                         continue;
                 }
                 // fall-thru
@@ -1058,23 +1070,11 @@ int x86_reg_write(struct uc_struct *uc, unsigned int *regs, void *const *vals, i
                         x86_msr_write(uc, (uc_x86_msr *)value);
                         break;
                     case UC_X86_REG_MXCSR:
-                        cpu_set_mxcsr(&X86_CPU(uc, mycpu)->env, *(uint32_t *)value);
+                        cpu_set_mxcsr(state, *(uint32_t *)value);
                         break;
-                    case UC_X86_REG_XMM8:
-                    case UC_X86_REG_XMM9:
-                    case UC_X86_REG_XMM10:
-                    case UC_X86_REG_XMM11:
-                    case UC_X86_REG_XMM12:
-                    case UC_X86_REG_XMM13:
-                    case UC_X86_REG_XMM14:
-                    case UC_X86_REG_XMM15:
-                        {
-                            float64 *src = (float64*)value;
-                            XMMReg *reg = &X86_CPU(uc, mycpu)->env.xmm_regs[regid - UC_X86_REG_XMM0];
-                            reg->_d[0] = src[0];
-                            reg->_d[1] = src[1];
-                            break;
-                        }
+                    case UC_X86_REG_FS_BASE:
+                        state->segs[R_FS].base = *(uint32_t *)value;
+                        continue;
                 }
                 break;
 
@@ -1368,8 +1368,26 @@ int x86_reg_write(struct uc_struct *uc, unsigned int *regs, void *const *vals, i
                         x86_msr_write(uc, (uc_x86_msr *)value);
                         break;
                     case UC_X86_REG_MXCSR:
-                        cpu_set_mxcsr(&X86_CPU(uc, mycpu)->env, *(uint32_t *)value);
+                        cpu_set_mxcsr(state, *(uint32_t *)value);
                         break;
+                    case UC_X86_REG_XMM8:
+                    case UC_X86_REG_XMM9:
+                    case UC_X86_REG_XMM10:
+                    case UC_X86_REG_XMM11:
+                    case UC_X86_REG_XMM12:
+                    case UC_X86_REG_XMM13:
+                    case UC_X86_REG_XMM14:
+                    case UC_X86_REG_XMM15:
+                        {
+                            float64 *src = (float64*)value;
+                            ZMMReg *reg = &state->xmm_regs[regid - UC_X86_REG_XMM0];
+                            reg->ZMM_D(0) = src[0];
+                            reg->ZMM_D(1) = src[1];
+                            break;
+                        }
+                    case UC_X86_REG_FS_BASE:
+                        state->segs[R_FS].base = *(uint64_t *)value;
+                        continue;
                 }
                 break;
 #endif
