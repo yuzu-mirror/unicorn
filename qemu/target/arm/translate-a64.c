@@ -394,20 +394,6 @@ static void gen_exception_internal(DisasContext *s, int excp)
     tcg_temp_free_i32(tcg_ctx, tcg_excp);
 }
 
-static void gen_exception(DisasContext *s, int excp, uint32_t syndrome, uint32_t target_el)
-{
-    TCGContext *tcg_ctx = s->uc->tcg_ctx;
-    TCGv_i32 tcg_excp = tcg_const_i32(tcg_ctx, excp);
-    TCGv_i32 tcg_syn = tcg_const_i32(tcg_ctx, syndrome);
-    TCGv_i32 tcg_el = tcg_const_i32(tcg_ctx, target_el);
-
-    gen_helper_exception_with_syndrome(tcg_ctx, tcg_ctx->cpu_env, tcg_excp,
-                                       tcg_syn, tcg_el);
-    tcg_temp_free_i32(tcg_ctx, tcg_el);
-    tcg_temp_free_i32(tcg_ctx, tcg_syn);
-    tcg_temp_free_i32(tcg_ctx, tcg_excp);
-}
-
 static void gen_exception_internal_insn(DisasContext *s, int offset, int excp)
 {
     gen_a64_set_pc_im(s, s->pc - offset);
@@ -448,8 +434,7 @@ static void gen_step_complete_exception(DisasContext *s)
      * of the exception, and our syndrome information is always correct.
      */
     gen_ss_advance(s);
-    gen_exception(s, EXCP_UDEF, syn_swstep(s->ss_same_el, 1, s->is_ldex),
-                  default_exception_el(s));
+    gen_swstep_exception(s, 1, s->is_ldex);
     s->base.is_jmp = DISAS_NORETURN;
 }
 
@@ -14607,8 +14592,7 @@ static void aarch64_tr_translate_insn(DisasContextBase *dcbase, CPUState *cpu)
          * bits should be zero.
          */
         assert(dc->base.num_insns == 1);
-        gen_exception(dc, EXCP_UDEF, syn_swstep(dc->ss_same_el, 0, 0),
-                      default_exception_el(dc));
+        gen_swstep_exception(dc, 0, 0);
         dc->base.is_jmp = DISAS_NORETURN;
     } else {
         disas_a64_insn(env, dc);
