@@ -1818,7 +1818,7 @@ bool memory_region_is_mapped(MemoryRegion *mr)
 static MemoryRegionSection memory_region_find_rcu(MemoryRegion *mr,
                                                   hwaddr addr, uint64_t size)
 {
-    MemoryRegionSection ret = { NULL };
+    MemoryRegionSection ret = {};
     MemoryRegion *root;
     AddressSpace *as;
     AddrRange range;
