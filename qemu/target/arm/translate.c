@@ -1269,7 +1269,7 @@ static inline void gen_hvc(DisasContext *s, int imm16)
      * as an undefined insn by runtime configuration (ie before
      * the insn really executes).
      */
-    gen_set_pc_im(s, s->pc - 4);
+    gen_set_pc_im(s, s->pc_curr);
     gen_helper_pre_hvc(tcg_ctx, tcg_ctx->cpu_env);
     /* Otherwise we will treat this as a real exception which
      * happens after execution of the insn. (The distinction matters
@@ -1289,7 +1289,7 @@ static inline void gen_smc(DisasContext *s)
     TCGv_i32 tmp;
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
 
-    gen_set_pc_im(s, s->pc - 4);
+    gen_set_pc_im(s, s->pc_curr);
     tmp = tcg_const_i32(tcg_ctx, syn_aa32_smc());
     gen_helper_pre_smc(tcg_ctx, tcg_ctx->cpu_env, tmp);
     tcg_temp_free_i32(tcg_ctx, tmp);
@@ -3310,7 +3310,7 @@ static void gen_msr_banked(DisasContext *s, int r, int sysm, int rn)
 
     /* Sync state because msr_banked() can raise exceptions */
     gen_set_condexec(s);
-    gen_set_pc_im(s, s->pc - 4);
+    gen_set_pc_im(s, s->pc_curr);
     tcg_reg = load_reg(s, rn);
     tcg_tgtmode = tcg_const_i32(tcg_ctx, tgtmode);
     tcg_regno = tcg_const_i32(tcg_ctx, regno);
@@ -3333,7 +3333,7 @@ static void gen_mrs_banked(DisasContext *s, int r, int sysm, int rn)
 
     /* Sync state because mrs_banked() can raise exceptions */
     gen_set_condexec(s);
-    gen_set_pc_im(s, s->pc - 4);
+    gen_set_pc_im(s, s->pc_curr);
     tcg_reg = tcg_temp_new_i32(tcg_ctx);
     tcg_tgtmode = tcg_const_i32(tcg_ctx, tgtmode);
     tcg_regno = tcg_const_i32(tcg_ctx, regno);
@@ -7364,7 +7364,7 @@ static int disas_coproc_insn(DisasContext *s, uint32_t insn)
             }
 
             gen_set_condexec(s);
-            gen_set_pc_im(s, s->pc - 4);
+            gen_set_pc_im(s, s->pc_curr);
             tmpptr = tcg_const_ptr(tcg_ctx, ri);
             tcg_syn = tcg_const_i32(tcg_ctx, syndrome);
             tcg_isread = tcg_const_i32(tcg_ctx, isread);
@@ -7786,7 +7786,7 @@ static void gen_srs(DisasContext *s,
     tmp = tcg_const_i32(tcg_ctx, mode);
     /* get_r13_banked() will raise an exception if called from System mode */
     gen_set_condexec(s);
-    gen_set_pc_im(s, s->pc - 4);
+    gen_set_pc_im(s, s->pc_curr);
     gen_helper_get_r13_banked(tcg_ctx, addr, tcg_ctx->cpu_env, tmp);
     tcg_temp_free_i32(tcg_ctx, tmp);
     switch (amode) {
@@ -12232,6 +12232,7 @@ static void arm_tr_translate_insn(DisasContextBase *dcbase, CPUState *cpu)
         return;
     }
 
+    dc->pc_curr = dc->pc;
     insn = arm_ldl_code(env, dc->pc, dc->sctlr_b);
     dc->insn = insn;
     dc->pc += 4;
@@ -12301,6 +12302,7 @@ static void thumb_tr_translate_insn(DisasContextBase *dcbase, CPUState *cpu)
         return;
     }
 
+    dc->pc_curr = dc->pc;
     insn = arm_lduw_code(env, dc->pc, dc->sctlr_b);
     is_16bit = thumb_insn_is_16bit(dc, dc->pc, insn);
     dc->pc += 2;
