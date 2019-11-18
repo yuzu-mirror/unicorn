@@ -893,8 +893,10 @@ static bool trans_VMOV_64_sp(DisasContext *s, arg_VMOV_64_sp *a)
         /* gpreg to fpreg */
         tmp = load_reg(s, a->rt);
         neon_store_reg32(s, tmp, a->vm);
+        tcg_temp_free_i32(tcg_ctx, tmp);
         tmp = load_reg(s, a->rt2);
         neon_store_reg32(s, tmp, a->vm + 1);
+        tcg_temp_free_i32(tcg_ctx, tmp);
     }
 
     return true;
