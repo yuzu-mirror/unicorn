@@ -1093,7 +1093,6 @@
 #define helper_div_i64 helper_div_i64_armeb
 #define helper_divu_i32 helper_divu_i32_armeb
 #define helper_divu_i64 helper_divu_i64_armeb
-#define helper_double_saturate helper_double_saturate_armeb
 #define helper_exception_bkpt_insn helper_exception_bkpt_insn_armeb
 #define helper_exception_internal helper_exception_internal_armeb
 #define helper_exception_return helper_exception_return_armeb

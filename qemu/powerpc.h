@@ -1093,7 +1093,6 @@
 #define helper_div_i64 helper_div_i64_powerpc
 #define helper_divu_i32 helper_divu_i32_powerpc
 #define helper_divu_i64 helper_divu_i64_powerpc
-#define helper_double_saturate helper_double_saturate_powerpc
 #define helper_exception_bkpt_insn helper_exception_bkpt_insn_powerpc
 #define helper_exception_internal helper_exception_internal_powerpc
 #define helper_exception_return helper_exception_return_powerpc

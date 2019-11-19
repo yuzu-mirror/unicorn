@@ -8290,7 +8290,7 @@ static void disas_arm_insn(DisasContext *s, unsigned int insn)
             tmp = load_reg(s, rm);
             tmp2 = load_reg(s, rn);
             if (op1 & 2)
-                gen_helper_double_saturate(tcg_ctx, tmp2, tcg_ctx->cpu_env, tmp2);
+                gen_helper_add_saturate(tcg_ctx, tmp2, tcg_ctx->cpu_env, tmp2, tmp2);
             if (op1 & 1)
                 gen_helper_sub_saturate(tcg_ctx, tmp, tcg_ctx->cpu_env, tmp, tmp2);
             else
@@ -10129,7 +10129,7 @@ static void disas_thumb2_insn(DisasContext *s, uint32_t insn)
                 tmp = load_reg(s, rn);
                 tmp2 = load_reg(s, rm);
                 if (op & 1)
-                    gen_helper_double_saturate(tcg_ctx, tmp, tcg_ctx->cpu_env, tmp);
+                    gen_helper_add_saturate(tcg_ctx, tmp, tcg_ctx->cpu_env, tmp, tmp);
                 if (op & 2)
                     gen_helper_sub_saturate(tcg_ctx, tmp, tcg_ctx->cpu_env, tmp2, tmp);
                 else

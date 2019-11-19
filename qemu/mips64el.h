@@ -1093,7 +1093,6 @@
 #define helper_div_i64 helper_div_i64_mips64el
 #define helper_divu_i32 helper_divu_i32_mips64el
 #define helper_divu_i64 helper_divu_i64_mips64el
-#define helper_double_saturate helper_double_saturate_mips64el
 #define helper_exception_bkpt_insn helper_exception_bkpt_insn_mips64el
 #define helper_exception_internal helper_exception_internal_mips64el
 #define helper_exception_return helper_exception_return_mips64el
