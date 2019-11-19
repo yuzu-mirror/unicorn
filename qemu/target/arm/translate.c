@@ -108,7 +108,7 @@ typedef enum ISSInfo {
 } ISSInfo;
 
 /* Save the syndrome information for a Data Abort */
-static void disas_set_da_iss(DisasContext *s, TCGMemOp memop, ISSInfo issinfo)
+static void disas_set_da_iss(DisasContext *s, MemOp memop, ISSInfo issinfo)
 {
     uint32_t syn;
     int sas = memop & MO_SIZE;
@@ -959,7 +959,7 @@ static inline void store_reg_from_load(DisasContext *s, int reg, TCGv_i32 var)
  * that the address argument is TCGv_i32 rather than TCGv.
  */
 
-static inline TCGv gen_aa32_addr(DisasContext *s, TCGv_i32 a32, TCGMemOp op)
+static inline TCGv gen_aa32_addr(DisasContext *s, TCGv_i32 a32, MemOp op)
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
     TCGv addr = tcg_temp_new(tcg_ctx);
@@ -973,7 +973,7 @@ static inline TCGv gen_aa32_addr(DisasContext *s, TCGv_i32 a32, TCGMemOp op)
 }
 
 static void gen_aa32_ld_i32(DisasContext *s, TCGv_i32 val, TCGv_i32 a32,
-                            int index, TCGMemOp opc)
+                            int index, MemOp opc)
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
     TCGv addr;
@@ -989,7 +989,7 @@ static void gen_aa32_ld_i32(DisasContext *s, TCGv_i32 val, TCGv_i32 a32,
 }
 
 static void gen_aa32_st_i32(DisasContext *s, TCGv_i32 val, TCGv_i32 a32,
-                            int index, TCGMemOp opc)
+                            int index, MemOp opc)
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
     TCGv addr;
@@ -1029,7 +1029,7 @@ static inline void gen_aa32_frob64(DisasContext *s, TCGv_i64 val)
 }
 
 static void gen_aa32_ld_i64(DisasContext *s, TCGv_i64 val, TCGv_i32 a32,
-                            int index, TCGMemOp opc)
+                            int index, MemOp opc)
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
     TCGv addr = gen_aa32_addr(s, a32, opc);
@@ -1045,7 +1045,7 @@ static inline void gen_aa32_ld64(DisasContext *s, TCGv_i64 val,
 }
 
 static void gen_aa32_st_i64(DisasContext *s, TCGv_i64 val, TCGv_i32 a32,
-                            int index, TCGMemOp opc)
+                            int index, MemOp opc)
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
     TCGv addr = gen_aa32_addr(s, a32, opc);
@@ -1224,7 +1224,7 @@ neon_reg_offset (int reg, int n)
  * where 0 is the least significant end of the register.
  */
 static inline long
-neon_element_offset(int reg, int element, TCGMemOp size)
+neon_element_offset(int reg, int element, MemOp size)
 {
     int element_size = 1 << size;
     int ofs = element * element_size;
@@ -1247,7 +1247,7 @@ static TCGv_i32 neon_load_reg(DisasContext *s, int reg, int pass)
     return tmp;
 }
 
-static void neon_load_element(DisasContext *s, TCGv_i32 var, int reg, int ele, TCGMemOp mop)
+static void neon_load_element(DisasContext *s, TCGv_i32 var, int reg, int ele, MemOp mop)
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
     long offset = neon_element_offset(reg, ele, mop & MO_SIZE);
@@ -1267,7 +1267,7 @@ static void neon_load_element(DisasContext *s, TCGv_i32 var, int reg, int ele, T
     }
 }
 
-static void neon_load_element64(DisasContext *s, TCGv_i64 var, int reg, int ele, TCGMemOp mop)
+static void neon_load_element64(DisasContext *s, TCGv_i64 var, int reg, int ele, MemOp mop)
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
     long offset = neon_element_offset(reg, ele, mop & MO_SIZE);
@@ -1297,7 +1297,7 @@ static void neon_store_reg(DisasContext *s, int reg, int pass, TCGv_i32 var)
     tcg_temp_free_i32(tcg_ctx, var);
 }
 
-static void neon_store_element(DisasContext *s, int reg, int ele, TCGMemOp size, TCGv_i32 var)
+static void neon_store_element(DisasContext *s, int reg, int ele, MemOp size, TCGv_i32 var)
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
     long offset = neon_element_offset(reg, ele, size);
@@ -1317,7 +1317,7 @@ static void neon_store_element(DisasContext *s, int reg, int ele, TCGMemOp size,
     }
 }
 
-static void neon_store_element64(DisasContext *s, int reg, int ele, TCGMemOp size, TCGv_i64 var)
+static void neon_store_element64(DisasContext *s, int reg, int ele, MemOp size, TCGv_i64 var)
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
     long offset = neon_element_offset(reg, ele, size);
@@ -3404,7 +3404,7 @@ static int disas_neon_ls_insn(DisasContext *s, uint32_t insn)
     int n;
     int vec_size;
     int mmu_idx;
-    TCGMemOp endian;
+    MemOp endian;
     TCGv_i32 addr;
     TCGv_i32 tmp;
     TCGv_i32 tmp2;
@@ -6725,7 +6725,7 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
             } else if ((insn & 0x380) == 0) {
                 /* VDUP */
                 int element;
-                TCGMemOp size;
+                MemOp size;
 
                 if ((insn & (7 << 16)) == 0 || (q && (rd & 1))) {
                     return 1;
@@ -7294,7 +7294,7 @@ static void gen_load_exclusive(DisasContext *s, int rt, int rt2,
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
     TCGv_i32 tmp = tcg_temp_new_i32(tcg_ctx);
-    TCGMemOp opc = size | MO_ALIGN | s->be_data;
+    MemOp opc = size | MO_ALIGN | s->be_data;
 
     s->is_ldex = true;
 
@@ -7350,7 +7350,7 @@ static void gen_store_exclusive(DisasContext *s, int rd, int rt, int rt2,
     TCGv taddr;
     TCGLabel *done_label;
     TCGLabel *fail_label;
-    TCGMemOp opc = size | MO_ALIGN | s->be_data;
+    MemOp opc = size | MO_ALIGN | s->be_data;
 
     /* if (env->exclusive_addr == addr && env->exclusive_val == [addr]) {
          [addr] = {Rt};

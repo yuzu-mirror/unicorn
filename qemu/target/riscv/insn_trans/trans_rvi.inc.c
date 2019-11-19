@@ -140,7 +140,7 @@ static bool trans_bgeu(DisasContext *ctx, arg_bgeu *a)
     return gen_branch(ctx, a, TCG_COND_GEU);
 }
 
-static bool gen_load(DisasContext *ctx, arg_lb *a, TCGMemOp memop)
+static bool gen_load(DisasContext *ctx, arg_lb *a, MemOp memop)
 {
     TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
 
@@ -181,7 +181,7 @@ static bool trans_lhu(DisasContext *ctx, arg_lhu *a)
     return gen_load(ctx, a, MO_TEUW);
 }
 
-static bool gen_store(DisasContext *ctx, arg_sb *a, TCGMemOp memop)
+static bool gen_store(DisasContext *ctx, arg_sb *a, MemOp memop)
 {
     TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
 

@@ -2486,7 +2486,7 @@ DISAS_INSN(cas)
     uint16_t ext;
     TCGv load;
     TCGv cmp;
-    TCGMemOp opc;
+    MemOp opc;
 
     switch ((insn >> 9) & 3) {
     case 1:
