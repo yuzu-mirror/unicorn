@@ -1434,9 +1434,6 @@ echo "target list       $target_list"
 echo "strip binaries    $strip_opt"
 echo "static build      $static"
 echo "mingw32 support   $mingw32"
-if test -n "$sparc_cpu"; then
-    echo "Target Sparc Arch $sparc_cpu"
-fi
 echo "PIE               $pie"
 echo "membarrier        $membarrier"
 echo "TCG support       $tcg"
