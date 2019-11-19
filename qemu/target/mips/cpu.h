@@ -1,8 +1,6 @@
 #ifndef MIPS_CPU_H
 #define MIPS_CPU_H
 
-#define ALIGNED_ONLY
-
 #include "config.h"
 #include "qemu-common.h"
 #include "cpu-qom.h"
