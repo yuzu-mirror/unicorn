@@ -409,13 +409,12 @@ static void gen_exception_insn(DisasContext *s, int offset, int excp,
     s->base.is_jmp = DISAS_NORETURN;
 }
 
-static void gen_exception_bkpt_insn(DisasContext *s, int offset,
-                                    uint32_t syndrome)
+static void gen_exception_bkpt_insn(DisasContext *s, uint32_t syndrome)
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
     TCGv_i32 tcg_syn;
 
-    gen_a64_set_pc_im(s, s->base.pc_next - offset);
+    gen_a64_set_pc_im(s, s->pc_curr);
     tcg_syn = tcg_const_i32(tcg_ctx, syndrome);
     gen_helper_exception_bkpt_insn(tcg_ctx, tcg_ctx->cpu_env, tcg_syn);
     tcg_temp_free_i32(tcg_ctx, tcg_syn);
@@ -2100,7 +2099,7 @@ static void disas_exc(DisasContext *s, uint32_t insn)
             break;
         }
         /* BRK */
-        gen_exception_bkpt_insn(s, 4, syn_aa64_bkpt(imm16));
+        gen_exception_bkpt_insn(s, syn_aa64_bkpt(imm16));
         break;
     case 2:
         if (op2_ll != 0) {
