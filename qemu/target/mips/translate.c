@@ -7402,14 +7402,14 @@ static void gen_mfc0(DisasContext *ctx, TCGv arg, int reg, int sel)
         break;
     case CP0_REGISTER_19:
         switch (sel) {
-        case 0:
-        case 1:
-        case 2:
-        case 3:
-        case 4:
-        case 5:
-        case 6:
-        case 7:
+        case CP0_REG19__WATCHHI0:
+        case CP0_REG19__WATCHHI1:
+        case CP0_REG19__WATCHHI2:
+        case CP0_REG19__WATCHHI3:
+        case CP0_REG19__WATCHHI4:
+        case CP0_REG19__WATCHHI5:
+        case CP0_REG19__WATCHHI6:
+        case CP0_REG19__WATCHHI7:
             CP0_CHECK(ctx->CP0_Config1 & (1 << CP0C1_WR));
             gen_helper_1e0i(tcg_ctx, mfc0_watchhi, arg, sel);
             register_name = "WatchHi";
@@ -8138,14 +8138,14 @@ static void gen_mtc0(DisasContext *ctx, TCGv arg, int reg, int sel)
         break;
     case CP0_REGISTER_19:
         switch (sel) {
-        case 0:
-        case 1:
-        case 2:
-        case 3:
-        case 4:
-        case 5:
-        case 6:
-        case 7:
+        case CP0_REG19__WATCHHI0:
+        case CP0_REG19__WATCHHI1:
+        case CP0_REG19__WATCHHI2:
+        case CP0_REG19__WATCHHI3:
+        case CP0_REG19__WATCHHI4:
+        case CP0_REG19__WATCHHI5:
+        case CP0_REG19__WATCHHI6:
+        case CP0_REG19__WATCHHI7:
             CP0_CHECK(ctx->CP0_Config1 & (1 << CP0C1_WR));
             gen_helper_0e1i(tcg_ctx, mtc0_watchhi, arg, sel);
             register_name = "WatchHi";
@@ -8871,14 +8871,14 @@ static void gen_dmfc0(DisasContext *ctx, TCGv arg, int reg, int sel)
         break;
     case CP0_REGISTER_19:
         switch (sel) {
-        case 0:
-        case 1:
-        case 2:
-        case 3:
-        case 4:
-        case 5:
-        case 6:
-        case 7:
+        case CP0_REG19__WATCHHI0:
+        case CP0_REG19__WATCHHI1:
+        case CP0_REG19__WATCHHI2:
+        case CP0_REG19__WATCHHI3:
+        case CP0_REG19__WATCHHI4:
+        case CP0_REG19__WATCHHI5:
+        case CP0_REG19__WATCHHI6:
+        case CP0_REG19__WATCHHI7:
             CP0_CHECK(ctx->CP0_Config1 & (1 << CP0C1_WR));
             gen_helper_1e0i(tcg_ctx, mfc0_watchhi, arg, sel);
             register_name = "WatchHi";
@@ -9585,14 +9585,14 @@ static void gen_dmtc0(DisasContext *ctx, TCGv arg, int reg, int sel)
         break;
     case CP0_REGISTER_19:
         switch (sel) {
-        case 0:
-        case 1:
-        case 2:
-        case 3:
-        case 4:
-        case 5:
-        case 6:
-        case 7:
+        case CP0_REG19__WATCHHI0:
+        case CP0_REG19__WATCHHI1:
+        case CP0_REG19__WATCHHI2:
+        case CP0_REG19__WATCHHI3:
+        case CP0_REG19__WATCHHI4:
+        case CP0_REG19__WATCHHI5:
+        case CP0_REG19__WATCHHI6:
+        case CP0_REG19__WATCHHI7:
             CP0_CHECK(ctx->CP0_Config1 & (1 << CP0C1_WR));
             gen_helper_0e1i(tcg_ctx, mtc0_watchhi, arg, sel);
             register_name = "WatchHi";
