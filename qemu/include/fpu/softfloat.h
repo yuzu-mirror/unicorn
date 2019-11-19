@@ -86,8 +86,6 @@ this code that are retained.
 #include "config-host.h"
 #include "qemu/osdep.h"
 
-#define LIT64( a ) a##LL
-
 /*----------------------------------------------------------------------------
 | Software IEC/IEEE floating-point ordering relations
 *----------------------------------------------------------------------------*/
