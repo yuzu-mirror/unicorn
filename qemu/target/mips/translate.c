@@ -7485,7 +7485,7 @@ static void gen_mfc0(DisasContext *ctx, TCGv arg, int reg, int sel)
         break;
     case CP0_REGISTER_24:
         switch (sel) {
-        case 0:
+        case CP0_REG24__DEPC:
             /* EJTAG support */
             tcg_gen_ld_tl(tcg_ctx, arg, tcg_ctx->cpu_env, offsetof(CPUMIPSState, CP0_DEPC));
             tcg_gen_ext32s_tl(tcg_ctx, arg, arg);
@@ -8244,7 +8244,7 @@ static void gen_mtc0(DisasContext *ctx, TCGv arg, int reg, int sel)
         break;
     case CP0_REGISTER_24:
         switch (sel) {
-        case 0:
+        case CP0_REG24__DEPC:
             /* EJTAG support */
             tcg_gen_st_tl(tcg_ctx, arg, tcg_ctx->cpu_env, offsetof(CPUMIPSState, CP0_DEPC));
             register_name = "DEPC";
@@ -8971,7 +8971,7 @@ static void gen_dmfc0(DisasContext *ctx, TCGv arg, int reg, int sel)
         break;
     case CP0_REGISTER_24:
         switch (sel) {
-        case 0:
+        case CP0_REG24__DEPC:
             /* EJTAG support */
             tcg_gen_ld_tl(tcg_ctx, arg, tcg_ctx->cpu_env, offsetof(CPUMIPSState, CP0_DEPC));
             register_name = "DEPC";
@@ -9707,7 +9707,7 @@ static void gen_dmtc0(DisasContext *ctx, TCGv arg, int reg, int sel)
         break;
     case CP0_REGISTER_24:
         switch (sel) {
-        case 0:
+        case CP0_REG24__DEPC:
             /* EJTAG support */
             tcg_gen_st_tl(tcg_ctx, arg, tcg_ctx->cpu_env, offsetof(CPUMIPSState, CP0_DEPC));
             register_name = "DEPC";
