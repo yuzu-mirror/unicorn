@@ -3362,7 +3362,7 @@ static int32_t roundAndPackInt32(flag zSign, uint64_t absZ, float_status *status
     if ( zSign ) z = - z;
     if ( ( absZ>>32 ) || ( z && ( ( z < 0 ) ^ zSign ) ) ) {
         float_raise(float_flag_invalid, status);
-        return zSign ? (int32_t) 0x80000000 : 0x7FFFFFFF;
+        return zSign ? INT32_MIN : INT32_MAX;
     }
     if (roundBits) {
         status->float_exception_flags |= float_flag_inexact;
@@ -3422,9 +3422,7 @@ static int64_t roundAndPackInt64(flag zSign, uint64_t absZ0, uint64_t absZ1,
     if ( z && ( ( z < 0 ) ^ zSign ) ) {
  overflow:
         float_raise(float_flag_invalid, status);
-        return
-              zSign ? (int64_t) LIT64( 0x8000000000000000 )
-            : LIT64( 0x7FFFFFFFFFFFFFFF );
+        return zSign ? INT64_MIN : INT64_MAX;
     }
     if (absZ1) {
         status->float_exception_flags |= float_flag_inexact;
@@ -3475,7 +3473,7 @@ static int64_t roundAndPackUint64(flag zSign, uint64_t absZ0,
         ++absZ0;
         if (absZ0 == 0) {
             float_raise(float_flag_invalid, status);
-            return LIT64(0xFFFFFFFFFFFFFFFF);
+            return UINT64_MAX;
         }
         absZ0 &= ~(((uint64_t)(absZ1<<1) == 0) & roundNearestEven);
     }
@@ -5497,9 +5495,9 @@ int64_t floatx80_to_int64(floatx80 a, float_status *status)
         if ( shiftCount ) {
             float_raise(float_flag_invalid, status);
             if (!aSign || floatx80_is_any_nan(a)) {
-                return LIT64( 0x7FFFFFFFFFFFFFFF );
+                return INT64_MAX;
             }
-            return (int64_t) LIT64( 0x8000000000000000 );
+            return INT64_MIN;
         }
         aSigExtra = 0;
     }
@@ -5540,10 +5538,10 @@ int64_t floatx80_to_int64_round_to_zero(floatx80 a, float_status *status)
         if ( ( a.high != 0xC03E ) || aSig ) {
             float_raise(float_flag_invalid, status);
             if ( ! aSign || ( ( aExp == 0x7FFF ) && aSig ) ) {
-                return LIT64( 0x7FFFFFFFFFFFFFFF );
+                return INT64_MAX;
             }
         }
-        return (int64_t) LIT64( 0x8000000000000000 );
+        return INT64_MIN;
     }
     else if ( aExp < 0x3FFF ) {
         if (aExp | aSig) {
@@ -6602,7 +6600,7 @@ int32_t float128_to_int32_round_to_zero(float128 a, float_status *status)
     if ( ( z < 0 ) ^ aSign ) {
  invalid:
         float_raise(float_flag_invalid, status);
-        return aSign ? (int32_t) 0x80000000 : 0x7FFFFFFF;
+        return aSign ? INT32_MIN : INT32_MAX;
     }
     if ( ( aSig0<<shiftCount ) != savedASig ) {
         status->float_exception_flags |= float_flag_inexact;
@@ -6641,9 +6639,9 @@ int64_t float128_to_int64(float128 a, float_status *status)
                       && ( aSig1 || ( aSig0 != LIT64( 0x0001000000000000 ) ) )
                     )
                ) {
-                return LIT64( 0x7FFFFFFFFFFFFFFF );
+                return INT64_MAX;
             }
-            return (int64_t) LIT64( 0x8000000000000000 );
+            return INT64_MIN;
         }
         shortShift128Left( aSig0, aSig1, - shiftCount, &aSig0, &aSig1 );
     }
@@ -6689,10 +6687,10 @@ int64_t float128_to_int64_round_to_zero(float128 a, float_status *status)
             else {
                 float_raise(float_flag_invalid, status);
                 if ( ! aSign || ( ( aExp == 0x7FFF ) && ( aSig0 | aSig1 ) ) ) {
-                    return LIT64( 0x7FFFFFFFFFFFFFFF );
+                    return INT64_MAX;
                 }
             }
-            return (int64_t) LIT64( 0x8000000000000000 );
+            return INT64_MIN;
         }
         z = ( aSig0<<shiftCount ) | ( aSig1>>( ( - shiftCount ) & 63 ) );
         if ( (uint64_t) ( aSig1<<shiftCount ) ) {
@@ -6743,19 +6741,19 @@ uint64_t float128_to_uint64(float128 a, float_status *status)
     if (aSign && (aExp > 0x3FFE)) {
         float_raise(float_flag_invalid, status);
         if (float128_is_any_nan(a)) {
-            return LIT64(0xFFFFFFFFFFFFFFFF);
+            return UINT64_MAX;
         } else {
             return 0;
         }
     }
     if (aExp) {
-        aSig0 |= LIT64(0x0001000000000000);
+        aSig0 |= UINT64_C(0x0001000000000000);
     }
     shiftCount = 0x402F - aExp;
     if (shiftCount <= 0) {
         if (0x403E < aExp) {
             float_raise(float_flag_invalid, status);
-            return LIT64(0xFFFFFFFFFFFFFFFF);
+            return UINT64_MAX;
         }
         shortShift128Left(aSig0, aSig1, -shiftCount, &aSig0, &aSig1);
     } else {
