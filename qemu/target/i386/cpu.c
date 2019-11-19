@@ -757,6 +757,7 @@ static void x86_cpu_vendor_words2str(char *dst, uint32_t vendor1,
           /* CPUID_7_0_ECX_OSPKE is dynamic */ \
           CPUID_7_0_ECX_LA57)
 #define TCG_7_0_EDX_FEATURES 0
+#define TCG_7_1_EAX_FEATURES 0
 #define TCG_APM_FEATURES 0
 #define TCG_6_EAX_FEATURES CPUID_6_EAX_ARAT
 
@@ -802,8 +803,7 @@ typedef struct FeatureWordInfo {
 } FeatureWordInfo;
 
 static FeatureWordInfo feature_word_info[FEATURE_WORDS] = {
-    // FEAT_1_EDX
-    {
+    [FEAT_1_EDX] = {
         .type = CPUID_FEATURE_WORD,
         .feat_names = {
             "fpu", "vme", "de", "pse",
@@ -818,8 +818,7 @@ static FeatureWordInfo feature_word_info[FEATURE_WORDS] = {
         .cpuid = {.eax = 1, .reg = R_EDX, },
         .tcg_features = TCG_FEATURES,
     },
-    // FEAT_1_ECX
-    {
+    [FEAT_1_ECX] = {
         .type = CPUID_FEATURE_WORD,
         .feat_names = {
             "pni" /* Intel,AMD sse3 */, "pclmulqdq", "dtes64", "monitor",
@@ -834,8 +833,7 @@ static FeatureWordInfo feature_word_info[FEATURE_WORDS] = {
         .cpuid = { .eax = 1, .reg = R_ECX, },
         .tcg_features = TCG_EXT_FEATURES,
     },
-    // FEAT_7_0_EBX
-    {
+    [FEAT_7_0_EBX] = {
         .type = CPUID_FEATURE_WORD,
         .feat_names = {
             "fsgsbase", "tsc-adjust", NULL, "bmi1",
@@ -854,8 +852,7 @@ static FeatureWordInfo feature_word_info[FEATURE_WORDS] = {
         },
         .tcg_features = TCG_7_0_EBX_FEATURES,
     },
-    // FEAT_7_0_ECX
-    {
+    [FEAT_7_0_ECX] = {
         .type = CPUID_FEATURE_WORD,
         .feat_names = {
             NULL, "avx512vbmi", "umip", "pku",
@@ -874,8 +871,7 @@ static FeatureWordInfo feature_word_info[FEATURE_WORDS] = {
         },
         .tcg_features = TCG_7_0_ECX_FEATURES,
     },
-    // FEAT_7_0_EDX
-    {
+    [FEAT_7_0_EDX] = {
         .type = CPUID_FEATURE_WORD,
         .feat_names = {
             NULL, NULL, "avx512-4vnniw", "avx512-4fmaps",
@@ -899,8 +895,7 @@ static FeatureWordInfo feature_word_info[FEATURE_WORDS] = {
      * names on feat_names below. They are copied automatically
      * to features[FEAT_8000_0001_EDX] if and only if CPU vendor is AMD.
      */
-    // FEAT_8000_0001_EDX
-    {
+    [FEAT_8000_0001_EDX] = {
         .type = CPUID_FEATURE_WORD,
         .feat_names = {
             NULL /* fpu */, NULL /* vme */, NULL /* de */, NULL /* pse */,
@@ -915,8 +910,7 @@ static FeatureWordInfo feature_word_info[FEATURE_WORDS] = {
         .cpuid = { .eax = 0x80000001, .reg = R_EDX, },
         .tcg_features = TCG_EXT2_FEATURES,
     },
-    // FEAT_8000_0001_ECX
-    {
+    [FEAT_8000_0001_ECX] = {
         .type = CPUID_FEATURE_WORD,
         .feat_names = {
             "lahf-lm", "cmp-legacy", "svm", "extapic",
@@ -937,8 +931,26 @@ static FeatureWordInfo feature_word_info[FEATURE_WORDS] = {
          */
         .no_autoenable_flags = CPUID_EXT3_TOPOEXT,
     },
-    // FEAT_8000_0007_EDX
-    {
+    [FEAT_7_1_EAX] = {
+        .type = CPUID_FEATURE_WORD,
+        .feat_names = {
+            NULL, NULL, NULL, NULL,
+            NULL, "avx512-bf16", NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+            NULL, NULL, NULL, NULL,
+        },
+        .cpuid = {
+            .eax = 7,
+            .needs_ecx = true, .ecx = 1,
+            .reg = R_EAX,
+        },
+        .tcg_features = TCG_7_1_EAX_FEATURES,
+    },
+    [FEAT_8000_0007_EDX] = {
         .type = CPUID_FEATURE_WORD,
         .feat_names = {
             NULL, NULL, NULL, NULL,
@@ -954,8 +966,7 @@ static FeatureWordInfo feature_word_info[FEATURE_WORDS] = {
         .tcg_features = TCG_APM_FEATURES,
         .unmigratable_flags = CPUID_APM_INVTSC,
     },
-    // FEAT_8000_0008_EBX
-    {
+    [FEAT_8000_0008_EBX] = {
         .type = CPUID_FEATURE_WORD,
         .feat_names = {
             NULL, NULL, NULL, NULL,
@@ -971,8 +982,7 @@ static FeatureWordInfo feature_word_info[FEATURE_WORDS] = {
         .tcg_features = 0,
         .unmigratable_flags = 0,
     },
-    // FEAT_C000_0001_EDX
-    {
+    [FEAT_C000_0001_EDX] = {
         .type = CPUID_FEATURE_WORD,
         .feat_names = {
             NULL, NULL, "xstore", "xstore-en",
@@ -987,8 +997,7 @@ static FeatureWordInfo feature_word_info[FEATURE_WORDS] = {
         .cpuid = { .eax = 0xC0000001, .reg = R_EDX, },
         .tcg_features = TCG_EXT4_FEATURES,
     },
-    // FEAT_KVM
-    {
+    [FEAT_KVM] = {
       0,
       /* Unicorn: commented out
         .type = CPUID_FEATURE_WORD,
@@ -1005,8 +1014,7 @@ static FeatureWordInfo feature_word_info[FEATURE_WORDS] = {
         .cpuid = { .eax = KVM_CPUID_FEATURES, .reg = R_EAX, },
         .tcg_features = TCG_KVM_FEATURES,*/
     },
-    // FEAT_KVM_HINTS
-    {
+    [FEAT_KVM_HINTS] = {
       0,
       /* Unicorn: commented out
         .type = CPUID_FEATURE_WORD,
@@ -1032,8 +1040,7 @@ static FeatureWordInfo feature_word_info[FEATURE_WORDS] = {
      * enabling several feature bits simultaneously, exposing these bits
      * individually may just confuse guests.
      */
-    // FEAT_HYPERV_EAX
-    {
+    [FEAT_HYPERV_EAX] = {
         .type = CPUID_FEATURE_WORD,
         .feat_names = {
             NULL /* hv_msr_vp_runtime_access */, NULL /* hv_msr_time_refcount_access */,
@@ -1051,8 +1058,7 @@ static FeatureWordInfo feature_word_info[FEATURE_WORDS] = {
         },
         .cpuid = { .eax = 0x40000003, .reg = R_EAX, },
     },
-    // FEAT_HYPERV_EBX
-    {
+    [FEAT_HYPERV_EBX] = {
         .type = CPUID_FEATURE_WORD,
         .feat_names = {
             NULL /* hv_create_partitions */, NULL /* hv_access_partition_id */,
@@ -1069,8 +1075,7 @@ static FeatureWordInfo feature_word_info[FEATURE_WORDS] = {
         },
         .cpuid = { .eax = 0x40000003, .reg = R_EBX, },
     },
-    // FEAT_HYPERV_EDX
-    {
+    [FEAT_HYPERV_EDX] = {
         .type = CPUID_FEATURE_WORD,
         .feat_names = {
             NULL /* hv_mwait */, NULL /* hv_guest_debugging */,
@@ -1086,8 +1091,7 @@ static FeatureWordInfo feature_word_info[FEATURE_WORDS] = {
         },
         .cpuid = { .eax = 0x40000003, .reg = R_EDX, },
     },
-    // FEAT_HV_RECOMM_EAX
-    {
+    [FEAT_HV_RECOMM_EAX] = {
         .type = CPUID_FEATURE_WORD,
         .feat_names = {
             NULL /* hv_recommend_pv_as_switch */,
@@ -1113,13 +1117,11 @@ static FeatureWordInfo feature_word_info[FEATURE_WORDS] = {
         },
         .cpuid = { .eax = 0x40000004, .reg = R_EAX, },
     },
-    // FEAT_HV_NESTED_EAX
-    {
+    [FEAT_HV_NESTED_EAX] = {
         .type = CPUID_FEATURE_WORD,
         .cpuid = { .eax = 0x4000000A, .reg = R_EAX, },
     },
-    // FEAT_SVM
-    {
+    [FEAT_SVM] = {
         .type = CPUID_FEATURE_WORD,
         .feat_names = {
             "npt", "lbrv", "svm-lock", "nrip-save",
@@ -1134,8 +1136,7 @@ static FeatureWordInfo feature_word_info[FEATURE_WORDS] = {
         .cpuid = { .eax = 0x8000000A, .reg = R_EDX, },
         .tcg_features = TCG_SVM_FEATURES,
     },
-    // FEAT_XSAVE
-    {
+    [FEAT_XSAVE] = {
         .type = CPUID_FEATURE_WORD,
         .feat_names = {
             "xsaveopt", "xsavec", "xgetbv1", "xsaves",
@@ -1154,8 +1155,7 @@ static FeatureWordInfo feature_word_info[FEATURE_WORDS] = {
         },
         .tcg_features = TCG_XSAVE_FEATURES,
     },
-    // FEAT_6_EAX
-    {
+    [FEAT_6_EAX] = {
         .type = CPUID_FEATURE_WORD,
         .feat_names = {
             NULL, NULL, "arat", NULL,
@@ -1170,8 +1170,7 @@ static FeatureWordInfo feature_word_info[FEATURE_WORDS] = {
         .cpuid = { .eax = 6, .reg = R_EAX, },
         .tcg_features = TCG_6_EAX_FEATURES,
     },
-    // FEAT_XSAVE_COMP_LO
-    {
+    [FEAT_XSAVE_COMP_LO] = {
         .type = CPUID_FEATURE_WORD,
         .cpuid = {
             .eax = 0xD,
@@ -1184,8 +1183,7 @@ static FeatureWordInfo feature_word_info[FEATURE_WORDS] = {
             XSTATE_OPMASK_MASK | XSTATE_ZMM_Hi256_MASK | XSTATE_Hi16_ZMM_MASK |
             XSTATE_PKRU_MASK,
     },
-    // FEAT_XSAVE_COMP_HI
-    {
+    [FEAT_XSAVE_COMP_HI] = {
         .type = CPUID_FEATURE_WORD,
         .cpuid = {
             .eax = 0xD,
@@ -1194,8 +1192,7 @@ static FeatureWordInfo feature_word_info[FEATURE_WORDS] = {
         },
         .tcg_features = ~0U,
     },
-    // FEAT_ARCH_CAPABILITIES
-    {
+    [FEAT_ARCH_CAPABILITIES] = {
         .type = MSR_FEATURE_WORD,
         .feat_names = {
             "rdctl-no", "ibrs-all", "rsba", "skip-l1dfl-vmentry",
@@ -3775,13 +3772,19 @@ void cpu_x86_cpuid(CPUX86State *env, uint32_t index, uint32_t count,
     case 7:
         /* Structured Extended Feature Flags Enumeration Leaf */
         if (count == 0) {
-            *eax = 0; /* Maximum ECX value for sub-leaves */
+            /* Maximum ECX value for sub-leaves */
+            *eax = env->cpuid_level_func7;
             *ebx = env->features[FEAT_7_0_EBX]; /* Feature flags */
             *ecx = env->features[FEAT_7_0_ECX]; /* Feature flags */
             if ((*ecx & CPUID_7_0_ECX_PKU) && env->cr[4] & CR4_PKE_MASK) {
                 *ecx |= CPUID_7_0_ECX_OSPKE;
             }
             *edx = env->features[FEAT_7_0_EDX]; /* Feature flags */
+        } else if (count == 1) {
+            *eax = env->features[FEAT_7_1_EAX];
+            *ebx = 0;
+            *ecx = 0;
+            *edx = 0;
         } else {
             *eax = 0;
             *ebx = 0;
@@ -4367,6 +4370,11 @@ static void x86_cpu_adjust_feat_level(X86CPU *cpu, FeatureWord w)
         x86_cpu_adjust_level(cpu, &env->cpuid_min_xlevel2, eax);
     break;
     }
+
+    if (eax == 7) {
+        x86_cpu_adjust_level(cpu, &env->cpuid_min_level_func7,
+                             fi->cpuid.ecx);
+    }
 }
 
 /* Calculate XSAVE components based on the configured CPU feature flags */
@@ -4473,6 +4481,7 @@ static void x86_cpu_expand_features(struct uc_struct *uc, X86CPU *cpu, Error **e
         x86_cpu_adjust_feat_level(cpu, FEAT_1_ECX);
         x86_cpu_adjust_feat_level(cpu, FEAT_6_EAX);
         x86_cpu_adjust_feat_level(cpu, FEAT_7_0_ECX);
+        x86_cpu_adjust_feat_level(cpu, FEAT_7_1_EAX);
         x86_cpu_adjust_feat_level(cpu, FEAT_8000_0001_EDX);
         x86_cpu_adjust_feat_level(cpu, FEAT_8000_0001_ECX);
         x86_cpu_adjust_feat_level(cpu, FEAT_8000_0007_EDX);
@@ -4493,6 +4502,9 @@ static void x86_cpu_expand_features(struct uc_struct *uc, X86CPU *cpu, Error **e
     }
 
     /* Set cpuid_*level* based on cpuid_min_*level, if not explicitly set */
+    if (env->cpuid_level_func7 == UINT32_MAX) {
+        env->cpuid_level_func7 = env->cpuid_min_level_func7;
+    }
     if (env->cpuid_level == UINT32_MAX) {
         env->cpuid_level = env->cpuid_min_level;
     }
