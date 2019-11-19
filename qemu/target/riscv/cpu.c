@@ -22,6 +22,7 @@
 #include "cpu.h"
 #include "exec/exec-all.h"
 #include "qapi/error.h"
+#include "fpu/softfloat-helpers.h"
 
 #include "uc_priv.h"
 
