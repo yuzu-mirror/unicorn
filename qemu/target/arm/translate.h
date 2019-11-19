@@ -106,8 +106,6 @@ typedef struct DisasCompare {
     bool value_global;
 } DisasCompare;
 
-void unallocated_encoding(DisasContext *s);
-
 static inline int arm_dc_feature(DisasContext *dc, int feature)
 {
     return (dc->features & (1ULL << feature)) != 0;

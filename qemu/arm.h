@@ -3418,7 +3418,6 @@
 #define sri_op sri_op_arm
 #define sve_exception_el sve_exception_el_arm
 #define sve_zcr_len_for_el sve_zcr_len_for_el_arm
-#define unallocated_encoding unallocated_encoding_arm
 #define uqadd_op uqadd_op_arm
 #define uqsub_op uqsub_op_arm
 #define usra_op usra_op_arm
