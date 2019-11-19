@@ -3428,6 +3428,7 @@ arm_symbols = (
     'sri_op',
     'sve_exception_el',
     'sve_zcr_len_for_el',
+    'unallocated_encoding',
     'uqadd_op',
     'uqsub_op',
     'usra_op',
