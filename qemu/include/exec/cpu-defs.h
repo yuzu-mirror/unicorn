@@ -200,7 +200,7 @@ typedef struct CPUTLBDesc {
     int invalid_error;
 
 /*
- * This structure must be placed in ArchCPU immedately
+ * This structure must be placed in ArchCPU immediately
  * before CPUArchState, as a field named "neg".
  */
 typedef struct CPUNegativeOffsetState {
