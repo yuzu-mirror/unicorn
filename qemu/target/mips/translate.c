@@ -7580,17 +7580,17 @@ static void gen_mfc0(DisasContext *ctx, TCGv arg, int reg, int sel)
         break;
     case CP0_REGISTER_29:
         switch (sel) {
-        case 0:
-        case 2:
-        case 4:
-        case 6:
+        case CP0_REG29__TAGHI:
+        case CP0_REG29__TAGHI1:
+        case CP0_REG29__TAGHI2:
+        case CP0_REG29__TAGHI3:
             gen_mfc0_load32(ctx, arg, offsetof(CPUMIPSState, CP0_TagHi));
             register_name = "TagHi";
             break;
-        case 1:
-        case 3:
-        case 5:
-        case 7:
+        case CP0_REG29__DATAHI:
+        case CP0_REG29__DATAHI1:
+        case CP0_REG29__DATAHI2:
+        case CP0_REG29__DATAHI3:
             gen_mfc0_load32(ctx, arg, offsetof(CPUMIPSState, CP0_DataHi));
             register_name = "DataHi";
             break;
@@ -8331,17 +8331,17 @@ static void gen_mtc0(DisasContext *ctx, TCGv arg, int reg, int sel)
         break;
     case CP0_REGISTER_29:
         switch (sel) {
-        case 0:
-        case 2:
-        case 4:
-        case 6:
+        case CP0_REG29__TAGHI:
+        case CP0_REG29__TAGHI1:
+        case CP0_REG29__TAGHI2:
+        case CP0_REG29__TAGHI3:
             gen_helper_mtc0_taghi(tcg_ctx, tcg_ctx->cpu_env, arg);
             register_name = "TagHi";
             break;
-        case 1:
-        case 3:
-        case 5:
-        case 7:
+        case CP0_REG29__DATAHI:
+        case CP0_REG29__DATAHI1:
+        case CP0_REG29__DATAHI2:
+        case CP0_REG29__DATAHI3:
             gen_helper_mtc0_datahi(tcg_ctx, tcg_ctx->cpu_env, arg);
             register_name = "DataHi";
             break;
@@ -9055,17 +9055,17 @@ static void gen_dmfc0(DisasContext *ctx, TCGv arg, int reg, int sel)
         break;
     case CP0_REGISTER_29:
         switch (sel) {
-        case 0:
-        case 2:
-        case 4:
-        case 6:
+        case CP0_REG29__TAGHI:
+        case CP0_REG29__TAGHI1:
+        case CP0_REG29__TAGHI2:
+        case CP0_REG29__TAGHI3:
             gen_mfc0_load32(ctx, arg, offsetof(CPUMIPSState, CP0_TagHi));
             register_name = "TagHi";
             break;
-        case 1:
-        case 3:
-        case 5:
-        case 7:
+        case CP0_REG29__DATAHI:
+        case CP0_REG29__DATAHI1:
+        case CP0_REG29__DATAHI2:
+        case CP0_REG29__DATAHI3:
             gen_mfc0_load32(ctx, arg, offsetof(CPUMIPSState, CP0_DataHi));
             register_name = "DataHi";
             break;
@@ -9788,17 +9788,17 @@ static void gen_dmtc0(DisasContext *ctx, TCGv arg, int reg, int sel)
         break;
     case CP0_REGISTER_29:
         switch (sel) {
-        case 0:
-        case 2:
-        case 4:
-        case 6:
+        case CP0_REG29__TAGHI:
+        case CP0_REG29__TAGHI1:
+        case CP0_REG29__TAGHI2:
+        case CP0_REG29__TAGHI3:
             gen_helper_mtc0_taghi(tcg_ctx, tcg_ctx->cpu_env, arg);
             register_name = "TagHi";
             break;
-        case 1:
-        case 3:
-        case 5:
-        case 7:
+        case CP0_REG29__DATAHI:
+        case CP0_REG29__DATAHI1:
+        case CP0_REG29__DATAHI2:
+        case CP0_REG29__DATAHI3:
             gen_helper_mtc0_datahi(tcg_ctx, tcg_ctx->cpu_env, arg);
             register_name = "DataHi";
             break;
