@@ -457,11 +457,7 @@ static TCGv_i64 gen_muls_i64_i32(DisasContext *s, TCGv_i32 a, TCGv_i32 b)
 static void gen_swap_half(DisasContext *s, TCGv_i32 var)
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
-    TCGv_i32 tmp = tcg_temp_new_i32(tcg_ctx);
-    tcg_gen_shri_i32(tcg_ctx, tmp, var, 16);
-    tcg_gen_shli_i32(tcg_ctx, var, var, 16);
-    tcg_gen_or_i32(tcg_ctx, var, var, tmp);
-    tcg_temp_free_i32(tcg_ctx, tmp);
+    tcg_gen_rotri_i32(tcg_ctx, var, var, 16);
 }
 
 /* Dual 16-bit add.  Result placed in t0 and t1 is marked as dead.
