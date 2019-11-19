@@ -6738,7 +6738,7 @@ static void gen_mfhc0(DisasContext *ctx, TCGv arg, int reg, int sel)
         break;
     case CP0_REGISTER_09:
         switch (sel) {
-        case 7:
+        case CP0_REG09__SAAR:
             CP0_CHECK(ctx->saar);
             gen_helper_mfhc0_saar(s, arg, s->cpu_env);
             register_name = "SAAR";
@@ -6822,7 +6822,7 @@ static void gen_mthc0(DisasContext *ctx, TCGv arg, int reg, int sel)
         break;
     case CP0_REGISTER_09:
         switch (sel) {
-        case 7:
+        case CP0_REG09__SAAR:
             CP0_CHECK(ctx->saar);
             gen_helper_mthc0_saar(s, s->cpu_env, arg);
             register_name = "SAAR";
@@ -7200,7 +7200,7 @@ static void gen_mfc0(DisasContext *ctx, TCGv arg, int reg, int sel)
         break;
     case CP0_REGISTER_09:
         switch (sel) {
-        case 0:
+        case CP0_REG09__COUNT:
             /* Mark as an IO operation because we read the time.  */
             //if (tb_cflags(ctx->base.tb) & CF_USE_ICOUNT) {
             //   gen_io_start();
@@ -7218,12 +7218,12 @@ static void gen_mfc0(DisasContext *ctx, TCGv arg, int reg, int sel)
             ctx->base.is_jmp = DISAS_EXIT;
             register_name = "Count";
             break;
-        case 6:
+        case CP0_REG09__SAARI:
             CP0_CHECK(ctx->saar);
             gen_mfc0_load32(ctx, arg, offsetof(CPUMIPSState, CP0_SAARI));
             register_name = "SAARI";
             break;
-        case 7:
+        case CP0_REG09__SAAR:
             CP0_CHECK(ctx->saar);
             gen_helper_mfc0_saar(tcg_ctx, arg, tcg_ctx->cpu_env);
             register_name = "SAAR";
@@ -7932,16 +7932,16 @@ static void gen_mtc0(DisasContext *ctx, TCGv arg, int reg, int sel)
         break;
     case CP0_REGISTER_09:
         switch (sel) {
-        case 0:
+        case CP0_REG09__COUNT:
             gen_helper_mtc0_count(tcg_ctx, tcg_ctx->cpu_env, arg);
             register_name = "Count";
             break;
-        case 6:
+        case CP0_REG09__SAARI:
             CP0_CHECK(ctx->saar);
             gen_helper_mtc0_saari(tcg_ctx, tcg_ctx->cpu_env, arg);
             register_name = "SAARI";
             break;
-        case 7:
+        case CP0_REG09__SAAR:
             CP0_CHECK(ctx->saar);
             gen_helper_mtc0_saar(tcg_ctx, tcg_ctx->cpu_env, arg);
             register_name = "SAAR";
@@ -8673,7 +8673,7 @@ static void gen_dmfc0(DisasContext *ctx, TCGv arg, int reg, int sel)
         break;
     case CP0_REGISTER_09:
         switch (sel) {
-        case 0:
+        case CP0_REG09__COUNT:
             /* Mark as an IO operation because we read the time.  */
             //if (tb_cflags(ctx->base.tb) & CF_USE_ICOUNT) {
             //    gen_io_start();
@@ -8691,12 +8691,12 @@ static void gen_dmfc0(DisasContext *ctx, TCGv arg, int reg, int sel)
             ctx->base.is_jmp = DISAS_EXIT;
             register_name = "Count";
             break;
-        case 6:
+        case CP0_REG09__SAARI:
             CP0_CHECK(ctx->saar);
             gen_mfc0_load32(ctx, arg, offsetof(CPUMIPSState, CP0_SAARI));
             register_name = "SAARI";
             break;
-        case 7:
+        case CP0_REG09__SAAR:
             CP0_CHECK(ctx->saar);
             gen_helper_dmfc0_saar(tcg_ctx, arg, tcg_ctx->cpu_env);
             register_name = "SAAR";
@@ -9384,16 +9384,16 @@ static void gen_dmtc0(DisasContext *ctx, TCGv arg, int reg, int sel)
         break;
     case CP0_REGISTER_09:
         switch (sel) {
-        case 0:
+        case CP0_REG09__COUNT:
             gen_helper_mtc0_count(tcg_ctx, tcg_ctx->cpu_env, arg);
             register_name = "Count";
             break;
-        case 6:
+        case CP0_REG09__SAARI:
             CP0_CHECK(ctx->saar);
             gen_helper_mtc0_saari(tcg_ctx, tcg_ctx->cpu_env, arg);
             register_name = "SAARI";
             break;
-        case 7:
+        case CP0_REG09__SAAR:
             CP0_CHECK(ctx->saar);
             gen_helper_mtc0_saar(tcg_ctx, tcg_ctx->cpu_env, arg);
             register_name = "SAAR";
