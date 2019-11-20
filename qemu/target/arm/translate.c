@@ -798,22 +798,6 @@ static inline void gen_set_pc_im(DisasContext *s, target_ulong val)
     tcg_gen_movi_i32(tcg_ctx, tcg_ctx->cpu_R[15], val);
 }
 
-/* Set PC and Thumb state from an immediate address.  */
-static inline void gen_bx_im(DisasContext *s, uint32_t addr)
-{
-    TCGv_i32 tmp;
-    TCGContext *tcg_ctx = s->uc->tcg_ctx;
-
-    s->base.is_jmp = DISAS_JUMP;
-    if (s->thumb != (addr & 1)) {
-        tmp = tcg_temp_new_i32(tcg_ctx);
-        tcg_gen_movi_i32(tcg_ctx, tmp, addr & 1);
-        tcg_gen_st_i32(tcg_ctx, tmp, tcg_ctx->cpu_env, offsetof(CPUARMState, thumb));
-        tcg_temp_free_i32(tcg_ctx, tmp);
-    }
-    tcg_gen_movi_i32(tcg_ctx, tcg_ctx->cpu_R[15], addr & ~1);
-}
-
 /* Set PC and Thumb state from var.  var is marked as dead.  */
 static inline void gen_bx(DisasContext *s, TCGv_i32 var)
 {
@@ -2812,9 +2796,8 @@ static inline void gen_jmp(DisasContext *s, uint32_t dest)
 {
     if (unlikely(is_singlestepping(s))) {
         /* An indirect jump so that we still trigger the debug exception.  */
-        if (s->thumb)
-            dest |= 1;
-        gen_bx_im(s, dest);
+        gen_set_pc_im(s, dest);
+        s->base.is_jmp = DISAS_JUMP;
     } else {
         gen_goto_tb(s, 0, dest);
     }
@@ -10474,12 +10457,16 @@ static bool trans_BL(DisasContext *s, arg_i *a)
 static bool trans_BLX_i(DisasContext *s, arg_BLX_i *a)
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
+    TCGv_i32 tmp;
+
     /* For A32, ARCH(5) is checked near the start of the uncond block. */
     if (s->thumb && (a->imm & 2)) {
         return false;
     }
     tcg_gen_movi_i32(tcg_ctx, tcg_ctx->cpu_R[14], s->base.pc_next | s->thumb);
-    gen_bx_im(s, (read_pc(s) & ~3) + a->imm + !s->thumb);
+    tmp = tcg_const_i32(tcg_ctx, !s->thumb);
+    store_cpu_field(s, tmp, thumb);
+    gen_jmp(s, (read_pc(s) & ~3) + a->imm);
     return true;
 }
 
