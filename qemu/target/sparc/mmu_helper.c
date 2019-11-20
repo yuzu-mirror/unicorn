@@ -96,6 +96,7 @@ static int get_physical_address(CPUSPARCState *env, hwaddr *physical,
     int error_code = 0, is_dirty, is_user;
     unsigned long page_offset;
     CPUState *cs = env_cpu(env);
+    MemTxResult result;
 
     is_user = mmu_idx == MMU_USER_IDX;
 
@@ -118,7 +119,10 @@ static int get_physical_address(CPUSPARCState *env, hwaddr *physical,
     /* SPARC reference MMU table walk: Context table->L1->L2->PTE */
     /* Context base + context number */
     pde_ptr = (env->mmuregs[1] << 4) + (env->mmuregs[2] << 2);
-    pde = ldl_phys(cs->as, pde_ptr);
+    pde = address_space_ldl(cs->as, pde_ptr, MEMTXATTRS_UNSPECIFIED, &result);
+    if (result != MEMTX_OK) {
+        return 4 << 2; /* Translation fault, L = 0 */
+    }
 
     /* Ctx pde */
     switch (pde & PTE_ENTRYTYPE_MASK) {
@@ -130,7 +134,11 @@ static int get_physical_address(CPUSPARCState *env, hwaddr *physical,
         return 4 << 2;
     case 1: /* L0 PDE */
         pde_ptr = ((address >> 22) & ~3) + ((pde & ~3) << 4);
-        pde = ldl_phys(cs->as, pde_ptr);
+        pde = address_space_ldl(cs->as, pde_ptr,
+                                MEMTXATTRS_UNSPECIFIED, &result);
+        if (result != MEMTX_OK) {
+            return (1 << 8) | (4 << 2); /* Translation fault, L = 1 */
+        }
 
         switch (pde & PTE_ENTRYTYPE_MASK) {
         default:
@@ -140,7 +148,11 @@ static int get_physical_address(CPUSPARCState *env, hwaddr *physical,
             return (1 << 8) | (4 << 2);
         case 1: /* L1 PDE */
             pde_ptr = ((address & 0xfc0000) >> 16) + ((pde & ~3) << 4);
-            pde = ldl_phys(cs->as, pde_ptr);
+            pde = address_space_ldl(cs->as, pde_ptr,
+                                    MEMTXATTRS_UNSPECIFIED, &result);
+            if (result != MEMTX_OK) {
+                return (2 << 8) | (4 << 2); /* Translation fault, L = 2 */
+            }
 
             switch (pde & PTE_ENTRYTYPE_MASK) {
             default:
@@ -150,7 +162,11 @@ static int get_physical_address(CPUSPARCState *env, hwaddr *physical,
                 return (2 << 8) | (4 << 2);
             case 1: /* L2 PDE */
                 pde_ptr = ((address & 0x3f000) >> 10) + ((pde & ~3) << 4);
-                pde = ldl_phys(cs->as, pde_ptr);
+                pde = address_space_ldl(cs->as, pde_ptr,
+                                        MEMTXATTRS_UNSPECIFIED, &result);
+                if (result != MEMTX_OK) {
+                    return (3 << 8) | (4 << 2); /* Translation fault, L = 3 */
+                }
 
                 switch (pde & PTE_ENTRYTYPE_MASK) {
                 default:
