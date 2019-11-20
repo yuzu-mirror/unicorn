@@ -7645,6 +7645,11 @@ static int negate(DisasContext *s, int x)
     return -x;
 }
 
+static int plus_2(DisasContext *s, int x)
+{
+    return x + 2;
+}
+
 static int times_2(DisasContext *s, int x)
 {
     return x * 2;
@@ -10602,6 +10607,75 @@ static bool trans_SRS(DisasContext *s, arg_SRS *a)
     return true;
 }
 
+static bool trans_CPS(DisasContext *s, arg_CPS *a)
+{
+    uint32_t mask, val;
+
+    if (!ENABLE_ARCH_6 || arm_dc_feature(s, ARM_FEATURE_M)) {
+        return false;
+    }
+    if (IS_USER(s)) {
+        /* Implemented as NOP in user mode.  */
+        return true;
+    }
+    /* TODO: There are quite a lot of UNPREDICTABLE argument combinations. */
+
+    mask = val = 0;
+    if (a->imod & 2) {
+        if (a->A) {
+            mask |= CPSR_A;
+        }
+        if (a->I) {
+            mask |= CPSR_I;
+        }
+        if (a->F) {
+            mask |= CPSR_F;
+        }
+        if (a->imod & 1) {
+            val |= mask;
+        }
+    }
+    if (a->M) {
+        mask |= CPSR_M;
+        val |= a->mode;
+    }
+    if (mask) {
+        gen_set_psr_im(s, mask, 0, val);
+    }
+    return true;
+}
+
+static bool trans_CPS_v7m(DisasContext *s, arg_CPS_v7m *a)
+{
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+    TCGv_i32 tmp, addr;
+
+    if (!arm_dc_feature(s, ARM_FEATURE_M)) {
+        return false;
+    }
+    if (IS_USER(s)) {
+        /* Implemented as NOP in user mode.  */
+        return true;
+    }
+
+    tmp = tcg_const_i32(tcg_ctx, a->im);
+    /* FAULTMASK */
+    if (a->F) {
+        addr = tcg_const_i32(tcg_ctx, 19);
+        gen_helper_v7m_msr(tcg_ctx, tcg_ctx->cpu_env, addr, tmp);
+        tcg_temp_free_i32(tcg_ctx, addr);
+    }
+    /* PRIMASK */
+    if (a->I) {
+        addr = tcg_const_i32(tcg_ctx, 16);
+        gen_helper_v7m_msr(tcg_ctx, tcg_ctx->cpu_env, addr, tmp);
+        tcg_temp_free_i32(tcg_ctx, addr);
+    }
+    tcg_temp_free_i32(tcg_ctx, tmp);
+    gen_lookup_tb(s);
+    return true;
+}
+
 /*
  * Clear-Exclusive, Barriers
  */
@@ -10658,44 +10732,6 @@ static bool trans_SB(DisasContext *s, arg_SB *a)
      */
     tcg_gen_mb(tcg_ctx, TCG_MO_ALL | TCG_BAR_SC);
     gen_goto_tb(s, 0, s->base.pc_next);
-    return true;
-}
-
-static bool trans_CPS(DisasContext *s, arg_CPS *a)
-{
-    uint32_t mask, val;
-
-    if (arm_dc_feature(s, ARM_FEATURE_M)) {
-        return false;
-    }
-    if (IS_USER(s)) {
-        /* Implemented as NOP in user mode.  */
-        return true;
-    }
-    /* TODO: There are quite a lot of UNPREDICTABLE argument combinations. */
-
-    mask = val = 0;
-    if (a->imod & 2) {
-        if (a->A) {
-            mask |= CPSR_A;
-        }
-        if (a->I) {
-            mask |= CPSR_I;
-        }
-        if (a->F) {
-            mask |= CPSR_F;
-        }
-        if (a->imod & 1) {
-            val |= mask;
-        }
-    }
-    if (a->M) {
-        mask |= CPSR_M;
-        val |= a->mode;
-    }
-    if (mask) {
-        gen_set_psr_im(s, mask, 0, val);
-    }
     return true;
 }
 
@@ -11261,51 +11297,8 @@ static void disas_thumb_insn(DisasContext *s, uint32_t insn)
             break;
         }
 
-        case 6:
-            switch ((insn >> 5) & 7) {
-            case 2:
-                /* setend */
-                ARCH(6);
-                if (((insn >> 3) & 1) != !!(s->be_data == MO_BE)) {
-                    gen_helper_setend(tcg_ctx, tcg_ctx->cpu_env);
-                    s->base.is_jmp = DISAS_UPDATE;
-                }
-                break;
-            case 3:
-                /* cps */
-                ARCH(6);
-                if (IS_USER(s)) {
-                    break;
-                }
-                if (arm_dc_feature(s, ARM_FEATURE_M)) {
-                    tmp = tcg_const_i32(tcg_ctx, (insn & (1 << 4)) != 0);
-                    /* FAULTMASK */
-                    if (insn & 1) {
-                        addr = tcg_const_i32(tcg_ctx, 19);
-                        gen_helper_v7m_msr(tcg_ctx, tcg_ctx->cpu_env, addr, tmp);
-                        tcg_temp_free_i32(tcg_ctx, addr);
-                    }
-                    /* PRIMASK */
-                    if (insn & 2) {
-                        addr = tcg_const_i32(tcg_ctx, 16);
-                        gen_helper_v7m_msr(tcg_ctx, tcg_ctx->cpu_env, addr, tmp);
-                        tcg_temp_free_i32(tcg_ctx, addr);
-                    }
-                    tcg_temp_free_i32(tcg_ctx, tmp);
-                    gen_lookup_tb(s);
-                } else {
-                    if (insn & (1 << 4)) {
-                        shift = CPSR_A | CPSR_I | CPSR_F;
-                    } else {
-                        shift = 0;
-                    }
-                    gen_set_psr_im(s, ((insn & 7) << 6), 0, shift);
-                }
-                break;
-            default:
-                goto undef;
-            }
-            break;
+        case 6: /* setend, cps; in decodetree */
+            goto illegal_op;
 
         default:
             goto undef;
