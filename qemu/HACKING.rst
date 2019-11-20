@@ -1,16 +1,49 @@
-1. Preprocessor
+============
+QEMU Hacking
+============
+
+.. contents:: Table of Contents
+
+Preprocessor
+============
+
+Variadic macros
+---------------
 
 For variadic macros, stick with this C99-like syntax:
 
-#define DPRINTF(fmt, ...)                                       \
-    do { printf("IRQ: " fmt, ## __VA_ARGS__); } while (0)
+.. code-block:: c
 
-2. C types
+    #define DPRINTF(fmt, ...)                                       \
+        do { printf("IRQ: " fmt, ## __VA_ARGS__); } while (0)
+
+Include directives
+------------------
+
+Order include directives as follows:
+
+.. code-block:: c
+
+    #include "qemu/osdep.h"  /* Always first... */
+    #include <...>           /* then system headers... */
+    #include "..."           /* and finally QEMU headers. */
+
+The "qemu/osdep.h" header contains preprocessor macros that affect the behavior
+of core system headers like <stdint.h>.  It must be the first include so that
+core system headers included by external libraries get the preprocessor macros
+that QEMU depends on.
+
+Do not include "qemu/osdep.h" from header files since the .c file will have
+already included it.
+
+C types
+=======
 
 It should be common sense to use the right type, but we have collected
 a few useful guidelines here.
 
-2.1. Scalars
+Scalars
+-------
 
 If you're using "int" or "long", odds are good that there's a better type.
 If a variable is counting something, it should be declared with an
@@ -50,8 +83,8 @@ it may be 32 or 64 bits depending on which target is being built. It should
 therefore be used only in target-specific code, and in some
 performance-critical built-per-target core code such as the TLB code.
 There is also a signed version, target_long.
-abi_ulong is for the *-user targets, and represents a type the size of
-'void *' in that target's ABI. (This may not be the same as the size of a
+abi_ulong is for the ``*``-user targets, and represents a type the size of
+'void ``*``' in that target's ABI. (This may not be the same as the size of a
 full CPU virtual address in the case of target ABIs which use 32 bit pointers
 on 64 bit CPUs, like sparc32plus.) Definitions of structures that must match
 the target's ABI must use this type for anything that on the target is defined
@@ -71,7 +104,8 @@ Finally, while using descriptive types is important, be careful not to
 go overboard.  If whatever you're doing causes warnings, or requires
 casts, then reconsider or ask for help.
 
-2.2. Pointers
+Pointers
+--------
 
 Ensure that all of your pointers are "const-correct".
 Unless a pointer is used to modify the pointed-to storage,
@@ -81,14 +115,30 @@ importantly, if we're diligent about this, when you see a non-const
 pointer, you're guaranteed that it is used to modify the storage
 it points to, or it is aliased to another pointer that is.
 
-2.3. Typedefs
-Typedefs are used to eliminate the redundant 'struct' keyword.
+Typedefs
+--------
 
-2.4. Reserved namespaces in C and POSIX
+Typedefs are used to eliminate the redundant 'struct' keyword, since type
+names have a different style than other identifiers ("CamelCase" versus
+"snake_case").  Each named struct type should have a CamelCase name and a
+corresponding typedef.
+
+Since certain C compilers choke on duplicated typedefs, you should avoid
+them and declare a typedef only in one header file.  For common types,
+you can use "include/qemu/typedefs.h" for example.  However, as a matter
+of convenience it is also perfectly fine to use forward struct
+definitions instead of typedefs in headers and function prototypes; this
+avoids problems with duplicated typedefs and reduces the need to include
+headers from other headers.
+
+Reserved namespaces in C and POSIX
+----------------------------------
+
 Underscore capital, double underscore, and underscore 't' suffixes should be
 avoided.
 
-3. Low level memory management
+Low level memory management
+===========================
 
 Use of the malloc/free/realloc/calloc/valloc/memalign/posix_memalign
 APIs is not allowed in the QEMU codebase. Instead of these routines,
@@ -100,36 +150,51 @@ Please note that g_malloc will exit on allocation failure, so there
 is no need to test for failure (as you would have to with malloc).
 Calling g_malloc with a zero size is valid and will return NULL.
 
-Prefer g_new(T, n) instead of g_malloc(sizeof(T) * n) for the following
+Prefer g_new(T, n) instead of g_malloc(sizeof(T) ``*`` n) for the following
 reasons:
 
-  a. It catches multiplication overflowing size_t;
-  b. It returns T * instead of void *, letting compiler catch more type
-     errors.
+* It catches multiplication overflowing size_t;
+* It returns T ``*`` instead of void ``*``, letting compiler catch more type errors.
 
-Declarations like T *v = g_malloc(sizeof(*v)) are acceptable, though.
+Declarations like
+
+.. code-block:: c
+
+    T *v = g_malloc(sizeof(*v))
+
+are acceptable, though.
 
 Memory allocated by qemu_memalign or qemu_blockalign must be freed with
 qemu_vfree, since breaking this will cause problems on Win32.
 
-4. String manipulation
+String manipulation
+===================
 
 Do not use the strncpy function.  As mentioned in the man page, it does *not*
 guarantee a NULL-terminated buffer, which makes it extremely dangerous to use.
 It also zeros trailing destination bytes out to the specified length.  Instead,
 use this similar function when possible, but note its different signature:
-void pstrcpy(char *dest, int dest_buf_size, const char *src)
+
+.. code-block:: c
+
+    void pstrcpy(char *dest, int dest_buf_size, const char *src)
 
 Don't use strcat because it can't check for buffer overflows, but:
-char *pstrcat(char *buf, int buf_size, const char *s)
+
+.. code-block:: c
+
+    char *pstrcat(char *buf, int buf_size, const char *s)
 
 The same limitation exists with sprintf and vsprintf, so use snprintf and
 vsnprintf.
 
 QEMU provides other useful string functions:
-int strstart(const char *str, const char *val, const char **ptr)
-int stristart(const char *str, const char *val, const char **ptr)
-int qemu_strnlen(const char *s, int max_len)
+
+.. code-block:: c
+
+    int strstart(const char *str, const char *val, const char **ptr)
+    int stristart(const char *str, const char *val, const char **ptr)
+    int qemu_strnlen(const char *s, int max_len)
 
 There are also replacement character processing macros for isxyz and toxyz,
 so instead of e.g. isalnum you should use qemu_isalnum.
@@ -137,7 +202,8 @@ so instead of e.g. isalnum you should use qemu_isalnum.
 Because of the memory management rules, you must use g_strdup/g_strndup
 instead of plain strdup/strndup.
 
-5. Printf-style functions
+Printf-style functions
+======================
 
 Whenever you add a new printf-style function, i.e., one with a format
 string argument and following "..." in its prototype, be sure to use
@@ -147,12 +213,14 @@ This makes it so gcc's -Wformat and -Wformat-security options can do
 their jobs and cross-check format strings with the number and types
 of arguments.
 
-6. C standard, implementation defined and undefined behaviors
+C standard, implementation defined and undefined behaviors
+==========================================================
 
 C code in QEMU should be written to the C99 language specification. A copy
 of the final version of the C99 standard with corrigenda TC1, TC2, and TC3
 included, formatted as a draft, can be downloaded from:
- http://www.open-std.org/jtc1/sc22/WG14/www/docs/n1256.pdf
+
+    `<http://www.open-std.org/jtc1/sc22/WG14/www/docs/n1256.pdf>`_
 
 The C language specification defines regions of undefined behavior and
 implementation defined behavior (to give compiler authors enough leeway to
@@ -163,6 +231,70 @@ argument...) However there are a few areas where we allow ourselves to
 assume certain behaviors because in practice all the platforms we care about
 behave in the same way and writing strictly conformant code would be
 painful. These are:
- * you may assume that integers are 2s complement representation
- * you may assume that right shift of a signed integer duplicates
-   the sign bit (ie it is an arithmetic shift, not a logical shift)
+
+* you may assume that integers are 2s complement representation
+* you may assume that right shift of a signed integer duplicates
+  the sign bit (ie it is an arithmetic shift, not a logical shift)
+
+In addition, QEMU assumes that the compiler does not use the latitude
+given in C99 and C11 to treat aspects of signed '<<' as undefined, as
+documented in the GNU Compiler Collection manual starting at version 4.0.
+
+Error handling and reporting
+============================
+
+Reporting errors to the human user
+----------------------------------
+
+Do not use printf(), fprintf() or monitor_printf().  Instead, use
+error_report() or error_vreport() from error-report.h.  This ensures the
+error is reported in the right place (current monitor or stderr), and in
+a uniform format.
+
+Use error_printf() & friends to print additional information.
+
+error_report() prints the current location.  In certain common cases
+like command line parsing, the current location is tracked
+automatically.  To manipulate it manually, use the loc_``*``() from
+error-report.h.
+
+Propagating errors
+------------------
+
+An error can't always be reported to the user right where it's detected,
+but often needs to be propagated up the call chain to a place that can
+handle it.  This can be done in various ways.
+
+The most flexible one is Error objects.  See error.h for usage
+information.
+
+Use the simplest suitable method to communicate success / failure to
+callers.  Stick to common methods: non-negative on success / -1 on
+error, non-negative / -errno, non-null / null, or Error objects.
+
+Example: when a function returns a non-null pointer on success, and it
+can fail only in one way (as far as the caller is concerned), returning
+null on failure is just fine, and certainly simpler and a lot easier on
+the eyes than propagating an Error object through an Error ``*````*`` parameter.
+
+Example: when a function's callers need to report details on failure
+only the function really knows, use Error ``*````*``, and set suitable errors.
+
+Do not report an error to the user when you're also returning an error
+for somebody else to handle.  Leave the reporting to the place that
+consumes the error returned.
+
+Handling errors
+---------------
+
+Calling exit() is fine when handling configuration errors during
+startup.  It's problematic during normal operation.  In particular,
+monitor commands should never exit().
+
+Do not call exit() or abort() to handle an error that can be triggered
+by the guest (e.g., some unimplemented corner case in guest code
+translation or device emulation).  Guests should not be able to
+terminate QEMU.
+
+Note that &error_fatal is just another way to exit(1), and &error_abort
+is just another way to abort().
