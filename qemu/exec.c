@@ -150,8 +150,7 @@ static void tcg_commit(MemoryListener *listener);
 static void phys_map_node_reserve(struct uc_struct *uc, PhysPageMap *map, unsigned nodes)
 {
     if (map->nodes_nb + nodes > map->nodes_nb_alloc) {
-        map->nodes_nb_alloc = MAX(map->nodes_nb_alloc, uc->phys_map_node_alloc_hint);
-        map->nodes_nb_alloc = MAX(map->nodes_nb_alloc, map->nodes_nb + nodes);
+        map->nodes_nb_alloc = MAX(uc->phys_map_node_alloc_hint, map->nodes_nb + nodes);
         map->nodes = g_renew(Node, map->nodes, map->nodes_nb_alloc);
         uc->phys_map_node_alloc_hint = map->nodes_nb_alloc;
     }
