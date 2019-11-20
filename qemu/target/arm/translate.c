@@ -9152,6 +9152,18 @@ static bool op_strex(DisasContext *s, arg_STREX *a, MemOp mop, bool rel)
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
     TCGv_i32 addr;
 
+    /* We UNDEF for these UNPREDICTABLE cases.  */
+    if (a->rd == 15 || a->rn == 15 || a->rt == 15
+        || a->rd == a->rn || a->rd == a->rt
+        || (s->thumb && (a->rd == 13 || a->rt == 13))
+        || (mop == MO_64
+            && (a->rt2 == 15
+                || a->rd == a->rt2 || a->rt == a->rt2
+                || (s->thumb && a->rt2 == 13)))) {
+        unallocated_encoding(s);
+        return true;
+    }
+
     if (rel) {
         tcg_gen_mb(tcg_ctx, TCG_MO_ALL | TCG_BAR_STRL);
     }
@@ -9178,6 +9190,7 @@ static bool trans_STREXD_a32(DisasContext *s, arg_STREX *a)
     if (!ENABLE_ARCH_6K) {
         return false;
     }
+    /* We UNDEF for these UNPREDICTABLE cases.  */
     if (a->rt & 1) {
         unallocated_encoding(s);
         return true;
@@ -9220,6 +9233,7 @@ static bool trans_STLEXD_a32(DisasContext *s, arg_STREX *a)
     if (!ENABLE_ARCH_8) {
         return false;
     }
+    /* We UNDEF for these UNPREDICTABLE cases.  */
     if (a->rt & 1) {
         unallocated_encoding(s);
         return true;
@@ -9260,8 +9274,13 @@ static bool op_stl(DisasContext *s, arg_STL *a, MemOp mop)
     if (!ENABLE_ARCH_8) {
         return false;
     }
-    addr = load_reg(s, a->rn);
+    /* We UNDEF for these UNPREDICTABLE cases.  */
+    if (a->rn == 15 || a->rt == 15) {
+        unallocated_encoding(s);
+        return true;
+    }
 
+    addr = load_reg(s, a->rn);
     tmp = load_reg(s, a->rt);
     tcg_gen_mb(tcg_ctx, TCG_MO_ALL | TCG_BAR_STRL);
     gen_aa32_st_i32(s, tmp, addr, get_mem_index(s), mop | s->be_data);
@@ -9292,6 +9311,16 @@ static bool op_ldrex(DisasContext *s, arg_LDREX *a, MemOp mop, bool acq)
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
     TCGv_i32 addr;
 
+    /* We UNDEF for these UNPREDICTABLE cases.  */
+    if (a->rn == 15 || a->rt == 15
+        || (s->thumb && a->rt == 13)
+        || (mop == MO_64
+            && (a->rt2 == 15 || a->rt == a->rt2
+                || (s->thumb && a->rt2 == 13)))) {
+        unallocated_encoding(s);
+        return true;
+    }
+
     addr = tcg_temp_local_new_i32(tcg_ctx);
     load_reg_var(s, addr, a->rn);
     tcg_gen_addi_i32(tcg_ctx, addr, addr, a->imm);
@@ -9318,6 +9347,7 @@ static bool trans_LDREXD_a32(DisasContext *s, arg_LDREX *a)
     if (!ENABLE_ARCH_6K) {
         return false;
     }
+    /* We UNDEF for these UNPREDICTABLE cases.  */
     if (a->rt & 1) {
         unallocated_encoding(s);
         return true;
@@ -9360,6 +9390,7 @@ static bool trans_LDAEXD_a32(DisasContext *s, arg_LDREX *a)
     if (!ENABLE_ARCH_8) {
         return false;
     }
+    /* We UNDEF for these UNPREDICTABLE cases.  */
     if (a->rt & 1) {
         unallocated_encoding(s);
         return true;
@@ -9400,8 +9431,13 @@ static bool op_lda(DisasContext *s, arg_LDA *a, MemOp mop)
     if (!ENABLE_ARCH_8) {
         return false;
     }
-    addr = load_reg(s, a->rn);
+    /* We UNDEF for these UNPREDICTABLE cases.  */
+    if (a->rn == 15 || a->rt == 15) {
+        unallocated_encoding(s);
+        return true;
+    }
 
+    addr = load_reg(s, a->rn);
     tmp = tcg_temp_new_i32(tcg_ctx);
     gen_aa32_ld_i32(s, tmp, addr, get_mem_index(s), mop | s->be_data);
     disas_set_da_iss(s, mop, a->rt | ISSIsAcqRel);
