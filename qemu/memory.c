@@ -116,6 +116,7 @@ int memory_free(struct uc_struct *uc)
     for (size_t i = 0; i < uc->mapped_block_count; i++) {
         MemoryRegion *mr = uc->mapped_blocks[i];
         mr->enabled = false;
+        memory_region_del_subregion(get_system_memory(uc), mr);
         unicorn_free_memory_region(mr);
     }
 
