@@ -176,7 +176,7 @@ static void mips_cpu_class_init(struct uc_struct *uc, ObjectClass *c, void *data
     cc->set_pc = mips_cpu_set_pc;
     cc->synchronize_from_tb = mips_cpu_synchronize_from_tb;
 #ifndef CONFIG_USER_ONLY
-    cc->do_unassigned_access = mips_cpu_unassigned_access;
+    cc->do_transaction_failed = mips_cpu_do_transaction_failed;
     cc->do_unaligned_access = mips_cpu_do_unaligned_access;
     cc->get_phys_page_debug = mips_cpu_get_phys_page_debug;
 #endif

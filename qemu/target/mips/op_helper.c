@@ -2655,9 +2655,11 @@ void mips_cpu_do_unaligned_access(CPUState *cs, vaddr addr,
     do_raise_exception_err(env, excp, error_code, retaddr);
 }
 
-void mips_cpu_unassigned_access(CPUState *cs, hwaddr addr,
-                                bool is_write, bool is_exec, int unused,
-                                unsigned size)
+void mips_cpu_do_transaction_failed(CPUState *cs, hwaddr physaddr,
+                                    vaddr addr, unsigned size,
+                                    MMUAccessType access_type,
+                                    int mmu_idx, MemTxAttrs attrs,
+                                    MemTxResult response, uintptr_t retaddr)
 {
     MIPSCPU *cpu = MIPS_CPU(cs->uc, cs);
     CPUMIPSState *env = &cpu->env;
@@ -2668,10 +2670,10 @@ void mips_cpu_unassigned_access(CPUState *cs, hwaddr addr,
      * Until we can trigger a bus error exception through KVM lets just ignore
      * the access.
      */
-    if (is_exec) {
-        raise_exception(env, EXCP_IBE);
+    if (access_type == MMU_INST_FETCH) {
+        do_raise_exception(env, EXCP_IBE, retaddr);
     } else {
-        raise_exception(env, EXCP_DBE);
+        do_raise_exception(env, EXCP_DBE, retaddr);
     }
 }
 #endif /* !CONFIG_USER_ONLY */
