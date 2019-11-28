@@ -483,7 +483,7 @@ static inline void gen_goto_tb(DisasContext *s, int n, uint64_t dest)
 void unallocated_encoding(DisasContext *s)
 {
     /* Unallocated and reserved encodings are uncategorized */
-    gen_exception_insn(s, 4, EXCP_UDEF, syn_uncategorized(),
+    gen_exception_insn(s, s->pc_curr, EXCP_UDEF, syn_uncategorized(),
                        default_exception_el(s));
 }
 
@@ -1302,8 +1302,8 @@ static inline bool fp_access_check(DisasContext *s)
         return true;
     }
 
-    gen_exception_insn(s, 4, EXCP_UDEF, syn_fp_access_trap(1, 0xe, false),
-                       s->fp_excp_el);
+    gen_exception_insn(s, s->pc_curr, EXCP_UDEF,
+                       syn_fp_access_trap(1, 0xe, false), s->fp_excp_el);
     return false;
 }
 
@@ -1313,7 +1313,7 @@ static inline bool fp_access_check(DisasContext *s)
 bool sve_access_check(DisasContext *s)
 {
     if (s->sve_excp_el) {
-        gen_exception_insn(s, 4, EXCP_UDEF, syn_sve_access_trap(),
+        gen_exception_insn(s, s->pc_curr, EXCP_UDEF, syn_sve_access_trap(),
                            s->sve_excp_el);
         return false;
     }
@@ -2066,8 +2066,8 @@ static void disas_exc(DisasContext *s, uint32_t insn)
         switch (op2_ll) {
         case 1:                                                     /* SVC */
             gen_ss_advance(s);
-            gen_exception_insn(s, 0, EXCP_SWI, syn_aa64_svc(imm16),
-                               default_exception_el(s));
+            gen_exception_insn(s, s->base.pc_next, EXCP_SWI,
+                               syn_aa64_svc(imm16), default_exception_el(s));
             break;
         case 2:                                                     /* HVC */
             if (s->current_el == 0) {
@@ -2080,7 +2080,8 @@ static void disas_exc(DisasContext *s, uint32_t insn)
             gen_a64_set_pc_im(s, s->pc_curr);
             gen_helper_pre_hvc(tcg_ctx, tcg_ctx->cpu_env);
             gen_ss_advance(s);
-            gen_exception_insn(s, 0, EXCP_HVC, syn_aa64_hvc(imm16), 2);
+            gen_exception_insn(s, s->base.pc_next, EXCP_HVC,
+                               syn_aa64_hvc(imm16), 2);
             break;
         case 3:                                                     /* SMC */
             if (s->current_el == 0) {
@@ -2092,7 +2093,8 @@ static void disas_exc(DisasContext *s, uint32_t insn)
             gen_helper_pre_smc(tcg_ctx, tcg_ctx->cpu_env, tmp);
             tcg_temp_free_i32(tcg_ctx, tmp);
             gen_ss_advance(s);
-            gen_exception_insn(s, 0, EXCP_SMC, syn_aa64_smc(imm16), 3);
+            gen_exception_insn(s, s->base.pc_next, EXCP_SMC,
+                               syn_aa64_smc(imm16), 3);
             break;
         default:
             unallocated_encoding(s);
@@ -14409,7 +14411,8 @@ static void disas_a64_insn(CPUARMState *env, DisasContext *s)
             if (s->btype != 0
                 && s->guarded_page
                 && !btype_destination_ok(insn, s->bt, s->btype)) {
-                gen_exception_insn(s, 4, EXCP_UDEF, syn_btitrap(s->btype),
+                gen_exception_insn(s, s->pc_curr, EXCP_UDEF,
+                                   syn_btitrap(s->btype),
                                    default_exception_el(s));
                 return;
             }
