@@ -1057,6 +1057,7 @@
 #define helper_be_stl_mmu helper_be_stl_mmu_mips
 #define helper_be_stq_mmu helper_be_stq_mmu_mips
 #define helper_be_stw_mmu helper_be_stw_mmu_mips
+#define helper_check_hcr_el2_trap helper_check_hcr_el2_trap_mips
 #define helper_clrsb_i32 helper_clrsb_i32_mips
 #define helper_clrsb_i64 helper_clrsb_i64_mips
 #define helper_clz_i32 helper_clz_i32_mips
