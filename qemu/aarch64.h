@@ -355,6 +355,7 @@
 #define define_one_arm_cp_reg define_one_arm_cp_reg_aarch64
 #define define_one_arm_cp_reg_with_opaque define_one_arm_cp_reg_with_opaque_aarch64
 #define deregister_tm_clones deregister_tm_clones_aarch64
+#define devend_memop devend_memop_aarch64
 #define device_class_base_init device_class_base_init_aarch64
 #define device_class_init device_class_init_aarch64
 #define device_finalize device_finalize_aarch64

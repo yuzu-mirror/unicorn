@@ -355,6 +355,7 @@
 #define define_one_arm_cp_reg define_one_arm_cp_reg_x86_64
 #define define_one_arm_cp_reg_with_opaque define_one_arm_cp_reg_with_opaque_x86_64
 #define deregister_tm_clones deregister_tm_clones_x86_64
+#define devend_memop devend_memop_x86_64
 #define device_class_base_init device_class_base_init_x86_64
 #define device_class_init device_class_init_x86_64
 #define device_finalize device_finalize_x86_64

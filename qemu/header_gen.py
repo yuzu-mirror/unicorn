@@ -361,6 +361,7 @@ symbols = (
     'define_one_arm_cp_reg',
     'define_one_arm_cp_reg_with_opaque',
     'deregister_tm_clones',
+    'devend_memop',
     'device_class_base_init',
     'device_class_init',
     'device_finalize',

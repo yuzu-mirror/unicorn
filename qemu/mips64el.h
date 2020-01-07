@@ -355,6 +355,7 @@
 #define define_one_arm_cp_reg define_one_arm_cp_reg_mips64el
 #define define_one_arm_cp_reg_with_opaque define_one_arm_cp_reg_with_opaque_mips64el
 #define deregister_tm_clones deregister_tm_clones_mips64el
+#define devend_memop devend_memop_mips64el
 #define device_class_base_init device_class_base_init_mips64el
 #define device_class_init device_class_init_mips64el
 #define device_finalize device_finalize_mips64el

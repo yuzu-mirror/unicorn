@@ -355,6 +355,7 @@
 #define define_one_arm_cp_reg define_one_arm_cp_reg_m68k
 #define define_one_arm_cp_reg_with_opaque define_one_arm_cp_reg_with_opaque_m68k
 #define deregister_tm_clones deregister_tm_clones_m68k
+#define devend_memop devend_memop_m68k
 #define device_class_base_init device_class_base_init_m68k
 #define device_class_init device_class_init_m68k
 #define device_finalize device_finalize_m68k

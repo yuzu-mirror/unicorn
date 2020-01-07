@@ -355,6 +355,7 @@
 #define define_one_arm_cp_reg define_one_arm_cp_reg_arm
 #define define_one_arm_cp_reg_with_opaque define_one_arm_cp_reg_with_opaque_arm
 #define deregister_tm_clones deregister_tm_clones_arm
+#define devend_memop devend_memop_arm
 #define device_class_base_init device_class_base_init_arm
 #define device_class_init device_class_init_arm
 #define device_finalize device_finalize_arm

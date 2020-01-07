@@ -605,7 +605,8 @@ static uint64_t io_readx(CPUArchState *env, CPUIOTLBEntry *iotlbentry,
     cpu->mem_io_vaddr = addr;
     cpu->mem_io_access_type = access_type;
 
-    r = memory_region_dispatch_read(mr, mr_offset, &val, size_memop(size),
+    r = memory_region_dispatch_read(mr, mr_offset, &val,
+                                    size_memop(size) | MO_TE,
                                     iotlbentry->attrs);
     if (r != MEMTX_OK) {
         hwaddr physaddr = mr_offset +
@@ -636,7 +637,8 @@ static void io_writex(CPUArchState *env, CPUIOTLBEntry *iotlbentry,
     }
     cpu->mem_io_vaddr = addr;
     cpu->mem_io_pc = retaddr;
-    r = memory_region_dispatch_write(mr, mr_offset, val, size_memop(size),
+    r = memory_region_dispatch_write(mr, mr_offset, val,
+                                     size_memop(size) | MO_TE,
                                      iotlbentry->attrs);
     if (r != MEMTX_OK) {
         hwaddr physaddr = mr_offset +
@@ -1045,6 +1047,7 @@ load_helper(CPUArchState *env, target_ulong addr, TCGMemOpIdx oi,
             }
         }
 
+        /* TODO: Merge bswap into io_readx -> memory_region_dispatch_read.  */
         res = io_readx(env, &env->iotlb[mmu_idx][index], mmu_idx, addr,
                        retaddr, access_type, size);
         return handle_bswap(res, size, big_endian);
@@ -1367,6 +1370,7 @@ store_helper(CPUArchState *env, target_ulong addr, uint64_t val,
             }
         }
 
+        /* TODO: Merge bswap into io_writex -> memory_region_dispatch_write.  */
         io_writex(env, &env->iotlb[mmu_idx][index], mmu_idx,
                   handle_bswap(val, size, big_endian),
                   addr, retaddr, size);

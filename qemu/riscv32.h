@@ -355,6 +355,7 @@
 #define define_one_arm_cp_reg define_one_arm_cp_reg_riscv32
 #define define_one_arm_cp_reg_with_opaque define_one_arm_cp_reg_with_opaque_riscv32
 #define deregister_tm_clones deregister_tm_clones_riscv32
+#define devend_memop devend_memop_riscv32
 #define device_class_base_init device_class_base_init_riscv32
 #define device_class_init device_class_init_riscv32
 #define device_finalize device_finalize_riscv32
