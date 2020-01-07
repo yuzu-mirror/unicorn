@@ -1960,7 +1960,8 @@ static MemTxResult flatview_write_continue(FlatView *fv, hwaddr addr,
             /* XXX: could force current_cpu to NULL to avoid
                potential bugs */
             val = ldn_p(buf, l);
-            result |= memory_region_dispatch_write(mr, addr1, val, l, attrs);
+            result |= memory_region_dispatch_write(mr, addr1, val,
+                                                   size_memop(l), attrs);
         } else {
             /* RAM case */
             ptr = qemu_map_ram_ptr(mr->uc, mr->ram_block, addr1);
@@ -2036,7 +2037,8 @@ MemTxResult flatview_read_continue(FlatView *fv, hwaddr addr,
             // Unicorn: commented out
             //release_lock |= prepare_mmio_access(mr);
             l = memory_access_size(mr, l, addr1);
-            result |= memory_region_dispatch_read(mr, addr1, &val, l, attrs);
+            result |= memory_region_dispatch_read(mr, addr1, &val,
+                                                  size_memop(l), attrs);
             stn_p(buf, l, val);
         } else {
             /* RAM case */
