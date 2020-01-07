@@ -78,6 +78,8 @@ typedef struct DisasContext {
     int c15_cpar;
     /* True with v8.5-BTI and SCTLR_ELx.BT* set.  */
     bool bt;
+    /* True if any CP15 access is trapped by HSTR_EL2 */
+    bool hstr_active;
     /*
      * >= 0, a copy of PSTATE.BTYPE, which will be 0 without v8.5-BTI.
      *  < 0, set by the current instruction.

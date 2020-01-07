@@ -11166,6 +11166,12 @@ void cpu_get_tb_cpu_state(CPUARMState *env, target_ulong *pc,
             || arm_el_is_aa64(env, 1) || arm_feature(env, ARM_FEATURE_M)) {
             flags = FIELD_DP32(flags, TBFLAG_A32, VFPEN, 1);
         }
+
+        if (arm_current_el(env) < 2 && env->cp15.hstr_el2 &&
+            (arm_hcr_el2_eff(env) & (HCR_E2H | HCR_TGE)) != (HCR_E2H | HCR_TGE)) {
+            flags = FIELD_DP32(flags, TBFLAG_A32, HSTR_ACTIVE, 1);
+        }
+
         /* Note that XSCALE_CPAR shares bits with VECSTRIDE */
         if (arm_feature(env, ARM_FEATURE_XSCALE)) {
             flags = FIELD_DP32(flags, TBFLAG_A32,
