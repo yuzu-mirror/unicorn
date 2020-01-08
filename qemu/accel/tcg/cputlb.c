@@ -385,6 +385,10 @@ void tlb_set_page_with_attrs(CPUState *cpu, target_ulong vaddr,
          */
         address |= TLB_RECHECK;
     }
+    if (attrs.byte_swap) {
+        /* Force the access through the I/O slow path.  */
+        address |= TLB_MMIO;
+    }
     if (!memory_region_is_ram(section->mr) &&
         !memory_region_is_romd(section->mr)) {
         /* IO memory case */
@@ -594,6 +598,10 @@ static uint64_t io_readx(CPUArchState *env, CPUIOTLBEntry *iotlbentry,
     uint64_t val;
     MemTxResult r;
 
+    if (iotlbentry->attrs.byte_swap) {
+        op ^= MO_BSWAP;
+    }
+
     section = iotlb_to_section(cpu, iotlbentry->addr, iotlbentry->attrs);
     mr = section->mr;
     mr_offset = (iotlbentry->addr & TARGET_PAGE_MASK) + addr;
@@ -626,6 +634,10 @@ static void io_writex(CPUArchState *env, CPUIOTLBEntry *iotlbentry,
     MemoryRegionSection *section;
     MemoryRegion *mr;
     MemTxResult r;
+
+    if (iotlbentry->attrs.byte_swap) {
+        op ^= MO_BSWAP;
+    }
 
     section = iotlb_to_section(cpu, iotlbentry->addr, iotlbentry->attrs);
     mr = section->mr;
