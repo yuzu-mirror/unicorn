@@ -571,6 +571,10 @@ static int get_physical_address_data(CPUSPARCState *env, hwaddr *physical,
         if (ultrasparc_tag_match(&env->dtlb[i], address, context, physical)) {
             int do_fault = 0;
 
+            if (TTE_IS_IE(env->dtlb[i].tte)) {
+                attrs->byte_swap = true;
+            }
+
             /* access ok? */
             /* multiple bits in SFSR.FT may be set on TT_DFAULT */
             if (TTE_IS_PRIV(env->dtlb[i].tte) && is_user) {
@@ -826,7 +830,7 @@ void dump_mmu(FILE *f, fprintf_function cpu_fprintf, CPUSPARCState *env)
             }
             if (TTE_IS_VALID(env->dtlb[i].tte)) {
                 (*cpu_fprintf)(f, "[%02u] VA: %" PRIx64 ", PA: %llx"
-                               ", %s, %s, %s, %s, ctx %" PRId64 " %s\n",
+                               ", %s, %s, %s, %s, ie %s, ctx %" PRId64 " %s\n",
                                i,
                                env->dtlb[i].tag & (uint64_t)~0x1fffULL,
                                TTE_PA(env->dtlb[i].tte),
@@ -835,6 +839,8 @@ void dump_mmu(FILE *f, fprintf_function cpu_fprintf, CPUSPARCState *env)
                                TTE_IS_W_OK(env->dtlb[i].tte) ? "RW" : "RO",
                                TTE_IS_LOCKED(env->dtlb[i].tte) ?
                                "locked" : "unlocked",
+                               TTE_IS_IE(env->dtlb[i].tte) ?
+                               "yes" : "no",
                                env->dtlb[i].tag & (uint64_t)0x1fffULL,
                                TTE_IS_GLOBAL(env->dtlb[i].tte) ?
                                "global" : "local");
