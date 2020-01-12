@@ -191,9 +191,6 @@ void tlb_set_page(CPUState *cpu, target_ulong vaddr,
                   int mmu_idx, target_ulong size);
 
 void tb_invalidate_phys_addr(AddressSpace *as, hwaddr addr);
-void probe_write(CPUArchState *env, target_ulong addr, int size, int mmu_idx,
-                 uintptr_t retaddr);
-
 #else
 static inline void tlb_flush_page(CPUState *cpu, target_ulong addr)
 {
@@ -215,6 +212,9 @@ static inline void tb_invalidate_phys_addr(AddressSpace *as, hwaddr addr)
 {
 }
 #endif
+
+void probe_write(CPUArchState *env, target_ulong addr, int size, int mmu_idx,
+                 uintptr_t retaddr);
 
 #define CODE_GEN_ALIGN           16 /* must be >= of the size of a icache line */
 
