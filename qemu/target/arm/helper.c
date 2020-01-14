@@ -7755,6 +7755,12 @@ uint32_t arm_phys_excp_target_el(CPUState *cs, uint32_t excp_idx,
     return target_el;
 }
 
+target_ulong do_arm_semihosting(CPUARMState *env)
+{
+    /* Unicorn: We don't handle semihosting */
+    g_assert_not_reached();
+}
+
 /*
  * Function used to synchronize QEMU's AArch64 register set with AArch32
  * register set.  This is necessary when switching between AArch32 and AArch64
@@ -8385,6 +8391,7 @@ static inline bool check_for_semihosting(CPUState *cs)
                           "...handling as semihosting call 0x%" PRIx64 "\n",
                           env->xregs[0]);
             env->xregs[0] = do_arm_semihosting(env);
+            env->pc += 4;
             return true;
         }
         return false;
@@ -8444,6 +8451,7 @@ static inline bool check_for_semihosting(CPUState *cs)
                       "...handling as semihosting call 0x%x\n",
                       env->regs[0]);
         env->regs[0] = do_arm_semihosting(env);
+        env->regs[15] += env->thumb ? 2 : 4;
         return true;
     }
 #else
