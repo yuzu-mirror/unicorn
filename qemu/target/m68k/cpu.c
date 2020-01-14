@@ -110,11 +110,9 @@ static void m68000_cpu_initfn(struct uc_struct *uc, Object *obj, void *opaque)
     m68k_set_feature(env, M68K_FEATURE_MOVEP);
 }
 
-static void m68020_cpu_initfn(struct uc_struct *uc, Object *obj, void *opaque)
+/* common features for 68020, 68030 and 68040 */
+static void m680x0_cpu_common(CPUM68KState *env)
 {
-    M68kCPU *cpu = M68K_CPU(uc, obj);
-    CPUM68KState *env = &cpu->env;
-
     m68k_set_feature(env, M68K_FEATURE_M68000);
     m68k_set_feature(env, M68K_FEATURE_USP);
     m68k_set_feature(env, M68K_FEATURE_WORD_INDEX);
@@ -132,14 +130,31 @@ static void m68020_cpu_initfn(struct uc_struct *uc, Object *obj, void *opaque)
     m68k_set_feature(env, M68K_FEATURE_CHK2);
     m68k_set_feature(env, M68K_FEATURE_MOVEP);
 }
-#define m68030_cpu_initfn m68020_cpu_initfn
+
+static void m68020_cpu_initfn(struct uc_struct *uc, Object *obj, void *opaque)
+{
+    M68kCPU *cpu = M68K_CPU(uc, obj);
+    CPUM68KState *env = &cpu->env;
+
+    m680x0_cpu_common(env);
+    m68k_set_feature(env, M68K_FEATURE_M68020);
+}
+
+static void m68030_cpu_initfn(struct uc_struct *uc, Object *obj, void *opaque)
+{
+    M68kCPU *cpu = M68K_CPU(uc, obj);
+    CPUM68KState *env = &cpu->env;
+
+    m680x0_cpu_common(env);
+    m68k_set_feature(env, M68K_FEATURE_M68030);
+}
 
 static void m68040_cpu_initfn(struct uc_struct *uc, Object *obj, void *opaque)
 {
     M68kCPU *cpu = M68K_CPU(uc, obj);
     CPUM68KState *env = &cpu->env;
 
-    m68020_cpu_initfn(uc, obj, opaque);
+    m680x0_cpu_common(env);
     m68k_set_feature(env, M68K_FEATURE_M68040);
 }
 
@@ -162,6 +177,7 @@ static void m68060_cpu_initfn(struct uc_struct *uc, Object *obj, void *opaque)
     m68k_set_feature(env, M68K_FEATURE_BKPT);
     m68k_set_feature(env, M68K_FEATURE_RTD);
     m68k_set_feature(env, M68K_FEATURE_CHK2);
+    m68k_set_feature(env, M68K_FEATURE_M68060);
 }
 
 static void m5208_cpu_initfn(struct uc_struct *uc, Object *obj, void *opaque)
