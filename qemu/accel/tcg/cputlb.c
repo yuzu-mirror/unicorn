@@ -452,6 +452,9 @@ void tlb_set_page_with_attrs(CPUState *cpu, target_ulong vaddr,
         } else {
             te->addr_write = address;
         }
+        if (prot & PAGE_WRITE_INV) {
+            te->addr_write |= TLB_INVALID_MASK;
+        }
         if (wp_flags & BP_MEM_WRITE) {
             te->addr_write |= TLB_WATCHPOINT;
         }
