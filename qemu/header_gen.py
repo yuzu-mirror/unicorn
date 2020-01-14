@@ -269,6 +269,7 @@ symbols = (
     'cpu_breakpoint_remove_by_ref',
     'cpu_can_do_io',
     'cpu_can_run',
+    'cpu_check_watchpoint',
     'cpu_class_init',
     'cpu_common_class_by_name',
     'cpu_common_exec_interrupt',

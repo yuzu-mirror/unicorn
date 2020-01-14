@@ -263,6 +263,7 @@
 #define cpu_breakpoint_remove_by_ref cpu_breakpoint_remove_by_ref_m68k
 #define cpu_can_do_io cpu_can_do_io_m68k
 #define cpu_can_run cpu_can_run_m68k
+#define cpu_check_watchpoint cpu_check_watchpoint_m68k
 #define cpu_class_init cpu_class_init_m68k
 #define cpu_common_class_by_name cpu_common_class_by_name_m68k
 #define cpu_common_exec_interrupt cpu_common_exec_interrupt_m68k

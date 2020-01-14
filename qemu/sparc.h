@@ -263,6 +263,7 @@
 #define cpu_breakpoint_remove_by_ref cpu_breakpoint_remove_by_ref_sparc
 #define cpu_can_do_io cpu_can_do_io_sparc
 #define cpu_can_run cpu_can_run_sparc
+#define cpu_check_watchpoint cpu_check_watchpoint_sparc
 #define cpu_class_init cpu_class_init_sparc
 #define cpu_common_class_by_name cpu_common_class_by_name_sparc
 #define cpu_common_exec_interrupt cpu_common_exec_interrupt_sparc

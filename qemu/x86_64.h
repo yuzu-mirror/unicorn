@@ -263,6 +263,7 @@
 #define cpu_breakpoint_remove_by_ref cpu_breakpoint_remove_by_ref_x86_64
 #define cpu_can_do_io cpu_can_do_io_x86_64
 #define cpu_can_run cpu_can_run_x86_64
+#define cpu_check_watchpoint cpu_check_watchpoint_x86_64
 #define cpu_class_init cpu_class_init_x86_64
 #define cpu_common_class_by_name cpu_common_class_by_name_x86_64
 #define cpu_common_exec_interrupt cpu_common_exec_interrupt_x86_64

@@ -263,6 +263,7 @@
 #define cpu_breakpoint_remove_by_ref cpu_breakpoint_remove_by_ref_armeb
 #define cpu_can_do_io cpu_can_do_io_armeb
 #define cpu_can_run cpu_can_run_armeb
+#define cpu_check_watchpoint cpu_check_watchpoint_armeb
 #define cpu_class_init cpu_class_init_armeb
 #define cpu_common_class_by_name cpu_common_class_by_name_armeb
 #define cpu_common_exec_interrupt cpu_common_exec_interrupt_armeb
