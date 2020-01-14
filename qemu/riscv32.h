@@ -2257,6 +2257,7 @@
 #define print_type_number print_type_number_riscv32
 #define print_type_size print_type_size_riscv32
 #define print_type_str print_type_str_riscv32
+#define probe_access probe_access_riscv32
 #define probe_write probe_write_riscv32
 #define propagateFloat128NaN propagateFloat128NaN_riscv32
 #define propagateFloat32MulAddNaN propagateFloat32MulAddNaN_riscv32

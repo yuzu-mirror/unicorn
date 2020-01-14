@@ -2257,6 +2257,7 @@
 #define print_type_number print_type_number_armeb
 #define print_type_size print_type_size_armeb
 #define print_type_str print_type_str_armeb
+#define probe_access probe_access_armeb
 #define probe_write probe_write_armeb
 #define propagateFloat128NaN propagateFloat128NaN_armeb
 #define propagateFloat32MulAddNaN propagateFloat32MulAddNaN_armeb
