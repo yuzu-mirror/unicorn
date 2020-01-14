@@ -2258,6 +2258,7 @@
 #define print_type_size print_type_size_sparc
 #define print_type_str print_type_str_sparc
 #define probe_access probe_access_sparc
+#define probe_read probe_read_sparc
 #define probe_write probe_write_sparc
 #define propagateFloat128NaN propagateFloat128NaN_sparc
 #define propagateFloat32MulAddNaN propagateFloat32MulAddNaN_sparc

@@ -2258,6 +2258,7 @@
 #define print_type_size print_type_size_mipsel
 #define print_type_str print_type_str_mipsel
 #define probe_access probe_access_mipsel
+#define probe_read probe_read_mipsel
 #define probe_write probe_write_mipsel
 #define propagateFloat128NaN propagateFloat128NaN_mipsel
 #define propagateFloat32MulAddNaN propagateFloat32MulAddNaN_mipsel

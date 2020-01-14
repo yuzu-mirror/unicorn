@@ -2258,6 +2258,7 @@
 #define print_type_size print_type_size_riscv64
 #define print_type_str print_type_str_riscv64
 #define probe_access probe_access_riscv64
+#define probe_read probe_read_riscv64
 #define probe_write probe_write_riscv64
 #define propagateFloat128NaN propagateFloat128NaN_riscv64
 #define propagateFloat32MulAddNaN propagateFloat32MulAddNaN_riscv64
