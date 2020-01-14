@@ -171,24 +171,55 @@ static void cpu_gen_init(struct uc_struct *uc)
     tcg_context_init(uc->tcg_ctx);
 }
 
-static void tb_clean_internal(struct uc_struct *uc, int i, void** lp)
+static void tb_clean_internal(void **p, int x)
 {
-    if (i == 0 || lp == NULL) {
-        return;
-    }
-    if (lp && *lp) {
-        tb_clean_internal(uc, i-1, (void*)(((char*)*lp) + ((0 >> (i * V_L2_BITS)) & (V_L2_SIZE - 1))));
-        g_free(*lp);
+    if (x <= 1) {
+        for (int i = 0; i < V_L2_SIZE; i++) {
+            void **q = p[i];
+            if (q) {
+                g_free(q);
+            }
+        }
+        g_free(p);
+    } else {
+        for (int i = 0; i < V_L2_SIZE; i++) {
+            void **q = p[i];
+            if (q) {
+                tb_clean_internal(q, x - 1);
+            }
+        }
+        g_free(p);
     }
 }
 
 void tb_cleanup(struct uc_struct *uc)
 {
-    int index = 0;
-    /* Level 1.  Always allocated.  */
-    void** lp = uc->l1_map + ((index >> uc->v_l1_shift) & (uc->v_l1_size - 1));
-    /* Level 2..N-1.  */
-    tb_clean_internal(uc, uc->v_l1_shift / V_L2_BITS, lp);
+    if (!uc) {
+        return;
+    }
+
+    if (!uc->l1_map) {
+        return;
+    }
+
+    int x = V_L1_SHIFT / V_L2_BITS;
+    if (x <= 1) {
+        for (int i = 0; i < V_L1_SIZE; i++) {
+            void **p = uc->l1_map[i];
+            if (p) {
+                g_free(p);
+                uc->l1_map[i] = NULL;
+            }
+        }
+    } else {
+        for (int i = 0; i < V_L1_SIZE; i++) {
+            void **p = uc->l1_map[i];
+            if (p) {
+                tb_clean_internal(p, x - 1);
+                uc->l1_map[i] = NULL;
+            }
+        }
+    }
 }
 
 /* Encode VAL as a signed leb128 sequence at P.
