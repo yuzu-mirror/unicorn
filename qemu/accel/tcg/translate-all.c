@@ -202,9 +202,9 @@ void tb_cleanup(struct uc_struct *uc)
         return;
     }
 
-    int x = V_L1_SHIFT / V_L2_BITS;
+    int x = uc->v_l1_shift / V_L2_BITS;
     if (x <= 1) {
-        for (int i = 0; i < V_L1_SIZE; i++) {
+        for (int i = 0; i < uc->v_l1_size; i++) {
             void **p = uc->l1_map[i];
             if (p) {
                 g_free(p);
@@ -212,7 +212,7 @@ void tb_cleanup(struct uc_struct *uc)
             }
         }
     } else {
-        for (int i = 0; i < V_L1_SIZE; i++) {
+        for (int i = 0; i < uc->v_l1_size; i++) {
             void **p = uc->l1_map[i];
             if (p) {
                 tb_clean_internal(p, x - 1);

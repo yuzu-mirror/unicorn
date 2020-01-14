@@ -69,7 +69,8 @@ static inline tcg_target_ulong cpu_tb_exec(CPUState *cpu, TranslationBlock *itb)
         } else {
             assert(cc->set_pc);
             // avoid sync twice when helper_uc_tracecode() already did this.
-            if (env->uc->emu_counter <= env->uc->emu_count && !env->uc->quit_request) {
+            if (env->uc->emu_counter <= env->uc->emu_count &&
+                    !env->uc->stop_request && !env->uc->quit_request) {
                 cc->set_pc(cpu, last_tb->pc);
             }
         }
