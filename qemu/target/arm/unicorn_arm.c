@@ -75,6 +75,9 @@ int arm_reg_read(struct uc_struct *uc, unsigned int *regs, void **vals, int coun
                     *(uint32_t *)value = cpsr_read(state) & mask;
                     break;
                 }
+                case UC_ARM_REG_SPSR:
+                    *(int32_t *)value = state->spsr;
+                    break;
                 //case UC_ARM_REG_SP:
                 case UC_ARM_REG_R13:
                     *(uint32_t *)value = state->regs[13];
@@ -143,6 +146,9 @@ int arm_reg_write(struct uc_struct *uc, unsigned int *regs, void* const* vals, i
                     cpsr_write(state, *(uint32_t *)value, mask, CPSRWriteRaw);
                     break;
                 }
+                case UC_ARM_REG_SPSR:
+                    state->spsr = *(uint32_t *)value;
+                    break;
                 //case UC_ARM_REG_SP:
                 case UC_ARM_REG_R13:
                     state->regs[13] = *(uint32_t *)value;
