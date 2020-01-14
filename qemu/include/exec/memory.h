@@ -743,6 +743,13 @@ MemoryRegion *memory_region_from_host(struct uc_struct *uc, void *ptr, ram_addr_
 void *memory_region_get_ram_ptr(MemoryRegion *mr);
 
 /**
+ * memory_region_do_writeback: Trigger writeback for selected address range
+ * [addr, addr + size]
+ *
+ */
+void memory_region_do_writeback(MemoryRegion *mr, hwaddr addr, hwaddr size);
+
+/**
  * memory_region_set_readonly: Turn a memory region read-only (or read-write)
  *
  * Allows a memory region to be marked as read-only (turning it into a ROM).

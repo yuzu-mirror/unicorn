@@ -2024,6 +2024,7 @@
 #define memory_region_dispatch_read memory_region_dispatch_read_m68k
 #define memory_region_dispatch_read1 memory_region_dispatch_read1_m68k
 #define memory_region_dispatch_write memory_region_dispatch_write_m68k
+#define memory_region_do_writeback memory_region_do_writeback_m68k
 #define memory_region_escape_name memory_region_escape_name_m68k
 #define memory_region_finalize memory_region_finalize_m68k
 #define memory_region_find memory_region_find_m68k
@@ -2384,6 +2385,7 @@
 #define qemu_clock_get_us qemu_clock_get_us_m68k
 #define qemu_clock_ptr qemu_clock_ptr_m68k
 #define qemu_clocks qemu_clocks_m68k
+#define qemu_fdatasync qemu_fdatasync_m68k
 #define qemu_get_cpu qemu_get_cpu_m68k
 #define qemu_get_guest_memory_mapping qemu_get_guest_memory_mapping_m68k
 #define qemu_get_guest_simple_memory_mapping qemu_get_guest_simple_memory_mapping_m68k
@@ -2405,6 +2407,7 @@
 #define qemu_ram_alloc_resizeable qemu_ram_alloc_resizeable_m68k
 #define qemu_ram_block_by_name qemu_ram_block_by_name_m68k
 #define qemu_ram_block_from_host qemu_ram_block_from_host_m68k
+#define qemu_ram_block_writeback qemu_ram_block_writeback_m68k
 #define qemu_ram_foreach_block qemu_ram_foreach_block_m68k
 #define qemu_ram_free qemu_ram_free_m68k
 #define qemu_ram_get_idstr qemu_ram_get_idstr_m68k
@@ -2414,6 +2417,7 @@
 #define qemu_ram_resize qemu_ram_resize_m68k
 #define qemu_ram_setup_dump qemu_ram_setup_dump_m68k
 #define qemu_ram_unset_idstr qemu_ram_unset_idstr_m68k
+#define qemu_ram_writeback qemu_ram_writeback_m68k
 #define qemu_st_helpers qemu_st_helpers_m68k
 #define qemu_strnlen qemu_strnlen_m68k
 #define qemu_strsep qemu_strsep_m68k

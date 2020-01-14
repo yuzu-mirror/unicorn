@@ -1617,6 +1617,17 @@ int memory_region_get_fd(MemoryRegion *mr)
     return fd;
 }
 
+void memory_region_do_writeback(MemoryRegion *mr, hwaddr addr, hwaddr size)
+{
+    /*
+     * Might be extended case needed to cover
+     * different types of memory regions
+     */
+    if (mr->ram_block && mr->dirty_log_mask) {
+        qemu_ram_writeback(mr->uc, mr->ram_block, addr, size);
+    }
+}
+
 void *memory_region_get_ram_ptr(MemoryRegion *mr)
 {
     void *ptr;

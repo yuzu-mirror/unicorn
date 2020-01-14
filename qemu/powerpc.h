@@ -2024,6 +2024,7 @@
 #define memory_region_dispatch_read memory_region_dispatch_read_powerpc
 #define memory_region_dispatch_read1 memory_region_dispatch_read1_powerpc
 #define memory_region_dispatch_write memory_region_dispatch_write_powerpc
+#define memory_region_do_writeback memory_region_do_writeback_powerpc
 #define memory_region_escape_name memory_region_escape_name_powerpc
 #define memory_region_finalize memory_region_finalize_powerpc
 #define memory_region_find memory_region_find_powerpc
@@ -2384,6 +2385,7 @@
 #define qemu_clock_get_us qemu_clock_get_us_powerpc
 #define qemu_clock_ptr qemu_clock_ptr_powerpc
 #define qemu_clocks qemu_clocks_powerpc
+#define qemu_fdatasync qemu_fdatasync_powerpc
 #define qemu_get_cpu qemu_get_cpu_powerpc
 #define qemu_get_guest_memory_mapping qemu_get_guest_memory_mapping_powerpc
 #define qemu_get_guest_simple_memory_mapping qemu_get_guest_simple_memory_mapping_powerpc
@@ -2405,6 +2407,7 @@
 #define qemu_ram_alloc_resizeable qemu_ram_alloc_resizeable_powerpc
 #define qemu_ram_block_by_name qemu_ram_block_by_name_powerpc
 #define qemu_ram_block_from_host qemu_ram_block_from_host_powerpc
+#define qemu_ram_block_writeback qemu_ram_block_writeback_powerpc
 #define qemu_ram_foreach_block qemu_ram_foreach_block_powerpc
 #define qemu_ram_free qemu_ram_free_powerpc
 #define qemu_ram_get_idstr qemu_ram_get_idstr_powerpc
@@ -2414,6 +2417,7 @@
 #define qemu_ram_resize qemu_ram_resize_powerpc
 #define qemu_ram_setup_dump qemu_ram_setup_dump_powerpc
 #define qemu_ram_unset_idstr qemu_ram_unset_idstr_powerpc
+#define qemu_ram_writeback qemu_ram_writeback_powerpc
 #define qemu_st_helpers qemu_st_helpers_powerpc
 #define qemu_strnlen qemu_strnlen_powerpc
 #define qemu_strsep qemu_strsep_powerpc
