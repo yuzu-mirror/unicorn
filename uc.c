@@ -395,12 +395,15 @@ uc_err uc_reg_read_batch(uc_engine *uc, int *ids, void **vals, int count)
 UNICORN_EXPORT
 uc_err uc_reg_write_batch(uc_engine *uc, int *ids, void *const *vals, int count)
 {
-    if (uc->reg_write)
-        uc->reg_write(uc, (unsigned int *)ids, vals, count);
-    else
-        return -1;  // FIXME: need a proper uc_err
+    int ret = UC_ERR_OK;
 
-    return UC_ERR_OK;
+    if (uc->reg_write) {
+        ret = uc->reg_write(uc, (unsigned int *)ids, vals, count);
+    } else {
+        return UC_ERR_EXCEPTION;  // FIXME: need a proper uc_err
+    }
+
+    return ret;
 }
 
 
