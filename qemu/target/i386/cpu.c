@@ -1460,10 +1460,10 @@ static int altcmp(const char *s, const char *e, const char *altstr)
 /* search featureset for flag *[s..e), if found set corresponding bit in
  * *pval and return true, otherwise return false
  */
-static bool lookup_feature(uint32_t *pval, const char *s, const char *e,
+static bool lookup_feature(uint64_t *pval, const char *s, const char *e,
                            const char **featureset)
 {
-    uint32_t mask;
+    uint64_t mask;
     const char **ppc;
     bool found = false;
 
