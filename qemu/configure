@@ -493,9 +493,9 @@ esac
 : ${make=${MAKE-make}}
 # We prefer python 3.x. A bare 'python' is traditionally
 # python 2.x, but some distros have it as python 3.x, so
-# we check that before python2
+# we check that too
 python=
-for binary in "${PYTHON-python3}" python python2
+for binary in "${PYTHON-python3}" python
 do
     if has "$binary"
     then
@@ -604,8 +604,8 @@ fi
 
 # Note that if the Python conditional here evaluates True we will exit
 # with status 1 which is a shell 'false' value.
-if ! $python -c 'import sys; sys.exit(sys.version_info < (2,6))'; then
-  error_exit "Cannot use '$python', Python 2 >= 2.6 or Python 3 is required." \
+if ! $python -c 'import sys; sys.exit(sys.version_info < (3,5))'; then
+  error_exit "Cannot use '$python', Python >= 3.5 is required." \
       "Use --python=/path/to/python to specify a supported Python."
 fi
 
@@ -1467,14 +1467,6 @@ if test "$supported_os" = "no"; then
     echo "configure has succeeded and you can continue to build, but"
     echo "if you care about QEMU on this platform you should contact"
     echo "us upstream at qemu-devel@nongnu.org."
-fi
-
-# Note that if the Python conditional here evaluates True we will exit
-# with status 1 which is a shell 'false' value.
-if ! $python -c 'import sys; sys.exit(sys.version_info < (3,0))'; then
-  echo
-  echo "warning: Python 2 support is deprecated" >&2
-  echo "warning: Python 3 will be required for building future versions of QEMU" >&2
 fi
 
 config_host_mak="config-host.mak"
