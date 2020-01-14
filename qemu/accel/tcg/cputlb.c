@@ -379,11 +379,8 @@ void tlb_set_page_with_attrs(CPUState *cpu, target_ulong vaddr,
 
     address = vaddr_page;
     if (size < TARGET_PAGE_SIZE) {
-        /*
-         * Slow-path the TLB entries; we will repeat the MMU check and TLB
-         * fill on every access.
-         */
-        address |= TLB_RECHECK;
+        /* Repeat the MMU check and TLB fill on every access.  */
+        address |= TLB_INVALID_MASK;
     }
     if (attrs.byte_swap) {
         /* Force the access through the I/O slow path.  */
@@ -495,10 +492,59 @@ static void tlb_fill(CPUState *cpu, target_ulong addr, int size,
     assert(ok);
 }
 
-/* NOTE: this function can trigger an exception */
-/* NOTE2: the returned address is not exactly the physical address: it
- * is actually a ram_addr_t (in system mode; the user mode emulation
- * version of this function returns a guest virtual address).
+/* Macro to call the above, with local variables from the use context.  */
+#define VICTIM_TLB_HIT(TY, ADDR) \
+  victim_tlb_hit(env, mmu_idx, index, offsetof(CPUTLBEntry, TY), \
+                 (ADDR) & TARGET_PAGE_MASK)
+
+static inline target_ulong tlb_read_ofs(CPUTLBEntry *entry, size_t ofs)
+{
+#if TCG_OVERSIZED_GUEST
+    return *(target_ulong *)((uintptr_t)entry + ofs);
+#else
+    /* ofs might correspond to .addr_write, so use atomic_read */
+    return atomic_read((target_ulong *)((uintptr_t)entry + ofs));
+#endif
+}
+
+/* Return true if ADDR is present in the victim tlb, and has been copied
+   back to the main tlb.  */
+static bool victim_tlb_hit(CPUArchState *env, size_t mmu_idx, size_t index,
+                           size_t elt_ofs, target_ulong page)
+{
+    size_t vidx;
+    for (vidx = 0; vidx < CPU_VTLB_SIZE; ++vidx) {
+        CPUTLBEntry *vtlb = &env->tlb_v_table[mmu_idx][vidx];
+
+        /* elt_ofs might correspond to .addr_write, so use atomic_read */
+        target_ulong cmp = tlb_read_ofs(vtlb, elt_ofs);
+
+        if (cmp == page) {
+            /* Found entry in victim tlb, swap tlb and iotlb.  */
+            CPUTLBEntry tmptlb, *tlb = &env->tlb_table[mmu_idx][index];
+
+            copy_tlb_helper_locked(&tmptlb, tlb);
+            copy_tlb_helper_locked(tlb, vtlb);
+            copy_tlb_helper_locked(vtlb, &tmptlb);
+
+            CPUIOTLBEntry tmpio, *io = &env->iotlb[mmu_idx][index];
+            CPUIOTLBEntry *vio = &env->iotlb_v[mmu_idx][vidx];
+            tmpio = *io; *io = *vio; *vio = tmpio;
+            return true;
+        }
+    }
+    return false;
+}
+
+/*
+ * Return a ram_addr_t for the virtual address for execution.
+ *
+ * Return -1 if we can't translate and execute from an entire page
+ * of RAM.  This will force us to execute by loading and translating
+ * one insn at a time, without caching.
+ *
+ * NOTE: This function will trigger an exception if the page is
+ * not executable.
  */
 tb_page_addr_t get_page_addr_code(CPUArchState *env, target_ulong addr)
 {
@@ -519,32 +565,21 @@ tb_page_addr_t get_page_addr_code(CPUArchState *env, target_ulong addr)
         if (env->invalid_error == UC_ERR_FETCH_PROT) {
             return RAM_ADDR_INVALID;
         }
-    }
 
-    if (unlikely(env->tlb_table[mmu_idx][index].addr_code & TLB_RECHECK)) {
-        /*
-         * This is a TLB_RECHECK access, where the MMU protection
-         * covers a smaller range than a target page, and we must
-         * repeat the MMU check here. This tlb_fill() call might
-         * longjump out if this access should cause a guest exception.
-         */
-        int index;
-        target_ulong tlb_addr;
+        if (!VICTIM_TLB_HIT(addr_code, addr)) {
+            tlb_fill(env_cpu(env), addr, 0, MMU_INST_FETCH, mmu_idx, 0);
+            index = tlb_index(env, mmu_idx, addr);
+            entry = tlb_entry(env, mmu_idx, addr);
 
-        tlb_fill(cpu, addr, 0, MMU_INST_FETCH, mmu_idx, 0);
-
-        index = tlb_index(env, mmu_idx, addr);
-        entry = tlb_entry(env, mmu_idx, addr);
-        tlb_addr = env->tlb_table[mmu_idx][index].addr_code;
-        if (!(tlb_addr & ~(TARGET_PAGE_MASK | TLB_RECHECK))) {
-            /* RAM access. We can't handle this, so for now just stop */
-            cpu_abort(cpu, "Unable to handle guest executing from RAM within "
-                      "a small MPU region at 0x" TARGET_FMT_lx, addr);
+            if (unlikely(entry->addr_code & TLB_INVALID_MASK)) {
+                /*
+                 * The MMU protection covers a smaller range than a target
+                 * page, so we must redo the MMU check for every insn.
+                 */
+                return -1;
+            }
         }
-        /*
-         * Fall through to handle IO accesses (which will almost certainly
-         * also result in failure)
-         */
+        assert(tlb_hit(entry->addr_code, addr));
     }
 
     iotlbentry = &env->iotlb[mmu_idx][index];
@@ -658,50 +693,6 @@ static void io_writex(CPUArchState *env, CPUIOTLBEntry *iotlbentry,
                                retaddr);
     }
 }
-
-static inline target_ulong tlb_read_ofs(CPUTLBEntry *entry, size_t ofs)
-{
-#if TCG_OVERSIZED_GUEST
-    return *(target_ulong *)((uintptr_t)entry + ofs);
-#else
-    /* ofs might correspond to .addr_write, so use atomic_read */
-    return atomic_read((target_ulong *)((uintptr_t)entry + ofs));
-#endif
-}
-
-/* Return true if ADDR is present in the victim tlb, and has been copied
-   back to the main tlb.  */
-static bool victim_tlb_hit(CPUArchState *env, size_t mmu_idx, size_t index,
-                           size_t elt_ofs, target_ulong page)
-{
-    size_t vidx;
-    for (vidx = 0; vidx < CPU_VTLB_SIZE; ++vidx) {
-        CPUTLBEntry *vtlb = &env->tlb_v_table[mmu_idx][vidx];
-
-        /* elt_ofs might correspond to .addr_write, so use atomic_read */
-        target_ulong cmp = tlb_read_ofs(vtlb, elt_ofs);
-
-        if (cmp == page) {
-            /* Found entry in victim tlb, swap tlb and iotlb.  */
-            CPUTLBEntry tmptlb, *tlb = &env->tlb_table[mmu_idx][index];
-
-            copy_tlb_helper_locked(&tmptlb, tlb);
-            copy_tlb_helper_locked(tlb, vtlb);
-            copy_tlb_helper_locked(vtlb, &tmptlb);
-
-            CPUIOTLBEntry tmpio, *io = &env->iotlb[mmu_idx][index];
-            CPUIOTLBEntry *vio = &env->iotlb_v[mmu_idx][vidx];
-            tmpio = *io; *io = *vio; *vio = tmpio;
-            return true;
-        }
-    }
-    return false;
-}
-
-/* Macro to call the above, with local variables from the use context.  */
-#define VICTIM_TLB_HIT(TY, ADDR) \
-  victim_tlb_hit(env, mmu_idx, index, offsetof(CPUTLBEntry, TY), \
-                 (ADDR) & TARGET_PAGE_MASK)
 
 /* Probe for whether the specified guest write access is permitted.
  * If it is not permitted then an exception will be taken in the same
@@ -824,7 +815,7 @@ static void *atomic_mmu_lookup(CPUArchState *env, target_ulong addr,
     }
 
     /* Notice an IO access or a needs-MMU-lookup access */
-    if (unlikely(tlb_addr & (TLB_MMIO | TLB_RECHECK))) {
+    if (unlikely(tlb_addr & TLB_MMIO)) {
         /* There's really nothing that can be done to
            support this apart from stop-the-world.  */
         goto stop_the_world;
@@ -997,32 +988,13 @@ load_helper(CPUArchState *env, target_ulong addr, TCGMemOpIdx oi,
             entry = tlb_entry(env, mmu_idx, addr);
         }
         tlb_addr = code_read ? entry->addr_code : entry->addr_read;
+        tlb_addr &= ~TLB_INVALID_MASK;
     }
 
     /* Handle an IO access.  */
     if (unlikely(tlb_addr & ~TARGET_PAGE_MASK)) {
         if ((addr & (size - 1)) != 0) {
             goto do_unaligned_access;
-        }
-
-        if (tlb_addr & TLB_RECHECK) {
-            /*
-             * This is a TLB_RECHECK access, where the MMU protection
-             * covers a smaller range than a target page, and we must
-             * repeat the MMU check here. This tlb_fill() call might
-             * longjump out if this access should cause a guest exception.
-             */
-            tlb_fill(env_cpu(env), addr, size,
-                     access_type, mmu_idx, retaddr);
-            index = tlb_index(env, mmu_idx, addr);
-            entry = tlb_entry(env, mmu_idx, addr);
-
-            tlb_addr = code_read ? entry->addr_code : entry->addr_read;
-            tlb_addr &= ~TLB_RECHECK;
-            if (!(tlb_addr & ~TARGET_PAGE_MASK)) {
-                /* RAM access */
-                goto do_aligned_access;
-            }
         }
 
         return io_readx(env, &env->iotlb[mmu_idx][index],
@@ -1054,7 +1026,6 @@ load_helper(CPUArchState *env, target_ulong addr, TCGMemOpIdx oi,
         goto finished;
     }
 
- do_aligned_access:
     haddr = (void *)((uintptr_t)addr + entry->addend);
     switch (op) {
     case MO_UB:
@@ -1324,26 +1295,6 @@ store_helper(CPUArchState *env, target_ulong addr, uint64_t val,
             goto do_unaligned_access;
         }
 
-        if (tlb_addr & TLB_RECHECK) {
-            /*
-             * This is a TLB_RECHECK access, where the MMU protection
-             * covers a smaller range than a target page, and we must
-             * repeat the MMU check here. This tlb_fill() call might
-             * longjump out if this access should cause a guest exception.
-             */
-            tlb_fill(env_cpu(env), addr, size, MMU_DATA_STORE,
-                     mmu_idx, retaddr);
-            index = tlb_index(env, mmu_idx, addr);
-            entry = tlb_entry(env, mmu_idx, addr);
-
-            tlb_addr = tlb_addr_write(entry);
-            tlb_addr &= ~TLB_RECHECK;
-            if (!(tlb_addr & ~TARGET_PAGE_MASK)) {
-                /* RAM access */
-                goto do_aligned_access;
-            }
-        }
-
         io_writex(env, &env->iotlb[mmu_idx][index], mmu_idx,
                   val, addr, retaddr, op);
         return;
@@ -1395,7 +1346,6 @@ store_helper(CPUArchState *env, target_ulong addr, uint64_t val,
         return;
     }
 
- do_aligned_access:
     haddr = (void *)((uintptr_t)addr + entry->addend);
     switch (op) {
     case MO_UB:
