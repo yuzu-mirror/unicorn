@@ -294,13 +294,6 @@ static inline bool cpu_handle_exception(struct uc_struct *uc, CPUState *cpu, int
     struct hook *hook;
 
     if (cpu->exception_index >= 0) {
-        if (uc->stop_interrupt && uc->stop_interrupt(cpu->exception_index)) {
-            cpu->halted = 1;
-            uc->invalid_error = UC_ERR_INSN_INVALID;
-            *ret = EXCP_HLT;
-            return true;
-        }
-
         if (cpu->exception_index >= EXCP_INTERRUPT) {
             /* exit request from the cpu execution loop */
             *ret = cpu->exception_index;
@@ -323,16 +316,33 @@ static inline bool cpu_handle_exception(struct uc_struct *uc, CPUState *cpu, int
             return true;
 #else
             bool catched = false;
-            // Unicorn: call registered interrupt callbacks
-            HOOK_FOREACH_VAR_DECLARE;
-            HOOK_FOREACH(uc, hook, UC_HOOK_INTR) {
-                ((uc_cb_hookintr_t)hook->callback)(uc, cpu->exception_index, hook->user_data);
-                catched = true;
+            if (uc->stop_interrupt && uc->stop_interrupt(cpu->exception_index)) {
+                // Unicorn: call registered invalid instruction callbacks
+                HOOK_FOREACH_VAR_DECLARE;
+                HOOK_FOREACH(uc, hook, UC_HOOK_INSN_INVALID) {
+                    catched = ((uc_cb_hookinsn_invalid_t)hook->callback)(uc, hook->user_data);
+                    if (catched) {
+                        break;
+                    }
+                }
+                if (!catched) {
+                    uc->invalid_error = UC_ERR_INSN_INVALID;
+                }
+            } else {
+                // Unicorn: call registered interrupt callbacks
+                HOOK_FOREACH_VAR_DECLARE;
+                HOOK_FOREACH(uc, hook, UC_HOOK_INTR) {
+                    ((uc_cb_hookintr_t)hook->callback)(uc, cpu->exception_index, hook->user_data);
+                    catched = true;
+                }
+                if (!catched) {
+                    uc->invalid_error = UC_ERR_EXCEPTION;
+                }
             }
+
             // Unicorn: If un-catched interrupt, stop executions.
             if (!catched) {
                 cpu->halted = 1;
-                uc->invalid_error = UC_ERR_EXCEPTION;
                 *ret = EXCP_HLT;
                 return true;
             }
