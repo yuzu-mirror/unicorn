@@ -54,33 +54,34 @@ static inline tcg_target_ulong cpu_tb_exec(CPUState *cpu, TranslationBlock *itb)
          * of the start of the TB.
          */
         CPUClass *cc = CPU_GET_CLASS(env->uc, cpu);
-        // Unicorn: commented out
-        //qemu_log_mask_and_addr(CPU_LOG_EXEC, last_tb->pc,
-        //                       "Stopped execution of TB chain before %p ["
-        //                       TARGET_FMT_lx "] %s\n",
-        //                       last_tb->tc.ptr, last_tb->pc,
-        //                       lookup_symbol(last_tb->pc));
-        if (cc->synchronize_from_tb) {
-            // avoid sync twice when helper_uc_tracecode() already did this.
-            if (env->uc->emu_counter <= env->uc->emu_count &&
-                    !env->uc->stop_request && !env->uc->quit_request) {
-                cc->synchronize_from_tb(cpu, last_tb);
-            }
-        } else {
-            assert(cc->set_pc);
-            // avoid sync twice when helper_uc_tracecode() already did this.
-            if (env->uc->emu_counter <= env->uc->emu_count &&
-                    !env->uc->stop_request && !env->uc->quit_request) {
-                cc->set_pc(cpu, last_tb->pc);
+
+        /*
+         * Both set_pc() & synchronize_fromtb() can be ignored when code tracing hook is installed,
+         * or timer mode is in effect, since these already fix the PC.
+         */
+        if (!HOOK_EXISTS(env->uc, UC_HOOK_CODE) && !env->uc->timeout) {
+            if (cc->synchronize_from_tb) {
+                // avoid sync twice when helper_uc_tracecode() already did this.
+                if (env->uc->emu_counter <= env->uc->emu_count &&
+                        !env->uc->stop_request && !env->uc->quit_request)
+                    cc->synchronize_from_tb(cpu, last_tb);
+            } else {
+                assert(cc->set_pc);
+                // avoid sync twice when helper_uc_tracecode() already did this.
+                if (env->uc->emu_counter <= env->uc->emu_count &&
+                        !env->uc->stop_request && !env->uc->quit_request)
+                    cc->set_pc(cpu, last_tb->pc);
             }
         }
     }
+
     if (tb_exit == TB_EXIT_REQUESTED) {
         /* We were asked to stop executing TBs (probably a pending
          * interrupt. We've now stopped, so clear the flag.
          */
         atomic_set(&cpu->tcg_exit_req, 0);
     }
+
     return ret;
 }
 
