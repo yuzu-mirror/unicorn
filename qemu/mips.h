@@ -3763,6 +3763,7 @@
 #define helper_float_trunc_w_d helper_float_trunc_w_d_mips
 #define helper_float_trunc_w_s helper_float_trunc_w_s_mips
 #define helper_fork helper_fork_mips
+#define helper_ginvt helper_ginvt_mips
 #define helper_insv helper_insv_mips
 #define helper_ldm helper_ldm_mips
 #define helper_ll helper_ll_mips
@@ -4039,6 +4040,7 @@
 #define helper_mtc0_lladdr helper_mtc0_lladdr_mips
 #define helper_mtc0_maar helper_mtc0_maar_mips
 #define helper_mtc0_maari helper_mtc0_maari_mips
+#define helper_mtc0_memorymapid helper_mtc0_memorymapid_mips
 #define helper_mtc0_mvpcontrol helper_mtc0_mvpcontrol_mips
 #define helper_mtc0_pagegrain helper_mtc0_pagegrain_mips
 #define helper_mtc0_pagemask helper_mtc0_pagemask_mips

@@ -3763,6 +3763,7 @@
 #define helper_float_trunc_w_d helper_float_trunc_w_d_mipsel
 #define helper_float_trunc_w_s helper_float_trunc_w_s_mipsel
 #define helper_fork helper_fork_mipsel
+#define helper_ginvt helper_ginvt_mipsel
 #define helper_insv helper_insv_mipsel
 #define helper_ldm helper_ldm_mipsel
 #define helper_ll helper_ll_mipsel
@@ -4039,6 +4040,7 @@
 #define helper_mtc0_lladdr helper_mtc0_lladdr_mipsel
 #define helper_mtc0_maar helper_mtc0_maar_mipsel
 #define helper_mtc0_maari helper_mtc0_maari_mipsel
+#define helper_mtc0_memorymapid helper_mtc0_memorymapid_mipsel
 #define helper_mtc0_mvpcontrol helper_mtc0_mvpcontrol_mipsel
 #define helper_mtc0_pagegrain helper_mtc0_pagegrain_mipsel
 #define helper_mtc0_pagemask helper_mtc0_pagemask_mipsel
