@@ -1263,6 +1263,8 @@
 #define helper_gvec_sqsub_d helper_gvec_sqsub_d_mips64
 #define helper_gvec_sqsub_h helper_gvec_sqsub_h_mips64
 #define helper_gvec_sqsub_s helper_gvec_sqsub_s_mips64
+#define helper_gvec_sshl_b helper_gvec_sshl_b_mips64
+#define helper_gvec_sshl_h helper_gvec_sshl_h_mips64
 #define helper_gvec_sub8 helper_gvec_sub8_mips64
 #define helper_gvec_sub16 helper_gvec_sub16_mips64
 #define helper_gvec_sub32 helper_gvec_sub32_mips64
@@ -1303,6 +1305,8 @@
 #define helper_gvec_usadd16 helper_gvec_usadd16_mips64
 #define helper_gvec_usadd32 helper_gvec_usadd32_mips64
 #define helper_gvec_usadd64 helper_gvec_usadd64_mips64
+#define helper_gvec_ushl_b helper_gvec_ushl_b_mips64
+#define helper_gvec_ushl_h helper_gvec_ushl_h_mips64
 #define helper_gvec_ussub8 helper_gvec_ussub8_mips64
 #define helper_gvec_ussub16 helper_gvec_ussub16_mips64
 #define helper_gvec_ussub32 helper_gvec_ussub32_mips64
@@ -1631,13 +1635,7 @@
 #define helper_neon_rshl_u64 helper_neon_rshl_u64_mips64
 #define helper_neon_rshl_u8 helper_neon_rshl_u8_mips64
 #define helper_neon_shl_s16 helper_neon_shl_s16_mips64
-#define helper_neon_shl_s32 helper_neon_shl_s32_mips64
-#define helper_neon_shl_s64 helper_neon_shl_s64_mips64
-#define helper_neon_shl_s8 helper_neon_shl_s8_mips64
 #define helper_neon_shl_u16 helper_neon_shl_u16_mips64
-#define helper_neon_shl_u32 helper_neon_shl_u32_mips64
-#define helper_neon_shl_u64 helper_neon_shl_u64_mips64
-#define helper_neon_shl_u8 helper_neon_shl_u8_mips64
 #define helper_neon_sqadd_u16 helper_neon_sqadd_u16_mips64
 #define helper_neon_sqadd_u32 helper_neon_sqadd_u32_mips64
 #define helper_neon_sqadd_u64 helper_neon_sqadd_u64_mips64

@@ -1263,6 +1263,8 @@
 #define helper_gvec_sqsub_d helper_gvec_sqsub_d_armeb
 #define helper_gvec_sqsub_h helper_gvec_sqsub_h_armeb
 #define helper_gvec_sqsub_s helper_gvec_sqsub_s_armeb
+#define helper_gvec_sshl_b helper_gvec_sshl_b_armeb
+#define helper_gvec_sshl_h helper_gvec_sshl_h_armeb
 #define helper_gvec_sub8 helper_gvec_sub8_armeb
 #define helper_gvec_sub16 helper_gvec_sub16_armeb
 #define helper_gvec_sub32 helper_gvec_sub32_armeb
@@ -1303,6 +1305,8 @@
 #define helper_gvec_usadd16 helper_gvec_usadd16_armeb
 #define helper_gvec_usadd32 helper_gvec_usadd32_armeb
 #define helper_gvec_usadd64 helper_gvec_usadd64_armeb
+#define helper_gvec_ushl_b helper_gvec_ushl_b_armeb
+#define helper_gvec_ushl_h helper_gvec_ushl_h_armeb
 #define helper_gvec_ussub8 helper_gvec_ussub8_armeb
 #define helper_gvec_ussub16 helper_gvec_ussub16_armeb
 #define helper_gvec_ussub32 helper_gvec_ussub32_armeb
@@ -1631,13 +1635,7 @@
 #define helper_neon_rshl_u64 helper_neon_rshl_u64_armeb
 #define helper_neon_rshl_u8 helper_neon_rshl_u8_armeb
 #define helper_neon_shl_s16 helper_neon_shl_s16_armeb
-#define helper_neon_shl_s32 helper_neon_shl_s32_armeb
-#define helper_neon_shl_s64 helper_neon_shl_s64_armeb
-#define helper_neon_shl_s8 helper_neon_shl_s8_armeb
 #define helper_neon_shl_u16 helper_neon_shl_u16_armeb
-#define helper_neon_shl_u32 helper_neon_shl_u32_armeb
-#define helper_neon_shl_u64 helper_neon_shl_u64_armeb
-#define helper_neon_shl_u8 helper_neon_shl_u8_armeb
 #define helper_neon_sqadd_u16 helper_neon_sqadd_u16_armeb
 #define helper_neon_sqadd_u32 helper_neon_sqadd_u32_armeb
 #define helper_neon_sqadd_u64 helper_neon_sqadd_u64_armeb
@@ -3428,12 +3426,14 @@
 #define sli_op sli_op_armeb
 #define sqadd_op sqadd_op_armeb
 #define sqsub_op sqsub_op_armeb
+#define sshl_op sshl_op_armeb
 #define ssra_op ssra_op_armeb
 #define sri_op sri_op_armeb
 #define sve_exception_el sve_exception_el_armeb
 #define sve_zcr_len_for_el sve_zcr_len_for_el_armeb
 #define uqadd_op uqadd_op_armeb
 #define uqsub_op uqsub_op_armeb
+#define ushl_op ushl_op_armeb
 #define usra_op usra_op_armeb
 #define v8m_security_lookup v8m_security_lookup_armeb
 #define vfp_expand_imm vfp_expand_imm_armeb

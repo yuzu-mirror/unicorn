@@ -1263,6 +1263,8 @@
 #define helper_gvec_sqsub_d helper_gvec_sqsub_d_arm
 #define helper_gvec_sqsub_h helper_gvec_sqsub_h_arm
 #define helper_gvec_sqsub_s helper_gvec_sqsub_s_arm
+#define helper_gvec_sshl_b helper_gvec_sshl_b_arm
+#define helper_gvec_sshl_h helper_gvec_sshl_h_arm
 #define helper_gvec_sub8 helper_gvec_sub8_arm
 #define helper_gvec_sub16 helper_gvec_sub16_arm
 #define helper_gvec_sub32 helper_gvec_sub32_arm
@@ -1303,6 +1305,8 @@
 #define helper_gvec_usadd16 helper_gvec_usadd16_arm
 #define helper_gvec_usadd32 helper_gvec_usadd32_arm
 #define helper_gvec_usadd64 helper_gvec_usadd64_arm
+#define helper_gvec_ushl_b helper_gvec_ushl_b_arm
+#define helper_gvec_ushl_h helper_gvec_ushl_h_arm
 #define helper_gvec_ussub8 helper_gvec_ussub8_arm
 #define helper_gvec_ussub16 helper_gvec_ussub16_arm
 #define helper_gvec_ussub32 helper_gvec_ussub32_arm
@@ -1631,13 +1635,7 @@
 #define helper_neon_rshl_u64 helper_neon_rshl_u64_arm
 #define helper_neon_rshl_u8 helper_neon_rshl_u8_arm
 #define helper_neon_shl_s16 helper_neon_shl_s16_arm
-#define helper_neon_shl_s32 helper_neon_shl_s32_arm
-#define helper_neon_shl_s64 helper_neon_shl_s64_arm
-#define helper_neon_shl_s8 helper_neon_shl_s8_arm
 #define helper_neon_shl_u16 helper_neon_shl_u16_arm
-#define helper_neon_shl_u32 helper_neon_shl_u32_arm
-#define helper_neon_shl_u64 helper_neon_shl_u64_arm
-#define helper_neon_shl_u8 helper_neon_shl_u8_arm
 #define helper_neon_sqadd_u16 helper_neon_sqadd_u16_arm
 #define helper_neon_sqadd_u32 helper_neon_sqadd_u32_arm
 #define helper_neon_sqadd_u64 helper_neon_sqadd_u64_arm
@@ -3428,12 +3426,14 @@
 #define sli_op sli_op_arm
 #define sqadd_op sqadd_op_arm
 #define sqsub_op sqsub_op_arm
+#define sshl_op sshl_op_arm
 #define ssra_op ssra_op_arm
 #define sri_op sri_op_arm
 #define sve_exception_el sve_exception_el_arm
 #define sve_zcr_len_for_el sve_zcr_len_for_el_arm
 #define uqadd_op uqadd_op_arm
 #define uqsub_op uqsub_op_arm
+#define ushl_op ushl_op_arm
 #define usra_op usra_op_arm
 #define v8m_security_lookup v8m_security_lookup_arm
 #define vfp_expand_imm vfp_expand_imm_arm
