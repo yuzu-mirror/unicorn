@@ -3597,6 +3597,7 @@
 #define helper_dmfc0_tcrestart helper_dmfc0_tcrestart_mipsel
 #define helper_dmfc0_tcschedule helper_dmfc0_tcschedule_mipsel
 #define helper_dmfc0_tcschefback helper_dmfc0_tcschefback_mipsel
+#define helper_dmfc0_watchhi helper_dmfc0_watchhi_mipsel
 #define helper_dmfc0_watchlo helper_dmfc0_watchlo_mipsel
 #define helper_dmsub helper_dmsub_mipsel
 #define helper_dmsubu helper_dmsubu_mipsel
@@ -3805,6 +3806,7 @@
 #define helper_mfc0_watchlo helper_mfc0_watchlo_mipsel
 #define helper_mfhc0_maar helper_mfhc0_maar_mipsel
 #define helper_mfhc0_saar helper_mfhc0_saar_mipsel
+#define helper_mfhc0_watchhi helper_mfhc0_watchhi_mipsel
 #define helper_mftacx helper_mftacx_mipsel
 #define helper_mftc0_cause helper_mftc0_cause_mipsel
 #define helper_mftc0_configx helper_mftc0_configx_mipsel
@@ -4076,6 +4078,7 @@
 #define helper_mtc0_yqmask helper_mtc0_yqmask_mipsel
 #define helper_mthc0_maar helper_mthc0_maar_mipsel
 #define helper_mthc0_saar helper_mthc0_saar_mipsel
+#define helper_mthc0_watchhi helper_mthc0_watchhi_mipsel
 #define helper_mthlip helper_mthlip_mipsel
 #define helper_mttacx helper_mttacx_mipsel
 #define helper_mttc0_cause helper_mttc0_cause_mipsel
