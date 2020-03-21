@@ -2880,6 +2880,7 @@
 #define tcg_gen_gvec_4_ool tcg_gen_gvec_4_ool_aarch64
 #define tcg_gen_gvec_4_ptr tcg_gen_gvec_4_ptr_aarch64
 #define tcg_gen_gvec_5_ool tcg_gen_gvec_5_ool_aarch64
+#define tcg_gen_gvec_5_ptr tcg_gen_gvec_5_ptr_aarch64
 #define tcg_gen_gvec_abs tcg_gen_gvec_abs_aarch64
 #define tcg_gen_gvec_add tcg_gen_gvec_add_aarch64
 #define tcg_gen_gvec_addi tcg_gen_gvec_addi_aarch64

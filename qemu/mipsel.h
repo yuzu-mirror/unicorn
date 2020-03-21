@@ -2880,6 +2880,7 @@
 #define tcg_gen_gvec_4_ool tcg_gen_gvec_4_ool_mipsel
 #define tcg_gen_gvec_4_ptr tcg_gen_gvec_4_ptr_mipsel
 #define tcg_gen_gvec_5_ool tcg_gen_gvec_5_ool_mipsel
+#define tcg_gen_gvec_5_ptr tcg_gen_gvec_5_ptr_mipsel
 #define tcg_gen_gvec_abs tcg_gen_gvec_abs_mipsel
 #define tcg_gen_gvec_add tcg_gen_gvec_add_mipsel
 #define tcg_gen_gvec_addi tcg_gen_gvec_addi_mipsel

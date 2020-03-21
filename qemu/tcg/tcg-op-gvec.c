@@ -290,6 +290,39 @@ void tcg_gen_gvec_4_ptr(TCGContext *s, uint32_t dofs, uint32_t aofs, uint32_t bo
     tcg_temp_free_i32(s, desc);
 }
 
+/* Generate a call to a gvec-style helper with five vector operands
+   and an extra pointer operand.  */
+void tcg_gen_gvec_5_ptr(TCGContext *s, uint32_t dofs, uint32_t aofs, uint32_t bofs,
+                        uint32_t cofs, uint32_t eofs, TCGv_ptr ptr,
+                        uint32_t oprsz, uint32_t maxsz, int32_t data,
+                        gen_helper_gvec_5_ptr *fn)
+{
+    TCGv_ptr a0, a1, a2, a3, a4;
+    TCGv_i32 desc = tcg_const_i32(s, simd_desc(oprsz, maxsz, data));
+
+    a0 = tcg_temp_new_ptr(s);
+    a1 = tcg_temp_new_ptr(s);
+    a2 = tcg_temp_new_ptr(s);
+    a3 = tcg_temp_new_ptr(s);
+    a4 = tcg_temp_new_ptr(s);
+
+    tcg_gen_addi_ptr(s, a0, s->cpu_env, dofs);
+    tcg_gen_addi_ptr(s, a1, s->cpu_env, aofs);
+    tcg_gen_addi_ptr(s, a2, s->cpu_env, bofs);
+    tcg_gen_addi_ptr(s, a3, s->cpu_env, cofs);
+    tcg_gen_addi_ptr(s, a4, s->cpu_env, eofs);
+
+    fn(s, a0, a1, a2, a3, a4, ptr, desc);
+
+    tcg_temp_free_ptr(s, a0);
+    tcg_temp_free_ptr(s, a1);
+    tcg_temp_free_ptr(s, a2);
+    tcg_temp_free_ptr(s, a3);
+    tcg_temp_free_ptr(s, a4);
+    tcg_temp_free_i32(s, desc);
+}
+
+
 /* Return true if we want to implement something of OPRSZ bytes
    in units of LNSZ.  This limits the expansion of inline code.  */
 static inline bool check_size_impl(uint32_t oprsz, uint32_t lnsz)
