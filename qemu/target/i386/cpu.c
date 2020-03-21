@@ -2726,6 +2726,17 @@ static X86CPUDefinition builtin_x86_defs[] = {
                     { /* end of list */ }
                 }
             },
+            {
+                .version = 3,
+                .alias = "Skylake-Client-noTSX-IBRS",
+                .props = (PropValue[]) {
+                    { "hle", "off" },
+                    { "rtm", "off" },
+                    { "model-id",
+                      "Intel Core Processor (Skylake, IBRS, no TSX)" },
+                    { /* end of list */ }
+                }
+            },
             { /* end of list */ }
         }
     },
@@ -2837,6 +2848,17 @@ static X86CPUDefinition builtin_x86_defs[] = {
                     { "spec-ctrl", "on" },
                     { "model-id",
                       "Intel Xeon Processor (Skylake, IBRS)" },
+                    { /* end of list */ }
+                }
+            },
+            {
+                .version = 3,
+                .alias = "Skylake-Server-noTSX-IBRS",
+                .props = (PropValue[]) {
+                    { "hle", "off" },
+                    { "rtm", "off" },
+                    { "model-id",
+                      "Intel Xeon Processor (Skylake, IBRS, no TSX)" },
                     { /* end of list */ }
                 }
             },
