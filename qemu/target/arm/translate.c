@@ -8335,7 +8335,8 @@ static bool op_smlaxxx(DisasContext *s, arg_rrrr *a,
     case 2:
         tl = load_reg(s, a->ra);
         th = load_reg(s, a->rd);
-        t1 = tcg_const_i32(tcg_ctx, 0);
+        t1 = tcg_temp_new_i32(tcg_ctx);
+        tcg_gen_sari_i32(tcg_ctx, t1, t0, 31);
         tcg_gen_add2_i32(tcg_ctx, tl, th, tl, th, t0, t1);
         tcg_temp_free_i32(tcg_ctx, t0);
         tcg_temp_free_i32(tcg_ctx, t1);
