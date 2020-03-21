@@ -7674,6 +7674,9 @@ static void handle_simd_inse(DisasContext *s, int rd, int rn,
     write_vec_element(s, tmp, rd, dst_index, size);
 
     tcg_temp_free_i64(tcg_ctx, tmp);
+
+    /* INS is considered a 128-bit write for SVE. */
+    clear_vec_high(s, true, rd);
 }
 
 
@@ -7703,6 +7706,9 @@ static void handle_simd_insg(DisasContext *s, int rd, int rn, int imm5)
 
     idx = extract32(imm5, 1 + size, 4 - size);
     write_vec_element(s, cpu_reg(s, rn), rd, idx, size);
+
+    /* INS is considered a 128-bit write for SVE. */
+    clear_vec_high(s, true, rd);
 }
 
 /*
