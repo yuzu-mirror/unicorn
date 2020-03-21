@@ -1520,7 +1520,7 @@ static void cortex_a8_initfn(struct uc_struct *uc, Object *obj, void *opaque)
     cpu->isar.id_isar2 = 0x21232031;
     cpu->isar.id_isar3 = 0x11112131;
     cpu->isar.id_isar4 = 0x00111142;
-    cpu->dbgdidr = 0x15141000;
+    cpu->isar.dbgdidr = 0x15141000;
     cpu->clidr = (1 << 27) | (2 << 24) | 3;
     cpu->ccsidr[0] = 0xe007e01a; /* 16k L1 dcache. */
     cpu->ccsidr[1] = 0x2007e01a; /* 16k L1 icache. */
@@ -1593,7 +1593,7 @@ static void cortex_a9_initfn(struct uc_struct *uc, Object *obj, void *opaque)
     cpu->isar.id_isar2 = 0x21232041;
     cpu->isar.id_isar3 = 0x11112131;
     cpu->isar.id_isar4 = 0x00111142;
-    cpu->dbgdidr = 0x35141000;
+    cpu->isar.dbgdidr = 0x35141000;
     cpu->clidr = (1 << 27) | (1 << 24) | 3;
     cpu->ccsidr[0] = 0xe00fe019; /* 16k L1 dcache. */
     cpu->ccsidr[1] = 0x200fe019; /* 16k L1 icache. */
@@ -1659,7 +1659,7 @@ static void cortex_a7_initfn(struct uc_struct *uc, Object *obj, void *opaque)
     cpu->isar.id_isar2 = 0x21232041;
     cpu->isar.id_isar3 = 0x11112131;
     cpu->isar.id_isar4 = 0x10011142;
-    cpu->dbgdidr = 0x3515f005;
+    cpu->isar.dbgdidr = 0x3515f005;
     cpu->clidr = 0x0a200023;
     cpu->ccsidr[0] = 0x701fe00a; /* 32K L1 dcache */
     cpu->ccsidr[1] = 0x201fe00a; /* 32K L1 icache */
@@ -1702,7 +1702,7 @@ static void cortex_a15_initfn(struct uc_struct *uc, Object *obj, void *opaque)
     cpu->isar.id_isar2 = 0x21232041;
     cpu->isar.id_isar3 = 0x11112131;
     cpu->isar.id_isar4 = 0x10011142;
-    cpu->dbgdidr = 0x3515f021;
+    cpu->isar.dbgdidr = 0x3515f021;
     cpu->clidr = 0x0a200023;
     cpu->ccsidr[0] = 0x701fe00a; /* 32K L1 dcache */
     cpu->ccsidr[1] = 0x201fe00a; /* 32K L1 icache */
