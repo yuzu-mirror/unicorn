@@ -288,18 +288,25 @@ static void gen_jmp(DisasContext *s, TCGv dest)
     s->base.is_jmp = DISAS_JUMP;
 }
 
-static void gen_exception(DisasContext *s, uint32_t dest, int nr)
+static void gen_raise_exception(DisasContext *s, int nr)
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
     TCGv_i32 tmp;
-
-    update_cc_op(s);
-    tcg_gen_movi_i32(tcg_ctx, tcg_ctx->QREG_PC, dest);
 
     tmp = tcg_const_i32(tcg_ctx, nr);
 
     gen_helper_raise_exception(tcg_ctx, tcg_ctx->cpu_env, tmp);
     tcg_temp_free_i32(tcg_ctx, tmp);
+}
+
+static void gen_exception(DisasContext *s, uint32_t dest, int nr)
+{
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+
+    update_cc_op(s);
+    tcg_gen_movi_i32(tcg_ctx, tcg_ctx->QREG_PC, dest);
+
+    gen_raise_exception(s, nr);
 
     s->base.is_jmp = DISAS_NORETURN;
 }
@@ -6461,29 +6468,36 @@ static void m68k_tr_tb_stop(DisasContextBase *dcbase, CPUState *cpu)
     DisasContext *dc = container_of(dcbase, DisasContext, base);
     TCGContext *tcg_ctx = dc->uc->tcg_ctx;
 
-    if (dc->base.is_jmp == DISAS_NORETURN) {
-        return;
-    }
-    if (dc->base.singlestep_enabled) {
-        gen_helper_raise_exception(tcg_ctx, tcg_ctx->cpu_env, tcg_const_i32(tcg_ctx, EXCP_DEBUG));
-        return;
-    }
-
     switch (dc->base.is_jmp) {
+    case DISAS_NORETURN:
+        break;
     case DISAS_TOO_MANY:
         update_cc_op(dc);
-        gen_jmp_tb(dc, 0, dc->pc);
+        if (dc->base.singlestep_enabled) {
+            tcg_gen_movi_i32(tcg_ctx, tcg_ctx->QREG_PC, dc->pc);
+            gen_raise_exception(dc, EXCP_DEBUG);
+        } else {
+            gen_jmp_tb(dc, 0, dc->pc);
+        }
         break;
     case DISAS_JUMP:
         /* We updated CC_OP and PC in gen_jmp/gen_jmp_im.  */
-        tcg_gen_lookup_and_goto_ptr(tcg_ctx);
+        if (dc->base.singlestep_enabled) {
+            gen_raise_exception(dc, EXCP_DEBUG);
+        } else {
+            tcg_gen_lookup_and_goto_ptr(tcg_ctx);
+        }
         break;
     case DISAS_EXIT:
         /*
          * We updated CC_OP and PC in gen_exit_tb, but also modified
          * other state that may require returning to the main loop.
          */
-        tcg_gen_exit_tb(tcg_ctx, NULL, 0);
+        if (dc->base.singlestep_enabled) {
+            gen_raise_exception(dc, EXCP_DEBUG);
+        } else {
+            tcg_gen_exit_tb(tcg_ctx, NULL, 0);
+        }
         break;
     default:
         g_assert_not_reached();
