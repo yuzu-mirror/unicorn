@@ -11182,15 +11182,14 @@ ARMMMUIdx arm_v7m_mmu_idx_for_secstate(CPUARMState *env, bool secstate)
 }
 #endif
 
-ARMMMUIdx arm_mmu_idx(CPUARMState *env)
-{
-    int el;
 
+
+ARMMMUIdx arm_mmu_idx_el(CPUARMState *env, int el)
+{
     if (arm_feature(env, ARM_FEATURE_M)) {
         return arm_v7m_mmu_idx_for_secstate(env, env->v7m.secure);
     }
 
-    el = arm_current_el(env);
     switch (el) {
     case 0:
         /* TODO: ARMv8.1-VHE */
@@ -11212,6 +11211,11 @@ ARMMMUIdx arm_mmu_idx(CPUARMState *env)
     default:
         g_assert_not_reached();
     }
+}
+
+ARMMMUIdx arm_mmu_idx(CPUARMState *env)
+{
+    return arm_mmu_idx_el(env, arm_current_el(env));
 }
 
 int cpu_mmu_index(CPUARMState *env, bool ifetch)
