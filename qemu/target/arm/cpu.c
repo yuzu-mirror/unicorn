@@ -1934,6 +1934,7 @@ static void arm_max_initfn(struct uc_struct *uc, Object *obj, void *opaque)
 
         t = cpu->isar.id_mmfr4;
         t = FIELD_DP32(t, ID_MMFR4, HPDS, 1); /* AA32HPD */
+        t = FIELD_DP32(t, ID_MMFR4, AC2, 1); /* ACTLR2, HACTLR2 */
         cpu->isar.id_mmfr4 = t;
     }
 }
