@@ -6023,8 +6023,6 @@ static void handle_fp_fcvt(DisasContext *s, int opcode,
             TCGv_i32 tcg_rd = tcg_temp_new_i32(tcg_ctx);
             gen_helper_vfp_fcvt_f16_to_f32(tcg_ctx, tcg_rd, tcg_rn, tcg_fpst, tcg_ahp);
             write_fp_sreg(s, rd, tcg_rd);
-            tcg_temp_free_ptr(tcg_ctx, tcg_fpst);
-            tcg_temp_free_i32(tcg_ctx, tcg_ahp);
             tcg_temp_free_i32(tcg_ctx, tcg_rd);
         } else {
             /* Half to double */
@@ -6034,6 +6032,8 @@ static void handle_fp_fcvt(DisasContext *s, int opcode,
             tcg_temp_free_i64(tcg_ctx, tcg_rd);
         }
         tcg_temp_free_i32(tcg_ctx, tcg_rn);
+        tcg_temp_free_ptr(tcg_ctx, tcg_fpst);
+        tcg_temp_free_i32(tcg_ctx, tcg_ahp);
         break;
     }
     default:
