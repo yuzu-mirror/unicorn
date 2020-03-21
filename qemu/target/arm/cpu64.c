@@ -348,6 +348,7 @@ static void aarch64_max_initfn(struct uc_struct *uc, Object *obj, void *opaque)
     cpu->isar.id_mmfr3 = u;
 
     u = cpu->isar.id_mmfr4;
+    u = FIELD_DP32(u, ID_MMFR4, HPDS, 1); /* AA32HPD */
     u = FIELD_DP32(u, ID_MMFR4, AC2, 1); /* ACTLR2, HACTLR2 */
     cpu->isar.id_mmfr4 = u;
 
