@@ -405,9 +405,12 @@ void HELPER(cpsr_write)(CPUARMState *env, uint32_t val, uint32_t mask)
 /* Write the CPSR for a 32-bit exception return */
 void HELPER(cpsr_write_eret)(CPUARMState *env, uint32_t val)
 {
+    uint32_t mask;
+
     arm_call_pre_el_change_hook(env_archcpu(env));
 
-    cpsr_write(env, val, CPSR_ERET_MASK, CPSRWriteExceptionReturn);
+    mask = aarch32_cpsr_valid_mask(env->features, &env_archcpu(env)->isar);
+    cpsr_write(env, val, mask, CPSRWriteExceptionReturn);
 
     /*
      * Generated code has already stored the new PC value, but
