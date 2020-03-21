@@ -28,9 +28,9 @@
 // Unicorn: Commented out until VTLB support is implemented.
 //# define TARGET_PAGE_BITS_VARY
 //# define TARGET_PAGE_BITS_MIN  10
-# define TARGET_PAGE_BITS 10
+# define TARGET_PAGE_BITS 12
 #endif
 
-#define NB_MMU_MODES 9
+#define NB_MMU_MODES 12
 
 #endif
