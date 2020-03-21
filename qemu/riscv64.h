@@ -1529,7 +1529,6 @@
 #define helper_neon_min_u8 helper_neon_min_u8_riscv64
 #define helper_neon_mul_u16 helper_neon_mul_u16_riscv64
 #define helper_neon_mul_u8 helper_neon_mul_u8_riscv64
-#define helper_neon_mull_p8 helper_neon_mull_p8_riscv64
 #define helper_neon_mull_s16 helper_neon_mull_s16_riscv64
 #define helper_neon_mull_s8 helper_neon_mull_s8_riscv64
 #define helper_neon_mull_u16 helper_neon_mull_u16_riscv64
@@ -1560,6 +1559,7 @@
 #define helper_neon_pmin_s8 helper_neon_pmin_s8_riscv64
 #define helper_neon_pmin_u16 helper_neon_pmin_u16_riscv64
 #define helper_neon_pmin_u8 helper_neon_pmin_u8_riscv64
+#define helper_neon_pmull_h helper_neon_pmull_h_riscv64
 #define helper_neon_qabs_s16 helper_neon_qabs_s16_riscv64
 #define helper_neon_qabs_s32 helper_neon_qabs_s32_riscv64
 #define helper_neon_qabs_s64 helper_neon_qabs_s64_riscv64

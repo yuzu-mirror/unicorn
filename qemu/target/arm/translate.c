@@ -5999,15 +5999,20 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                     return 1;
                 }
 
-                /* Handle VMULL.P64 (Polynomial 64x64 to 128 bit multiply)
-                 * outside the loop below as it only performs a single pass.
-                 */
-                if (op == 14 && size == 2) {
-                    if (!dc_isar_feature(aa32_pmull, s)) {
-                        return 1;
+                /* Handle polynomial VMULL in a single pass.  */
+                if (op == 14) {
+                    if (size == 0) {
+                        /* VMULL.P8 */
+                        tcg_gen_gvec_3_ool(tcg_ctx, rd_ofs, rn_ofs, rm_ofs, 16, 16,
+                                           0, gen_helper_neon_pmull_h);
+                    } else {
+                        /* VMULL.P64 */
+                        if (!dc_isar_feature(aa32_pmull, s)) {
+                            return 1;
+                        }
+                        tcg_gen_gvec_3_ool(tcg_ctx, rd_ofs, rn_ofs, rm_ofs, 16, 16,
+                                           0, gen_helper_gvec_pmull_q);
                     }
-                    tcg_gen_gvec_3_ool(tcg_ctx, rd_ofs, rn_ofs, rm_ofs, 16, 16,
-                                       0, gen_helper_gvec_pmull_q);
                     return 0;
                 }
 
@@ -6084,11 +6089,6 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                     case 8: case 9: case 10: case 11: case 12: case 13:
                         /* VMLAL, VQDMLAL, VMLSL, VQDMLSL, VMULL, VQDMULL */
                         gen_neon_mull(s, s->V0, tmp, tmp2, size, u);
-                        break;
-                    case 14: /* Polynomial VMULL */
-                        gen_helper_neon_mull_p8(tcg_ctx, s->V0, tmp, tmp2);
-                        tcg_temp_free_i32(tcg_ctx, tmp2);
-                        tcg_temp_free_i32(tcg_ctx, tmp);
                         break;
                     default: /* 15 is RESERVED: caught earlier  */
                         abort();
