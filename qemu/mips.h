@@ -1216,6 +1216,7 @@
 #define helper_gvec_orc helper_gvec_orc_mips
 #define helper_gvec_ors helper_gvec_ors_mips
 #define helper_gvec_pmul_b helper_gvec_pmul_b_mips
+#define helper_gvec_pmull_q helper_gvec_pmull_q_mips
 #define helper_gvec_qrdmlah_s16 helper_gvec_qrdmlah_s16_mips
 #define helper_gvec_qrdmlah_s32 helper_gvec_qrdmlah_s32_mips
 #define helper_gvec_qrdmlsh_s16 helper_gvec_qrdmlsh_s16_mips
@@ -1559,8 +1560,6 @@
 #define helper_neon_pmin_s8 helper_neon_pmin_s8_mips
 #define helper_neon_pmin_u16 helper_neon_pmin_u16_mips
 #define helper_neon_pmin_u8 helper_neon_pmin_u8_mips
-#define helper_neon_pmull_64_hi helper_neon_pmull_64_hi_mips
-#define helper_neon_pmull_64_lo helper_neon_pmull_64_lo_mips
 #define helper_neon_qabs_s16 helper_neon_qabs_s16_mips
 #define helper_neon_qabs_s32 helper_neon_qabs_s32_mips
 #define helper_neon_qabs_s64 helper_neon_qabs_s64_mips
