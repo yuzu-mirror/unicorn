@@ -3410,6 +3410,7 @@
 #define arm_register_pre_el_change_hook arm_register_pre_el_change_hook_aarch64
 #define arm_register_el_change_hook arm_register_el_change_hook_aarch64
 #define arm_reset_cpu arm_reset_cpu_aarch64
+#define arm_sctlr arm_sctlr_aarch64
 #define arm_set_cpu_off arm_set_cpu_off_aarch64
 #define arm_set_cpu_on arm_set_cpu_on_aarch64
 #define arm_stage1_mmu_idx arm_stage1_mmu_idx_aarch64

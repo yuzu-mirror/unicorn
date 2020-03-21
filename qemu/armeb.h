@@ -3402,6 +3402,7 @@
 #define arm_register_pre_el_change_hook arm_register_pre_el_change_hook_armeb
 #define arm_register_el_change_hook arm_register_el_change_hook_armeb
 #define arm_reset_cpu arm_reset_cpu_armeb
+#define arm_sctlr arm_sctlr_armeb
 #define arm_set_cpu_off arm_set_cpu_off_armeb
 #define arm_set_cpu_on arm_set_cpu_on_armeb
 #define arm_stage1_mmu_idx arm_stage1_mmu_idx_armeb
