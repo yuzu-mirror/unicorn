@@ -173,6 +173,7 @@ symbols = (
     'arm_gen_test_cc',
     'arm_generate_debug_exceptions',
     'arm_gt_htimer_cb',
+    'arm_gt_hvtimer_cb',
     'arm_gt_ptimer_cb',
     'arm_gt_stimer_cb',
     'arm_gt_vtimer_cb',

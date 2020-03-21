@@ -167,6 +167,7 @@
 #define arm_gen_test_cc arm_gen_test_cc_powerpc
 #define arm_generate_debug_exceptions arm_generate_debug_exceptions_powerpc
 #define arm_gt_htimer_cb arm_gt_htimer_cb_powerpc
+#define arm_gt_hvtimer_cb arm_gt_hvtimer_cb_powerpc
 #define arm_gt_ptimer_cb arm_gt_ptimer_cb_powerpc
 #define arm_gt_stimer_cb arm_gt_stimer_cb_powerpc
 #define arm_gt_vtimer_cb arm_gt_vtimer_cb_powerpc
