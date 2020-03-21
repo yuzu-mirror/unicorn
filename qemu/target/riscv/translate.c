@@ -416,7 +416,7 @@ static void mark_fs_dirty(DisasContext *ctx)
 
     tmp = tcg_temp_new(tcg_ctx);
     tcg_gen_ld_tl(tcg_ctx, tmp, tcg_ctx->cpu_env, offsetof(CPURISCVState, mstatus));
-    tcg_gen_ori_tl(tcg_ctx, tmp, tmp, MSTATUS_FS);
+    tcg_gen_ori_tl(tcg_ctx, tmp, tmp, MSTATUS_FS | MSTATUS_SD);
     tcg_gen_st_tl(tcg_ctx, tmp, tcg_ctx->cpu_env, offsetof(CPURISCVState, mstatus));
     tcg_temp_free(tcg_ctx, tmp);
 }
