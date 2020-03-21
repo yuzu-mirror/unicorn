@@ -1215,6 +1215,7 @@
 #define helper_gvec_or helper_gvec_or_sparc
 #define helper_gvec_orc helper_gvec_orc_sparc
 #define helper_gvec_ors helper_gvec_ors_sparc
+#define helper_gvec_pmul_b helper_gvec_pmul_b_sparc
 #define helper_gvec_qrdmlah_s16 helper_gvec_qrdmlah_s16_sparc
 #define helper_gvec_qrdmlah_s32 helper_gvec_qrdmlah_s32_sparc
 #define helper_gvec_qrdmlsh_s16 helper_gvec_qrdmlsh_s16_sparc
@@ -1525,7 +1526,6 @@
 #define helper_neon_min_u16 helper_neon_min_u16_sparc
 #define helper_neon_min_u32 helper_neon_min_u32_sparc
 #define helper_neon_min_u8 helper_neon_min_u8_sparc
-#define helper_neon_mul_p8 helper_neon_mul_p8_sparc
 #define helper_neon_mul_u16 helper_neon_mul_u16_sparc
 #define helper_neon_mul_u8 helper_neon_mul_u8_sparc
 #define helper_neon_mull_p8 helper_neon_mull_p8_sparc

@@ -1215,6 +1215,7 @@
 #define helper_gvec_or helper_gvec_or_aarch64eb
 #define helper_gvec_orc helper_gvec_orc_aarch64eb
 #define helper_gvec_ors helper_gvec_ors_aarch64eb
+#define helper_gvec_pmul_b helper_gvec_pmul_b_aarch64eb
 #define helper_gvec_qrdmlah_s16 helper_gvec_qrdmlah_s16_aarch64eb
 #define helper_gvec_qrdmlah_s32 helper_gvec_qrdmlah_s32_aarch64eb
 #define helper_gvec_qrdmlsh_s16 helper_gvec_qrdmlsh_s16_aarch64eb
@@ -1525,7 +1526,6 @@
 #define helper_neon_min_u16 helper_neon_min_u16_aarch64eb
 #define helper_neon_min_u32 helper_neon_min_u32_aarch64eb
 #define helper_neon_min_u8 helper_neon_min_u8_aarch64eb
-#define helper_neon_mul_p8 helper_neon_mul_p8_aarch64eb
 #define helper_neon_mul_u16 helper_neon_mul_u16_aarch64eb
 #define helper_neon_mul_u8 helper_neon_mul_u8_aarch64eb
 #define helper_neon_mull_p8 helper_neon_mull_p8_aarch64eb
