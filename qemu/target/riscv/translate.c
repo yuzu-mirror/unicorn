@@ -42,6 +42,7 @@ typedef struct DisasContext {
     /* pc_succ_insn points to the instruction following base.pc_next */
     target_ulong pc_succ_insn;
     target_ulong priv_ver;
+    bool virt_enabled;
     uint32_t opcode;
     uint32_t mstatus_fs;
     uint32_t misa;
@@ -418,6 +419,12 @@ static void mark_fs_dirty(DisasContext *ctx)
     tcg_gen_ld_tl(tcg_ctx, tmp, tcg_ctx->cpu_env, offsetof(CPURISCVState, mstatus));
     tcg_gen_ori_tl(tcg_ctx, tmp, tmp, MSTATUS_FS | MSTATUS_SD);
     tcg_gen_st_tl(tcg_ctx, tmp, tcg_ctx->cpu_env, offsetof(CPURISCVState, mstatus));
+
+    if (ctx->virt_enabled) {
+        tcg_gen_ld_tl(tcg_ctx, tmp, tcg_ctx->cpu_env, offsetof(CPURISCVState, mstatus_hs));
+        tcg_gen_ori_tl(tcg_ctx, tmp, tmp, MSTATUS_FS | MSTATUS_SD);
+        tcg_gen_st_tl(tcg_ctx, tmp, tcg_ctx->cpu_env, offsetof(CPURISCVState, mstatus_hs));
+    }
     tcg_temp_free(tcg_ctx, tmp);
 }
 #else
@@ -772,6 +779,11 @@ static void riscv_tr_init_disas_context(DisasContextBase *dcbase, CPUState *cs)
     ctx->mem_idx = ctx->base.tb->flags & TB_FLAGS_MMU_MASK;
     ctx->mstatus_fs = ctx->base.tb->flags & TB_FLAGS_MSTATUS_FS;
     ctx->priv_ver = env->priv_ver;
+#if !defined(CONFIG_USER_ONLY)
+    ctx->virt_enabled = riscv_cpu_virt_enabled(env);
+#else
+    ctx->virt_enabled = false;
+#endif
     ctx->misa = env->misa;
     ctx->frm = -1;  /* unknown rounding mode */
     ctx->ext_ifencei = cpu->cfg.ext_ifencei;
