@@ -5575,6 +5575,7 @@ riscv_symbols = (
     'riscv_cpu_set_fflags',
     'riscv_cpu_set_force_hs_excep',
     'riscv_cpu_set_mode',
+    'riscv_cpu_set_rdtime_fn',
     'riscv_cpu_set_virt_enabled',
     'riscv_cpu_swap_hypervisor_regs',
     'riscv_cpu_tlb_fill',
