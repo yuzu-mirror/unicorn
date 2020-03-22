@@ -173,6 +173,20 @@
 #define CSR_SPTBR           0x180
 #define CSR_SATP            0x180
 
+/* Virtual CSRs */
+#define CSR_VSSTATUS        0x200
+#define CSR_VSIE            0x204
+#define CSR_VSTVEC          0x205
+#define CSR_VSSCRATCH       0x240
+#define CSR_VSEPC           0x241
+#define CSR_VSCAUSE         0x242
+#define CSR_VSTVAL          0x243
+#define CSR_VSIP            0x244
+#define CSR_VSATP           0x280
+
+#define CSR_MTINST          0x34a
+#define CSR_MTVAL2          0x34b
+
 /* Physical Memory Protection */
 #define CSR_PMPCFG0         0x3a0
 #define CSR_PMPCFG1         0x3a1
@@ -207,10 +221,17 @@
 #define CSR_DSCRATCH        0x7b2
 
 /* Hypervisor CSRs */
-#define CSR_HSTATUS         0xa00
-#define CSR_HEDELEG         0xa02
-#define CSR_HIDELEG         0xa03
-#define CSR_HGATP           0xa80
+#define CSR_HSTATUS         0x600
+#define CSR_HEDELEG         0x602
+#define CSR_HIDELEG         0x603
+#define CSR_HIE             0x604
+#define CSR_HCOUNTEREN      0x606
+#define CSR_HTVAL           0x643
+#define CSR_HIP             0x644
+#define CSR_HTINST          0x64A
+#define CSR_HGATP           0x680
+#define CSR_HTIMEDELTA      0x605
+#define CSR_HTIMEDELTAH     0x615
 
 #if defined(TARGET_RISCV32)
 #define HGATP_MODE           SATP32_MODE
@@ -311,17 +332,6 @@
 #define CSR_MHPMCOUNTER29H  0xb9d
 #define CSR_MHPMCOUNTER30H  0xb9e
 #define CSR_MHPMCOUNTER31H  0xb9f
-
-/* Legacy Hypervisor Trap Setup (priv v1.9.1) */
-#define CSR_HIE             0x204
-#define CSR_HTVEC           0x205
-
-/* Legacy Hypervisor Trap Handling (priv v1.9.1) */
-#define CSR_HSCRATCH        0x240
-#define CSR_HEPC            0x241
-#define CSR_HCAUSE          0x242
-#define CSR_HBADADDR        0x243
-#define CSR_HIP             0x244
 
 /* Legacy Machine Protection and Translation (priv v1.9.1) */
 #define CSR_MBASE           0x380
