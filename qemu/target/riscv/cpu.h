@@ -109,6 +109,7 @@ struct CPURISCVState {
     target_ulong frm;
 
     target_ulong badaddr;
+    target_ulong guest_phys_fault_addr;
 
     target_ulong user_ver;
     target_ulong priv_ver;
