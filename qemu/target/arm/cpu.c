@@ -901,8 +901,9 @@ static int arm_cpu_realizefn(struct uc_struct *uc, DeviceState *dev, Error **err
      * We rely on no XScale CPU having VFP so we can use the same bits in the
      * TB flags field for VECSTRIDE and XSCALE_CPAR.
      */
-    assert(!(arm_feature(env, ARM_FEATURE_VFP) &&
-             arm_feature(env, ARM_FEATURE_XSCALE)));
+    assert(arm_feature(&cpu->env, ARM_FEATURE_AARCH64) ||
+           !cpu_isar_feature(aa32_vfp_simd, cpu) ||
+           !arm_feature(env, ARM_FEATURE_XSCALE));
 
     if (cpu->reset_hivecs) {
             cpu->reset_sctlr |= (1 << 13);
