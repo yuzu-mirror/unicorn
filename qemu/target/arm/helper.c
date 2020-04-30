@@ -9779,7 +9779,10 @@ static int get_S1prot(CPUARMState *env, ARMMMUIdx mmu_idx, bool is_aa64,
         prot_rw = user_rw;
     } else {
         if (user_rw && regime_is_pan(env, mmu_idx)) {
-            return 0;
+            /* PAN forbids data accesses but doesn't affect insn fetch */
+            prot_rw = 0;
+        } else {
+            prot_rw = simple_ap_to_rw_prot_is_user(ap, false);
         }
         prot_rw = simple_ap_to_rw_prot_is_user(ap, false);
     }
