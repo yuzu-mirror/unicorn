@@ -27,6 +27,7 @@
 #define aa64_generate_debug_exceptions aa64_generate_debug_exceptions_mipsel
 #define aa64_zva_access aa64_zva_access_mipsel
 #define aarch64_banked_spsr_index aarch64_banked_spsr_index_mipsel
+#define aarch64_cpu_register aarch64_cpu_register_mipsel
 #define aarch64_restore_sp aarch64_restore_sp_mipsel
 #define aarch64_save_sp aarch64_save_sp_mipsel
 #define aarch64_sync_32_to_64 aarch64_sync_32_to_64_mipsel
@@ -148,6 +149,7 @@
 #define arm_cpu_list arm_cpu_list_mipsel
 #define arm_cpu_post_init arm_cpu_post_init_mipsel
 #define arm_cpu_realizefn arm_cpu_realizefn_mipsel
+#define arm_cpu_register arm_cpu_register_mipsel
 #define arm_cpu_register_gdb_regs_for_features arm_cpu_register_gdb_regs_for_features_mipsel
 #define arm_cpu_register_types arm_cpu_register_types_mipsel
 #define arm_cpu_set_pc arm_cpu_set_pc_mipsel

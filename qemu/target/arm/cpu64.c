@@ -379,12 +379,6 @@ static void aarch64_max_initfn(struct uc_struct *uc, Object *obj, void *opaque)
     cpu->sve_max_vq = ARM_MAX_VQ;
 }
 
-typedef struct ARMCPUInfo {
-    const char *name;
-    void (*initfn)(struct uc_struct *uc, Object *obj, void *opaque);
-    void (*class_init)(struct uc_struct *uc, ObjectClass *oc, void *data);
-} ARMCPUInfo;
-
 static const ARMCPUInfo aarch64_cpus[] = {
     { .name = "cortex-a57",         .initfn = aarch64_a57_initfn },
     { .name = "cortex-a53",         .initfn = aarch64_a53_initfn },
@@ -415,7 +409,7 @@ static void aarch64_cpu_class_init(struct uc_struct *uc, ObjectClass *oc, void *
     cc->cpu_exec_interrupt = arm_cpu_exec_interrupt;
 }
 
-static void aarch64_cpu_register(struct uc_struct *uc, const ARMCPUInfo *info)
+void aarch64_cpu_register(struct uc_struct *uc, const ARMCPUInfo *info)
 {
     TypeInfo type_info = {
         .parent = TYPE_AARCH64_CPU,

@@ -27,6 +27,7 @@
 #define aa64_generate_debug_exceptions aa64_generate_debug_exceptions_m68k
 #define aa64_zva_access aa64_zva_access_m68k
 #define aarch64_banked_spsr_index aarch64_banked_spsr_index_m68k
+#define aarch64_cpu_register aarch64_cpu_register_m68k
 #define aarch64_restore_sp aarch64_restore_sp_m68k
 #define aarch64_save_sp aarch64_save_sp_m68k
 #define aarch64_sync_32_to_64 aarch64_sync_32_to_64_m68k
@@ -148,6 +149,7 @@
 #define arm_cpu_list arm_cpu_list_m68k
 #define arm_cpu_post_init arm_cpu_post_init_m68k
 #define arm_cpu_realizefn arm_cpu_realizefn_m68k
+#define arm_cpu_register arm_cpu_register_m68k
 #define arm_cpu_register_gdb_regs_for_features arm_cpu_register_gdb_regs_for_features_m68k
 #define arm_cpu_register_types arm_cpu_register_types_m68k
 #define arm_cpu_set_pc arm_cpu_set_pc_m68k

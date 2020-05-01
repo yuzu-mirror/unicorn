@@ -27,6 +27,7 @@
 #define aa64_generate_debug_exceptions aa64_generate_debug_exceptions_armeb
 #define aa64_zva_access aa64_zva_access_armeb
 #define aarch64_banked_spsr_index aarch64_banked_spsr_index_armeb
+#define aarch64_cpu_register aarch64_cpu_register_armeb
 #define aarch64_restore_sp aarch64_restore_sp_armeb
 #define aarch64_save_sp aarch64_save_sp_armeb
 #define aarch64_sync_32_to_64 aarch64_sync_32_to_64_armeb
@@ -148,6 +149,7 @@
 #define arm_cpu_list arm_cpu_list_armeb
 #define arm_cpu_post_init arm_cpu_post_init_armeb
 #define arm_cpu_realizefn arm_cpu_realizefn_armeb
+#define arm_cpu_register arm_cpu_register_armeb
 #define arm_cpu_register_gdb_regs_for_features arm_cpu_register_gdb_regs_for_features_armeb
 #define arm_cpu_register_types arm_cpu_register_types_armeb
 #define arm_cpu_set_pc arm_cpu_set_pc_armeb

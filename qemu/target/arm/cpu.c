@@ -1926,12 +1926,6 @@ static void arm_max_initfn(struct uc_struct *uc, Object *obj, void *opaque)
 
 #endif /* !defined(CONFIG_USER_ONLY) || !defined(TARGET_AARCH64) */
 
-typedef struct ARMCPUInfo {
-    const char *name;
-    void (*initfn)(struct uc_struct *uc, Object *obj, void *opaque);
-    void (*class_init)(struct uc_struct *uc, ObjectClass *oc, void *data);
-} ARMCPUInfo;
-
 static const ARMCPUInfo arm_cpus[] = {
 #if !defined(CONFIG_USER_ONLY) || !defined(TARGET_AARCH64)
     { .name = "arm926",      .initfn = arm926_initfn },
@@ -2027,7 +2021,7 @@ static void arm_cpu_class_init(struct uc_struct *uc, ObjectClass *oc, void *data
 #endif
 }
 
-static void cpu_register(struct uc_struct *uc, const ARMCPUInfo *info)
+void arm_cpu_register(struct uc_struct *uc, const ARMCPUInfo *info)
 {
     TypeInfo type_info = {
         .parent = TYPE_ARM_CPU,
@@ -2062,7 +2056,7 @@ void arm_cpu_register_types(void *opaque)
     type_register(opaque, &arm_cpu_type_info);
 
     while (info->name) {
-        cpu_register(opaque, info);
+        arm_cpu_register(opaque, info);
         info++;
     }
 }

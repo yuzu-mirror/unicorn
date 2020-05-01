@@ -48,6 +48,15 @@ typedef struct ARMCPUClass {
     void (*parent_reset)(CPUState *cpu);
 } ARMCPUClass;
 
+typedef struct ARMCPUInfo {
+    const char *name;
+    void (*initfn)(struct uc_struct *uc, Object *obj, void *opaque);
+    void (*class_init)(struct uc_struct *uc, ObjectClass *oc, void *data);
+} ARMCPUInfo;
+
+void arm_cpu_register(struct uc_struct *uc, const ARMCPUInfo *info);
+void aarch64_cpu_register(struct uc_struct *uc, const ARMCPUInfo *info);
+
 typedef struct ARMCPU ARMCPU;
 
 #define TYPE_AARCH64_CPU "aarch64-cpu"
