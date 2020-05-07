@@ -1375,8 +1375,9 @@ static TCGv_ptr vfp_reg_ptr(DisasContext *s, bool dp, int reg)
 
 #define ARM_CP_RW_BIT   (1 << 20)
 
-/* Include the VFP decoder */
+/* Include the VFP and Neon decoders */
 #include "translate-vfp.inc.c"
+#include "translate-neon.inc.c"
 
 static inline void iwmmxt_load_reg(DisasContext *s, TCGv_i64 var, int reg)
 {
@@ -11254,7 +11255,10 @@ static void disas_arm_insn(DisasContext *s, unsigned int insn)
         /* Unconditional instructions.  */
         /* TODO: Perhaps merge these into one decodetree output file.  */
         if (disas_a32_uncond(s, insn) ||
-            disas_vfp_uncond(s, insn)) {
+            disas_vfp_uncond(s, insn) ||
+            disas_neon_dp(s, insn) ||
+            disas_neon_ls(s, insn) ||
+            disas_neon_shared(s, insn)) {
             return;
         }
         /* fall back to legacy decoder */
@@ -11407,6 +11411,33 @@ static void disas_thumb2_insn(DisasContext *s, uint32_t insn)
         ARCH(6T2);
     }
 
+    if ((insn & 0xef000000) == 0xef000000) {
+        /*
+         * T32 encodings 0b111p_1111_qqqq_qqqq_qqqq_qqqq_qqqq_qqqq
+         * transform into
+         * A32 encodings 0b1111_001p_qqqq_qqqq_qqqq_qqqq_qqqq_qqqq
+         */
+        uint32_t a32_insn = (insn & 0xe2ffffff) |
+            ((insn & (1 << 28)) >> 4) | (1 << 28);
+
+        if (disas_neon_dp(s, a32_insn)) {
+            return;
+        }
+    }
+
+    if ((insn & 0xff100000) == 0xf9000000) {
+        /*
+         * T32 encodings 0b1111_1001_ppp0_qqqq_qqqq_qqqq_qqqq_qqqq
+         * transform into
+         * A32 encodings 0b1111_0100_ppp0_qqqq_qqqq_qqqq_qqqq_qqqq
+         */
+        uint32_t a32_insn = (insn & 0x00ffffff) | 0xf4000000;
+
+        if (disas_neon_ls(s, a32_insn)) {
+            return;
+        }
+    }
+
     /*
      * TODO: Perhaps merge these into one decodetree output file.
      * Note disas_vfp is written for a32 with cond field in the
@@ -11414,6 +11445,7 @@ static void disas_thumb2_insn(DisasContext *s, uint32_t insn)
      */
     if (disas_t32(s, insn) ||
         disas_vfp_uncond(s, insn) ||
+        disas_neon_shared(s, insn) ||
         ((insn >> 28) == 0xe && disas_vfp(s, insn))) {
         return;
     }
