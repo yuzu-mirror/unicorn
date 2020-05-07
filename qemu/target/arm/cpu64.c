@@ -317,6 +317,7 @@ static void aarch64_max_initfn(struct uc_struct *uc, Object *obj, void *opaque)
     t = FIELD_DP64(t, ID_AA64MMFR1, VH, 1);
     t = FIELD_DP64(t, ID_AA64MMFR1, PAN, 2); /* ATS1E1 */
     t = FIELD_DP64(t, ID_AA64MMFR1, VMIDBITS, 2); /* VMID16 */
+    t = FIELD_DP64(t, ID_AA64MMFR1, XNX, 1); /* TTS2UXN */
     cpu->isar.id_aa64mmfr1 = t;
 
     t = cpu->isar.id_aa64mmfr2;
@@ -349,6 +350,7 @@ static void aarch64_max_initfn(struct uc_struct *uc, Object *obj, void *opaque)
     u = FIELD_DP32(u, ID_MMFR4, HPDS, 1); /* AA32HPD */
     u = FIELD_DP32(u, ID_MMFR4, AC2, 1); /* ACTLR2, HACTLR2 */
     u = FIELD_DP32(u, ID_MMFR4, CNP, 1); /* TTCNP */
+    u = FIELD_DP32(u, ID_MMFR4, XNX, 1); /* TTS2UXN */
     cpu->isar.id_mmfr4 = u;
 
     u = cpu->isar.id_aa64dfr0;
