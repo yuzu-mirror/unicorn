@@ -212,3 +212,39 @@ static bool trans_VCMLA_scalar(DisasContext *s, arg_VCMLA_scalar *a)
     tcg_temp_free_ptr(tcg_ctx, fpst);
     return true;
 }
+
+static bool trans_VDOT_scalar(DisasContext *s, arg_VDOT_scalar *a)
+{
+    gen_helper_gvec_3 *fn_gvec;
+    int opr_sz;
+    TCGv_ptr fpst;
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+
+    if (!dc_isar_feature(aa32_dp, s)) {
+        return false;
+    }
+
+    /* UNDEF accesses to D16-D31 if they don't exist. */
+    if (!dc_isar_feature(aa32_simd_r32, s) &&
+        ((a->vd | a->vn) & 0x10)) {
+        return false;
+    }
+
+    if ((a->vd | a->vn) & a->q) {
+        return false;
+    }
+
+    if (!vfp_access_check(s)) {
+        return true;
+    }
+
+    fn_gvec = a->u ? gen_helper_gvec_udot_idx_b : gen_helper_gvec_sdot_idx_b;
+    opr_sz = (1 + a->q) * 8;
+    fpst = get_fpstatus_ptr(s, 1);
+    tcg_gen_gvec_3_ool(tcg_ctx, vfp_reg_offset(1, a->vd),
+                       vfp_reg_offset(1, a->vn),
+                       vfp_reg_offset(1, a->rm),
+                       opr_sz, opr_sz, a->index, fn_gvec);
+    tcg_temp_free_ptr(tcg_ctx, fpst);
+    return true;
+}
