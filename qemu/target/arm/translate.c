@@ -5030,25 +5030,6 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                              rd_ofs, rn_ofs, rm_ofs, vec_size, vec_size);
             return 0;
 
-        case NEON_3R_VMAX:
-            if (u) {
-                tcg_gen_gvec_umax(tcg_ctx, size, rd_ofs, rn_ofs, rm_ofs,
-                                  vec_size, vec_size);
-            } else {
-                tcg_gen_gvec_smax(tcg_ctx, size, rd_ofs, rn_ofs, rm_ofs,
-                                  vec_size, vec_size);
-            }
-            return 0;
-        case NEON_3R_VMIN:
-            if (u) {
-                tcg_gen_gvec_umin(tcg_ctx, size, rd_ofs, rn_ofs, rm_ofs,
-                                  vec_size, vec_size);
-            } else {
-                tcg_gen_gvec_smin(tcg_ctx, size, rd_ofs, rn_ofs, rm_ofs,
-                                  vec_size, vec_size);
-            }
-            return 0;
-
         case NEON_3R_VSHL:
             /* Note the operation is vshl vd,vm,vn */
             tcg_gen_gvec_3(tcg_ctx, rd_ofs, rm_ofs, rn_ofs, vec_size, vec_size,
@@ -5057,6 +5038,8 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
 
         case NEON_3R_VADD_VSUB:
         case NEON_3R_LOGIC:
+        case NEON_3R_VMAX:
+        case NEON_3R_VMIN:
             /* Already handled by decodetree */
             return 1;
         }
