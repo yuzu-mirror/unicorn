@@ -2327,7 +2327,7 @@ void tcg_gen_gvec_xor(TCGContext *s, unsigned vece, uint32_t dofs, uint32_t aofs
     };
 
     if (aofs == bofs) {
-        tcg_gen_gvec_dup8i(s, dofs, oprsz, maxsz, 0);
+        tcg_gen_gvec_dup_imm(s, MO_64, dofs, oprsz, maxsz, 0);
     } else {
         tcg_gen_gvec_3(s, dofs, aofs, bofs, oprsz, maxsz, &g);
     }
@@ -2344,7 +2344,7 @@ void tcg_gen_gvec_andc(TCGContext *s, unsigned vece, uint32_t dofs, uint32_t aof
     };
 
     if (aofs == bofs) {
-        tcg_gen_gvec_dup8i(s, dofs, oprsz, maxsz, 0);
+        tcg_gen_gvec_dup_imm(s, MO_64, dofs, oprsz, maxsz, 0);
     } else {
         tcg_gen_gvec_3(s, dofs, aofs, bofs, oprsz, maxsz, &g);
     }
@@ -2361,7 +2361,7 @@ void tcg_gen_gvec_orc(TCGContext *s, unsigned vece, uint32_t dofs, uint32_t aofs
     };
 
     if (aofs == bofs) {
-        tcg_gen_gvec_dup8i(s, dofs, oprsz, maxsz, -1);
+        tcg_gen_gvec_dup_imm(s, MO_64, dofs, oprsz, maxsz, -1);
     } else {
         tcg_gen_gvec_3(s, dofs, aofs, bofs, oprsz, maxsz, &g);
     }
@@ -2412,7 +2412,7 @@ void tcg_gen_gvec_eqv(TCGContext *s, unsigned vece, uint32_t dofs, uint32_t aofs
     };
 
     if (aofs == bofs) {
-        tcg_gen_gvec_dup8i(s, dofs, oprsz, maxsz, -1);
+        tcg_gen_gvec_dup_imm(s, MO_64, dofs, oprsz, maxsz, -1);
     } else {
         tcg_gen_gvec_3(s, dofs, aofs, bofs, oprsz, maxsz, &g);
     }
