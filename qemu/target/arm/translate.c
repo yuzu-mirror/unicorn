@@ -3330,141 +3330,6 @@ static void gen_neon_trn_u16(DisasContext *s, TCGv_i32 t0, TCGv_i32 t1)
     tcg_temp_free_i32(tcg_ctx, rd);
 }
 
-
-/* Translate a NEON load/store element instruction.  Return nonzero if the
-   instruction is invalid.  */
-static int disas_neon_ls_insn(DisasContext *s, uint32_t insn)
-{
-    TCGContext *tcg_ctx = s->uc->tcg_ctx;
-    int rd, rn, rm;
-    int nregs;
-    int stride;
-    int size;
-    int reg;
-    int load;
-    TCGv_i32 addr;
-    TCGv_i32 tmp;
-
-    if (!arm_dc_feature(s, ARM_FEATURE_NEON)) {
-        return 1;
-    }
-
-    /* FIXME: this access check should not take precedence over UNDEF
-     * for invalid encodings; we will generate incorrect syndrome information
-     * for attempts to execute invalid vfp/neon encodings with FP disabled.
-     */
-    if (s->fp_excp_el) {
-        gen_exception_insn(s, s->pc_curr, EXCP_UDEF,
-                           syn_simd_access_trap(1, 0xe, false), s->fp_excp_el);
-        return 0;
-    }
-
-    if (!s->vfp_enabled)
-      return 1;
-    VFP_DREG_D(rd, insn);
-    rn = (insn >> 16) & 0xf;
-    rm = insn & 0xf;
-    load = (insn & (1 << 21)) != 0;
-    if ((insn & (1 << 23)) == 0) {
-        /* Load store all elements -- handled already by decodetree */
-        return 1;
-    } else {
-        size = (insn >> 10) & 3;
-        if (size == 3) {
-            /* Load single element to all lanes -- handled by decodetree  */
-            return 1;
-        } else {
-            /* Single element.  */
-            int idx = (insn >> 4) & 0xf;
-            int reg_idx;
-            switch (size) {
-            case 0:
-                reg_idx = (insn >> 5) & 7;
-                stride = 1;
-                break;
-            case 1:
-                reg_idx = (insn >> 6) & 3;
-                stride = (insn & (1 << 5)) ? 2 : 1;
-                break;
-            case 2:
-                reg_idx = (insn >> 7) & 1;
-                stride = (insn & (1 << 6)) ? 2 : 1;
-                break;
-            default:
-                abort();
-            }
-            nregs = ((insn >> 8) & 3) + 1;
-            /* Catch the UNDEF cases. This is unavoidably a bit messy. */
-            switch (nregs) {
-            case 1:
-                if (((idx & (1 << size)) != 0) ||
-                    (size == 2 && ((idx & 3) == 1 || (idx & 3) == 2))) {
-                    return 1;
-                }
-                break;
-            case 3:
-                if ((idx & 1) != 0) {
-                    return 1;
-                }
-                /* fall through */
-            case 2:
-                if (size == 2 && (idx & 2) != 0) {
-                    return 1;
-                }
-                break;
-            case 4:
-                if ((size == 2) && ((idx & 3) == 3)) {
-                    return 1;
-                }
-                break;
-            default:
-                abort();
-            }
-            if ((rd + stride * (nregs - 1)) > 31) {
-                /* Attempts to write off the end of the register file
-                 * are UNPREDICTABLE; we choose to UNDEF because otherwise
-                 * the neon_load_reg() would write off the end of the array.
-                 */
-                return 1;
-            }
-            tmp = tcg_temp_new_i32(tcg_ctx);
-            addr = tcg_temp_new_i32(tcg_ctx);
-            load_reg_var(s, addr, rn);
-            for (reg = 0; reg < nregs; reg++) {
-                if (load) {
-                    gen_aa32_ld_i32(s, tmp, addr, get_mem_index(s),
-                                    s->be_data | size);
-                    neon_store_element(s, rd, reg_idx, size, tmp);
-                } else { /* Store */
-                    neon_load_element(s, tmp, rd, reg_idx, size);
-                    gen_aa32_st_i32(s, tmp, addr, get_mem_index(s),
-                                    s->be_data | size);
-                }
-                rd += stride;
-                tcg_gen_addi_i32(tcg_ctx, addr, addr, 1 << size);
-            }
-            tcg_temp_free_i32(tcg_ctx, addr);
-            tcg_temp_free_i32(tcg_ctx, tmp);
-            stride = nregs * (1 << size);
-        }
-    }
-    if (rm != 15) {
-        TCGv_i32 base;
-
-        base = load_reg(s, rn);
-        if (rm == 13) {
-            tcg_gen_addi_i32(tcg_ctx, base, base, stride);
-        } else {
-            TCGv_i32 index;
-            index = load_reg(s, rm);
-            tcg_gen_add_i32(tcg_ctx, base, base, index);
-            tcg_temp_free_i32(tcg_ctx, index);
-        }
-        store_reg(s, rn, base);
-    }
-    return 0;
-}
-
 static inline void gen_neon_narrow(DisasContext *s, int size, TCGv_i32 dest, TCGv_i64 src)
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
@@ -10899,13 +10764,6 @@ static void disas_arm_insn(DisasContext *s, unsigned int insn)
             }
             return;
         }
-        if ((insn & 0x0f100000) == 0x04000000) {
-            /* NEON load/store.  */
-            if (disas_neon_ls_insn(s, insn)) {
-                goto illegal_op;
-            }
-            return;
-        }
         if ((insn & 0x0e000f00) == 0x0c000100) {
             if (arm_dc_feature(s, ARM_FEATURE_IWMMXT)) {
                 /* iWMMXt register transfer.  */
@@ -11110,12 +10968,6 @@ static void disas_thumb2_insn(DisasContext *s, uint32_t insn)
         }
         break;
     case 12:
-        if ((insn & 0x01100000) == 0x01000000) {
-            if (disas_neon_ls_insn(s, insn)) {
-                goto illegal_op;
-            }
-            break;
-        }
         goto illegal_op;
     default:
         goto illegal_op;
