@@ -177,7 +177,7 @@ static void do_dupi_z(DisasContext *s, int rd, uint64_t word)
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
     unsigned vsz = vec_full_reg_size(s);
-    tcg_gen_gvec_dup64i(tcg_ctx, vec_full_reg_offset(s, rd), vsz, vsz, word);
+    tcg_gen_gvec_dup_imm(tcg_ctx, MO_64, vec_full_reg_offset(s, rd), vsz, vsz, word);
 }
 
 /* Invoke a vector expander on two Pregs.  */
@@ -1550,7 +1550,7 @@ static bool do_predset(DisasContext *s, int esz, int rd, int pat, bool setflag)
         unsigned oprsz = size_for_gvec(setsz / 8);
 
         if (oprsz * 8 == setsz) {
-            tcg_gen_gvec_dup64i(tcg_ctx, ofs, oprsz, maxsz, word);
+            tcg_gen_gvec_dup_imm(tcg_ctx, MO_64, ofs, oprsz, maxsz, word);
             goto done;
         }
     }
@@ -2159,7 +2159,7 @@ static bool trans_DUP_x(DisasContext *s, arg_DUP_x *a)
             unsigned nofs = vec_reg_offset(s, a->rn, index, esz);
             tcg_gen_gvec_dup_mem(tcg_ctx, esz, dofs, nofs, vsz, vsz);
         } else {
-            tcg_gen_gvec_dup64i(tcg_ctx, dofs, vsz, vsz, 0);
+            tcg_gen_gvec_dup_imm(tcg_ctx, esz, dofs, vsz, vsz, 0);
         }
     }
     return true;
@@ -3415,9 +3415,8 @@ static bool trans_FDUP(DisasContext *s, arg_FDUP *a)
 
         /* Decode the VFP immediate.  */
         imm = vfp_expand_imm(a->esz, a->imm);
-        imm = dup_const(a->esz, imm);
 
-        tcg_gen_gvec_dup64i(tcg_ctx, dofs, vsz, vsz, imm);
+        tcg_gen_gvec_dup_imm(tcg_ctx, a->esz, dofs, vsz, vsz, imm);
     }
     return true;
 }
@@ -3432,7 +3431,7 @@ static bool trans_DUP_i(DisasContext *s, arg_DUP_i *a)
         unsigned vsz = vec_full_reg_size(s);
         int dofs = vec_full_reg_offset(s, a->rd);
 
-        tcg_gen_gvec_dup64i(tcg_ctx, dofs, vsz, vsz, dup_const(a->esz, a->imm));
+        tcg_gen_gvec_dup_imm(tcg_ctx, a->esz, dofs, vsz, vsz, a->imm);
     }
     return true;
 }

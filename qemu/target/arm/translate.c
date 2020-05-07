@@ -5340,7 +5340,8 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                                           MIN(shift, (8 << size) - 1),
                                           vec_size, vec_size);
                     } else if (shift >= 8 << size) {
-                        tcg_gen_gvec_dup8i(tcg_ctx, rd_ofs, vec_size, vec_size, 0);
+                        tcg_gen_gvec_dup_imm(tcg_ctx, MO_8, rd_ofs, vec_size,
+                                             vec_size, 0);
                     } else {
                         tcg_gen_gvec_shri(tcg_ctx, size, rd_ofs, rm_ofs, shift,
                                           vec_size, vec_size);
@@ -5391,7 +5392,8 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                          * architecturally valid and results in zero.
                          */
                         if (shift >= 8 << size) {
-                            tcg_gen_gvec_dup8i(tcg_ctx, rd_ofs, vec_size, vec_size, 0);
+                            tcg_gen_gvec_dup_imm(tcg_ctx, size, rd_ofs,
+                                                 vec_size, vec_size, 0);
                         } else {
                             tcg_gen_gvec_shli(tcg_ctx, size, rd_ofs, rm_ofs, shift,
                                               vec_size, vec_size);
@@ -5737,7 +5739,8 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                     }
                     tcg_temp_free_i64(tcg_ctx, t64);
                 } else {
-                    tcg_gen_gvec_dup32i(tcg_ctx, reg_ofs, vec_size, vec_size, imm);
+                    tcg_gen_gvec_dup_imm(tcg_ctx, MO_32, reg_ofs, vec_size,
+                                         vec_size, imm);
                 }
             }
         }
