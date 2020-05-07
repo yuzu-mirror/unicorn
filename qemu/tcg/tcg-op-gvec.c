@@ -1542,34 +1542,6 @@ void tcg_gen_gvec_dup_mem(TCGContext *s, unsigned vece, uint32_t dofs, uint32_t 
     }
 }
 
-void tcg_gen_gvec_dup64i(TCGContext *s, uint32_t dofs, uint32_t oprsz,
-                         uint32_t maxsz, uint64_t x)
-{
-    check_size_align(oprsz, maxsz, dofs);
-    do_dup(s, MO_64, dofs, oprsz, maxsz, NULL, NULL, x);
-}
-
-void tcg_gen_gvec_dup32i(TCGContext *s, uint32_t dofs, uint32_t oprsz,
-                         uint32_t maxsz, uint32_t x)
-{
-    check_size_align(oprsz, maxsz, dofs);
-    do_dup(s, MO_32, dofs, oprsz, maxsz, NULL, NULL, x);
-}
-
-void tcg_gen_gvec_dup16i(TCGContext *s, uint32_t dofs, uint32_t oprsz,
-                         uint32_t maxsz, uint16_t x)
-{
-    check_size_align(oprsz, maxsz, dofs);
-    do_dup(s, MO_16, dofs, oprsz, maxsz, NULL, NULL, x);
-}
-
-void tcg_gen_gvec_dup8i(TCGContext *s, uint32_t dofs, uint32_t oprsz,
-                         uint32_t maxsz, uint8_t x)
-{
-    check_size_align(oprsz, maxsz, dofs);
-    do_dup(s, MO_8, dofs, oprsz, maxsz, NULL, NULL, x);
-}
-
 void tcg_gen_gvec_dup_imm(TCGContext *s, unsigned vece, uint32_t dofs, uint32_t oprsz,
                           uint32_t maxsz, uint64_t x)
 {
