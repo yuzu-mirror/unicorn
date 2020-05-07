@@ -5010,26 +5010,6 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                            u ? &mls_op[size] : &mla_op[size]);
             return 0;
 
-        case NEON_3R_VTST_VCEQ:
-            if (u) { /* VCEQ */
-                tcg_gen_gvec_cmp(tcg_ctx, TCG_COND_EQ, size, rd_ofs, rn_ofs, rm_ofs,
-                                 vec_size, vec_size);
-            } else { /* VTST */
-                tcg_gen_gvec_3(tcg_ctx, rd_ofs, rn_ofs, rm_ofs,
-                               vec_size, vec_size, &cmtst_op[size]);
-            }
-            return 0;
-
-        case NEON_3R_VCGT:
-            tcg_gen_gvec_cmp(tcg_ctx, u ? TCG_COND_GTU : TCG_COND_GT, size,
-                             rd_ofs, rn_ofs, rm_ofs, vec_size, vec_size);
-            return 0;
-
-        case NEON_3R_VCGE:
-            tcg_gen_gvec_cmp(tcg_ctx, u ? TCG_COND_GEU : TCG_COND_GE, size,
-                             rd_ofs, rn_ofs, rm_ofs, vec_size, vec_size);
-            return 0;
-
         case NEON_3R_VSHL:
             /* Note the operation is vshl vd,vm,vn */
             tcg_gen_gvec_3(tcg_ctx, rd_ofs, rm_ofs, rn_ofs, vec_size, vec_size,
@@ -5040,6 +5020,9 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
         case NEON_3R_LOGIC:
         case NEON_3R_VMAX:
         case NEON_3R_VMIN:
+        case NEON_3R_VTST_VCEQ:
+        case NEON_3R_VCGT:
+        case NEON_3R_VCGE:
             /* Already handled by decodetree */
             return 1;
         }
