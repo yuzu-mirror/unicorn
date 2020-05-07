@@ -2901,6 +2901,7 @@ symbols = (
     'tcg_gen_gvec_dup64i',
     'tcg_gen_gvec_dup_i32',
     'tcg_gen_gvec_dup_i64',
+    'tcg_gen_gvec_dup_imm',
     'tcg_gen_gvec_dup_mem',
     'tcg_gen_gvec_eqv',
     'tcg_gen_gvec_mov',

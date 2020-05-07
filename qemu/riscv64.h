@@ -2895,6 +2895,7 @@
 #define tcg_gen_gvec_dup64i tcg_gen_gvec_dup64i_riscv64
 #define tcg_gen_gvec_dup_i32 tcg_gen_gvec_dup_i32_riscv64
 #define tcg_gen_gvec_dup_i64 tcg_gen_gvec_dup_i64_riscv64
+#define tcg_gen_gvec_dup_imm tcg_gen_gvec_dup_imm_riscv64
 #define tcg_gen_gvec_dup_mem tcg_gen_gvec_dup_mem_riscv64
 #define tcg_gen_gvec_eqv tcg_gen_gvec_eqv_riscv64
 #define tcg_gen_gvec_mov tcg_gen_gvec_mov_riscv64
