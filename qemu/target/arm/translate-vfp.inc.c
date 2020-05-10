@@ -924,7 +924,6 @@ static bool trans_VLDR_VSTR_sp(DisasContext *s, arg_VLDR_VSTR_sp *a)
 
     /* For thumb, use of PC is UNPREDICTABLE.  */
     addr = add_reg_for_lit(s, a->rn, offset);
-    tcg_gen_addi_i32(tcg_ctx, addr, addr, offset);
     tmp = tcg_temp_new_i32(tcg_ctx);
     if (a->l) {
         gen_aa32_ld32u(s, tmp, addr, get_mem_index(s));
@@ -967,7 +966,6 @@ static bool trans_VLDR_VSTR_dp(DisasContext *s, arg_VLDR_VSTR_dp *a)
 
     /* For thumb, use of PC is UNPREDICTABLE.  */
     addr = add_reg_for_lit(s, a->rn, offset);
-    tcg_gen_addi_i32(tcg_ctx, addr, addr, offset);
     tmp = tcg_temp_new_i64(tcg_ctx);
     if (a->l) {
         gen_aa32_ld64(s, tmp, addr, get_mem_index(s));
