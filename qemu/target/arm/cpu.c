@@ -1982,7 +1982,6 @@ static const ARMCPUInfo arm_cpus[] = {
     { .name = "any",         .initfn = arm_max_initfn },
 #endif
 #endif
-    { .name = NULL }
 };
 
 static void arm_cpu_class_init(struct uc_struct *uc, ObjectClass *oc, void *data)
@@ -2043,7 +2042,7 @@ void arm_cpu_register(struct uc_struct *uc, const ARMCPUInfo *info)
 
 void arm_cpu_register_types(void *opaque)
 {
-    const ARMCPUInfo *info = arm_cpus;
+    const size_t cpu_count = ARRAY_SIZE(arm_cpus);
 
     TypeInfo arm_cpu_type_info = {0};
     arm_cpu_type_info.name = TYPE_ARM_CPU,
@@ -2059,8 +2058,11 @@ void arm_cpu_register_types(void *opaque)
 
     type_register(opaque, &arm_cpu_type_info);
 
-    while (info->name) {
-        arm_cpu_register(opaque, info);
-        info++;
+    if (cpu_count) {
+        size_t i;
+
+        for (i = 0; i < cpu_count; ++i) {
+            arm_cpu_register(opaque, &arm_cpus[i]);
+        }
     }
 }

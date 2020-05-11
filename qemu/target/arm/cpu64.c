@@ -386,7 +386,6 @@ static const ARMCPUInfo aarch64_cpus[] = {
     { .name = "cortex-a53",         .initfn = aarch64_a53_initfn },
     { .name = "cortex-a72",         .initfn = aarch64_a72_initfn },
     { .name = "max",                .initfn = aarch64_max_initfn },
-    { .name = NULL }
 };
 
 static QEMU_UNUSED_FUNC bool aarch64_cpu_get_aarch64(Object *obj, Error **errp)
@@ -430,6 +429,7 @@ void aarch64_cpu_register(struct uc_struct *uc, const ARMCPUInfo *info)
 void aarch64_cpu_register_types(void *opaque)
 {
     const ARMCPUInfo *info = aarch64_cpus;
+    size_t i;
 
     static TypeInfo aarch64_cpu_type_info = { 0 };
     aarch64_cpu_type_info.name = TYPE_AARCH64_CPU;
@@ -443,8 +443,7 @@ void aarch64_cpu_register_types(void *opaque)
 
     type_register_static(opaque, &aarch64_cpu_type_info);
 
-    while (info->name) {
-        aarch64_cpu_register(opaque, info);
-        info++;
+    for (i = 0; i < ARRAY_SIZE(aarch64_cpus); ++i) {
+        aarch64_cpu_register(opaque, &aarch64_cpus[i]);
     }
 }
