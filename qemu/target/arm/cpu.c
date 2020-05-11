@@ -660,16 +660,6 @@ static QEMU_UNUSED_FUNC bool arm_cpu_is_big_endian(CPUState *cs)
     return (env->cp15.sctlr_el[cur_el] & SCTLR_EE) != 0;
 }
 
-static inline void set_feature(CPUARMState *env, int feature)
-{
-    env->features |= 1ULL << feature;
-}
-
-static inline void unset_feature(CPUARMState *env, int feature)
-{
-    env->features &= ~(1ULL << feature);
-}
-
 #define ARM_CPUS_PER_CLUSTER 8
 
 static void cpreg_hashtable_data_destroy(gpointer data)
