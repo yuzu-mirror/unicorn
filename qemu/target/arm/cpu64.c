@@ -418,7 +418,6 @@ void aarch64_cpu_register(struct uc_struct *uc, const ARMCPUInfo *info)
 
 void aarch64_cpu_register_types(void *opaque)
 {
-    const ARMCPUInfo *info = aarch64_cpus;
     size_t i;
 
     static TypeInfo aarch64_cpu_type_info = { 0 };
