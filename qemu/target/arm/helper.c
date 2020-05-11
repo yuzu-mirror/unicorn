@@ -10731,17 +10731,17 @@ do_fault:
 
 static inline void get_phys_addr_pmsav7_default(CPUARMState *env,
                                                 ARMMMUIdx mmu_idx,
-                                                int32_t address, int *prot)
+                                                uint32_t address, int *prot)
 {
     if (!arm_feature(env, ARM_FEATURE_M)) {
         *prot = PAGE_READ | PAGE_WRITE;
 
-        if (address >= 0xF0000000 && address <= 0xFFFFFFFF) {
+        if (address >= 0xF0000000) {
             if (regime_sctlr(env, mmu_idx) & SCTLR_V) {
                 /* hivecs execing is ok */
                 *prot |= PAGE_EXEC;
             }
-        } else if (address >= 0x00000000 && address <= 0x7FFFFFFF) {
+        } else if (address <= 0x7FFFFFFF) {
             *prot |= PAGE_EXEC;
         }
     } else {
@@ -10750,7 +10750,7 @@ static inline void get_phys_addr_pmsav7_default(CPUARMState *env,
          * The architecture specifies which regions are execute-never;
          * at the MPU level no other checks are defined.
          */
-        if ((address >= 0x00000000 && address <= 0x1FFFFFFF) || /* ROM */
+        if ((address <= 0x1FFFFFFF) || /* ROM */
             (address >= 0x20000000 && address <= 0x3FFFFFFF) || /* SRAM */
             (address >= 0x60000000 && address <= 0x7FFFFFFF) || /* RAM */
             (address >= 0x80000000 && address <= 0x9FFFFFFF)) { /* RAM */
@@ -10758,7 +10758,7 @@ static inline void get_phys_addr_pmsav7_default(CPUARMState *env,
         } else if ((address >= 0x40000000 && address <= 0x5FFFFFFF) || /* Peripheral */
                    (address >= 0xA0000000 && address <= 0xBFFFFFFF) || /* Device */
                    (address >= 0xC0000000 && address <= 0xDFFFFFFF) || /* Device */
-                   (address >= 0xE0000000 && address <= 0xFFFFFFFF)) { /* System */
+                   (address >= 0xE0000000)) { /* System */
             *prot = PAGE_READ | PAGE_WRITE;
         } else {
              g_assert_not_reached();
