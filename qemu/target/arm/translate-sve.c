@@ -4086,43 +4086,33 @@ static bool trans_FCADD(DisasContext *s, arg_FCADD *a)
     return true;
 }
 
-typedef void gen_helper_sve_fmla(TCGContext *, TCGv_env, TCGv_ptr, TCGv_i32);
-
-static bool do_fmla(DisasContext *s, arg_rprrr_esz *a, gen_helper_sve_fmla *fn)
+static bool do_fmla(DisasContext *s, arg_rprrr_esz *a,
+                    gen_helper_gvec_5_ptr *fn)
 {
-    if (fn == NULL) {
+    if (a->esz == 0) {
         return false;
     }
-    if (!sve_access_check(s)) {
-        return true;
+
+    if (sve_access_check(s)) {
+        TCGContext *tcg_ctx = s->uc->tcg_ctx;
+        unsigned vsz = vec_full_reg_size(s);
+        TCGv_ptr status = get_fpstatus_ptr(s, a->esz == MO_16);
+        tcg_gen_gvec_5_ptr(tcg_ctx, vec_full_reg_offset(s, a->rd),
+                           vec_full_reg_offset(s, a->rn),
+                           vec_full_reg_offset(s, a->rm),
+                           vec_full_reg_offset(s, a->ra),
+                           pred_full_reg_offset(s, a->pg),
+                           status, vsz, vsz, 0, fn);
+        tcg_temp_free_ptr(tcg_ctx, status);
     }
 
-    TCGContext *tcg_ctx = s->uc->tcg_ctx;
-    unsigned vsz = vec_full_reg_size(s);
-    unsigned desc;
-    TCGv_i32 t_desc;
-    TCGv_ptr pg = tcg_temp_new_ptr(tcg_ctx);
-
-    /* We would need 7 operands to pass these arguments "properly".
-     * So we encode all the register numbers into the descriptor.
-     */
-    desc = deposit32(a->rd, 5, 5, a->rn);
-    desc = deposit32(desc, 10, 5, a->rm);
-    desc = deposit32(desc, 15, 5, a->ra);
-    desc = simd_desc(vsz, vsz, desc);
-
-    t_desc = tcg_const_i32(tcg_ctx, desc);
-    tcg_gen_addi_ptr(tcg_ctx, pg, tcg_ctx->cpu_env, pred_full_reg_offset(s, a->pg));
-    fn(tcg_ctx, tcg_ctx->cpu_env, pg, t_desc);
-    tcg_temp_free_i32(tcg_ctx, t_desc);
-    tcg_temp_free_ptr(tcg_ctx, pg);
     return true;
 }
 
 #define DO_FMLA(NAME, name) \
 static bool trans_##NAME(DisasContext *s, arg_rprrr_esz *a)          \
 {                                                                    \
-    static gen_helper_sve_fmla * const fns[4] = {                    \
+    static gen_helper_gvec_5_ptr * const fns[4] = {                  \
         NULL, gen_helper_sve_##name##_h,                             \
         gen_helper_sve_##name##_s, gen_helper_sve_##name##_d         \
     };                                                               \
@@ -4138,7 +4128,8 @@ DO_FMLA(FNMLS_zpzzz, fnmls_zpzzz)
 
 static bool trans_FCMLA_zpzzz(DisasContext *s, arg_FCMLA_zpzzz *a)
 {
-    static gen_helper_sve_fmla * const fns[3] = {
+    static gen_helper_gvec_5_ptr * const fns[4] = {
+        NULL,
         gen_helper_sve_fcmla_zpzzz_h,
         gen_helper_sve_fcmla_zpzzz_s,
         gen_helper_sve_fcmla_zpzzz_d,
@@ -4150,25 +4141,14 @@ static bool trans_FCMLA_zpzzz(DisasContext *s, arg_FCMLA_zpzzz *a)
     if (sve_access_check(s)) {
         TCGContext *tcg_ctx = s->uc->tcg_ctx;
         unsigned vsz = vec_full_reg_size(s);
-        unsigned desc;
-        TCGv_i32 t_desc;
-        TCGv_ptr pg = tcg_temp_new_ptr(tcg_ctx);
-
-        /* We would need 7 operands to pass these arguments "properly".
-         * So we encode all the register numbers into the descriptor.
-         */
-        desc = deposit32(a->rd, 5, 5, a->rn);
-        desc = deposit32(desc, 10, 5, a->rm);
-        desc = deposit32(desc, 15, 5, a->ra);
-        desc = deposit32(desc, 20, 2, a->rot);
-        desc = sextract32(desc, 0, 22);
-        desc = simd_desc(vsz, vsz, desc);
-
-        t_desc = tcg_const_i32(tcg_ctx, desc);
-        tcg_gen_addi_ptr(tcg_ctx, pg, tcg_ctx->cpu_env, pred_full_reg_offset(s, a->pg));
-        fns[a->esz - 1](tcg_ctx, tcg_ctx->cpu_env, pg, t_desc);
-        tcg_temp_free_i32(tcg_ctx, t_desc);
-        tcg_temp_free_ptr(tcg_ctx, pg);
+        TCGv_ptr status = get_fpstatus_ptr(s, a->esz == MO_16);
+        tcg_gen_gvec_5_ptr(tcg_ctx, vec_full_reg_offset(s, a->rd),
+                           vec_full_reg_offset(s, a->rn),
+                           vec_full_reg_offset(s, a->rm),
+                           vec_full_reg_offset(s, a->ra),
+                           pred_full_reg_offset(s, a->pg),
+                           status, vsz, vsz, a->rot, fns[a->esz]);
+        tcg_temp_free_ptr(tcg_ctx, status);
     }
     return true;
 }
