@@ -3408,7 +3408,9 @@
 #define cpu_mmu_index cpu_mmu_index_arm
 #define fp_exception_el fp_exception_el_arm
 #define gen_cmtst_i64 gen_cmtst_i64_arm
+#define gen_gvec_sli gen_gvec_sli_arm
 #define gen_gvec_ssra gen_gvec_ssra_arm
+#define gen_gvec_sri gen_gvec_sri_arm
 #define gen_gvec_srshr gen_gvec_srshr_arm
 #define gen_gvec_srsra gen_gvec_srsra_arm
 #define gen_gvec_ursra gen_gvec_ursra_arm
@@ -3420,6 +3422,14 @@
 #define gen_ushl_i32 gen_ushl_i32_arm
 #define gen_ushl_i64 gen_ushl_i64_arm
 #define helper_fjcvtzs helper_fjcvtzs_arm
+#define helper_gvec_sli_b helper_gvec_sli_b_arm
+#define helper_gvec_sli_d helper_gvec_sli_d_arm
+#define helper_gvec_sli_h helper_gvec_sli_h_arm
+#define helper_gvec_sli_s helper_gvec_sli_s_arm
+#define helper_gvec_sri_b helper_gvec_sri_b_arm
+#define helper_gvec_sri_d helper_gvec_sri_d_arm
+#define helper_gvec_sri_h helper_gvec_sri_h_arm
+#define helper_gvec_sri_s helper_gvec_sri_s_arm
 #define helper_gvec_srshr_b helper_gvec_srshr_b_arm
 #define helper_gvec_srshr_d helper_gvec_srshr_d_arm
 #define helper_gvec_srshr_h helper_gvec_srshr_h_arm
@@ -3455,11 +3465,9 @@
 #define pmu_post_el_change pmu_post_el_change_arm
 #define raise_exception raise_exception_arm
 #define raise_exception_ra raise_exception_ra_arm
-#define sli_op sli_op_arm
 #define sqadd_op sqadd_op_arm
 #define sqsub_op sqsub_op_arm
 #define sshl_op sshl_op_arm
-#define sri_op sri_op_arm
 #define sve_exception_el sve_exception_el_arm
 #define sve_zcr_len_for_el sve_zcr_len_for_el_arm
 #define uqadd_op uqadd_op_arm

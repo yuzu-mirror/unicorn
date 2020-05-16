@@ -3423,7 +3423,9 @@
 #define fp_exception_el fp_exception_el_aarch64
 #define gen_a64_set_pc_im gen_a64_set_pc_im_aarch64
 #define gen_cmtst_i64 gen_cmtst_i64_aarch64
+#define gen_gvec_sli gen_gvec_sli_aarch64
 #define gen_gvec_ssra gen_gvec_ssra_aarch64
+#define gen_gvec_sri gen_gvec_sri_aarch64
 #define gen_gvec_srshr gen_gvec_srshr_aarch64
 #define gen_gvec_srsra gen_gvec_srsra_aarch64
 #define gen_gvec_ursra gen_gvec_ursra_aarch64
@@ -3483,6 +3485,14 @@
 #define helper_gvec_rsqrts_d helper_gvec_rsqrts_d_aarch64
 #define helper_gvec_rsqrts_h helper_gvec_rsqrts_h_aarch64
 #define helper_gvec_rsqrts_s helper_gvec_rsqrts_s_aarch64
+#define helper_gvec_sli_b helper_gvec_sli_b_aarch64
+#define helper_gvec_sli_d helper_gvec_sli_d_aarch64
+#define helper_gvec_sli_h helper_gvec_sli_h_aarch64
+#define helper_gvec_sli_s helper_gvec_sli_s_aarch64
+#define helper_gvec_sri_b helper_gvec_sri_b_aarch64
+#define helper_gvec_sri_d helper_gvec_sri_d_aarch64
+#define helper_gvec_sri_h helper_gvec_sri_h_aarch64
+#define helper_gvec_sri_s helper_gvec_sri_s_aarch64
 #define helper_gvec_srshr_b helper_gvec_srshr_b_aarch64
 #define helper_gvec_srshr_d helper_gvec_srshr_d_aarch64
 #define helper_gvec_srshr_h helper_gvec_srshr_h_aarch64
@@ -4456,11 +4466,9 @@
 #define raise_exception_ra raise_exception_ra_aarch64
 #define read_cpu_reg read_cpu_reg_aarch64
 #define read_cpu_reg_sp read_cpu_reg_sp_aarch64
-#define sli_op sli_op_aarch64
 #define sqadd_op sqadd_op_aarch64
 #define sqsub_op sqsub_op_aarch64
 #define sshl_op sshl_op_aarch64
-#define sri_op sri_op_aarch64
 #define sve_access_check sve_access_check_aarch64
 #define sve_exception_el sve_exception_el_aarch64
 #define sve_zcr_len_for_el sve_zcr_len_for_el_aarch64
