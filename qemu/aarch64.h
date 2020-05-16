@@ -1467,12 +1467,6 @@
 #define helper_msa_st_w helper_msa_st_w_aarch64
 #define helper_msr_banked helper_msr_banked_aarch64
 #define helper_neon_abd_f32 helper_neon_abd_f32_aarch64
-#define helper_neon_abd_s16 helper_neon_abd_s16_aarch64
-#define helper_neon_abd_s32 helper_neon_abd_s32_aarch64
-#define helper_neon_abd_s8 helper_neon_abd_s8_aarch64
-#define helper_neon_abd_u16 helper_neon_abd_u16_aarch64
-#define helper_neon_abd_u32 helper_neon_abd_u32_aarch64
-#define helper_neon_abd_u8 helper_neon_abd_u8_aarch64
 #define helper_neon_abdl_s16 helper_neon_abdl_s16_aarch64
 #define helper_neon_abdl_s32 helper_neon_abdl_s32_aarch64
 #define helper_neon_abdl_s64 helper_neon_abdl_s64_aarch64
@@ -3425,6 +3419,7 @@
 #define gen_gvec_cmtst gen_gvec_cmtst_aarch64
 #define gen_gvec_mla gen_gvec_mla_aarch64
 #define gen_gvec_mls gen_gvec_mls_aarch64
+#define gen_gvec_saba gen_gvec_saba_aarch64
 #define gen_gvec_sabd gen_gvec_sabd_aarch64
 #define gen_gvec_sli gen_gvec_sli_aarch64
 #define gen_gvec_sqadd_qc gen_gvec_sqadd_qc_aarch64
@@ -3436,6 +3431,7 @@
 #define gen_gvec_srsra gen_gvec_srsra_aarch64
 #define gen_gvec_sshl gen_gvec_sshl_aarch64
 #define gen_gvec_ssra gen_gvec_ssra_aarch64
+#define gen_gvec_uaba gen_gvec_uaba_aarch64
 #define gen_gvec_uabd gen_gvec_uabd_aarch64
 #define gen_gvec_uqadd_qc gen_gvec_uqadd_qc_aarch64
 #define gen_gvec_uqsub_qc gen_gvec_uqsub_qc_aarch64
@@ -3497,6 +3493,10 @@
 #define helper_gvec_rsqrts_d helper_gvec_rsqrts_d_aarch64
 #define helper_gvec_rsqrts_h helper_gvec_rsqrts_h_aarch64
 #define helper_gvec_rsqrts_s helper_gvec_rsqrts_s_aarch64
+#define helper_gvec_saba_b helper_gvec_saba_b_aarch64
+#define helper_gvec_saba_d helper_gvec_saba_d_aarch64
+#define helper_gvec_saba_h helper_gvec_saba_h_aarch64
+#define helper_gvec_saba_s helper_gvec_saba_s_aarch64
 #define helper_gvec_sabd_b helper_gvec_sabd_b_aarch64
 #define helper_gvec_sabd_d helper_gvec_sabd_d_aarch64
 #define helper_gvec_sabd_h helper_gvec_sabd_h_aarch64
@@ -3521,6 +3521,10 @@
 #define helper_gvec_ssra_d helper_gvec_ssra_d_aarch64
 #define helper_gvec_ssra_h helper_gvec_ssra_h_aarch64
 #define helper_gvec_ssra_s helper_gvec_ssra_s_aarch64
+#define helper_gvec_uaba_b helper_gvec_uaba_b_aarch64
+#define helper_gvec_uaba_d helper_gvec_uaba_d_aarch64
+#define helper_gvec_uaba_h helper_gvec_uaba_h_aarch64
+#define helper_gvec_uaba_s helper_gvec_uaba_s_aarch64
 #define helper_gvec_uabd_b helper_gvec_uabd_b_aarch64
 #define helper_gvec_uabd_d helper_gvec_uabd_d_aarch64
 #define helper_gvec_uabd_h helper_gvec_uabd_h_aarch64

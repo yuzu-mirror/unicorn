@@ -1467,12 +1467,6 @@
 #define helper_msa_st_w helper_msa_st_w_riscv32
 #define helper_msr_banked helper_msr_banked_riscv32
 #define helper_neon_abd_f32 helper_neon_abd_f32_riscv32
-#define helper_neon_abd_s16 helper_neon_abd_s16_riscv32
-#define helper_neon_abd_s32 helper_neon_abd_s32_riscv32
-#define helper_neon_abd_s8 helper_neon_abd_s8_riscv32
-#define helper_neon_abd_u16 helper_neon_abd_u16_riscv32
-#define helper_neon_abd_u32 helper_neon_abd_u32_riscv32
-#define helper_neon_abd_u8 helper_neon_abd_u8_riscv32
 #define helper_neon_abdl_s16 helper_neon_abdl_s16_riscv32
 #define helper_neon_abdl_s32 helper_neon_abdl_s32_riscv32
 #define helper_neon_abdl_s64 helper_neon_abdl_s64_riscv32
