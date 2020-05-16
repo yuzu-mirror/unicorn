@@ -5560,6 +5560,8 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
         case NEON_3R_VQDMULH_VQRDMULH:
         case NEON_3R_FLOAT_ARITH:
         case NEON_3R_FLOAT_MULTIPLY:
+        case NEON_3R_FLOAT_CMP:
+        case NEON_3R_FLOAT_ACMP:
             /* Already handled by decodetree */
             return 1;
         }
@@ -5572,17 +5574,6 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
         case NEON_3R_FLOAT_MINMAX:
             if (u) {
                 return 1; /* VPMIN/VPMAX handled by decodetree */
-            }
-            break;
-        case NEON_3R_FLOAT_CMP:
-            if (!u && size) {
-                /* no encoding for U=0 C=1x */
-                return 1;
-            }
-            break;
-        case NEON_3R_FLOAT_ACMP:
-            if (!u) {
-                return 1;
             }
             break;
         case NEON_3R_FLOAT_MISC:
@@ -5606,32 +5597,6 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
         tmp = neon_load_reg(s, rn, pass);
         tmp2 = neon_load_reg(s, rm, pass);
         switch (op) {
-        case NEON_3R_FLOAT_CMP:
-        {
-            TCGv_ptr fpstatus = get_fpstatus_ptr(tcg_ctx, 1);
-            if (!u) {
-                gen_helper_neon_ceq_f32(tcg_ctx, tmp, tmp, tmp2, fpstatus);
-            } else {
-                if (size == 0) {
-                    gen_helper_neon_cge_f32(tcg_ctx, tmp, tmp, tmp2, fpstatus);
-                } else {
-                    gen_helper_neon_cgt_f32(tcg_ctx, tmp, tmp, tmp2, fpstatus);
-                }
-            }
-            tcg_temp_free_ptr(tcg_ctx, fpstatus);
-            break;
-        }
-        case NEON_3R_FLOAT_ACMP:
-        {
-            TCGv_ptr fpstatus = get_fpstatus_ptr(tcg_ctx, 1);
-            if (size == 0) {
-                gen_helper_neon_acge_f32(tcg_ctx, tmp, tmp, tmp2, fpstatus);
-            } else {
-                gen_helper_neon_acgt_f32(tcg_ctx, tmp, tmp, tmp2, fpstatus);
-            }
-            tcg_temp_free_ptr(tcg_ctx, fpstatus);
-            break;
-        }
         case NEON_3R_FLOAT_MINMAX:
         {
             TCGv_ptr fpstatus = get_fpstatus_ptr(tcg_ctx, 1);
