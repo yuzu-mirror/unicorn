@@ -3411,11 +3411,15 @@
 #define gen_gvec_mla gen_gvec_mla_armeb
 #define gen_gvec_mls gen_gvec_mls_armeb
 #define gen_gvec_sli gen_gvec_sli_armeb
-#define gen_gvec_sshl gen_gvec_sshl_armeb
-#define gen_gvec_ssra gen_gvec_ssra_armeb
+#define gen_gvec_sqadd_qc gen_gvec_sqadd_qc_armeb
+#define gen_gvec_sqsub_qc gen_gvec_sqsub_qc_armeb
 #define gen_gvec_sri gen_gvec_sri_armeb
 #define gen_gvec_srshr gen_gvec_srshr_armeb
 #define gen_gvec_srsra gen_gvec_srsra_armeb
+#define gen_gvec_sshl gen_gvec_sshl_armeb
+#define gen_gvec_ssra gen_gvec_ssra_armeb
+#define gen_gvec_uqadd_qc gen_gvec_uqadd_qc_armeb
+#define gen_gvec_uqsub_qc gen_gvec_uqsub_qc_armeb
 #define gen_gvec_ursra gen_gvec_ursra_armeb
 #define gen_gvec_urshr gen_gvec_urshr_armeb
 #define gen_gvec_ushl gen_gvec_ushl_armeb
