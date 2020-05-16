@@ -5524,13 +5524,6 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
             return 1;
         }
         switch (op) {
-        case NEON_3R_VPADD_VQRDMLAH:
-            if (!u) {
-                break;  /* VPADD */
-            }
-            /* VQRDMLAH : handled by decodetree */
-            return 1;
-
         case NEON_3R_VFM_VQRDMLSH:
             if (!u) {
                 /* VFM, VFMS */
@@ -5565,6 +5558,7 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
         case NEON_3R_VQRSHL:
         case NEON_3R_VPMAX:
         case NEON_3R_VPMIN:
+        case NEON_3R_VPADD_VQRDMLAH:
             /* Already handled by decodetree */
             return 1;
         }
@@ -5575,9 +5569,6 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
         }
         pairwise = 0;
         switch (op) {
-        case NEON_3R_VPADD_VQRDMLAH:
-            pairwise = 1;
-            break;
         case NEON_3R_FLOAT_ARITH:
             pairwise = (u && size < 2); /* if VPADD (float) */
             break;
@@ -5653,14 +5644,6 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                     break;
                 default: abort();
                 }
-            }
-            break;
-        case NEON_3R_VPADD_VQRDMLAH:
-            switch (size) {
-            case 0: gen_helper_neon_padd_u8(tcg_ctx, tmp, tmp, tmp2); break;
-            case 1: gen_helper_neon_padd_u16(tcg_ctx, tmp, tmp, tmp2); break;
-            case 2: tcg_gen_add_i32(tcg_ctx, tmp, tmp, tmp2); break;
-            default: abort();
             }
             break;
         case NEON_3R_FLOAT_ARITH: /* Floating point arithmetic. */
