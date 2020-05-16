@@ -63,7 +63,7 @@ static bool trans_VCMLA(DisasContext *s, arg_VCMLA *a)
     }
 
     opr_sz = (1 + a->q) * 8;
-    fpst = get_fpstatus_ptr(s, 1);
+    fpst = get_fpstatus_ptr(tcg_ctx, 1);
     fn_gvec_ptr = a->size ? gen_helper_gvec_fcmlas : gen_helper_gvec_fcmlah;
     tcg_gen_gvec_3_ptr(tcg_ctx, vfp_reg_offset(1, a->vd),
                        vfp_reg_offset(1, a->vn),
@@ -101,7 +101,7 @@ static bool trans_VCADD(DisasContext *s, arg_VCADD *a)
     }
 
     opr_sz = (1 + a->q) * 8;
-    fpst = get_fpstatus_ptr(s, 1);
+    fpst = get_fpstatus_ptr(tcg_ctx, 1);
     fn_gvec_ptr = a->size ? gen_helper_gvec_fcadds : gen_helper_gvec_fcaddh;
     tcg_gen_gvec_3_ptr(tcg_ctx, vfp_reg_offset(1, a->vd),
                        vfp_reg_offset(1, a->vn),
@@ -208,7 +208,7 @@ static bool trans_VCMLA_scalar(DisasContext *s, arg_VCMLA_scalar *a)
     fn_gvec_ptr = (a->size ? gen_helper_gvec_fcmlas_idx
                    : gen_helper_gvec_fcmlah_idx);
     opr_sz = (1 + a->q) * 8;
-    fpst = get_fpstatus_ptr(s, 1);
+    fpst = get_fpstatus_ptr(tcg_ctx, 1);
     tcg_gen_gvec_3_ptr(tcg_ctx, vfp_reg_offset(1, a->vd),
                        vfp_reg_offset(1, a->vn),
                        vfp_reg_offset(1, a->vm),
@@ -245,7 +245,7 @@ static bool trans_VDOT_scalar(DisasContext *s, arg_VDOT_scalar *a)
 
     fn_gvec = a->u ? gen_helper_gvec_udot_idx_b : gen_helper_gvec_sdot_idx_b;
     opr_sz = (1 + a->q) * 8;
-    fpst = get_fpstatus_ptr(s, 1);
+    fpst = get_fpstatus_ptr(tcg_ctx, 1);
     tcg_gen_gvec_3_ool(tcg_ctx, vfp_reg_offset(1, a->vd),
                        vfp_reg_offset(1, a->vn),
                        vfp_reg_offset(1, a->rm),
@@ -1039,3 +1039,31 @@ DO_3SAME_PAIR(VPADD, padd_u)
 
 DO_3SAME_VQDMULH(VQDMULH, qdmulh)
 DO_3SAME_VQDMULH(VQRDMULH, qrdmulh)
+
+/*
+ * For all the functions using this macro, size == 1 means fp16,
+ * which is an architecture extension we don't implement yet.
+ */
+#define DO_3S_FP_GVEC(INSN,FUNC)                                        \
+    static void gen_##INSN##_3s(TCGContext *s, unsigned vece, uint32_t rd_ofs,         \
+                                uint32_t rn_ofs, uint32_t rm_ofs,       \
+                                uint32_t oprsz, uint32_t maxsz)         \
+    {                                                                   \
+        TCGv_ptr fpst = get_fpstatus_ptr(s, 1);                         \
+        tcg_gen_gvec_3_ptr(s, rd_ofs, rn_ofs, rm_ofs, fpst,             \
+                           oprsz, maxsz, 0, FUNC);                      \
+        tcg_temp_free_ptr(s, fpst);                                     \
+    }                                                                   \
+    static bool trans_##INSN##_fp_3s(DisasContext *s, arg_3same *a)     \
+    {                                                                   \
+        if (a->size != 0) {                                             \
+            /* TODO fp16 support */                                     \
+            return false;                                               \
+        }                                                               \
+        return do_3same(s, a, gen_##INSN##_3s);                         \
+    }
+
+
+DO_3S_FP_GVEC(VADD, gen_helper_gvec_fadd_s)
+DO_3S_FP_GVEC(VSUB, gen_helper_gvec_fsub_s)
+DO_3S_FP_GVEC(VABD, gen_helper_gvec_fabd_s)

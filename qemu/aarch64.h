@@ -1152,6 +1152,7 @@
 #define helper_gvec_eq32 helper_gvec_eq32_aarch64
 #define helper_gvec_eq64 helper_gvec_eq64_aarch64
 #define helper_gvec_eqv helper_gvec_eqv_aarch64
+#define helper_gvec_fabd_s helper_gvec_fabd_s_aarch64
 #define helper_gvec_fadd_d helper_gvec_fadd_d_aarch64
 #define helper_gvec_fadd_h helper_gvec_fadd_h_aarch64
 #define helper_gvec_fadd_s helper_gvec_fadd_s_aarch64
@@ -1466,7 +1467,6 @@
 #define helper_msa_st_h helper_msa_st_h_aarch64
 #define helper_msa_st_w helper_msa_st_w_aarch64
 #define helper_msr_banked helper_msr_banked_aarch64
-#define helper_neon_abd_f32 helper_neon_abd_f32_aarch64
 #define helper_neon_abdl_s16 helper_neon_abdl_s16_aarch64
 #define helper_neon_abdl_s32 helper_neon_abdl_s32_aarch64
 #define helper_neon_abdl_s64 helper_neon_abdl_s64_aarch64

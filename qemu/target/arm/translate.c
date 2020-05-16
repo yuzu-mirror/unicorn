@@ -1182,9 +1182,8 @@ static inline void gen_hlt(DisasContext *s, int imm)
     unallocated_encoding(s);
 }
 
-static TCGv_ptr get_fpstatus_ptr(DisasContext *s, int neon)
+static TCGv_ptr get_fpstatus_ptr(TCGContext *tcg_ctx, int neon)
 {
-    TCGContext *tcg_ctx = s->uc->tcg_ctx;
     TCGv_ptr statusptr = tcg_temp_new_ptr(tcg_ctx);
     int offset;
     if (neon) {
@@ -5572,6 +5571,9 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
         switch (op) {
         case NEON_3R_FLOAT_ARITH:
             pairwise = (u && size < 2); /* if VPADD (float) */
+            if (!pairwise) {
+                return 1; /* handled by decodetree */
+            }
             break;
         case NEON_3R_FLOAT_MINMAX:
             pairwise = u; /* if VPMIN/VPMAX (float) */
@@ -5626,17 +5628,10 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
         switch (op) {
         case NEON_3R_FLOAT_ARITH: /* Floating point arithmetic. */
         {
-            TCGv_ptr fpstatus = get_fpstatus_ptr(s, 1);
+            TCGv_ptr fpstatus = get_fpstatus_ptr(tcg_ctx, 1);
             switch ((u << 2) | size) {
-            case 0: /* VADD */
             case 4: /* VPADD */
                 gen_helper_vfp_adds(tcg_ctx, tmp, tmp, tmp2, fpstatus);
-                break;
-            case 2: /* VSUB */
-                gen_helper_vfp_subs(tcg_ctx, tmp, tmp, tmp2, fpstatus);
-                break;
-            case 6: /* VABD */
-                gen_helper_neon_abd_f32(tcg_ctx, tmp, tmp, tmp2, fpstatus);
                 break;
             default:
                 abort();
@@ -5646,7 +5641,7 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
         }
         case NEON_3R_FLOAT_MULTIPLY:
         {
-            TCGv_ptr fpstatus = get_fpstatus_ptr(s, 1);
+            TCGv_ptr fpstatus = get_fpstatus_ptr(tcg_ctx, 1);
             gen_helper_vfp_muls(tcg_ctx, tmp, tmp, tmp2, fpstatus);
             if (!u) {
                 tcg_temp_free_i32(tcg_ctx, tmp2);
@@ -5662,7 +5657,7 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
         }
         case NEON_3R_FLOAT_CMP:
         {
-            TCGv_ptr fpstatus = get_fpstatus_ptr(s, 1);
+            TCGv_ptr fpstatus = get_fpstatus_ptr(tcg_ctx, 1);
             if (!u) {
                 gen_helper_neon_ceq_f32(tcg_ctx, tmp, tmp, tmp2, fpstatus);
             } else {
@@ -5677,7 +5672,7 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
         }
         case NEON_3R_FLOAT_ACMP:
         {
-            TCGv_ptr fpstatus = get_fpstatus_ptr(s, 1);
+            TCGv_ptr fpstatus = get_fpstatus_ptr(tcg_ctx, 1);
             if (size == 0) {
                 gen_helper_neon_acge_f32(tcg_ctx, tmp, tmp, tmp2, fpstatus);
             } else {
@@ -5688,7 +5683,7 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
         }
         case NEON_3R_FLOAT_MINMAX:
         {
-            TCGv_ptr fpstatus = get_fpstatus_ptr(s, 1);
+            TCGv_ptr fpstatus = get_fpstatus_ptr(tcg_ctx, 1);
             if (size == 0) {
                 gen_helper_vfp_maxs(tcg_ctx, tmp, tmp, tmp2, fpstatus);
             } else {
@@ -5700,7 +5695,7 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
         case NEON_3R_FLOAT_MISC:
             if (u) {
                 /* VMAXNM/VMINNM */
-                TCGv_ptr fpstatus = get_fpstatus_ptr(s, 1);
+                TCGv_ptr fpstatus = get_fpstatus_ptr(tcg_ctx, 1);
                 if (size == 0) {
                     gen_helper_vfp_maxnums(tcg_ctx, tmp, tmp, tmp2, fpstatus);
                 } else {
@@ -5718,7 +5713,7 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
         case NEON_3R_VFM_VQRDMLSH:
         {
             /* VFMA, VFMS: fused multiply-add */
-            TCGv_ptr fpstatus = get_fpstatus_ptr(s, 1);
+            TCGv_ptr fpstatus = get_fpstatus_ptr(tcg_ctx, 1);
             TCGv_i32 tmp3 = neon_load_reg(s, rd, pass);
             if (size) {
                 /* VFMS */
@@ -6070,7 +6065,7 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                  * hence this 32-shift where the ARM ARM has 64-imm6.
                  */
                 shift = 32 - shift;
-                fpst = get_fpstatus_ptr(s, 1);
+                fpst = get_fpstatus_ptr(tcg_ctx, 1);
                 shiftv = tcg_const_i32(tcg_ctx, shift);
                 for (pass = 0; pass < (q ? 4 : 2); pass++) {
                     TCGv_i32 tmpf = neon_load_reg(s, rm, pass);
@@ -6431,7 +6426,7 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                                 gen_helper_neon_qrdmulh_s32(tcg_ctx, tmp, tcg_ctx->cpu_env, tmp, tmp2);
                             }
                         } else if (op & 1) {
-                            TCGv_ptr fpstatus = get_fpstatus_ptr(s, 1);
+                            TCGv_ptr fpstatus = get_fpstatus_ptr(tcg_ctx, 1);
                             gen_helper_vfp_muls(tcg_ctx, tmp, tmp, tmp2, fpstatus);
                             tcg_temp_free_ptr(tcg_ctx, fpstatus);
                         } else {
@@ -6452,7 +6447,7 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                                 break;
                             case 1:
                             {
-                                TCGv_ptr fpstatus = get_fpstatus_ptr(s, 1);
+                                TCGv_ptr fpstatus = get_fpstatus_ptr(tcg_ctx, 1);
                                 gen_helper_vfp_adds(tcg_ctx, tmp, tmp, tmp2, fpstatus);
                                 tcg_temp_free_ptr(tcg_ctx, fpstatus);
                                 break;
@@ -6462,7 +6457,7 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                                 break;
                             case 5:
                             {
-                                TCGv_ptr fpstatus = get_fpstatus_ptr(s, 1);
+                                TCGv_ptr fpstatus = get_fpstatus_ptr(tcg_ctx, 1);
                                 gen_helper_vfp_subs(tcg_ctx, tmp, tmp2, tmp, fpstatus);
                                 tcg_temp_free_ptr(tcg_ctx, fpstatus);
                                 break;
@@ -6754,7 +6749,7 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                         q || (rm & 1)) {
                         return 1;
                     }
-                    fpst = get_fpstatus_ptr(s, true);
+                    fpst = get_fpstatus_ptr(tcg_ctx, true);
                     ahp = get_ahp_flag(s);
                     tmp = neon_load_reg(s, rm, 0);
                     gen_helper_vfp_fcvt_f32_to_f16(tcg_ctx, tmp, tmp, fpst, ahp);
@@ -6784,7 +6779,7 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                         q || (rd & 1)) {
                         return 1;
                     }
-                    fpst = get_fpstatus_ptr(s, true);
+                    fpst = get_fpstatus_ptr(tcg_ctx, true);
                     ahp = get_ahp_flag(s);
                     tmp3 = tcg_temp_new_i32(tcg_ctx);
                     tmp = neon_load_reg(s, rm, 0);
@@ -6952,7 +6947,7 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                             break;
                         case NEON_2RM_VCGT0_F:
                         {
-                            TCGv_ptr fpstatus = get_fpstatus_ptr(s, 1);
+                            TCGv_ptr fpstatus = get_fpstatus_ptr(tcg_ctx, 1);
                             tmp2 = tcg_const_i32(tcg_ctx, 0);
                             gen_helper_neon_cgt_f32(tcg_ctx, tmp, tmp, tmp2, fpstatus);
                             tcg_temp_free_i32(tcg_ctx, tmp2);
@@ -6961,7 +6956,7 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                         }
                         case NEON_2RM_VCGE0_F:
                         {
-                            TCGv_ptr fpstatus = get_fpstatus_ptr(s, 1);
+                            TCGv_ptr fpstatus = get_fpstatus_ptr(tcg_ctx, 1);
                             tmp2 = tcg_const_i32(tcg_ctx, 0);
                             gen_helper_neon_cge_f32(tcg_ctx, tmp, tmp, tmp2, fpstatus);
                             tcg_temp_free_i32(tcg_ctx, tmp2);
@@ -6970,7 +6965,7 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                         }
                         case NEON_2RM_VCEQ0_F:
                         {
-                            TCGv_ptr fpstatus = get_fpstatus_ptr(s, 1);
+                            TCGv_ptr fpstatus = get_fpstatus_ptr(tcg_ctx, 1);
                             tmp2 = tcg_const_i32(tcg_ctx, 0);
                             gen_helper_neon_ceq_f32(tcg_ctx, tmp, tmp, tmp2, fpstatus);
                             tcg_temp_free_i32(tcg_ctx, tmp2);
@@ -6979,7 +6974,7 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                         }
                         case NEON_2RM_VCLE0_F:
                         {
-                            TCGv_ptr fpstatus = get_fpstatus_ptr(s, 1);
+                            TCGv_ptr fpstatus = get_fpstatus_ptr(tcg_ctx, 1);
                             tmp2 = tcg_const_i32(tcg_ctx, 0);
                             gen_helper_neon_cge_f32(tcg_ctx, tmp, tmp2, tmp, fpstatus);
                             tcg_temp_free_i32(tcg_ctx, tmp2);
@@ -6988,7 +6983,7 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                         }
                         case NEON_2RM_VCLT0_F:
                         {
-                            TCGv_ptr fpstatus = get_fpstatus_ptr(s, 1);
+                            TCGv_ptr fpstatus = get_fpstatus_ptr(tcg_ctx, 1);
                             tmp2 = tcg_const_i32(tcg_ctx, 0);
                             gen_helper_neon_cgt_f32(tcg_ctx, tmp, tmp2, tmp, fpstatus);
                             tcg_temp_free_i32(tcg_ctx, tmp2);
@@ -7021,7 +7016,7 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                         case NEON_2RM_VRINTZ:
                         {
                             TCGv_i32 tcg_rmode;
-                            TCGv_ptr fpstatus = get_fpstatus_ptr(s, 1);
+                            TCGv_ptr fpstatus = get_fpstatus_ptr(tcg_ctx, 1);
                             int rmode;
 
                             if (op == NEON_2RM_VRINTZ) {
@@ -7042,7 +7037,7 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                         }
                         case NEON_2RM_VRINTX:
                         {
-                            TCGv_ptr fpstatus = get_fpstatus_ptr(s, 1);
+                            TCGv_ptr fpstatus = get_fpstatus_ptr(tcg_ctx, 1);
                             gen_helper_rints_exact(tcg_ctx, tmp, tmp, fpstatus);
                             tcg_temp_free_ptr(tcg_ctx, fpstatus);
                             break;
@@ -7057,7 +7052,7 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                         case NEON_2RM_VCVTMS:
                         {
                             bool is_signed = !extract32(insn, 7, 1);
-                            TCGv_ptr fpst = get_fpstatus_ptr(s, 1);
+                            TCGv_ptr fpst = get_fpstatus_ptr(tcg_ctx, 1);
                             TCGv_i32 tcg_rmode, tcg_shift;
                             int rmode = fp_decode_rm[extract32(insn, 8, 2)];
 
@@ -7089,42 +7084,42 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                             break;
                         case NEON_2RM_VRECPE_F:
                         {
-                            TCGv_ptr fpstatus = get_fpstatus_ptr(s, 1);
+                            TCGv_ptr fpstatus = get_fpstatus_ptr(tcg_ctx, 1);
                             gen_helper_recpe_f32(tcg_ctx, tmp, tmp, fpstatus);
                             tcg_temp_free_ptr(tcg_ctx, fpstatus);
                             break;
                         }
                         case NEON_2RM_VRSQRTE_F:
                         {
-                            TCGv_ptr fpstatus = get_fpstatus_ptr(s, 1);
+                            TCGv_ptr fpstatus = get_fpstatus_ptr(tcg_ctx, 1);
                             gen_helper_rsqrte_f32(tcg_ctx, tmp, tmp, fpstatus);
                             tcg_temp_free_ptr(tcg_ctx, fpstatus);
                             break;
                         }
                         case NEON_2RM_VCVT_FS: /* VCVT.F32.S32 */
                         {
-                            TCGv_ptr fpstatus = get_fpstatus_ptr(s, 1);
+                            TCGv_ptr fpstatus = get_fpstatus_ptr(tcg_ctx, 1);
                             gen_helper_vfp_sitos(tcg_ctx, tmp, tmp, fpstatus);
                             tcg_temp_free_ptr(tcg_ctx, fpstatus);
                             break;
                         }
                         case NEON_2RM_VCVT_FU: /* VCVT.F32.U32 */
                         {
-                            TCGv_ptr fpstatus = get_fpstatus_ptr(s, 1);
+                            TCGv_ptr fpstatus = get_fpstatus_ptr(tcg_ctx, 1);
                             gen_helper_vfp_uitos(tcg_ctx, tmp, tmp, fpstatus);
                             tcg_temp_free_ptr(tcg_ctx, fpstatus);
                             break;
                         }
                         case NEON_2RM_VCVT_SF: /* VCVT.S32.F32 */
                         {
-                            TCGv_ptr fpstatus = get_fpstatus_ptr(s, 1);
+                            TCGv_ptr fpstatus = get_fpstatus_ptr(tcg_ctx, 1);
                             gen_helper_vfp_tosizs(tcg_ctx, tmp, tmp, fpstatus);
                             tcg_temp_free_ptr(tcg_ctx, fpstatus);
                             break;
                         }
                         case NEON_2RM_VCVT_UF: /* VCVT.U32.F32 */
                         {
-                            TCGv_ptr fpstatus = get_fpstatus_ptr(s, 1);
+                            TCGv_ptr fpstatus = get_fpstatus_ptr(tcg_ctx, 1);
                             gen_helper_vfp_touizs(tcg_ctx, tmp, tmp, fpstatus);
                             tcg_temp_free_ptr(tcg_ctx, fpstatus);
                             break;
