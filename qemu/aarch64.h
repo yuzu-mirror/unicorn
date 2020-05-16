@@ -2889,10 +2889,6 @@
 #define tcg_gen_gvec_ands tcg_gen_gvec_ands_aarch64
 #define tcg_gen_gvec_bitsel tcg_gen_gvec_bitsel_aarch64
 #define tcg_gen_gvec_cmp tcg_gen_gvec_cmp_aarch64
-#define tcg_gen_gvec_dup8i tcg_gen_gvec_dup8i_aarch64
-#define tcg_gen_gvec_dup16i tcg_gen_gvec_dup16i_aarch64
-#define tcg_gen_gvec_dup32i tcg_gen_gvec_dup32i_aarch64
-#define tcg_gen_gvec_dup64i tcg_gen_gvec_dup64i_aarch64
 #define tcg_gen_gvec_dup_i32 tcg_gen_gvec_dup_i32_aarch64
 #define tcg_gen_gvec_dup_i64 tcg_gen_gvec_dup_i64_aarch64
 #define tcg_gen_gvec_dup_imm tcg_gen_gvec_dup_imm_aarch64
@@ -3427,6 +3423,8 @@
 #define fp_exception_el fp_exception_el_aarch64
 #define gen_a64_set_pc_im gen_a64_set_pc_im_aarch64
 #define gen_cmtst_i64 gen_cmtst_i64_aarch64
+#define gen_gvec_ssra gen_gvec_ssra_aarch64
+#define gen_gvec_usra gen_gvec_usra_aarch64
 #define get_phys_addr get_phys_addr_aarch64
 #define gen_sshl_i32 gen_sshl_i32_aarch64
 #define gen_sshl_i64 gen_sshl_i64_aarch64
@@ -3481,6 +3479,14 @@
 #define helper_gvec_rsqrts_d helper_gvec_rsqrts_d_aarch64
 #define helper_gvec_rsqrts_h helper_gvec_rsqrts_h_aarch64
 #define helper_gvec_rsqrts_s helper_gvec_rsqrts_s_aarch64
+#define helper_gvec_ssra_b helper_gvec_ssra_b_aarch64
+#define helper_gvec_ssra_d helper_gvec_ssra_d_aarch64
+#define helper_gvec_ssra_h helper_gvec_ssra_h_aarch64
+#define helper_gvec_ssra_s helper_gvec_ssra_s_aarch64
+#define helper_gvec_usra_b helper_gvec_usra_b_aarch64
+#define helper_gvec_usra_d helper_gvec_usra_d_aarch64
+#define helper_gvec_usra_h helper_gvec_usra_h_aarch64
+#define helper_gvec_usra_s helper_gvec_usra_s_aarch64
 #define helper_msr_i_daifclear helper_msr_i_daifclear_aarch64
 #define helper_msr_i_daifset helper_msr_i_daifset_aarch64
 #define helper_msr_i_spsel helper_msr_i_spsel_aarch64
@@ -4434,7 +4440,6 @@
 #define sqadd_op sqadd_op_aarch64
 #define sqsub_op sqsub_op_aarch64
 #define sshl_op sshl_op_aarch64
-#define ssra_op ssra_op_aarch64
 #define sri_op sri_op_aarch64
 #define sve_access_check sve_access_check_aarch64
 #define sve_exception_el sve_exception_el_aarch64
@@ -4443,7 +4448,6 @@
 #define uqadd_op uqadd_op_aarch64
 #define uqsub_op uqsub_op_aarch64
 #define ushl_op ushl_op_aarch64
-#define usra_op usra_op_aarch64
 #define v8m_security_lookup v8m_security_lookup_aarch64
 #define vfp_expand_imm vfp_expand_imm_aarch64
 #define write_fp_dreg write_fp_dreg_aarch64

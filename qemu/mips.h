@@ -2889,10 +2889,6 @@
 #define tcg_gen_gvec_ands tcg_gen_gvec_ands_mips
 #define tcg_gen_gvec_bitsel tcg_gen_gvec_bitsel_mips
 #define tcg_gen_gvec_cmp tcg_gen_gvec_cmp_mips
-#define tcg_gen_gvec_dup8i tcg_gen_gvec_dup8i_mips
-#define tcg_gen_gvec_dup16i tcg_gen_gvec_dup16i_mips
-#define tcg_gen_gvec_dup32i tcg_gen_gvec_dup32i_mips
-#define tcg_gen_gvec_dup64i tcg_gen_gvec_dup64i_mips
 #define tcg_gen_gvec_dup_i32 tcg_gen_gvec_dup_i32_mips
 #define tcg_gen_gvec_dup_i64 tcg_gen_gvec_dup_i64_mips
 #define tcg_gen_gvec_dup_imm tcg_gen_gvec_dup_imm_mips
