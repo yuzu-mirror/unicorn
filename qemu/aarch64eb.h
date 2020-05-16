@@ -3423,6 +3423,8 @@
 #define gen_gvec_cgt0 gen_gvec_cgt0_aarch64eb
 #define gen_gvec_cle0 gen_gvec_cle0_aarch64eb
 #define gen_gvec_clt0 gen_gvec_clt0_aarch64eb
+#define gen_gvec_mla gen_gvec_mla_aarch64eb
+#define gen_gvec_mls gen_gvec_mls_aarch64eb
 #define gen_gvec_sli gen_gvec_sli_aarch64eb
 #define gen_gvec_ssra gen_gvec_ssra_aarch64eb
 #define gen_gvec_sri gen_gvec_sri_aarch64eb
@@ -4452,8 +4454,6 @@
 #define helper_xpacd helper_xpacd_aarch64eb
 #define helper_xpaci helper_xpaci_aarch64eb
 #define logic_imm_decode_wmask logic_imm_decode_wmask_aarch64eb
-#define mla_op mla_op_aarch64eb
-#define mls_op mls_op_aarch64eb
 #define new_tmp_a64 new_tmp_a64_aarch64eb
 #define new_tmp_a64_zero new_tmp_a64_zero_aarch64eb
 #define pmsav8_mpu_lookup pmsav8_mpu_lookup_aarch64eb

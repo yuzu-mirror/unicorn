@@ -3408,6 +3408,8 @@
 #define gen_gvec_cgt0 gen_gvec_cgt0_armeb
 #define gen_gvec_cle0 gen_gvec_cle0_armeb
 #define gen_gvec_clt0 gen_gvec_clt0_armeb
+#define gen_gvec_mla gen_gvec_mla_armeb
+#define gen_gvec_mls gen_gvec_mls_armeb
 #define gen_gvec_sli gen_gvec_sli_armeb
 #define gen_gvec_ssra gen_gvec_ssra_armeb
 #define gen_gvec_sri gen_gvec_sri_armeb
@@ -3456,8 +3458,6 @@
 #define helper_gvec_usra_s helper_gvec_usra_s_armeb
 #define helper_vjcvt helper_vjcvt_armeb
 #define pmu_init pmu_init_armeb
-#define mla_op mla_op_armeb
-#define mls_op mls_op_armeb
 #define pmsav8_mpu_lookup pmsav8_mpu_lookup_armeb
 #define pmu_op_start pmu_op_start_armeb
 #define pmu_op_finish pmu_op_finish_armeb
