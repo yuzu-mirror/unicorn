@@ -5474,7 +5474,6 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
     int shift;
     int pass;
     int count;
-    int pairwise;
     int u;
     int vec_size;
     uint32_t imm;
@@ -5559,6 +5558,7 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
         case NEON_3R_VPMIN:
         case NEON_3R_VPADD_VQRDMLAH:
         case NEON_3R_VQDMULH_VQRDMULH:
+        case NEON_3R_FLOAT_ARITH:
             /* Already handled by decodetree */
             return 1;
         }
@@ -5567,16 +5567,11 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
             /* 64-bit element instructions: handled by decodetree */
             return 1;
         }
-        pairwise = 0;
         switch (op) {
-        case NEON_3R_FLOAT_ARITH:
-            pairwise = (u && size < 2); /* if VPADD (float) */
-            if (!pairwise) {
-                return 1; /* handled by decodetree */
-            }
-            break;
         case NEON_3R_FLOAT_MINMAX:
-            pairwise = u; /* if VPMIN/VPMAX (float) */
+            if (u) {
+                return 1; /* VPMIN/VPMAX handled by decodetree */
+            }
             break;
         case NEON_3R_FLOAT_CMP:
             if (!u && size) {
@@ -5604,41 +5599,12 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
             break;
         }
 
-        if (pairwise && q) {
-            /* All the pairwise insns UNDEF if Q is set */
-            return 1;
-        }
-
         for (pass = 0; pass < (q ? 4 : 2); pass++) {
 
-        if (pairwise) {
-            /* Pairwise.  */
-            if (pass < 1) {
-                tmp = neon_load_reg(s, rn, 0);
-                tmp2 = neon_load_reg(s, rn, 1);
-            } else {
-                tmp = neon_load_reg(s, rm, 0);
-                tmp2 = neon_load_reg(s, rm, 1);
-            }
-        } else {
-            /* Elementwise.  */
-            tmp = neon_load_reg(s, rn, pass);
-            tmp2 = neon_load_reg(s, rm, pass);
-        }
+        /* Elementwise.  */
+        tmp = neon_load_reg(s, rn, pass);
+        tmp2 = neon_load_reg(s, rm, pass);
         switch (op) {
-        case NEON_3R_FLOAT_ARITH: /* Floating point arithmetic. */
-        {
-            TCGv_ptr fpstatus = get_fpstatus_ptr(tcg_ctx, 1);
-            switch ((u << 2) | size) {
-            case 4: /* VPADD */
-                gen_helper_vfp_adds(tcg_ctx, tmp, tmp, tmp2, fpstatus);
-                break;
-            default:
-                abort();
-            }
-            tcg_temp_free_ptr(tcg_ctx, fpstatus);
-            break;
-        }
         case NEON_3R_FLOAT_MULTIPLY:
         {
             TCGv_ptr fpstatus = get_fpstatus_ptr(tcg_ctx, 1);
@@ -5729,22 +5695,9 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
         }
         tcg_temp_free_i32(tcg_ctx, tmp2);
 
-        /* Save the result.  For elementwise operations we can put it
-           straight into the destination register.  For pairwise operations
-           we have to be careful to avoid clobbering the source operands.  */
-        if (pairwise && rd == rm) {
-            neon_store_scratch(s, pass, tmp);
-        } else {
-            neon_store_reg(s, rd, pass, tmp);
-        }
+        neon_store_reg(s, rd, pass, tmp);
 
         } /* for pass */
-        if (pairwise && rd == rm) {
-            for (pass = 0; pass < (q ? 4 : 2); pass++) {
-                tmp = neon_load_scratch(s, pass);
-                neon_store_reg(s, rd, pass, tmp);
-            }
-        }
         /* End of 3 register same size operations.  */
     } else if (insn & (1 << 4)) {
         if ((insn & 0x00380080) != 0) {
