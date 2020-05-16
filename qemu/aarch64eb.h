@@ -3410,11 +3410,6 @@
 #define bif_op bif_op_aarch64eb
 #define bit_op bit_op_aarch64eb
 #define bsl_op bsl_op_aarch64eb
-#define ceq0_op ceq0_op_aarch64eb
-#define cge0_op cge0_op_aarch64eb
-#define cgt0_op cgt0_op_aarch64eb
-#define cle0_op cle0_op_aarch64eb
-#define clt0_op clt0_op_aarch64eb
 #define cmtst_op cmtst_op_aarch64eb
 #define cpu_mmu_index cpu_mmu_index_aarch64eb
 #define cpu_reg cpu_reg_aarch64eb
@@ -3423,6 +3418,11 @@
 #define fp_exception_el fp_exception_el_aarch64eb
 #define gen_a64_set_pc_im gen_a64_set_pc_im_aarch64eb
 #define gen_cmtst_i64 gen_cmtst_i64_aarch64eb
+#define gen_gvec_ceq0 gen_gvec_ceq0_aarch64eb
+#define gen_gvec_cge0 gen_gvec_cge0_aarch64eb
+#define gen_gvec_cgt0 gen_gvec_cgt0_aarch64eb
+#define gen_gvec_cle0 gen_gvec_cle0_aarch64eb
+#define gen_gvec_clt0 gen_gvec_clt0_aarch64eb
 #define gen_gvec_sli gen_gvec_sli_aarch64eb
 #define gen_gvec_ssra gen_gvec_ssra_aarch64eb
 #define gen_gvec_sri gen_gvec_sri_aarch64eb
