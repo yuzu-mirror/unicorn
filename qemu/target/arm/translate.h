@@ -344,6 +344,11 @@ void gen_gvec_sqrdmlah_qc(TCGContext *s, unsigned vece, uint32_t rd_ofs, uint32_
 void gen_gvec_sqrdmlsh_qc(TCGContext *s, unsigned vece, uint32_t rd_ofs, uint32_t rn_ofs,
                           uint32_t rm_ofs, uint32_t opr_sz, uint32_t max_sz);
 
+void gen_gvec_sabd(TCGContext *s, unsigned vece, uint32_t rd_ofs, uint32_t rn_ofs,
+                   uint32_t rm_ofs, uint32_t opr_sz, uint32_t max_sz);
+void gen_gvec_uabd(TCGContext *s, unsigned vece, uint32_t rd_ofs, uint32_t rn_ofs,
+                   uint32_t rm_ofs, uint32_t opr_sz, uint32_t max_sz);
+
 /*
  * Forward to the isar_feature_* tests given a DisasContext pointer.
  */

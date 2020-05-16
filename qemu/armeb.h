@@ -3410,6 +3410,7 @@
 #define gen_gvec_cmtst gen_gvec_cmtst_armeb
 #define gen_gvec_mla gen_gvec_mla_armeb
 #define gen_gvec_mls gen_gvec_mls_armeb
+#define gen_gvec_sabd gen_gvec_sabd_armeb
 #define gen_gvec_sli gen_gvec_sli_armeb
 #define gen_gvec_sqadd_qc gen_gvec_sqadd_qc_armeb
 #define gen_gvec_sqrdmlah_qc gen_gvec_sqrdmlah_qc_armeb
@@ -3420,6 +3421,7 @@
 #define gen_gvec_srsra gen_gvec_srsra_armeb
 #define gen_gvec_sshl gen_gvec_sshl_armeb
 #define gen_gvec_ssra gen_gvec_ssra_armeb
+#define gen_gvec_uabd gen_gvec_uabd_armeb
 #define gen_gvec_uqadd_qc gen_gvec_uqadd_qc_armeb
 #define gen_gvec_uqsub_qc gen_gvec_uqsub_qc_armeb
 #define gen_gvec_ursra gen_gvec_ursra_armeb
@@ -3432,6 +3434,10 @@
 #define gen_ushl_i32 gen_ushl_i32_armeb
 #define gen_ushl_i64 gen_ushl_i64_armeb
 #define helper_fjcvtzs helper_fjcvtzs_armeb
+#define helper_gvec_sabd_b helper_gvec_sabd_b_armeb
+#define helper_gvec_sabd_d helper_gvec_sabd_d_armeb
+#define helper_gvec_sabd_h helper_gvec_sabd_h_armeb
+#define helper_gvec_sabd_s helper_gvec_sabd_s_armeb
 #define helper_gvec_sli_b helper_gvec_sli_b_armeb
 #define helper_gvec_sli_d helper_gvec_sli_d_armeb
 #define helper_gvec_sli_h helper_gvec_sli_h_armeb
@@ -3452,6 +3458,10 @@
 #define helper_gvec_ssra_d helper_gvec_ssra_d_armeb
 #define helper_gvec_ssra_h helper_gvec_ssra_h_armeb
 #define helper_gvec_ssra_s helper_gvec_ssra_s_armeb
+#define helper_gvec_uabd_b helper_gvec_uabd_b_armeb
+#define helper_gvec_uabd_d helper_gvec_uabd_d_armeb
+#define helper_gvec_uabd_h helper_gvec_uabd_h_armeb
+#define helper_gvec_uabd_s helper_gvec_uabd_s_armeb
 #define helper_gvec_urshr_b helper_gvec_urshr_b_armeb
 #define helper_gvec_urshr_d helper_gvec_urshr_d_armeb
 #define helper_gvec_urshr_h helper_gvec_urshr_h_armeb
