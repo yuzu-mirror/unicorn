@@ -3427,6 +3427,8 @@
 #define gen_gvec_mls gen_gvec_mls_aarch64
 #define gen_gvec_sli gen_gvec_sli_aarch64
 #define gen_gvec_sqadd_qc gen_gvec_sqadd_qc_aarch64
+#define gen_gvec_sqrdmlah_qc gen_gvec_sqrdmlah_qc_aarch64
+#define gen_gvec_sqrdmlsh_qc gen_gvec_sqrdmlsh_qc_aarch64
 #define gen_gvec_sqsub_qc gen_gvec_sqsub_qc_aarch64
 #define gen_gvec_sri gen_gvec_sri_aarch64
 #define gen_gvec_srshr gen_gvec_srshr_aarch64
