@@ -5577,12 +5577,7 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
             if (!u) {
                 break;  /* VPADD */
             }
-            /* VQRDMLAH */
-            if (dc_isar_feature(aa32_rdm, s) && (size == 1 || size == 2)) {
-                gen_gvec_sqrdmlah_qc(tcg_ctx, size, rd_ofs, rn_ofs, rm_ofs,
-                                     vec_size, vec_size);
-                return 0;
-            }
+            /* VQRDMLAH : handled by decodetree */
             return 1;
 
         case NEON_3R_VFM_VQRDMLSH:
@@ -5593,12 +5588,7 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                 }
                 break;
             }
-            /* VQRDMLSH */
-            if (dc_isar_feature(aa32_rdm, s) && (size == 1 || size == 2)) {
-                gen_gvec_sqrdmlsh_qc(tcg_ctx, size, rd_ofs, rn_ofs, rm_ofs,
-                                     vec_size, vec_size);
-                return 0;
-            }
+            /* VQRDMLSH : handled by decodetree */
             return 1;
 
         case NEON_3R_VABD:
