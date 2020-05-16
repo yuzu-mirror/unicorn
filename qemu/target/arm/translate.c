@@ -4128,6 +4128,422 @@ void gen_gvec_usra(TCGContext *s, unsigned vece, uint32_t rd_ofs, uint32_t rm_of
     }
 }
 
+/*
+ * Shift one less than the requested amount, and the low bit is
+ * the rounding bit.  For the 8 and 16-bit operations, because we
+ * mask the low bit, we can perform a normal integer shift instead
+ * of a vector shift.
+ */
+static void gen_srshr8_i64(TCGContext *s, TCGv_i64 d, TCGv_i64 a, int64_t sh)
+{
+    TCGv_i64 t = tcg_temp_new_i64(s);
+
+    tcg_gen_shri_i64(s, t, a, sh - 1);
+    tcg_gen_andi_i64(s, t, t, dup_const(MO_8, 1));
+    tcg_gen_vec_sar8i_i64(s, d, a, sh);
+    tcg_gen_vec_add8_i64(s, d, d, t);
+    tcg_temp_free_i64(s, t);
+}
+
+static void gen_srshr16_i64(TCGContext *s, TCGv_i64 d, TCGv_i64 a, int64_t sh)
+{
+    TCGv_i64 t = tcg_temp_new_i64(s);
+
+    tcg_gen_shri_i64(s, t, a, sh - 1);
+    tcg_gen_andi_i64(s, t, t, dup_const(MO_16, 1));
+    tcg_gen_vec_sar16i_i64(s, d, a, sh);
+    tcg_gen_vec_add16_i64(s, d, d, t);
+    tcg_temp_free_i64(s, t);
+}
+
+static void gen_srshr32_i32(TCGContext *s, TCGv_i32 d, TCGv_i32 a, int32_t sh)
+{
+    TCGv_i32 t = tcg_temp_new_i32(s);
+
+    tcg_gen_extract_i32(s, t, a, sh - 1, 1);
+    tcg_gen_sari_i32(s, d, a, sh);
+    tcg_gen_add_i32(s, d, d, t);
+    tcg_temp_free_i32(s, t);
+}
+
+static void gen_srshr64_i64(TCGContext *s, TCGv_i64 d, TCGv_i64 a, int64_t sh)
+{
+    TCGv_i64 t = tcg_temp_new_i64(s);
+
+    tcg_gen_extract_i64(s, t, a, sh - 1, 1);
+    tcg_gen_sari_i64(s, d, a, sh);
+    tcg_gen_add_i64(s, d, d, t);
+    tcg_temp_free_i64(s, t);
+}
+
+static void gen_srshr_vec(TCGContext *s, unsigned vece, TCGv_vec d, TCGv_vec a, int64_t sh)
+{
+    TCGv_vec t = tcg_temp_new_vec_matching(s, d);
+    TCGv_vec ones = tcg_temp_new_vec_matching(s, d);
+
+    tcg_gen_shri_vec(s, vece, t, a, sh - 1);
+    tcg_gen_dupi_vec(s, vece, ones, 1);
+    tcg_gen_and_vec(s, vece, t, t, ones);
+    tcg_gen_sari_vec(s, vece, d, a, sh);
+    tcg_gen_add_vec(s, vece, d, d, t);
+
+    tcg_temp_free_vec(s, t);
+    tcg_temp_free_vec(s, ones);
+}
+
+void gen_gvec_srshr(TCGContext *s, unsigned vece, uint32_t rd_ofs, uint32_t rm_ofs,
+                    int64_t shift, uint32_t opr_sz, uint32_t max_sz)
+{
+    static const TCGOpcode vecop_list[] = {
+        INDEX_op_shri_vec, INDEX_op_sari_vec, INDEX_op_add_vec, 0
+    };
+    static const GVecGen2i ops[4] = {
+        { .fni8 = gen_srshr8_i64,
+          .fniv = gen_srshr_vec,
+          .fno = gen_helper_gvec_srshr_b,
+          .opt_opc = vecop_list,
+          .vece = MO_8 },
+        { .fni8 = gen_srshr16_i64,
+          .fniv = gen_srshr_vec,
+          .fno = gen_helper_gvec_srshr_h,
+          .opt_opc = vecop_list,
+          .vece = MO_16 },
+        { .fni4 = gen_srshr32_i32,
+          .fniv = gen_srshr_vec,
+          .fno = gen_helper_gvec_srshr_s,
+          .opt_opc = vecop_list,
+          .vece = MO_32 },
+        { .fni8 = gen_srshr64_i64,
+          .fniv = gen_srshr_vec,
+          .fno = gen_helper_gvec_srshr_d,
+          .prefer_i64 = TCG_TARGET_REG_BITS == 64,
+          .opt_opc = vecop_list,
+          .vece = MO_64 },
+    };
+
+    /* tszimm encoding produces immediates in the range [1..esize] */
+    tcg_debug_assert(shift > 0);
+    tcg_debug_assert(shift <= (8 << vece));
+
+    if (shift == (8 << vece)) {
+        /*
+         * Shifts larger than the element size are architecturally valid.
+         * Signed results in all sign bits.  With rounding, this produces
+         *   (-1 + 1) >> 1 == 0, or (0 + 1) >> 1 == 0.
+         * I.e. always zero.
+         */
+        tcg_gen_gvec_dup_imm(s, vece, rd_ofs, opr_sz, max_sz, 0);
+    } else {
+        tcg_gen_gvec_2i(s, rd_ofs, rm_ofs, opr_sz, max_sz, shift, &ops[vece]);
+    }
+}
+
+static void gen_srsra8_i64(TCGContext *s, TCGv_i64 d, TCGv_i64 a, int64_t sh)
+{
+    TCGv_i64 t = tcg_temp_new_i64(s);
+
+    gen_srshr8_i64(s, t, a, sh);
+    tcg_gen_vec_add8_i64(s, d, d, t);
+    tcg_temp_free_i64(s, t);
+}
+
+static void gen_srsra16_i64(TCGContext *s, TCGv_i64 d, TCGv_i64 a, int64_t sh)
+{
+    TCGv_i64 t = tcg_temp_new_i64(s);
+
+    gen_srshr16_i64(s, t, a, sh);
+    tcg_gen_vec_add16_i64(s, d, d, t);
+    tcg_temp_free_i64(s, t);
+}
+
+static void gen_srsra32_i32(TCGContext *s, TCGv_i32 d, TCGv_i32 a, int32_t sh)
+{
+    TCGv_i32 t = tcg_temp_new_i32(s);
+
+    gen_srshr32_i32(s, t, a, sh);
+    tcg_gen_add_i32(s, d, d, t);
+    tcg_temp_free_i32(s, t);
+}
+
+static void gen_srsra64_i64(TCGContext *s, TCGv_i64 d, TCGv_i64 a, int64_t sh)
+{
+    TCGv_i64 t = tcg_temp_new_i64(s);
+
+    gen_srshr64_i64(s, t, a, sh);
+    tcg_gen_add_i64(s, d, d, t);
+    tcg_temp_free_i64(s, t);
+}
+
+static void gen_srsra_vec(TCGContext *s, unsigned vece, TCGv_vec d, TCGv_vec a, int64_t sh)
+{
+    TCGv_vec t = tcg_temp_new_vec_matching(s, d);
+
+    gen_srshr_vec(s, vece, t, a, sh);
+    tcg_gen_add_vec(s, vece, d, d, t);
+    tcg_temp_free_vec(s, t);
+}
+
+void gen_gvec_srsra(TCGContext *s, unsigned vece, uint32_t rd_ofs, uint32_t rm_ofs,
+                    int64_t shift, uint32_t opr_sz, uint32_t max_sz)
+{
+    static const TCGOpcode vecop_list[] = {
+        INDEX_op_shri_vec, INDEX_op_sari_vec, INDEX_op_add_vec, 0
+    };
+    static const GVecGen2i ops[4] = {
+        { .fni8 = gen_srsra8_i64,
+          .fniv = gen_srsra_vec,
+          .fno = gen_helper_gvec_srsra_b,
+          .opt_opc = vecop_list,
+          .load_dest = true,
+          .vece = MO_8 },
+        { .fni8 = gen_srsra16_i64,
+          .fniv = gen_srsra_vec,
+          .fno = gen_helper_gvec_srsra_h,
+          .opt_opc = vecop_list,
+          .load_dest = true,
+          .vece = MO_16 },
+        { .fni4 = gen_srsra32_i32,
+          .fniv = gen_srsra_vec,
+          .fno = gen_helper_gvec_srsra_s,
+          .opt_opc = vecop_list,
+          .load_dest = true,
+          .vece = MO_32 },
+        { .fni8 = gen_srsra64_i64,
+          .fniv = gen_srsra_vec,
+          .fno = gen_helper_gvec_srsra_d,
+          .prefer_i64 = TCG_TARGET_REG_BITS == 64,
+          .opt_opc = vecop_list,
+          .load_dest = true,
+          .vece = MO_64 },
+    };
+
+    /* tszimm encoding produces immediates in the range [1..esize] */
+    tcg_debug_assert(shift > 0);
+    tcg_debug_assert(shift <= (8 << vece));
+
+    /*
+     * Shifts larger than the element size are architecturally valid.
+     * Signed results in all sign bits.  With rounding, this produces
+     *   (-1 + 1) >> 1 == 0, or (0 + 1) >> 1 == 0.
+     * I.e. always zero.  With accumulation, this leaves D unchanged.
+     */
+    if (shift == (8 << vece)) {
+        /* Nop, but we do need to clear the tail. */
+        tcg_gen_gvec_mov(s, vece, rd_ofs, rd_ofs, opr_sz, max_sz);
+    } else {
+        tcg_gen_gvec_2i(s, rd_ofs, rm_ofs, opr_sz, max_sz, shift, &ops[vece]);
+    }
+}
+
+static void gen_urshr8_i64(TCGContext *s, TCGv_i64 d, TCGv_i64 a, int64_t sh)
+{
+    TCGv_i64 t = tcg_temp_new_i64(s);
+
+    tcg_gen_shri_i64(s, t, a, sh - 1);
+    tcg_gen_andi_i64(s, t, t, dup_const(MO_8, 1));
+    tcg_gen_vec_shr8i_i64(s, d, a, sh);
+    tcg_gen_vec_add8_i64(s, d, d, t);
+    tcg_temp_free_i64(s, t);
+}
+
+static void gen_urshr16_i64(TCGContext *s, TCGv_i64 d, TCGv_i64 a, int64_t sh)
+{
+    TCGv_i64 t = tcg_temp_new_i64(s);
+
+    tcg_gen_shri_i64(s, t, a, sh - 1);
+    tcg_gen_andi_i64(s, t, t, dup_const(MO_16, 1));
+    tcg_gen_vec_shr16i_i64(s, d, a, sh);
+    tcg_gen_vec_add16_i64(s, d, d, t);
+    tcg_temp_free_i64(s, t);
+}
+
+static void gen_urshr32_i32(TCGContext *s, TCGv_i32 d, TCGv_i32 a, int32_t sh)
+{
+    TCGv_i32 t = tcg_temp_new_i32(s);
+
+    tcg_gen_extract_i32(s, t, a, sh - 1, 1);
+    tcg_gen_shri_i32(s, d, a, sh);
+    tcg_gen_add_i32(s, d, d, t);
+    tcg_temp_free_i32(s, t);
+}
+
+static void gen_urshr64_i64(TCGContext *s, TCGv_i64 d, TCGv_i64 a, int64_t sh)
+{
+    TCGv_i64 t = tcg_temp_new_i64(s);
+
+    tcg_gen_extract_i64(s, t, a, sh - 1, 1);
+    tcg_gen_shri_i64(s, d, a, sh);
+    tcg_gen_add_i64(s, d, d, t);
+    tcg_temp_free_i64(s, t);
+}
+
+static void gen_urshr_vec(TCGContext *s, unsigned vece, TCGv_vec d, TCGv_vec a, int64_t shift)
+{
+    TCGv_vec t = tcg_temp_new_vec_matching(s, d);
+    TCGv_vec ones = tcg_temp_new_vec_matching(s, d);
+
+    tcg_gen_shri_vec(s, vece, t, a, shift - 1);
+    tcg_gen_dupi_vec(s, vece, ones, 1);
+    tcg_gen_and_vec(s, vece, t, t, ones);
+    tcg_gen_shri_vec(s, vece, d, a, shift);
+    tcg_gen_add_vec(s, vece, d, d, t);
+
+    tcg_temp_free_vec(s, t);
+    tcg_temp_free_vec(s, ones);
+}
+
+void gen_gvec_urshr(TCGContext *s, unsigned vece, uint32_t rd_ofs, uint32_t rm_ofs,
+                    int64_t shift, uint32_t opr_sz, uint32_t max_sz)
+{
+    static const TCGOpcode vecop_list[] = {
+        INDEX_op_shri_vec, INDEX_op_add_vec, 0
+    };
+    static const GVecGen2i ops[4] = {
+        { .fni8 = gen_urshr8_i64,
+          .fniv = gen_urshr_vec,
+          .fno = gen_helper_gvec_urshr_b,
+          .opt_opc = vecop_list,
+          .vece = MO_8 },
+        { .fni8 = gen_urshr16_i64,
+          .fniv = gen_urshr_vec,
+          .fno = gen_helper_gvec_urshr_h,
+          .opt_opc = vecop_list,
+          .vece = MO_16 },
+        { .fni4 = gen_urshr32_i32,
+          .fniv = gen_urshr_vec,
+          .fno = gen_helper_gvec_urshr_s,
+          .opt_opc = vecop_list,
+          .vece = MO_32 },
+        { .fni8 = gen_urshr64_i64,
+          .fniv = gen_urshr_vec,
+          .fno = gen_helper_gvec_urshr_d,
+          .prefer_i64 = TCG_TARGET_REG_BITS == 64,
+          .opt_opc = vecop_list,
+          .vece = MO_64 },
+    };
+
+    /* tszimm encoding produces immediates in the range [1..esize] */
+    tcg_debug_assert(shift > 0);
+    tcg_debug_assert(shift <= (8 << vece));
+
+    if (shift == (8 << vece)) {
+        /*
+         * Shifts larger than the element size are architecturally valid.
+         * Unsigned results in zero.  With rounding, this produces a
+         * copy of the most significant bit.
+         */
+        tcg_gen_gvec_shri(s, vece, rd_ofs, rm_ofs, shift - 1, opr_sz, max_sz);
+    } else {
+        tcg_gen_gvec_2i(s, rd_ofs, rm_ofs, opr_sz, max_sz, shift, &ops[vece]);
+    }
+}
+
+static void gen_ursra8_i64(TCGContext *s, TCGv_i64 d, TCGv_i64 a, int64_t sh)
+{
+    TCGv_i64 t = tcg_temp_new_i64(s);
+
+    if (sh == 8) {
+        tcg_gen_vec_shr8i_i64(s, t, a, 7);
+    } else {
+        gen_urshr8_i64(s, t, a, sh);
+    }
+    tcg_gen_vec_add8_i64(s, d, d, t);
+    tcg_temp_free_i64(s, t);
+}
+
+static void gen_ursra16_i64(TCGContext *s, TCGv_i64 d, TCGv_i64 a, int64_t sh)
+{
+    TCGv_i64 t = tcg_temp_new_i64(s);
+
+    if (sh == 16) {
+        tcg_gen_vec_shr16i_i64(s, t, a, 15);
+    } else {
+        gen_urshr16_i64(s, t, a, sh);
+    }
+    tcg_gen_vec_add16_i64(s, d, d, t);
+    tcg_temp_free_i64(s, t);
+}
+
+static void gen_ursra32_i32(TCGContext *s, TCGv_i32 d, TCGv_i32 a, int32_t sh)
+{
+    TCGv_i32 t = tcg_temp_new_i32(s);
+
+    if (sh == 32) {
+        tcg_gen_shri_i32(s, t, a, 31);
+    } else {
+        gen_urshr32_i32(s, t, a, sh);
+    }
+    tcg_gen_add_i32(s, d, d, t);
+    tcg_temp_free_i32(s, t);
+}
+
+static void gen_ursra64_i64(TCGContext *s, TCGv_i64 d, TCGv_i64 a, int64_t sh)
+{
+    TCGv_i64 t = tcg_temp_new_i64(s);
+
+    if (sh == 64) {
+        tcg_gen_shri_i64(s, t, a, 63);
+    } else {
+        gen_urshr64_i64(s, t, a, sh);
+    }
+    tcg_gen_add_i64(s, d, d, t);
+    tcg_temp_free_i64(s, t);
+}
+
+static void gen_ursra_vec(TCGContext *s, unsigned vece, TCGv_vec d, TCGv_vec a, int64_t sh)
+{
+    TCGv_vec t = tcg_temp_new_vec_matching(s, d);
+
+    if (sh == (8 << vece)) {
+        tcg_gen_shri_vec(s, vece, t, a, sh - 1);
+    } else {
+        gen_urshr_vec(s, vece, t, a, sh);
+    }
+    tcg_gen_add_vec(s, vece, d, d, t);
+    tcg_temp_free_vec(s, t);
+}
+
+void gen_gvec_ursra(TCGContext *s, unsigned vece, uint32_t rd_ofs, uint32_t rm_ofs,
+                    int64_t shift, uint32_t opr_sz, uint32_t max_sz)
+{
+    static const TCGOpcode vecop_list[] = {
+        INDEX_op_shri_vec, INDEX_op_add_vec, 0
+    };
+    static const GVecGen2i ops[4] = {
+        { .fni8 = gen_ursra8_i64,
+          .fniv = gen_ursra_vec,
+          .fno = gen_helper_gvec_ursra_b,
+          .opt_opc = vecop_list,
+          .load_dest = true,
+          .vece = MO_8 },
+        { .fni8 = gen_ursra16_i64,
+          .fniv = gen_ursra_vec,
+          .fno = gen_helper_gvec_ursra_h,
+          .opt_opc = vecop_list,
+          .load_dest = true,
+          .vece = MO_16 },
+        { .fni4 = gen_ursra32_i32,
+          .fniv = gen_ursra_vec,
+          .fno = gen_helper_gvec_ursra_s,
+          .opt_opc = vecop_list,
+          .load_dest = true,
+          .vece = MO_32 },
+        { .fni8 = gen_ursra64_i64,
+          .fniv = gen_ursra_vec,
+          .fno = gen_helper_gvec_ursra_d,
+          .prefer_i64 = TCG_TARGET_REG_BITS == 64,
+          .opt_opc = vecop_list,
+          .load_dest = true,
+          .vece = MO_64 },
+    };
+
+    /* tszimm encoding produces immediates in the range [1..esize] */
+    tcg_debug_assert(shift > 0);
+    tcg_debug_assert(shift <= (8 << vece));
+
+    tcg_gen_gvec_2i(s, rd_ofs, rm_ofs, opr_sz, max_sz, shift, &ops[vece]);
+}
+
 static void gen_shr8_ins_i64(TCGContext *s, TCGv_i64 d, TCGv_i64 a, int64_t shift)
 {
     uint64_t mask = dup_const(MO_8, 0xff >> shift);

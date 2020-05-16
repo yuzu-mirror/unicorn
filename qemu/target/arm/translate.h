@@ -309,6 +309,15 @@ void gen_gvec_ssra(TCGContext* tcg_ctx, unsigned vece, uint32_t rd_ofs, uint32_t
 void gen_gvec_usra(TCGContext *tcg_ctx, unsigned vece, uint32_t rd_ofs, uint32_t rm_ofs,
                    int64_t shift, uint32_t opr_sz, uint32_t max_sz);
 
+void gen_gvec_srshr(TCGContext *tcg_ctx, unsigned vece, uint32_t rd_ofs, uint32_t rm_ofs,
+                    int64_t shift, uint32_t opr_sz, uint32_t max_sz);
+void gen_gvec_urshr(TCGContext *tcg_ctx, unsigned vece, uint32_t rd_ofs, uint32_t rm_ofs,
+                    int64_t shift, uint32_t opr_sz, uint32_t max_sz);
+void gen_gvec_srsra(TCGContext *tcg_ctx, unsigned vece, uint32_t rd_ofs, uint32_t rm_ofs,
+                    int64_t shift, uint32_t opr_sz, uint32_t max_sz);
+void gen_gvec_ursra(TCGContext *tcg_ctx, unsigned vece, uint32_t rd_ofs, uint32_t rm_ofs,
+                    int64_t shift, uint32_t opr_sz, uint32_t max_sz);
+
 /*
  * Forward to the isar_feature_* tests given a DisasContext pointer.
  */
