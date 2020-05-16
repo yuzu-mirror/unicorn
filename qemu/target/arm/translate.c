@@ -5562,6 +5562,8 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
         case NEON_3R_FLOAT_MULTIPLY:
         case NEON_3R_FLOAT_CMP:
         case NEON_3R_FLOAT_ACMP:
+        case NEON_3R_FLOAT_MINMAX:
+        case NEON_3R_FLOAT_MISC:
             /* Already handled by decodetree */
             return 1;
         }
@@ -5571,17 +5573,6 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
             return 1;
         }
         switch (op) {
-        case NEON_3R_FLOAT_MINMAX:
-            if (u) {
-                return 1; /* VPMIN/VPMAX handled by decodetree */
-            }
-            break;
-        case NEON_3R_FLOAT_MISC:
-            /* VMAXNM/VMINNM in ARMv8 */
-            if (u && !arm_dc_feature(s, ARM_FEATURE_V8)) {
-                return 1;
-            }
-            break;
         case NEON_3R_VFM_VQRDMLSH:
             if (!dc_isar_feature(aa32_simdfmac, s)) {
                 return 1;
@@ -5597,35 +5588,6 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
         tmp = neon_load_reg(s, rn, pass);
         tmp2 = neon_load_reg(s, rm, pass);
         switch (op) {
-        case NEON_3R_FLOAT_MINMAX:
-        {
-            TCGv_ptr fpstatus = get_fpstatus_ptr(tcg_ctx, 1);
-            if (size == 0) {
-                gen_helper_vfp_maxs(tcg_ctx, tmp, tmp, tmp2, fpstatus);
-            } else {
-                gen_helper_vfp_mins(tcg_ctx, tmp, tmp, tmp2, fpstatus);
-            }
-            tcg_temp_free_ptr(tcg_ctx, fpstatus);
-            break;
-        }
-        case NEON_3R_FLOAT_MISC:
-            if (u) {
-                /* VMAXNM/VMINNM */
-                TCGv_ptr fpstatus = get_fpstatus_ptr(tcg_ctx, 1);
-                if (size == 0) {
-                    gen_helper_vfp_maxnums(tcg_ctx, tmp, tmp, tmp2, fpstatus);
-                } else {
-                    gen_helper_vfp_minnums(tcg_ctx, tmp, tmp, tmp2, fpstatus);
-                }
-                tcg_temp_free_ptr(tcg_ctx, fpstatus);
-            } else {
-                if (size == 0) {
-                    gen_helper_recps_f32(tcg_ctx, tmp, tcg_ctx->cpu_env, tmp, tmp2);
-                } else {
-                    gen_helper_rsqrts_f32(tcg_ctx, tmp, tcg_ctx->cpu_env, tmp, tmp2);
-              }
-            }
-            break;
         case NEON_3R_VFM_VQRDMLSH:
         {
             /* VFMA, VFMS: fused multiply-add */
