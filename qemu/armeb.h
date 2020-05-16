@@ -3399,7 +3399,6 @@
 #define arm_set_cpu_off arm_set_cpu_off_armeb
 #define arm_set_cpu_on arm_set_cpu_on_armeb
 #define arm_stage1_mmu_idx arm_stage1_mmu_idx_armeb
-#define cmtst_op cmtst_op_armeb
 #define cpu_mmu_index cpu_mmu_index_armeb
 #define fp_exception_el fp_exception_el_armeb
 #define gen_cmtst_i64 gen_cmtst_i64_armeb
@@ -3408,15 +3407,18 @@
 #define gen_gvec_cgt0 gen_gvec_cgt0_armeb
 #define gen_gvec_cle0 gen_gvec_cle0_armeb
 #define gen_gvec_clt0 gen_gvec_clt0_armeb
+#define gen_gvec_cmtst gen_gvec_cmtst_armeb
 #define gen_gvec_mla gen_gvec_mla_armeb
 #define gen_gvec_mls gen_gvec_mls_armeb
 #define gen_gvec_sli gen_gvec_sli_armeb
+#define gen_gvec_sshl gen_gvec_sshl_armeb
 #define gen_gvec_ssra gen_gvec_ssra_armeb
 #define gen_gvec_sri gen_gvec_sri_armeb
 #define gen_gvec_srshr gen_gvec_srshr_armeb
 #define gen_gvec_srsra gen_gvec_srsra_armeb
 #define gen_gvec_ursra gen_gvec_ursra_armeb
 #define gen_gvec_urshr gen_gvec_urshr_armeb
+#define gen_gvec_ushl gen_gvec_ushl_armeb
 #define gen_gvec_usra gen_gvec_usra_armeb
 #define get_phys_addr get_phys_addr_armeb
 #define gen_sshl_i32 gen_sshl_i32_armeb
@@ -3467,12 +3469,10 @@
 #define raise_exception_ra raise_exception_ra_armeb
 #define sqadd_op sqadd_op_armeb
 #define sqsub_op sqsub_op_armeb
-#define sshl_op sshl_op_armeb
 #define sve_exception_el sve_exception_el_armeb
 #define sve_zcr_len_for_el sve_zcr_len_for_el_armeb
 #define uqadd_op uqadd_op_armeb
 #define uqsub_op uqsub_op_armeb
-#define ushl_op ushl_op_armeb
 #define v8m_security_lookup v8m_security_lookup_armeb
 #define vfp_expand_imm vfp_expand_imm_armeb
 #endif

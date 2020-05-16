@@ -3410,7 +3410,6 @@
 #define bif_op bif_op_aarch64eb
 #define bit_op bit_op_aarch64eb
 #define bsl_op bsl_op_aarch64eb
-#define cmtst_op cmtst_op_aarch64eb
 #define cpu_mmu_index cpu_mmu_index_aarch64eb
 #define cpu_reg cpu_reg_aarch64eb
 #define cpu_reg_sp cpu_reg_sp_aarch64eb
@@ -3423,15 +3422,18 @@
 #define gen_gvec_cgt0 gen_gvec_cgt0_aarch64eb
 #define gen_gvec_cle0 gen_gvec_cle0_aarch64eb
 #define gen_gvec_clt0 gen_gvec_clt0_aarch64eb
+#define gen_gvec_cmtst gen_gvec_cmtst_aarch64eb
 #define gen_gvec_mla gen_gvec_mla_aarch64eb
 #define gen_gvec_mls gen_gvec_mls_aarch64eb
 #define gen_gvec_sli gen_gvec_sli_aarch64eb
+#define gen_gvec_sshl gen_gvec_sshl_aarch64eb
 #define gen_gvec_ssra gen_gvec_ssra_aarch64eb
 #define gen_gvec_sri gen_gvec_sri_aarch64eb
 #define gen_gvec_srshr gen_gvec_srshr_aarch64eb
 #define gen_gvec_srsra gen_gvec_srsra_aarch64eb
 #define gen_gvec_ursra gen_gvec_ursra_aarch64eb
 #define gen_gvec_urshr gen_gvec_urshr_aarch64eb
+#define gen_gvec_ushl gen_gvec_ushl_aarch64eb
 #define gen_gvec_usra gen_gvec_usra_aarch64eb
 #define get_phys_addr get_phys_addr_aarch64eb
 #define gen_sshl_i32 gen_sshl_i32_aarch64eb

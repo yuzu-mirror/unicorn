@@ -298,9 +298,13 @@ void gen_gvec_mla(TCGContext *s, unsigned vece, uint32_t rd_ofs, uint32_t rn_ofs
 void gen_gvec_mls(TCGContext *s, unsigned vece, uint32_t rd_ofs, uint32_t rn_ofs,
                   uint32_t rm_ofs, uint32_t opr_sz, uint32_t max_sz);
 
-extern const GVecGen3 cmtst_op[4];
-extern const GVecGen3 sshl_op[4];
-extern const GVecGen3 ushl_op[4];
+void gen_gvec_cmtst(TCGContext *s, unsigned vece, uint32_t rd_ofs, uint32_t rn_ofs,
+                    uint32_t rm_ofs, uint32_t opr_sz, uint32_t max_sz);
+void gen_gvec_sshl(TCGContext *s, unsigned vece, uint32_t rd_ofs, uint32_t rn_ofs,
+                   uint32_t rm_ofs, uint32_t opr_sz, uint32_t max_sz);
+void gen_gvec_ushl(TCGContext *s, unsigned vece, uint32_t rd_ofs, uint32_t rn_ofs,
+                   uint32_t rm_ofs, uint32_t opr_sz, uint32_t max_sz);
+
 extern const GVecGen4 uqadd_op[4];
 extern const GVecGen4 sqadd_op[4];
 extern const GVecGen4 uqsub_op[4];
