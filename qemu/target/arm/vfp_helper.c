@@ -711,10 +711,9 @@ static bool round_to_inf(float_status *fpst, bool sign_bit)
     case float_round_to_zero: /* Round to Zero */
         return false;
     default:
-        break;
+        g_assert_not_reached();
     }
 
-    g_assert_not_reached();
     return false;
 }
 
