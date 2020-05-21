@@ -2757,7 +2757,7 @@ static inline int get_enabled_exceptions(const CPUMIPSState *env, int c)
     return c & enable;
 }
 
-static inline float16 float16_from_float32(int32_t a, flag ieee, float_status *status)
+static inline float16 float16_from_float32(int32_t a, bool ieee, float_status *status)
 {
       float16 f_val;
 
@@ -2775,7 +2775,7 @@ static inline float32 float32_from_float64(int64_t a, float_status *status)
       return a < 0 ? (f_val | (1 << 31)) : f_val;
 }
 
-static inline float32 float32_from_float16(int16_t a, flag ieee, float_status *status)
+static inline float32 float32_from_float16(int16_t a, bool ieee, float_status *status)
 {
       float32 f_val;
 
@@ -3811,7 +3811,7 @@ void helper_msa_fexdo_df(CPUMIPSState *env, uint32_t df, uint32_t wd,
              * IEEE and "ARM" format.  The latter gains extra exponent
              * range by omitting the NaN/Inf encodings.
              */
-            flag ieee = 1;
+            bool ieee = true;
 
             MSA_FLOAT_BINOP(Lh(pwx, i), from_float32, pws->w[i], ieee, 16);
             MSA_FLOAT_BINOP(Rh(pwx, i), from_float32, pwt->w[i], ieee, 16);
@@ -4425,7 +4425,7 @@ void helper_msa_fexupl_df(CPUMIPSState *env, uint32_t df, uint32_t wd,
              * IEEE and "ARM" format.  The latter gains extra exponent
              * range by omitting the NaN/Inf encodings.
              */
-            flag ieee = 1;
+            bool ieee = true;
 
             MSA_FLOAT_BINOP(pwx->w[i], from_float16, Lh(pws, i), ieee, 32);
         }
@@ -4461,7 +4461,7 @@ void helper_msa_fexupr_df(CPUMIPSState *env, uint32_t df, uint32_t wd,
              * IEEE and "ARM" format.  The latter gains extra exponent
              * range by omitting the NaN/Inf encodings.
              */
-            flag ieee = 1;
+            bool ieee = true;
 
             MSA_FLOAT_BINOP(pwx->w[i], from_float16, Rh(pws, i), ieee, 32);
         }

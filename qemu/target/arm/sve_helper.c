@@ -3200,7 +3200,7 @@ void HELPER(NAME)(void *vd, void *vn, void *vg, void *status, uint32_t desc) \
  */
 static inline float32 sve_f16_to_f32(float16 f, float_status *fpst)
 {
-    flag save = get_flush_inputs_to_zero(fpst);
+    bool save = get_flush_inputs_to_zero(fpst);
     float32 ret;
 
     set_flush_inputs_to_zero(false, fpst);
@@ -3211,7 +3211,7 @@ static inline float32 sve_f16_to_f32(float16 f, float_status *fpst)
 
 static inline float64 sve_f16_to_f64(float16 f, float_status *fpst)
 {
-    flag save = get_flush_inputs_to_zero(fpst);
+    bool save = get_flush_inputs_to_zero(fpst);
     float64 ret;
 
     set_flush_inputs_to_zero(false, fpst);
@@ -3222,7 +3222,7 @@ static inline float64 sve_f16_to_f64(float16 f, float_status *fpst)
 
 static inline float16 sve_f32_to_f16(float32 f, float_status *fpst)
 {
-    flag save = get_flush_to_zero(fpst);
+    bool save = get_flush_to_zero(fpst);
     float16 ret;
 
     set_flush_to_zero(false, fpst);
@@ -3233,7 +3233,7 @@ static inline float16 sve_f32_to_f16(float32 f, float_status *fpst)
 
 static inline float16 sve_f64_to_f16(float64 f, float_status *fpst)
 {
-    flag save = get_flush_to_zero(fpst);
+    bool save = get_flush_to_zero(fpst);
     float16 ret;
 
     set_flush_to_zero(false, fpst);
