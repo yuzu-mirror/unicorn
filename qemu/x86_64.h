@@ -1079,8 +1079,11 @@
 #define helper_crypto_aese helper_crypto_aese_x86_64
 #define helper_crypto_aesmc helper_crypto_aesmc_x86_64
 #define helper_crypto_rax1 helper_crypto_rax1_x86_64
-#define helper_crypto_sha1_3reg helper_crypto_sha1_3reg_x86_64
+#define helper_crypto_sha1c helper_crypto_sha1c_x86_64
 #define helper_crypto_sha1h helper_crypto_sha1h_x86_64
+#define helper_crypto_sha1m helper_crypto_sha1m_x86_64
+#define helper_crypto_sha1p helper_crypto_sha1p_x86_64
+#define helper_crypto_sha1su0 helper_crypto_sha1su0_x86_64
 #define helper_crypto_sha1su1 helper_crypto_sha1su1_x86_64
 #define helper_crypto_sha256h helper_crypto_sha256h_x86_64
 #define helper_crypto_sha256h2 helper_crypto_sha256h2_x86_64

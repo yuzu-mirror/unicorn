@@ -1079,8 +1079,11 @@
 #define helper_crypto_aese helper_crypto_aese_armeb
 #define helper_crypto_aesmc helper_crypto_aesmc_armeb
 #define helper_crypto_rax1 helper_crypto_rax1_armeb
-#define helper_crypto_sha1_3reg helper_crypto_sha1_3reg_armeb
+#define helper_crypto_sha1c helper_crypto_sha1c_armeb
 #define helper_crypto_sha1h helper_crypto_sha1h_armeb
+#define helper_crypto_sha1m helper_crypto_sha1m_armeb
+#define helper_crypto_sha1p helper_crypto_sha1p_armeb
+#define helper_crypto_sha1su0 helper_crypto_sha1su0_armeb
 #define helper_crypto_sha1su1 helper_crypto_sha1su1_armeb
 #define helper_crypto_sha256h helper_crypto_sha256h_armeb
 #define helper_crypto_sha256h2 helper_crypto_sha256h2_armeb
