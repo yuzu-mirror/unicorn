@@ -1095,7 +1095,10 @@
 #define helper_crypto_sha512su1 helper_crypto_sha512su1_sparc
 #define helper_crypto_sm3partw1 helper_crypto_sm3partw1_sparc
 #define helper_crypto_sm3partw2 helper_crypto_sm3partw2_sparc
-#define helper_crypto_sm3tt helper_crypto_sm3tt_sparc
+#define helper_crypto_sm3tt1a helper_crypto_sm3tt1a_sparc
+#define helper_crypto_sm3tt1b helper_crypto_sm3tt1b_sparc
+#define helper_crypto_sm3tt2a helper_crypto_sm3tt2a_sparc
+#define helper_crypto_sm3tt2b helper_crypto_sm3tt2b_sparc
 #define helper_crypto_sm4e helper_crypto_sm4e_sparc
 #define helper_crypto_sm4ekey helper_crypto_sm4ekey_sparc
 #define helper_dc_zva helper_dc_zva_sparc
