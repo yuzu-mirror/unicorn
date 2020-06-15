@@ -3121,52 +3121,6 @@ static inline void gen_neon_rsb(DisasContext *s, int size, TCGv_i32 t0, TCGv_i32
     }
 }
 
-#define GEN_NEON_INTEGER_OP_ENV(name) do { \
-    switch ((size << 1) | u) { \
-    case 0: \
-        gen_helper_neon_##name##_s8(tcg_ctx, tmp, tcg_ctx->cpu_env, tmp, tmp2); \
-        break; \
-    case 1: \
-        gen_helper_neon_##name##_u8(tcg_ctx, tmp, tcg_ctx->cpu_env, tmp, tmp2); \
-        break; \
-    case 2: \
-        gen_helper_neon_##name##_s16(tcg_ctx, tmp, tcg_ctx->cpu_env, tmp, tmp2); \
-        break; \
-    case 3: \
-        gen_helper_neon_##name##_u16(tcg_ctx, tmp, tcg_ctx->cpu_env, tmp, tmp2); \
-        break; \
-    case 4: \
-        gen_helper_neon_##name##_s32(tcg_ctx, tmp, tcg_ctx->cpu_env, tmp, tmp2); \
-        break; \
-    case 5: \
-        gen_helper_neon_##name##_u32(tcg_ctx, tmp, tcg_ctx->cpu_env, tmp, tmp2); \
-        break; \
-    default: return 1; \
-    }} while (0)
-
-#define GEN_NEON_INTEGER_OP(name) do { \
-    switch ((size << 1) | u) { \
-    case 0: \
-        gen_helper_neon_##name##_s8(tcg_ctx, tmp, tmp, tmp2); \
-        break; \
-    case 1: \
-        gen_helper_neon_##name##_u8(tcg_ctx, tmp, tmp, tmp2); \
-        break; \
-    case 2: \
-        gen_helper_neon_##name##_s16(tcg_ctx, tmp, tmp, tmp2); \
-        break; \
-    case 3: \
-        gen_helper_neon_##name##_u16(tcg_ctx, tmp, tmp, tmp2); \
-        break; \
-    case 4: \
-        gen_helper_neon_##name##_s32(tcg_ctx, tmp, tmp, tmp2); \
-        break; \
-    case 5: \
-        gen_helper_neon_##name##_u32(tcg_ctx, tmp, tmp, tmp2); \
-        break; \
-    default: return 1; \
-    }} while (0)
-
 static TCGv_i32 neon_load_scratch(DisasContext *s, int scratch)
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
@@ -5401,7 +5355,6 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
     int size;
     int shift;
     int pass;
-    int count;
     int u;
     int vec_size;
     uint32_t imm;
@@ -5451,6 +5404,8 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
             case 3: /* VRSRA */
             case 4: /* VSRI */
             case 5: /* VSHL, VSLI */
+            case 6: /* VQSHLU */
+            case 7: /* VQSHL */
                 return 1; /* handled by decodetree */
             default:
                 break;
@@ -5468,101 +5423,7 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                     size--;
             }
             shift = (insn >> 16) & ((1 << (3 + size)) - 1);
-            if (op < 8) {
-                /* Shift by immediate:
-                   VSHR, VSRA, VRSHR, VRSRA, VSRI, VSHL, VQSHL, VQSHLU.  */
-                if (q && ((rd | rm) & 1)) {
-                    return 1;
-                }
-                if (!u && (op == 4 || op == 6)) {
-                    return 1;
-                }
-                /* Right shifts are encoded as N - shift, where N is the
-                   element size in bits.  */
-                if (op <= 4) {
-                    shift = shift - (1 << (size + 3));
-                }
-
-                if (size == 3) {
-                    count = q + 1;
-                } else {
-                    count = q ? 4: 2;
-                }
-
-                /* To avoid excessive duplication of ops we implement shift
-                 * by immediate using the variable shift operations.
-                  */
-                imm = dup_const(size, shift);
-
-                for (pass = 0; pass < count; pass++) {
-                    if (size == 3) {
-                        neon_load_reg64(s, s->V0, rm + pass);
-                        tcg_gen_movi_i64(tcg_ctx, s->V1, imm);
-                        switch (op) {
-                        case 6: /* VQSHLU */
-                            gen_helper_neon_qshlu_s64(tcg_ctx, s->V0, tcg_ctx->cpu_env,
-                                                      s->V0, s->V1);
-                            break;
-                        case 7: /* VQSHL */
-                            if (u) {
-                                gen_helper_neon_qshl_u64(tcg_ctx, s->V0, tcg_ctx->cpu_env,
-                                                         s->V0, s->V1);
-                            } else {
-                                gen_helper_neon_qshl_s64(tcg_ctx, s->V0, tcg_ctx->cpu_env,
-                                                         s->V0, s->V1);
-                            }
-                            break;
-                        default:
-                            g_assert_not_reached();
-                        }
-                        if (op == 3) {
-                            /* Accumulate.  */
-                            neon_load_reg64(s, s->V1, rd + pass);
-                            tcg_gen_add_i64(tcg_ctx, s->V0, s->V0, s->V1);
-                        }
-                        neon_store_reg64(s, s->V0, rd + pass);
-                    } else { /* size < 3 */
-                        /* Operands in T0 and T1.  */
-                        tmp = neon_load_reg(s, rm, pass);
-                        tmp2 = tcg_temp_new_i32(tcg_ctx);
-                        tcg_gen_movi_i32(tcg_ctx, tmp2, imm);
-                        switch (op) {
-                        case 6: /* VQSHLU */
-                            switch (size) {
-                            case 0:
-                                gen_helper_neon_qshlu_s8(tcg_ctx, tmp, tcg_ctx->cpu_env,
-                                                         tmp, tmp2);
-                                break;
-                            case 1:
-                                gen_helper_neon_qshlu_s16(tcg_ctx, tmp, tcg_ctx->cpu_env,
-                                                          tmp, tmp2);
-                                break;
-                            case 2:
-                                gen_helper_neon_qshlu_s32(tcg_ctx, tmp, tcg_ctx->cpu_env,
-                                                          tmp, tmp2);
-                                break;
-                            default:
-                                abort();
-                            }
-                            break;
-                        case 7: /* VQSHL */
-                            GEN_NEON_INTEGER_OP_ENV(qshl);
-                            break;
-                        default:
-                            g_assert_not_reached();
-                        }
-                        tcg_temp_free_i32(tcg_ctx, tmp2);
-
-                        if (op == 3) {
-                            /* Accumulate.  */
-                            tmp2 = neon_load_reg(s, rd, pass);
-                            gen_neon_add(s, size, tmp, tmp2);
-                            tcg_temp_free_i32(tcg_ctx, tmp2);
-                        }
-                        neon_store_reg(s, rd, pass, tmp);
-                    }
-                } /* for pass */
-            } else if (op < 10) {
+            if (op < 10) {
                 /* Shift by immediate and narrow:
                    VSHRN, VRSHRN, VQSHRN, VQRSHRN.  */
                 int input_unsigned = (op == 8) ? !u : u;
