@@ -5445,6 +5445,11 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
             op = (insn >> 8) & 0xf;
 
             switch (op) {
+            case 0: /* VSHR */
+            case 1: /* VSRA */
+            case 2: /* VRSHR */
+            case 3: /* VRSRA */
+            case 4: /* VSRI */
             case 5: /* VSHL, VSLI */
                 return 1; /* handled by decodetree */
             default:
@@ -5478,50 +5483,6 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                     shift = shift - (1 << (size + 3));
                 }
 
-                switch (op) {
-                case 0:  /* VSHR */
-                    /* Right shift comes here negative.  */
-                    shift = -shift;
-                    /* Shifts larger than the element size are architecturally
-                     * valid.  Unsigned results in all zeros; signed results
-                     * in all sign bits.
-                     */
-                    if (!u) {
-                        tcg_gen_gvec_sari(tcg_ctx, size, rd_ofs, rm_ofs,
-                                          MIN(shift, (8 << size) - 1),
-                                          vec_size, vec_size);
-                    } else if (shift >= 8 << size) {
-                        tcg_gen_gvec_dup_imm(tcg_ctx, MO_8, rd_ofs, vec_size,
-                                             vec_size, 0);
-                    } else {
-                        tcg_gen_gvec_shri(tcg_ctx, size, rd_ofs, rm_ofs, shift,
-                                          vec_size, vec_size);
-                    }
-                    return 0;
-
-                case 1:  /* VSRA */
-                    /* Right shift comes here negative.  */
-                    shift = -shift;
-                    if (u) {
-                        gen_gvec_usra(tcg_ctx, size, rd_ofs, rm_ofs, shift,
-                                      vec_size, vec_size);
-                    } else {
-                        gen_gvec_ssra(tcg_ctx, size, rd_ofs, rm_ofs, shift,
-                                      vec_size, vec_size);
-                    }
-                    return 0;
-
-                case 4: /* VSRI */
-                    if (!u) {
-                        return 1;
-                    }
-                    /* Right shift comes here negative.  */
-                    shift = -shift;
-                    gen_gvec_sri(tcg_ctx, size, rd_ofs, rm_ofs, shift,
-                                 vec_size, vec_size);
-                    return 0;
-                }
-
                 if (size == 3) {
                     count = q + 1;
                 } else {
@@ -5538,13 +5499,6 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                         neon_load_reg64(s, s->V0, rm + pass);
                         tcg_gen_movi_i64(tcg_ctx, s->V1, imm);
                         switch (op) {
-                        case 2: /* VRSHR */
-                        case 3: /* VRSRA */
-                            if (u)
-                                gen_helper_neon_rshl_u64(tcg_ctx, s->V0, s->V0, s->V1);
-                            else
-                                gen_helper_neon_rshl_s64(tcg_ctx, s->V0, s->V0, s->V1);
-                            break;
                         case 6: /* VQSHLU */
                             gen_helper_neon_qshlu_s64(tcg_ctx, s->V0, tcg_ctx->cpu_env,
                                                       s->V0, s->V1);
@@ -5573,10 +5527,6 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                         tmp2 = tcg_temp_new_i32(tcg_ctx);
                         tcg_gen_movi_i32(tcg_ctx, tmp2, imm);
                         switch (op) {
-                        case 2: /* VRSHR */
-                        case 3: /* VRSRA */
-                            GEN_NEON_INTEGER_OP(rshl);
-                            break;
                         case 6: /* VQSHLU */
                             switch (size) {
                             case 0:
