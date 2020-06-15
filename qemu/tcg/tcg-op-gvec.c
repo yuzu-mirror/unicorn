@@ -3172,6 +3172,128 @@ void tcg_gen_gvec_sarv(TCGContext *s, unsigned vece, uint32_t dofs, uint32_t aof
     tcg_gen_gvec_3(s, dofs, aofs, bofs, oprsz, maxsz, &g[vece]);
 }
 
+/*
+ * Similarly for rotates.
+ */
+
+static void tcg_gen_rotlv_mod_vec(TCGContext *s, unsigned vece, TCGv_vec d,
+                                  TCGv_vec a, TCGv_vec b)
+{
+    TCGv_vec t = tcg_temp_new_vec_matching(s, d);
+
+    tcg_gen_dupi_vec(s, vece, t, (8 << vece) - 1);
+    tcg_gen_and_vec(s, vece, t, t, b);
+    tcg_gen_rotlv_vec(s, vece, d, a, t);
+    tcg_temp_free_vec(s, t);
+}
+
+static void tcg_gen_rotl_mod_i32(TCGContext *s, TCGv_i32 d, TCGv_i32 a, TCGv_i32 b)
+{
+    TCGv_i32 t = tcg_temp_new_i32(s);
+
+    tcg_gen_andi_i32(s, t, b, 31);
+    tcg_gen_rotl_i32(s, d, a, t);
+    tcg_temp_free_i32(s, t);
+}
+
+static void tcg_gen_rotl_mod_i64(TCGContext *s, TCGv_i64 d, TCGv_i64 a, TCGv_i64 b)
+{
+    TCGv_i64 t = tcg_temp_new_i64(s);
+
+    tcg_gen_andi_i64(s, t, b, 63);
+    tcg_gen_rotl_i64(s, d, a, t);
+    tcg_temp_free_i64(s, t);
+}
+
+void tcg_gen_gvec_rotlv(TCGContext *s, unsigned vece, uint32_t dofs, uint32_t aofs,
+                        uint32_t bofs, uint32_t oprsz, uint32_t maxsz)
+{
+    static const TCGOpcode vecop_list[] = { INDEX_op_rotlv_vec, 0 };
+    static const GVecGen3 g[4] = {
+        { .fniv = tcg_gen_rotlv_mod_vec,
+          .fno = gen_helper_gvec_rotl8v,
+          .opt_opc = vecop_list,
+          .vece = MO_8 },
+        { .fniv = tcg_gen_rotlv_mod_vec,
+          .fno = gen_helper_gvec_rotl16v,
+          .opt_opc = vecop_list,
+          .vece = MO_16 },
+        { .fni4 = tcg_gen_rotl_mod_i32,
+          .fniv = tcg_gen_rotlv_mod_vec,
+          .fno = gen_helper_gvec_rotl32v,
+          .opt_opc = vecop_list,
+          .vece = MO_32 },
+        { .fni8 = tcg_gen_rotl_mod_i64,
+          .fniv = tcg_gen_rotlv_mod_vec,
+          .fno = gen_helper_gvec_rotl64v,
+          .opt_opc = vecop_list,
+          .prefer_i64 = TCG_TARGET_REG_BITS == 64,
+          .vece = MO_64 },
+    };
+
+    tcg_debug_assert(vece <= MO_64);
+    tcg_gen_gvec_3(s, dofs, aofs, bofs, oprsz, maxsz, &g[vece]);
+}
+
+static void tcg_gen_rotrv_mod_vec(TCGContext *s, unsigned vece, TCGv_vec d,
+                                  TCGv_vec a, TCGv_vec b)
+{
+    TCGv_vec t = tcg_temp_new_vec_matching(s, d);
+
+    tcg_gen_dupi_vec(s, vece, t, (8 << vece) - 1);
+    tcg_gen_and_vec(s, vece, t, t, b);
+    tcg_gen_rotrv_vec(s, vece, d, a, t);
+    tcg_temp_free_vec(s, t);
+}
+
+static void tcg_gen_rotr_mod_i32(TCGContext *s, TCGv_i32 d, TCGv_i32 a, TCGv_i32 b)
+{
+    TCGv_i32 t = tcg_temp_new_i32(s);
+
+    tcg_gen_andi_i32(s, t, b, 31);
+    tcg_gen_rotr_i32(s, d, a, t);
+    tcg_temp_free_i32(s, t);
+}
+
+static void tcg_gen_rotr_mod_i64(TCGContext *s, TCGv_i64 d, TCGv_i64 a, TCGv_i64 b)
+{
+    TCGv_i64 t = tcg_temp_new_i64(s);
+
+    tcg_gen_andi_i64(s, t, b, 63);
+    tcg_gen_rotr_i64(s, d, a, t);
+    tcg_temp_free_i64(s, t);
+}
+
+void tcg_gen_gvec_rotrv(TCGContext *s, unsigned vece, uint32_t dofs, uint32_t aofs,
+                        uint32_t bofs, uint32_t oprsz, uint32_t maxsz)
+{
+    static const TCGOpcode vecop_list[] = { INDEX_op_rotrv_vec, 0 };
+    static const GVecGen3 g[4] = {
+        { .fniv = tcg_gen_rotrv_mod_vec,
+          .fno = gen_helper_gvec_rotr8v,
+          .opt_opc = vecop_list,
+          .vece = MO_8 },
+        { .fniv = tcg_gen_rotrv_mod_vec,
+          .fno = gen_helper_gvec_rotr16v,
+          .opt_opc = vecop_list,
+          .vece = MO_16 },
+        { .fni4 = tcg_gen_rotr_mod_i32,
+          .fniv = tcg_gen_rotrv_mod_vec,
+          .fno = gen_helper_gvec_rotr32v,
+          .opt_opc = vecop_list,
+          .vece = MO_32 },
+        { .fni8 = tcg_gen_rotr_mod_i64,
+          .fniv = tcg_gen_rotrv_mod_vec,
+          .fno = gen_helper_gvec_rotr64v,
+          .opt_opc = vecop_list,
+          .prefer_i64 = TCG_TARGET_REG_BITS == 64,
+          .vece = MO_64 },
+    };
+
+    tcg_debug_assert(vece <= MO_64);
+    tcg_gen_gvec_3(s, dofs, aofs, bofs, oprsz, maxsz, &g[vece]);
+}
+
 /* Expand OPSZ bytes worth of three-operand operations using i32 elements.  */
 static void expand_cmp_i32(TCGContext *s, uint32_t dofs, uint32_t aofs, uint32_t bofs,
                            uint32_t oprsz, TCGCond cond)

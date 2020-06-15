@@ -1011,6 +1011,8 @@ void tcg_gen_sars_vec(TCGContext *, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_
 void tcg_gen_shlv_vec(TCGContext *, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_vec s);
 void tcg_gen_shrv_vec(TCGContext *, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_vec s);
 void tcg_gen_sarv_vec(TCGContext *, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_vec s);
+void tcg_gen_rotlv_vec(TCGContext *, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_vec s);
+void tcg_gen_rotrv_vec(TCGContext *, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_vec s);
 
 void tcg_gen_cmp_vec(TCGContext *, TCGCond cond, unsigned vece, TCGv_vec r,
                      TCGv_vec a, TCGv_vec b);

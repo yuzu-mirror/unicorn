@@ -1238,6 +1238,14 @@
 #define helper_gvec_rotl16i helper_gvec_rotl16i_x86_64
 #define helper_gvec_rotl32i helper_gvec_rotl32i_x86_64
 #define helper_gvec_rotl64i helper_gvec_rotl64i_x86_64
+#define helper_gvec_rotl8v helper_gvec_rotl8v_x86_64
+#define helper_gvec_rotl16v helper_gvec_rotl16v_x86_64
+#define helper_gvec_rotl32v helper_gvec_rotl32v_x86_64
+#define helper_gvec_rotl64v helper_gvec_rotl64v_x86_64
+#define helper_gvec_rotr8v helper_gvec_rotr8v_x86_64
+#define helper_gvec_rotr16v helper_gvec_rotr16v_x86_64
+#define helper_gvec_rotr32v helper_gvec_rotr32v_x86_64
+#define helper_gvec_rotr64v helper_gvec_rotr64v_x86_64
 #define helper_gvec_sar8i helper_gvec_sar8i_x86_64
 #define helper_gvec_sar8v helper_gvec_sar8v_x86_64
 #define helper_gvec_sar16i helper_gvec_sar16i_x86_64
@@ -2910,6 +2918,8 @@
 #define tcg_gen_gvec_ors tcg_gen_gvec_ors_x86_64
 #define tcg_gen_gvec_rotli tcg_gen_gvec_rotli_x86_64
 #define tcg_gen_gvec_rotri tcg_gen_gvec_rotri_x86_64
+#define tcg_gen_gvec_rotlv tcg_gen_gvec_rotlv_x86_64
+#define tcg_gen_gvec_rotrv tcg_gen_gvec_rotrv_x86_64
 #define tcg_gen_gvec_sar8v tcg_gen_gvec_sar8v_x86_64
 #define tcg_gen_gvec_sar16v tcg_gen_gvec_sar16v_x86_64
 #define tcg_gen_gvec_sar32v tcg_gen_gvec_sar32v_x86_64
@@ -3034,7 +3044,9 @@
 #define tcg_gen_rotli_i32 tcg_gen_rotli_i32_x86_64
 #define tcg_gen_rotli_i64 tcg_gen_rotli_i64_x86_64
 #define tcg_gen_rotli_vec tcg_gen_rotli_vec_x86_64
+#define tcg_gen_rotlv_vec tcg_gen_rotlv_vec_x86_64
 #define tcg_gen_rotri_vec tcg_gen_rotri_vec_x86_64
+#define tcg_gen_rotrv_vec tcg_gen_rotrv_vec_x86_64
 #define tcg_gen_rotr_i32 tcg_gen_rotr_i32_x86_64
 #define tcg_gen_rotr_i64 tcg_gen_rotr_i64_x86_64
 #define tcg_gen_rotri_i32 tcg_gen_rotri_i32_x86_64
