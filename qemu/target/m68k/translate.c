@@ -5145,6 +5145,20 @@ static void gen_op_fmove_fcr(CPUM68KState *env, DisasContext *s,
             gen_store_fcr(s, AREG(insn, 0), mask);
         }
         return;
+    case 7: /* Immediate */
+        if (REG(insn, 0) == 4) {
+            if (is_write ||
+                (mask != M68K_FPIAR && mask != M68K_FPSR &&
+                 mask != M68K_FPCR)) {
+                gen_exception(s, s->base.pc_next, EXCP_ILLEGAL);
+                return;
+            }
+            tmp = tcg_const_i32(tcg_ctx, read_im32(env, s));
+            gen_store_fcr(s, tmp, mask);
+            tcg_temp_free(tcg_ctx, tmp);
+            return;
+        }
+        break;
     default:
         break;
     }
