@@ -674,12 +674,14 @@ DO_3SAME_CMP(VCGE_S, TCG_COND_GE)
 DO_3SAME_CMP(VCGE_U, TCG_COND_GEU)
 DO_3SAME_CMP(VCEQ, TCG_COND_EQ)
 
-static void gen_VMUL_p_3s(TCGContext *s, unsigned vece, uint32_t rd_ofs, uint32_t rn_ofs,
-                          uint32_t rm_ofs, uint32_t oprsz, uint32_t maxsz)
-{
-    tcg_gen_gvec_3_ool(s, rd_ofs, rn_ofs, rm_ofs, oprsz, maxsz,
-                       0, gen_helper_gvec_pmul_b);
-}
+#define WRAP_OOL_FN(WRAPNAME, FUNC)                                        \
+    static void WRAPNAME(TCGContext *tcg_ctx, unsigned vece, uint32_t rd_ofs, uint32_t rn_ofs,  \
+                         uint32_t rm_ofs, uint32_t oprsz, uint32_t maxsz)  \
+    {                                                                      \
+        tcg_gen_gvec_3_ool(tcg_ctx, rd_ofs, rn_ofs, rm_ofs, oprsz, maxsz, 0, FUNC); \
+    }
+
+WRAP_OOL_FN(gen_VMUL_p_3s, gen_helper_gvec_pmul_b)
 
 static bool trans_VMUL_p_3s(DisasContext *s, arg_3same *a)
 {
@@ -742,110 +744,19 @@ static bool trans_SHA1_3s(DisasContext *s, arg_SHA1_3s *a)
     return true;
 }
 
-static bool trans_SHA256H_3s(DisasContext *s, arg_SHA256H_3s *a)
-{
-    TCGv_ptr ptr1, ptr2, ptr3;
-    TCGContext *tcg_ctx = s->uc->tcg_ctx;
-
-    if (!arm_dc_feature(s, ARM_FEATURE_NEON) ||
-        !dc_isar_feature(aa32_sha2, s)) {
-        return false;
+#define DO_SHA2(NAME, FUNC)                                             \
+    WRAP_OOL_FN(gen_##NAME##_3s, FUNC)                                  \
+    static bool trans_##NAME##_3s(DisasContext *s, arg_3same *a)        \
+    {                                                                   \
+        if (!dc_isar_feature(aa32_sha2, s)) {                           \
+            return false;                                               \
+        }                                                               \
+        return do_3same(s, a, gen_##NAME##_3s);                         \
     }
 
-    /* UNDEF accesses to D16-D31 if they don't exist. */
-    if (!dc_isar_feature(aa32_simd_r32, s) &&
-        ((a->vd | a->vn | a->vm) & 0x10)) {
-        return false;
-    }
-
-    if ((a->vn | a->vm | a->vd) & 1) {
-        return false;
-    }
-
-    if (!vfp_access_check(s)) {
-        return true;
-    }
-
-    ptr1 = vfp_reg_ptr(s, true, a->vd);
-    ptr2 = vfp_reg_ptr(s, true, a->vn);
-    ptr3 = vfp_reg_ptr(s, true, a->vm);
-    gen_helper_crypto_sha256h(tcg_ctx, ptr1, ptr2, ptr3);
-    tcg_temp_free_ptr(tcg_ctx, ptr1);
-    tcg_temp_free_ptr(tcg_ctx, ptr2);
-    tcg_temp_free_ptr(tcg_ctx, ptr3);
-
-    return true;
-}
-
-static bool trans_SHA256H2_3s(DisasContext *s, arg_SHA256H2_3s *a)
-{
-    TCGv_ptr ptr1, ptr2, ptr3;
-    TCGContext *tcg_ctx = s->uc->tcg_ctx;
-
-    if (!arm_dc_feature(s, ARM_FEATURE_NEON) ||
-        !dc_isar_feature(aa32_sha2, s)) {
-        return false;
-    }
-
-    /* UNDEF accesses to D16-D31 if they don't exist. */
-    if (!dc_isar_feature(aa32_simd_r32, s) &&
-        ((a->vd | a->vn | a->vm) & 0x10)) {
-        return false;
-    }
-
-    if ((a->vn | a->vm | a->vd) & 1) {
-        return false;
-    }
-
-    if (!vfp_access_check(s)) {
-        return true;
-    }
-
-    ptr1 = vfp_reg_ptr(s, true, a->vd);
-    ptr2 = vfp_reg_ptr(s, true, a->vn);
-    ptr3 = vfp_reg_ptr(s, true, a->vm);
-    gen_helper_crypto_sha256h2(tcg_ctx, ptr1, ptr2, ptr3);
-    tcg_temp_free_ptr(tcg_ctx, ptr1);
-    tcg_temp_free_ptr(tcg_ctx, ptr2);
-    tcg_temp_free_ptr(tcg_ctx, ptr3);
-
-    return true;
-}
-
-static bool trans_SHA256SU1_3s(DisasContext *s, arg_SHA256SU1_3s *a)
-{
-    TCGv_ptr ptr1, ptr2, ptr3;
-    TCGContext *tcg_ctx = s->uc->tcg_ctx;
-
-    if (!arm_dc_feature(s, ARM_FEATURE_NEON) ||
-        !dc_isar_feature(aa32_sha2, s)) {
-        return false;
-    }
-
-    /* UNDEF accesses to D16-D31 if they don't exist. */
-    if (!dc_isar_feature(aa32_simd_r32, s) &&
-        ((a->vd | a->vn | a->vm) & 0x10)) {
-        return false;
-    }
-
-    if ((a->vn | a->vm | a->vd) & 1) {
-        return false;
-    }
-
-    if (!vfp_access_check(s)) {
-        return true;
-    }
-
-    ptr1 = vfp_reg_ptr(s, true, a->vd);
-    ptr2 = vfp_reg_ptr(s, true, a->vn);
-    ptr3 = vfp_reg_ptr(s, true, a->vm);
-    gen_helper_crypto_sha256su1(tcg_ctx, ptr1, ptr2, ptr3);
-    tcg_temp_free_ptr(tcg_ctx, ptr1);
-    tcg_temp_free_ptr(tcg_ctx, ptr2);
-    tcg_temp_free_ptr(tcg_ctx, ptr3);
-
-    return true;
-}
+DO_SHA2(SHA256H, gen_helper_crypto_sha256h)
+DO_SHA2(SHA256H2, gen_helper_crypto_sha256h2)
+DO_SHA2(SHA256SU1, gen_helper_crypto_sha256su1)
 
 #define DO_3SAME_64(INSN, FUNC)                                         \
     static void gen_##INSN##_3s(TCGContext *s, unsigned vece, uint32_t rd_ofs,         \

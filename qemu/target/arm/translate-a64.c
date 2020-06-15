@@ -13769,8 +13769,7 @@ static void disas_crypto_three_reg_sha(DisasContext *s, uint32_t insn)
     int rm = extract32(insn, 16, 5);
     int rn = extract32(insn, 5, 5);
     int rd = extract32(insn, 0, 5);
-    CryptoThreeOpFn *genfn;
-    TCGv_ptr tcg_rd_ptr, tcg_rn_ptr, tcg_rm_ptr;
+    gen_helper_gvec_3 *genfn;
     bool feature;
 
     if (size != 0) {
@@ -13812,23 +13811,22 @@ static void disas_crypto_three_reg_sha(DisasContext *s, uint32_t insn)
         return;
     }
 
-    tcg_rd_ptr = vec_full_reg_ptr(s, rd);
-    tcg_rn_ptr = vec_full_reg_ptr(s, rn);
-    tcg_rm_ptr = vec_full_reg_ptr(s, rm);
-
     if (genfn) {
-        genfn(tcg_ctx, tcg_rd_ptr, tcg_rn_ptr, tcg_rm_ptr);
+        gen_gvec_op3_ool(s, true, rd, rn, rm, 0, genfn);
     } else {
         TCGv_i32 tcg_opcode = tcg_const_i32(tcg_ctx, opcode);
+        TCGv_ptr tcg_rd_ptr = vec_full_reg_ptr(s, rd);
+        TCGv_ptr tcg_rn_ptr = vec_full_reg_ptr(s, rn);
+        TCGv_ptr tcg_rm_ptr = vec_full_reg_ptr(s, rm);
 
         gen_helper_crypto_sha1_3reg(tcg_ctx, tcg_rd_ptr, tcg_rn_ptr,
                                     tcg_rm_ptr, tcg_opcode);
-        tcg_temp_free_i32(tcg_ctx, tcg_opcode);
-    }
 
-    tcg_temp_free_ptr(tcg_ctx, tcg_rd_ptr);
-    tcg_temp_free_ptr(tcg_ctx, tcg_rn_ptr);
-    tcg_temp_free_ptr(tcg_ctx, tcg_rm_ptr);
+        tcg_temp_free_i32(tcg_ctx, tcg_opcode);
+        tcg_temp_free_ptr(tcg_ctx, tcg_rd_ptr);
+        tcg_temp_free_ptr(tcg_ctx, tcg_rn_ptr);
+        tcg_temp_free_ptr(tcg_ctx, tcg_rm_ptr);
+    }
 }
 
 /* Crypto two-reg SHA
@@ -13839,14 +13837,12 @@ static void disas_crypto_three_reg_sha(DisasContext *s, uint32_t insn)
  */
 static void disas_crypto_two_reg_sha(DisasContext *s, uint32_t insn)
 {
-    TCGContext *tcg_ctx = s->uc->tcg_ctx;
     int size = extract32(insn, 22, 2);
     int opcode = extract32(insn, 12, 5);
     int rn = extract32(insn, 5, 5);
     int rd = extract32(insn, 0, 5);
-    CryptoTwoOpFn *genfn;
+    gen_helper_gvec_2 *genfn;
     bool feature;
-    TCGv_ptr tcg_rd_ptr, tcg_rn_ptr;
 
     if (size != 0) {
         unallocated_encoding(s);
@@ -13880,13 +13876,7 @@ static void disas_crypto_two_reg_sha(DisasContext *s, uint32_t insn)
         return;
     }
 
-    tcg_rd_ptr = vec_full_reg_ptr(s, rd);
-    tcg_rn_ptr = vec_full_reg_ptr(s, rn);
-
-    genfn(tcg_ctx, tcg_rd_ptr, tcg_rn_ptr);
-
-    tcg_temp_free_ptr(tcg_ctx, tcg_rd_ptr);
-    tcg_temp_free_ptr(tcg_ctx, tcg_rn_ptr);
+    gen_gvec_op2_ool(s, true, rd, rn, 0, genfn);
 }
 
 static void gen_rax1_i64(TCGContext *s, TCGv_i64 d, TCGv_i64 n, TCGv_i64 m)
