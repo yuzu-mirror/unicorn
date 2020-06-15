@@ -1001,6 +1001,8 @@ void tcg_gen_umax_vec(TCGContext *, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_
 void tcg_gen_shli_vec(TCGContext *, unsigned vece, TCGv_vec r, TCGv_vec a, int64_t i);
 void tcg_gen_shri_vec(TCGContext *, unsigned vece, TCGv_vec r, TCGv_vec a, int64_t i);
 void tcg_gen_sari_vec(TCGContext *, unsigned vece, TCGv_vec r, TCGv_vec a, int64_t i);
+void tcg_gen_rotli_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a, int64_t i);
+void tcg_gen_rotri_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a, int64_t i);
 
 void tcg_gen_shls_vec(TCGContext *, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_i32 s);
 void tcg_gen_shrs_vec(TCGContext *, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_i32 s);

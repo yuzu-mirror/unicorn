@@ -1234,6 +1234,10 @@
 #define helper_gvec_qrdmlah_s32 helper_gvec_qrdmlah_s32_mips
 #define helper_gvec_qrdmlsh_s16 helper_gvec_qrdmlsh_s16_mips
 #define helper_gvec_qrdmlsh_s32 helper_gvec_qrdmlsh_s32_mips
+#define helper_gvec_rotl8i helper_gvec_rotl8i_mips
+#define helper_gvec_rotl16i helper_gvec_rotl16i_mips
+#define helper_gvec_rotl32i helper_gvec_rotl32i_mips
+#define helper_gvec_rotl64i helper_gvec_rotl64i_mips
 #define helper_gvec_sar8i helper_gvec_sar8i_mips
 #define helper_gvec_sar8v helper_gvec_sar8v_mips
 #define helper_gvec_sar16i helper_gvec_sar16i_mips
@@ -2904,6 +2908,8 @@
 #define tcg_gen_gvec_orc tcg_gen_gvec_orc_mips
 #define tcg_gen_gvec_ori tcg_gen_gvec_ori_mips
 #define tcg_gen_gvec_ors tcg_gen_gvec_ors_mips
+#define tcg_gen_gvec_rotli tcg_gen_gvec_rotli_mips
+#define tcg_gen_gvec_rotri tcg_gen_gvec_rotri_mips
 #define tcg_gen_gvec_sar8v tcg_gen_gvec_sar8v_mips
 #define tcg_gen_gvec_sar16v tcg_gen_gvec_sar16v_mips
 #define tcg_gen_gvec_sar32v tcg_gen_gvec_sar32v_mips
@@ -3027,6 +3033,8 @@
 #define tcg_gen_rotl_i64 tcg_gen_rotl_i64_mips
 #define tcg_gen_rotli_i32 tcg_gen_rotli_i32_mips
 #define tcg_gen_rotli_i64 tcg_gen_rotli_i64_mips
+#define tcg_gen_rotli_vec tcg_gen_rotli_vec_mips
+#define tcg_gen_rotri_vec tcg_gen_rotri_vec_mips
 #define tcg_gen_rotr_i32 tcg_gen_rotr_i32_mips
 #define tcg_gen_rotr_i64 tcg_gen_rotr_i64_mips
 #define tcg_gen_rotri_i32 tcg_gen_rotri_i32_mips
@@ -3094,6 +3102,8 @@
 #define tcg_gen_vec_neg8_i64 tcg_gen_vec_neg8_i64_mips
 #define tcg_gen_vec_neg16_i64 tcg_gen_vec_neg16_i64_mips
 #define tcg_gen_vec_neg32_i64 tcg_gen_vec_neg32_i64_mips
+#define tcg_gen_vec_rotl8i_i64 tcg_gen_vec_rotl8i_i64_mips
+#define tcg_gen_vec_rotl16i_i64 tcg_gen_vec_rotl16i_i64_mips
 #define tcg_gen_vec_sar8i_i64 tcg_gen_vec_sar8i_i64_mips
 #define tcg_gen_vec_sar16i_i64 tcg_gen_vec_sar16i_i64_mips
 #define tcg_gen_vec_shl8i_i64 tcg_gen_vec_shl8i_i64_mips

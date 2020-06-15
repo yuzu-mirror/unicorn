@@ -547,6 +547,18 @@ void tcg_gen_sari_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a, int6
     do_shifti(s, INDEX_op_sari_vec, vece, r, a, i);
 }
 
+void tcg_gen_rotli_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a, int64_t i)
+{
+    do_shifti(s, INDEX_op_rotli_vec, vece, r, a, i);
+}
+
+void tcg_gen_rotri_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a, int64_t i)
+{
+    int bits = 8 << vece;
+    tcg_debug_assert(i >= 0 && i < bits);
+    do_shifti(s, INDEX_op_rotli_vec, vece, r, a, -i & (bits - 1));
+}
+
 void tcg_gen_cmp_vec(TCGContext *s, TCGCond cond, unsigned vece,
                      TCGv_vec r, TCGv_vec a, TCGv_vec b)
 {
