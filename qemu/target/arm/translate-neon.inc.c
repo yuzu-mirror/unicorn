@@ -1415,3 +1415,172 @@ static bool do_2shift_env_32(DisasContext *s, arg_2reg_shift *a,
 DO_2SHIFT_ENV(VQSHLU, qshlu_s)
 DO_2SHIFT_ENV(VQSHL_U, qshl_u)
 DO_2SHIFT_ENV(VQSHL_S, qshl_s)
+
+static bool do_2shift_narrow_64(DisasContext *s, arg_2reg_shift *a,
+                                NeonGenTwo64OpFn *shiftfn,
+                                NeonGenNarrowEnvFn *narrowfn)
+{
+    /* 2-reg-and-shift narrowing-shift operations, size == 3 case */
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+    TCGv_i64 constimm, rm1, rm2;
+    TCGv_i32 rd;
+
+    if (!arm_dc_feature(s, ARM_FEATURE_NEON)) {
+        return false;
+    }
+
+    /* UNDEF accesses to D16-D31 if they don't exist. */
+    if (!dc_isar_feature(aa32_simd_r32, s) &&
+        ((a->vd | a->vm) & 0x10)) {
+        return false;
+    }
+
+    if (a->vm & 1) {
+        return false;
+    }
+
+    if (!vfp_access_check(s)) {
+        return true;
+    }
+
+    /*
+     * This is always a right shift, and the shiftfn is always a
+     * left-shift helper, which thus needs the negated shift count.
+     */
+    constimm = tcg_const_i64(tcg_ctx, -a->shift);
+    rm1 = tcg_temp_new_i64(tcg_ctx);
+    rm2 = tcg_temp_new_i64(tcg_ctx);
+
+    /* Load both inputs first to avoid potential overwrite if rm == rd */
+    neon_load_reg64(s, rm1, a->vm);
+    neon_load_reg64(s, rm2, a->vm + 1);
+
+    shiftfn(tcg_ctx, rm1, rm1, constimm);
+    rd = tcg_temp_new_i32(tcg_ctx);
+    narrowfn(tcg_ctx, rd, tcg_ctx->cpu_env, rm1);
+    neon_store_reg(s, a->vd, 0, rd);
+
+    shiftfn(tcg_ctx, rm2, rm2, constimm);
+    rd = tcg_temp_new_i32(tcg_ctx);
+    narrowfn(tcg_ctx, rd, tcg_ctx->cpu_env, rm2);
+    neon_store_reg(s, a->vd, 1, rd);
+
+    tcg_temp_free_i64(tcg_ctx, rm1);
+    tcg_temp_free_i64(tcg_ctx, rm2);
+    tcg_temp_free_i64(tcg_ctx, constimm);
+
+    return true;
+}
+
+static bool do_2shift_narrow_32(DisasContext *s, arg_2reg_shift *a,
+                                NeonGenTwoOpFn *shiftfn,
+                                NeonGenNarrowEnvFn *narrowfn)
+{
+    /* 2-reg-and-shift narrowing-shift operations, size < 3 case */
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+    TCGv_i32 constimm, rm1, rm2, rm3, rm4;
+    TCGv_i64 rtmp;
+    uint32_t imm;
+
+    if (!arm_dc_feature(s, ARM_FEATURE_NEON)) {
+        return false;
+    }
+
+    /* UNDEF accesses to D16-D31 if they don't exist. */
+    if (!dc_isar_feature(aa32_simd_r32, s) &&
+        ((a->vd | a->vm) & 0x10)) {
+        return false;
+    }
+
+    if (a->vm & 1) {
+        return false;
+    }
+
+    if (!vfp_access_check(s)) {
+        return true;
+    }
+
+    /*
+     * This is always a right shift, and the shiftfn is always a
+     * left-shift helper, which thus needs the negated shift count
+     * duplicated into each lane of the immediate value.
+     */
+    if (a->size == 1) {
+        imm = (uint16_t)(-a->shift);
+        imm |= imm << 16;
+    } else {
+        /* size == 2 */
+        imm = -a->shift;
+    }
+    constimm = tcg_const_i32(tcg_ctx, imm);
+
+    /* Load all inputs first to avoid potential overwrite */
+    rm1 = neon_load_reg(s, a->vm, 0);
+    rm2 = neon_load_reg(s, a->vm, 1);
+    rm3 = neon_load_reg(s, a->vm + 1, 0);
+    rm4 = neon_load_reg(s, a->vm + 1, 1);
+    rtmp = tcg_temp_new_i64(tcg_ctx);
+
+    shiftfn(tcg_ctx, rm1, rm1, constimm);
+    shiftfn(tcg_ctx, rm2, rm2, constimm);
+
+    tcg_gen_concat_i32_i64(tcg_ctx, rtmp, rm1, rm2);
+    tcg_temp_free_i32(tcg_ctx, rm2);
+
+    narrowfn(tcg_ctx, rm1, tcg_ctx->cpu_env, rtmp);
+    neon_store_reg(s, a->vd, 0, rm1);
+
+    shiftfn(tcg_ctx, rm3, rm3, constimm);
+    shiftfn(tcg_ctx, rm4, rm4, constimm);
+    tcg_temp_free_i32(tcg_ctx, constimm);
+
+    tcg_gen_concat_i32_i64(tcg_ctx, rtmp, rm3, rm4);
+    tcg_temp_free_i32(tcg_ctx, rm4);
+
+    narrowfn(tcg_ctx, rm3, tcg_ctx->cpu_env, rtmp);
+    tcg_temp_free_i64(tcg_ctx, rtmp);
+    neon_store_reg(s, a->vd, 1, rm3);
+    return true;
+}
+
+#define DO_2SN_64(INSN, FUNC, NARROWFUNC)                               \
+    static bool trans_##INSN##_2sh(DisasContext *s, arg_2reg_shift *a)  \
+    {                                                                   \
+        return do_2shift_narrow_64(s, a, FUNC, NARROWFUNC);             \
+    }
+#define DO_2SN_32(INSN, FUNC, NARROWFUNC)                               \
+    static bool trans_##INSN##_2sh(DisasContext *s, arg_2reg_shift *a)  \
+    {                                                                   \
+        return do_2shift_narrow_32(s, a, FUNC, NARROWFUNC);             \
+    }
+
+static void gen_neon_narrow_u32(TCGContext *s, TCGv_i32 dest, TCGv_ptr env, TCGv_i64 src)
+{
+    tcg_gen_extrl_i64_i32(s, dest, src);
+}
+
+static void gen_neon_narrow_u16(TCGContext *s, TCGv_i32 dest, TCGv_ptr env, TCGv_i64 src)
+{
+    gen_helper_neon_narrow_u16(s, dest, src);
+}
+
+static void gen_neon_narrow_u8(TCGContext *s, TCGv_i32 dest, TCGv_ptr env, TCGv_i64 src)
+{
+    gen_helper_neon_narrow_u8(s, dest, src);
+}
+
+DO_2SN_64(VSHRN_64, gen_ushl_i64, gen_neon_narrow_u32)
+DO_2SN_32(VSHRN_32, gen_ushl_i32, gen_neon_narrow_u16)
+DO_2SN_32(VSHRN_16, gen_helper_neon_shl_u16, gen_neon_narrow_u8)
+
+DO_2SN_64(VRSHRN_64, gen_helper_neon_rshl_u64, gen_neon_narrow_u32)
+DO_2SN_32(VRSHRN_32, gen_helper_neon_rshl_u32, gen_neon_narrow_u16)
+DO_2SN_32(VRSHRN_16, gen_helper_neon_rshl_u16, gen_neon_narrow_u8)
+
+DO_2SN_64(VQSHRUN_64, gen_sshl_i64, gen_helper_neon_unarrow_sat32)
+DO_2SN_32(VQSHRUN_32, gen_sshl_i32, gen_helper_neon_unarrow_sat16)
+DO_2SN_32(VQSHRUN_16, gen_helper_neon_shl_s16, gen_helper_neon_unarrow_sat8)
+
+DO_2SN_64(VQRSHRUN_64, gen_helper_neon_rshl_s64, gen_helper_neon_unarrow_sat32)
+DO_2SN_32(VQRSHRUN_32, gen_helper_neon_rshl_s32, gen_helper_neon_unarrow_sat16)
+DO_2SN_32(VQRSHRUN_16, gen_helper_neon_rshl_s16, gen_helper_neon_unarrow_sat8)
