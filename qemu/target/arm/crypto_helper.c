@@ -14,7 +14,9 @@
 #include "cpu.h"
 #include "exec/exec-all.h"
 #include "exec/helper-proto.h"
+#include "tcg/tcg-gvec-desc.h"
 #include "crypto/aes.h"
+#include "vec_internal.h"
 
 union CRYPTO_STATE {
     uint8_t    bytes[16];
@@ -30,22 +32,14 @@ union CRYPTO_STATE {
 #define CR_ST_WORD(state, i)   (state.words[i])
 #endif
 
-void HELPER(crypto_aese)(void *vd, void *vm, uint32_t decrypt)
+static void do_crypto_aese(uint64_t *rd, uint64_t *rn,
+                           uint64_t *rm, bool decrypt)
 {
     static uint8_t const * const sbox[2] = { AES_sbox, AES_isbox };
     static uint8_t const * const shift[2] = { AES_shifts, AES_ishifts };
-    uint64_t *rd = vd;
-    uint64_t *rm = vm;
-    union CRYPTO_STATE rk;
-    union CRYPTO_STATE st;
+    union CRYPTO_STATE rk = { .l = { rm[0], rm[1] } };
+    union CRYPTO_STATE st = { .l = { rn[0], rn[1] } };
     int i;
-
-    rk.l[0] = rm[0];
-    rk.l[1] = rm[1];
-    st.l[0] = rd[0];
-    st.l[1] = rd[1];
-
-    assert(decrypt < 2);
 
     /* xor state vector with round key */
     rk.l[0] ^= st.l[0];
@@ -60,7 +54,18 @@ void HELPER(crypto_aese)(void *vd, void *vm, uint32_t decrypt)
     rd[1] = st.l[1];
 }
 
-void HELPER(crypto_aesmc)(void *vd, void *vm, uint32_t decrypt)
+void HELPER(crypto_aese)(void *vd, void *vn, void *vm, uint32_t desc)
+{
+    intptr_t i, opr_sz = simd_oprsz(desc);
+    bool decrypt = simd_data(desc);
+
+    for (i = 0; i < opr_sz; i += 16) {
+        do_crypto_aese(vd + i, vn + i, vm + i, decrypt);
+    }
+    clear_tail(vd, opr_sz, simd_maxsz(desc));
+}
+
+static void do_crypto_aesmc(uint64_t *rd, uint64_t *rm, bool decrypt)
 {
     static uint32_t const mc[][256] = { {
         /* MixColumns lookup table */
@@ -196,14 +201,8 @@ void HELPER(crypto_aesmc)(void *vd, void *vm, uint32_t decrypt)
         0xbe805d9f, 0xb58d5491, 0xa89a4f83, 0xa397468d,
     } };
 
-    uint64_t *rd = vd;
-    uint64_t *rm = vm;
-    union CRYPTO_STATE st;
+    union CRYPTO_STATE st = { .l = { rm[0], rm[1] } };
     int i;
-    st.l[0] = rm[0];
-    st.l[1] = rm[1];
-
-    assert(decrypt < 2);
 
     for (i = 0; i < 16; i += 4) {
         CR_ST_WORD(st, i >> 2) =
@@ -215,6 +214,17 @@ void HELPER(crypto_aesmc)(void *vd, void *vm, uint32_t decrypt)
 
     rd[0] = st.l[0];
     rd[1] = st.l[1];
+}
+
+void HELPER(crypto_aesmc)(void *vd, void *vm, uint32_t desc)
+{
+    intptr_t i, opr_sz = simd_oprsz(desc);
+    bool decrypt = simd_data(desc);
+
+    for (i = 0; i < opr_sz; i += 16) {
+        do_crypto_aesmc(vd + i, vm + i, decrypt);
+    }
+    clear_tail(vd, opr_sz, simd_maxsz(desc));
 }
 
 /*
@@ -710,19 +720,11 @@ static uint8_t const sm4_sbox[] = {
     0x79, 0xee, 0x5f, 0x3e, 0xd7, 0xcb, 0x39, 0x48,
 };
 
-void HELPER(crypto_sm4e)(void *vd, void *vn)
+static void do_crypto_sm4e(uint64_t *rd, uint64_t *rn, uint64_t *rm)
 {
-    uint64_t *rd = vd;
-    uint64_t *rn = vn;
-    union CRYPTO_STATE d;
-    union CRYPTO_STATE n;
+    union CRYPTO_STATE d = { .l = { rn[0], rn[1] } };
+    union CRYPTO_STATE n = { .l = { rm[0], rm[1] } };
     uint32_t t, i;
-
-    d.l[0] = rd[0];
-    d.l[1] = rd[1];
-
-    n.l[0] = rn[0];
-    n.l[1] = rn[1];
 
     for (i = 0; i < 4; i++) {
         t = CR_ST_WORD(d, (i + 1) % 4) ^
@@ -743,21 +745,22 @@ void HELPER(crypto_sm4e)(void *vd, void *vn)
     rd[1] = d.l[1];
 }
 
-void HELPER(crypto_sm4ekey)(void *vd, void *vn, void* vm)
+void HELPER(crypto_sm4e)(void *vd, void *vn, void *vm, uint32_t desc)
 {
-    uint64_t *rd = vd;
-    uint64_t *rn = vn;
-    uint64_t *rm = vm;
+    intptr_t i, opr_sz = simd_oprsz(desc);
+
+    for (i = 0; i < opr_sz; i += 16) {
+        do_crypto_sm4e(vd + i, vn + i, vm + i);
+    }
+    clear_tail(vd, opr_sz, simd_maxsz(desc));
+}
+
+static void do_crypto_sm4ekey(uint64_t *rd, uint64_t *rn, uint64_t *rm)
+{
     union CRYPTO_STATE d;
-    union CRYPTO_STATE n;
-    union CRYPTO_STATE m;
+    union CRYPTO_STATE n = { .l = { rn[0], rn[1] } };
+    union CRYPTO_STATE m = { .l = { rm[0], rm[1] } };
     uint32_t t, i;
-
-    n.l[0] = rn[0];
-    n.l[1] = rn[1];
-
-    m.l[0] = rm[0];
-    m.l[1] = rm[1];
 
     d = n;
     for (i = 0; i < 4; i++) {
@@ -776,4 +779,14 @@ void HELPER(crypto_sm4ekey)(void *vd, void *vn, void* vm)
 
     rd[0] = d.l[0];
     rd[1] = d.l[1];
+}
+
+void HELPER(crypto_sm4ekey)(void *vd, void *vn, void* vm, uint32_t desc)
+{
+    intptr_t i, opr_sz = simd_oprsz(desc);
+
+    for (i = 0; i < opr_sz; i += 16) {
+        do_crypto_sm4ekey(vd + i, vn + i, vm + i);
+    }
+    clear_tail(vd, opr_sz, simd_maxsz(desc));
 }
