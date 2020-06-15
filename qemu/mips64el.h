@@ -2917,6 +2917,7 @@
 #define tcg_gen_gvec_ori tcg_gen_gvec_ori_mips64el
 #define tcg_gen_gvec_ors tcg_gen_gvec_ors_mips64el
 #define tcg_gen_gvec_rotli tcg_gen_gvec_rotli_mips64el
+#define tcg_gen_gvec_rotls tcg_gen_gvec_rotls_mips64el
 #define tcg_gen_gvec_rotri tcg_gen_gvec_rotri_mips64el
 #define tcg_gen_gvec_rotlv tcg_gen_gvec_rotlv_mips64el
 #define tcg_gen_gvec_rotrv tcg_gen_gvec_rotrv_mips64el
@@ -3044,6 +3045,7 @@
 #define tcg_gen_rotli_i32 tcg_gen_rotli_i32_mips64el
 #define tcg_gen_rotli_i64 tcg_gen_rotli_i64_mips64el
 #define tcg_gen_rotli_vec tcg_gen_rotli_vec_mips64el
+#define tcg_gen_rotls_vec tcg_gen_rotls_vec_mips64el
 #define tcg_gen_rotlv_vec tcg_gen_rotlv_vec_mips64el
 #define tcg_gen_rotri_vec tcg_gen_rotri_vec_mips64el
 #define tcg_gen_rotrv_vec tcg_gen_rotrv_vec_mips64el

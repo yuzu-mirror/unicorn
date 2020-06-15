@@ -186,6 +186,7 @@ typedef uint64_t TCGRegSet;
 #define TCG_TARGET_HAS_andc_vec         0
 #define TCG_TARGET_HAS_orc_vec          0
 #define TCG_TARGET_HAS_roti_vec         0
+#define TCG_TARGET_HAS_rots_vec         0
 #define TCG_TARGET_HAS_rotv_vec         0
 #define TCG_TARGET_HAS_shi_vec          0
 #define TCG_TARGET_HAS_shs_vec          0
@@ -1093,7 +1094,7 @@ static inline TCGv_ptr tcg_temp_local_new_ptr(TCGContext *s)
 }
 
 // UNICORN: Added
-#define TCG_OP_DEFS_TABLE_SIZE 188
+#define TCG_OP_DEFS_TABLE_SIZE 189
 extern const TCGOpDef tcg_op_defs_org[TCG_OP_DEFS_TABLE_SIZE];
 
 typedef struct TCGTargetOpDef {

@@ -1007,6 +1007,7 @@ void tcg_gen_rotri_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a, int
 void tcg_gen_shls_vec(TCGContext *, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_i32 s);
 void tcg_gen_shrs_vec(TCGContext *, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_i32 s);
 void tcg_gen_sars_vec(TCGContext *, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_i32 s);
+void tcg_gen_rotls_vec(TCGContext *, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_i32 s);
 
 void tcg_gen_shlv_vec(TCGContext *, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_vec s);
 void tcg_gen_shrv_vec(TCGContext *, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_vec s);

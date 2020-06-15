@@ -749,6 +749,11 @@ void tcg_gen_sars_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv
     do_shifts(s, vece, r, a, b, INDEX_op_sars_vec);
 }
 
+void tcg_gen_rotls_vec(TCGContext *tcg_ctx, unsigned vece, TCGv_vec r, TCGv_vec a, TCGv_i32 s)
+{
+    do_shifts(tcg_ctx, vece, r, a, s, INDEX_op_rotls_vec);
+}
+
 void tcg_gen_bitsel_vec(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a,
                         TCGv_vec b, TCGv_vec c)
 {
