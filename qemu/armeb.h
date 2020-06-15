@@ -1078,6 +1078,7 @@
 #define helper_crc32c helper_crc32c_armeb
 #define helper_crypto_aese helper_crypto_aese_armeb
 #define helper_crypto_aesmc helper_crypto_aesmc_armeb
+#define helper_crypto_rax1 helper_crypto_rax1_armeb
 #define helper_crypto_sha1_3reg helper_crypto_sha1_3reg_armeb
 #define helper_crypto_sha1h helper_crypto_sha1h_armeb
 #define helper_crypto_sha1su1 helper_crypto_sha1su1_armeb
@@ -3428,6 +3429,7 @@
 #define gen_gvec_cmtst gen_gvec_cmtst_armeb
 #define gen_gvec_mla gen_gvec_mla_armeb
 #define gen_gvec_mls gen_gvec_mls_armeb
+#define gen_gvec_rax1 gen_gvec_rax1_armeb
 #define gen_gvec_saba gen_gvec_saba_armeb
 #define gen_gvec_sabd gen_gvec_sabd_armeb
 #define gen_gvec_sli gen_gvec_sli_armeb

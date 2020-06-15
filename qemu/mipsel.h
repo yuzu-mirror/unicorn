@@ -1078,6 +1078,7 @@
 #define helper_crc32c helper_crc32c_mipsel
 #define helper_crypto_aese helper_crypto_aese_mipsel
 #define helper_crypto_aesmc helper_crypto_aesmc_mipsel
+#define helper_crypto_rax1 helper_crypto_rax1_mipsel
 #define helper_crypto_sha1_3reg helper_crypto_sha1_3reg_mipsel
 #define helper_crypto_sha1h helper_crypto_sha1h_mipsel
 #define helper_crypto_sha1su1 helper_crypto_sha1su1_mipsel
