@@ -5297,6 +5297,8 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                 case 9: /* Floating point VMUL scalar */
                 case 12: /* VQDMULH scalar */
                 case 13: /* VQRDMULH scalar */
+                case 14: /* VQRDMLAH scalar */
+                case 15: /* VQRDMLSH scalar */
                     return 1; /* handled by decodetree */
 
                 case 3: /* VQDMLAL scalar */
@@ -5354,42 +5356,6 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                             abort();
                         }
                         neon_store_reg64(s, s->V0, rd + pass);
-                    }
-                    break;
-                case 14: /* VQRDMLAH scalar */
-                case 15: /* VQRDMLSH scalar */
-                    {
-                        NeonGenThreeOpEnvFn *fn;
-
-                        if (!dc_isar_feature(aa32_rdm, s)) {
-                            return 1;
-                        }
-                        if (u && ((rd | rn) & 1)) {
-                            return 1;
-                        }
-                        if (op == 14) {
-                            if (size == 1) {
-                                fn = gen_helper_neon_qrdmlah_s16;
-                            } else {
-                                fn = gen_helper_neon_qrdmlah_s32;
-                            }
-                        } else {
-                            if (size == 1) {
-                                fn = gen_helper_neon_qrdmlsh_s16;
-                            } else {
-                                fn = gen_helper_neon_qrdmlsh_s32;
-                            }
-                        }
-
-                        tmp2 = neon_get_scalar(s, size, rm);
-                        for (pass = 0; pass < (u ? 4 : 2); pass++) {
-                            tmp = neon_load_reg(s, rn, pass);
-                            tmp3 = neon_load_reg(s, rd, pass);
-                            fn(tcg_ctx, tmp, tcg_ctx->cpu_env, tmp, tmp2, tmp3);
-                            tcg_temp_free_i32(tcg_ctx, tmp3);
-                            neon_store_reg(s, rd, pass, tmp);
-                        }
-                        tcg_temp_free_i32(tcg_ctx, tmp2);
                     }
                     break;
                 default:
