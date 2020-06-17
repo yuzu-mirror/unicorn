@@ -2923,3 +2923,60 @@ static bool trans_VEXT(DisasContext *s, arg_VEXT *a)
     }
     return true;
 }
+
+static bool trans_VTBL(DisasContext *s, arg_VTBL *a)
+{
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+    int n;
+    TCGv_i32 tmp, tmp2, tmp3, tmp4;
+    TCGv_ptr ptr1;
+
+    if (!arm_dc_feature(s, ARM_FEATURE_NEON)) {
+        return false;
+    }
+
+    /* UNDEF accesses to D16-D31 if they don't exist. */
+    if (!dc_isar_feature(aa32_simd_r32, s) &&
+        ((a->vd | a->vn | a->vm) & 0x10)) {
+        return false;
+    }
+
+    if (!vfp_access_check(s)) {
+        return true;
+    }
+
+    n = a->len + 1;
+    if ((a->vn + n) > 32) {
+        /*
+         * This is UNPREDICTABLE; we choose to UNDEF to avoid the
+         * helper function running off the end of the register file.
+         */
+        return false;
+    }
+    n <<= 3;
+    if (a->op) {
+        tmp = neon_load_reg(s, a->vd, 0);
+    } else {
+        tmp = tcg_temp_new_i32(tcg_ctx);
+        tcg_gen_movi_i32(tcg_ctx, tmp, 0);
+    }
+    tmp2 = neon_load_reg(s, a->vm, 0);
+    ptr1 = vfp_reg_ptr(s, true, a->vn);
+    tmp4 = tcg_const_i32(tcg_ctx, n);
+    gen_helper_neon_tbl(tcg_ctx, tmp2, tmp2, tmp, ptr1, tmp4);
+    tcg_temp_free_i32(tcg_ctx, tmp);
+    if (a->op) {
+        tmp = neon_load_reg(s, a->vd, 1);
+    } else {
+        tmp = tcg_temp_new_i32(tcg_ctx);
+        tcg_gen_movi_i32(tcg_ctx, tmp, 0);
+    }
+    tmp3 = neon_load_reg(s, a->vm, 1);
+    gen_helper_neon_tbl(tcg_ctx, tmp3, tmp3, tmp, ptr1, tmp4);
+    tcg_temp_free_i32(tcg_ctx, tmp4);
+    tcg_temp_free_ptr(tcg_ctx, ptr1);
+    neon_store_reg(s, a->vd, 0, tmp2);
+    neon_store_reg(s, a->vd, 1, tmp3);
+    tcg_temp_free_i32(tcg_ctx, tmp);
+    return true;
+}

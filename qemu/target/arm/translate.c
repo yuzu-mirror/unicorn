@@ -5138,13 +5138,12 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
     int op;
     int q;
-    int rd, rn, rm, rd_ofs, rm_ofs;
+    int rd, rm, rd_ofs, rm_ofs;
     int size;
     int pass;
     int u;
     int vec_size;
-    TCGv_i32 tmp, tmp2, tmp3, tmp5;
-    TCGv_ptr ptr1;
+    TCGv_i32 tmp, tmp2, tmp3;
 
     if (!arm_dc_feature(s, ARM_FEATURE_NEON)) {
         return 1;
@@ -5165,7 +5164,6 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
     q = (insn & (1 << 6)) != 0;
     u = (insn >> 24) & 1;
     VFP_DREG_D(rd, insn);
-    VFP_DREG_N(rn, insn);
     VFP_DREG_M(rm, insn);
     size = (insn >> 20) & 3;
     vec_size = q ? 16 : 8;
@@ -5691,39 +5689,8 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                     break;
                 }
             } else if ((insn & (1 << 10)) == 0) {
-                /* VTBL, VTBX.  */
-                int n = ((insn >> 8) & 3) + 1;
-                if ((rn + n) > 32) {
-                    /* This is UNPREDICTABLE; we choose to UNDEF to avoid the
-                     * helper function running off the end of the register file.
-                     */
-                    return 1;
-                }
-                n <<= 3;
-                if (insn & (1 << 6)) {
-                    tmp = neon_load_reg(s, rd, 0);
-                } else {
-                    tmp = tcg_temp_new_i32(tcg_ctx);
-                    tcg_gen_movi_i32(tcg_ctx, tmp, 0);
-                }
-                tmp2 = neon_load_reg(s, rm, 0);
-                ptr1 = vfp_reg_ptr(s, true, rn);
-                tmp5 = tcg_const_i32(tcg_ctx, n);
-                gen_helper_neon_tbl(tcg_ctx, tmp2, tmp2, tmp, ptr1, tmp5);
-                tcg_temp_free_i32(tcg_ctx, tmp);
-                if (insn & (1 << 6)) {
-                    tmp = neon_load_reg(s, rd, 1);
-                } else {
-                    tmp = tcg_temp_new_i32(tcg_ctx);
-                    tcg_gen_movi_i32(tcg_ctx, tmp, 0);
-                }
-                tmp3 = neon_load_reg(s, rm, 1);
-                gen_helper_neon_tbl(tcg_ctx, tmp3, tmp3, tmp, ptr1, tmp5);
-                tcg_temp_free_i32(tcg_ctx, tmp5);
-                tcg_temp_free_ptr(tcg_ctx, ptr1);
-                neon_store_reg(s, rd, 0, tmp2);
-                neon_store_reg(s, rd, 1, tmp3);
-                tcg_temp_free_i32(tcg_ctx, tmp);
+                /* VTBL, VTBX: handled by decodetree */
+                return 1;
             } else if ((insn & 0x380) == 0) {
                 /* VDUP */
                 int element;
