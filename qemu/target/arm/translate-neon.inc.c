@@ -1347,6 +1347,7 @@ static bool do_2shift_env_64(DisasContext *s, arg_2reg_shift *a,
         neon_load_reg64(s, tmp, a->vm + pass);
         fn(tcg_ctx, tmp, tcg_ctx->cpu_env, tmp, constimm);
         neon_store_reg64(s, tmp, a->vd + pass);
+        tcg_temp_free_i64(tcg_ctx, tmp);
     }
     tcg_temp_free_i64(tcg_ctx, constimm);
     return true;
