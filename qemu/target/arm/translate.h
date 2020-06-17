@@ -378,6 +378,7 @@ typedef void NeonGenTwo64OpEnvFn(TCGContext *t, TCGv_i64, TCGv_ptr, TCGv_i64, TC
 typedef void NeonGenNarrowFn(TCGContext *t, TCGv_i32, TCGv_i64);
 typedef void NeonGenNarrowEnvFn(TCGContext *t, TCGv_i32, TCGv_ptr, TCGv_i64);
 typedef void NeonGenWidenFn(TCGContext *t, TCGv_i64, TCGv_i32);
+typedef void NeonGenTwoOpWidenFn(TCGContext *t, TCGv_i64, TCGv_i32, TCGv_i32);
 typedef void NeonGenTwoSingleOPFn(TCGContext *t, TCGv_i32, TCGv_i32, TCGv_i32, TCGv_ptr);
 typedef void NeonGenTwoDoubleOPFn(TCGContext *t, TCGv_i64, TCGv_i64, TCGv_i64, TCGv_ptr);
 typedef void NeonGenOneOpFn(TCGContext *t, TCGv_i64, TCGv_i64);
