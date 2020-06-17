@@ -5371,11 +5371,11 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                     {0, 0, 0, 7}, /* VSUBHN: handled by decodetree */
                     {0, 0, 0, 7}, /* VABDL */
                     {0, 0, 0, 7}, /* VMLAL */
-                    {0, 0, 0, 9}, /* VQDMLAL */
+                    {0, 0, 0, 7}, /* VQDMLAL */
                     {0, 0, 0, 7}, /* VMLSL */
-                    {0, 0, 0, 9}, /* VQDMLSL */
+                    {0, 0, 0, 7}, /* VQDMLSL */
                     {0, 0, 0, 7}, /* Integer VMULL */
-                    {0, 0, 0, 9}, /* VQDMULL */
+                    {0, 0, 0, 7}, /* VQDMULL */
                     {0, 0, 0, 0xa}, /* Polynomial VMULL */
                     {0, 0, 0, 7}, /* Reserved: always UNDEF */
                 };
@@ -5407,57 +5407,7 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                     return 0;
                 }
 
-                /* Avoid overlapping operands.  Wide source operands are
-                   always aligned so will never overlap with wide
-                   destinations in problematic ways.  */
-                if (rd == rm) {
-                    tmp = neon_load_reg(s, rm, 1);
-                    neon_store_scratch(s, 2, tmp);
-                } else if (rd == rn) {
-                    tmp = neon_load_reg(s, rn, 1);
-                    neon_store_scratch(s, 2, tmp);
-                }
-                tmp3 = NULL;
-                for (pass = 0; pass < 2; pass++) {
-                    if (pass == 1 && rd == rn) {
-                        tmp = neon_load_scratch(s, 2);
-                    } else {
-                        tmp = neon_load_reg(s, rn, pass);
-                    }
-                    if (pass == 1 && rd == rm) {
-                        tmp2 = neon_load_scratch(s, 2);
-                    } else {
-                        tmp2 = neon_load_reg(s, rm, pass);
-                    }
-                    switch (op) {
-                    case 9: case 11: case 13:
-                        /* VQDMLAL, VQDMLSL, VQDMULL */
-                        gen_neon_mull(s, s->V0, tmp, tmp2, size, u);
-                        break;
-                    default: /* 15 is RESERVED: caught earlier  */
-                        abort();
-                    }
-                    if (op == 13) {
-                        /* VQDMULL */
-                        gen_neon_addl_saturate(s, s->V0, s->V0, size);
-                        neon_store_reg64(s, s->V0, rd + pass);
-                    } else {
-                        /* Accumulate.  */
-                        neon_load_reg64(s, s->V1, rd + pass);
-                        switch (op) {
-                        case 9: case 11: /* VQDMLAL, VQDMLSL */
-                            gen_neon_addl_saturate(s, s->V0, s->V0, size);
-                            if (op == 11) {
-                                gen_neon_negl(s, s->V0, size);
-                            }
-                            gen_neon_addl_saturate(s, s->V0, s->V1, size);
-                            break;
-                        default:
-                            abort();
-                        }
-                        neon_store_reg64(s, s->V0, rd + pass);
-                    }
-                }
+                abort(); /* all others handled by decodetree */
             } else {
                 /* Two registers and a scalar. NB that for ops of this form
                  * the ARM ARM labels bit 24 as Q, but it is in our variable
