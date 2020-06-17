@@ -5366,7 +5366,6 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                 /* Three registers of different lengths.  */
                 int src1_wide;
                 int src2_wide;
-                int prewiden;
                 /* undefreq: bit 0 : UNDEF if size == 0
                  *           bit 1 : UNDEF if size == 1
                  *           bit 2 : UNDEF if size == 2
@@ -5376,10 +5375,10 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                 int undefreq;
                 /* prewiden, src1_wide, src2_wide, undefreq */
                 static const int neon_3reg_wide[16][4] = {
-                    {1, 0, 0, 0}, /* VADDL */
-                    {1, 1, 0, 0}, /* VADDW */
-                    {1, 0, 0, 0}, /* VSUBL */
-                    {1, 1, 0, 0}, /* VSUBW */
+                    {0, 0, 0, 7}, /* VADDL: handled by decodetree */
+                    {0, 0, 0, 7}, /* VADDW: handled by decodetree */
+                    {0, 0, 0, 7}, /* VSUBL: handled by decodetree */
+                    {0, 0, 0, 7}, /* VSUBW: handled by decodetree */
                     {0, 1, 1, 0}, /* VADDHN */
                     {0, 0, 0, 0}, /* VABAL */
                     {0, 1, 1, 0}, /* VSUBHN */
@@ -5394,7 +5393,6 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                     {0, 0, 0, 7}, /* Reserved: always UNDEF */
                 };
 
-                prewiden = neon_3reg_wide[op][0];
                 src1_wide = neon_3reg_wide[op][1];
                 src2_wide = neon_3reg_wide[op][2];
                 undefreq = neon_3reg_wide[op][3];
@@ -5447,9 +5445,6 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                         } else {
                             tmp = neon_load_reg(s, rn, pass);
                         }
-                        if (prewiden) {
-                            gen_neon_widen(s, s->V0, tmp, size, u);
-                        }
                     }
                     if (src2_wide) {
                         neon_load_reg64(s, s->V1, rm + pass);
@@ -5459,9 +5454,6 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                             tmp2 = neon_load_scratch(s, 2);
                         } else {
                             tmp2 = neon_load_reg(s, rm, pass);
-                        }
-                        if (prewiden) {
-                            gen_neon_widen(s, s->V1, tmp2, size, u);
                         }
                     }
                     switch (op) {
