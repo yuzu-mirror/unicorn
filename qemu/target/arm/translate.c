@@ -5307,15 +5307,11 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                 case 0: /* Integer VMLA scalar */
                 case 4: /* Integer VMLS scalar */
                 case 8: /* Integer VMUL scalar */
-                    return 1; /* handled by decodetree */
-
                 case 1: /* Float VMLA scalar */
                 case 5: /* Floating point VMLS scalar */
                 case 9: /* Floating point VMUL scalar */
-                    if (size == 1) {
-                        return 1;
-                    }
-                    /* fall through */
+                    return 1; /* handled by decodetree */
+
                 case 12: /* VQDMULH scalar */
                 case 13: /* VQRDMULH scalar */
                     if (u && ((rd | rn) & 1)) {
@@ -5332,41 +5328,14 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                             } else {
                                 gen_helper_neon_qdmulh_s32(tcg_ctx, tmp, tcg_ctx->cpu_env, tmp, tmp2);
                             }
-                        } else if (op == 13) {
+                        } else {
                             if (size == 1) {
                                 gen_helper_neon_qrdmulh_s16(tcg_ctx, tmp, tcg_ctx->cpu_env, tmp, tmp2);
                             } else {
                                 gen_helper_neon_qrdmulh_s32(tcg_ctx, tmp, tcg_ctx->cpu_env, tmp, tmp2);
                             }
-                        } else {
-                            TCGv_ptr fpstatus = get_fpstatus_ptr(tcg_ctx, 1);
-                            gen_helper_vfp_muls(tcg_ctx, tmp, tmp, tmp2, fpstatus);
-                            tcg_temp_free_ptr(tcg_ctx, fpstatus);
                         }
                         tcg_temp_free_i32(tcg_ctx, tmp2);
-                        if (op < 8) {
-                            /* Accumulate.  */
-                            tmp2 = neon_load_reg(s, rd, pass);
-                            switch (op) {
-                            case 1:
-                            {
-                                TCGv_ptr fpstatus = get_fpstatus_ptr(tcg_ctx, 1);
-                                gen_helper_vfp_adds(tcg_ctx, tmp, tmp, tmp2, fpstatus);
-                                tcg_temp_free_ptr(tcg_ctx, fpstatus);
-                                break;
-                            }
-                            case 5:
-                            {
-                                TCGv_ptr fpstatus = get_fpstatus_ptr(tcg_ctx, 1);
-                                gen_helper_vfp_subs(tcg_ctx, tmp, tmp2, tmp, fpstatus);
-                                tcg_temp_free_ptr(tcg_ctx, fpstatus);
-                                break;
-                            }
-                            default:
-                                abort();
-                            }
-                            tcg_temp_free_i32(tcg_ctx, tmp2);
-                        }
                         neon_store_reg(s, rd, pass, tmp);
                     }
                     break;
