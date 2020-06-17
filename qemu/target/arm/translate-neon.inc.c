@@ -1646,6 +1646,7 @@ static bool do_vshll_2sh(DisasContext *s, arg_2reg_shift *a,
     tmp = tcg_temp_new_i64(tcg_ctx);
 
     widenfn(tcg_ctx, tmp, rm0);
+    tcg_temp_free_i32(tcg_ctx, rm0);
     if (a->shift != 0) {
         tcg_gen_shli_i64(tcg_ctx, tmp, tmp, a->shift);
         tcg_gen_andi_i64(tcg_ctx, tmp, tmp, ~widen_mask);
@@ -1653,6 +1654,7 @@ static bool do_vshll_2sh(DisasContext *s, arg_2reg_shift *a,
     neon_store_reg64(s, tmp, a->vd);
 
     widenfn(tcg_ctx, tmp, rm1);
+    tcg_temp_free_i32(tcg_ctx, rm1);
     if (a->shift != 0) {
         tcg_gen_shli_i64(tcg_ctx, tmp, tmp, a->shift);
         tcg_gen_andi_i64(tcg_ctx, tmp, tmp, ~widen_mask);
