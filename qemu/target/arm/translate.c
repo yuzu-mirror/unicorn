@@ -2703,26 +2703,6 @@ static int disas_dsp_insn(DisasContext *s, uint32_t insn)
 #define VFP_DREG_N(reg, insn) VFP_DREG(reg, insn, 16,  7)
 #define VFP_DREG_M(reg, insn) VFP_DREG(reg, insn,  0,  5)
 
-static void gen_neon_dup_low16(DisasContext *s, TCGv_i32 var)
-{
-    TCGContext *tcg_ctx = s->uc->tcg_ctx;
-    TCGv_i32 tmp = tcg_temp_new_i32(tcg_ctx);
-    tcg_gen_ext16u_i32(tcg_ctx, var, var);
-    tcg_gen_shli_i32(tcg_ctx, tmp, var, 16);
-    tcg_gen_or_i32(tcg_ctx, var, var, tmp);
-    tcg_temp_free_i32(tcg_ctx, tmp);
-}
-
-static void gen_neon_dup_high16(DisasContext *s, TCGv_i32 var)
-{
-    TCGContext *tcg_ctx = s->uc->tcg_ctx;
-    TCGv_i32 tmp = tcg_temp_new_i32(tcg_ctx);
-    tcg_gen_andi_i32(tcg_ctx, var, var, 0xffff0000);
-    tcg_gen_shri_i32(tcg_ctx, tmp, var, 16);
-    tcg_gen_or_i32(tcg_ctx, var, var, tmp);
-    tcg_temp_free_i32(tcg_ctx, tmp);
-}
-
 static inline bool use_goto_tb(DisasContext *s, target_ulong dest)
 {
 #ifndef CONFIG_USER_ONLY
@@ -3099,28 +3079,6 @@ static void gen_exception_return(DisasContext *s, TCGv_i32 pc)
 
 #define CPU_V001 s->V0, s->V0, s->V1
 
-static inline void gen_neon_add(DisasContext *s, int size, TCGv_i32 t0, TCGv_i32 t1)
-{
-    TCGContext *tcg_ctx = s->uc->tcg_ctx;
-    switch (size) {
-    case 0: gen_helper_neon_add_u8(tcg_ctx, t0, t0, t1); break;
-    case 1: gen_helper_neon_add_u16(tcg_ctx, t0, t0, t1); break;
-    case 2: tcg_gen_add_i32(tcg_ctx, t0, t0, t1); break;
-    default: abort();
-    }
-}
-
-static inline void gen_neon_rsb(DisasContext *s, int size, TCGv_i32 t0, TCGv_i32 t1)
-{
-    TCGContext *tcg_ctx = s->uc->tcg_ctx;
-    switch (size) {
-    case 0: gen_helper_neon_sub_u8(tcg_ctx, t0, t1, t0); break;
-    case 1: gen_helper_neon_sub_u16(tcg_ctx, t0, t1, t0); break;
-    case 2: tcg_gen_sub_i32(tcg_ctx, t0, t1, t0); break;
-    default: return;
-    }
-}
-
 static TCGv_i32 neon_load_scratch(DisasContext *s, int scratch)
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
@@ -3134,22 +3092,6 @@ static void neon_store_scratch(DisasContext *s, int scratch, TCGv_i32 var)
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
     tcg_gen_st_i32(tcg_ctx, var, tcg_ctx->cpu_env, offsetof(CPUARMState, vfp.scratch[scratch]));
     tcg_temp_free_i32(tcg_ctx, var);
-}
-
-static inline TCGv_i32 neon_get_scalar(DisasContext *s, int size, int reg)
-{
-    TCGv_i32 tmp;
-    if (size == 1) {
-        tmp = neon_load_reg(s, reg & 7, reg >> 4);
-        if (reg & 8) {
-            gen_neon_dup_high16(s, tmp);
-        } else {
-            gen_neon_dup_low16(s, tmp);
-        }
-    } else {
-        tmp = neon_load_reg(s, reg & 15, reg >> 4);
-    }
-    return tmp;
 }
 
 static int gen_neon_unzip(DisasContext *s, int rd, int rm, int size, int q)
@@ -5362,6 +5304,11 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                     return 1;
                 }
                 switch (op) {
+                case 0: /* Integer VMLA scalar */
+                case 4: /* Integer VMLS scalar */
+                case 8: /* Integer VMUL scalar */
+                    return 1; /* handled by decodetree */
+
                 case 1: /* Float VMLA scalar */
                 case 5: /* Floating point VMLS scalar */
                 case 9: /* Floating point VMUL scalar */
@@ -5369,9 +5316,6 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                         return 1;
                     }
                     /* fall through */
-                case 0: /* Integer VMLA scalar */
-                case 4: /* Integer VMLS scalar */
-                case 8: /* Integer VMUL scalar */
                 case 12: /* VQDMULH scalar */
                 case 13: /* VQRDMULH scalar */
                     if (u && ((rd | rn) & 1)) {
@@ -5394,26 +5338,16 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                             } else {
                                 gen_helper_neon_qrdmulh_s32(tcg_ctx, tmp, tcg_ctx->cpu_env, tmp, tmp2);
                             }
-                        } else if (op & 1) {
+                        } else {
                             TCGv_ptr fpstatus = get_fpstatus_ptr(tcg_ctx, 1);
                             gen_helper_vfp_muls(tcg_ctx, tmp, tmp, tmp2, fpstatus);
                             tcg_temp_free_ptr(tcg_ctx, fpstatus);
-                        } else {
-                            switch (size) {
-                            case 0: gen_helper_neon_mul_u8(tcg_ctx, tmp, tmp, tmp2); break;
-                            case 1: gen_helper_neon_mul_u16(tcg_ctx, tmp, tmp, tmp2); break;
-                            case 2: tcg_gen_mul_i32(tcg_ctx, tmp, tmp, tmp2); break;
-                            default: abort();
-                            }
                         }
                         tcg_temp_free_i32(tcg_ctx, tmp2);
                         if (op < 8) {
                             /* Accumulate.  */
                             tmp2 = neon_load_reg(s, rd, pass);
                             switch (op) {
-                            case 0:
-                                gen_neon_add(s, size, tmp, tmp2);
-                                break;
                             case 1:
                             {
                                 TCGv_ptr fpstatus = get_fpstatus_ptr(tcg_ctx, 1);
@@ -5421,9 +5355,6 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                                 tcg_temp_free_ptr(tcg_ctx, fpstatus);
                                 break;
                             }
-                            case 4:
-                                gen_neon_rsb(s, size, tmp, tmp2);
-                                break;
                             case 5:
                             {
                                 TCGv_ptr fpstatus = get_fpstatus_ptr(tcg_ctx, 1);
