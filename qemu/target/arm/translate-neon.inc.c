@@ -1859,6 +1859,7 @@ static bool do_prewiden_3d(DisasContext *s, arg_3diff *a,
                            bool src1_wide)
 {
     /* 3-regs different lengths, prewidening case (VADDL/VSUBL/VAADW/VSUBW) */
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
     TCGv_i64 rn0_64, rn1_64, rm_64;
     TCGv_i32 rm;
 
@@ -1956,3 +1957,91 @@ DO_PREWIDEN(VADDW_S, s, ext, add, true)
 DO_PREWIDEN(VADDW_U, u, extu, add, true)
 DO_PREWIDEN(VSUBW_S, s, ext, sub, true)
 DO_PREWIDEN(VSUBW_U, u, extu, sub, true)
+
+static bool do_narrow_3d(DisasContext *s, arg_3diff *a,
+                         NeonGenTwo64OpFn *opfn, NeonGenNarrowFn *narrowfn)
+{
+    /* 3-regs different lengths, narrowing (VADDHN/VSUBHN/VRADDHN/VRSUBHN) */
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+    TCGv_i64 rn_64, rm_64;
+    TCGv_i32 rd0, rd1;
+
+    if (!arm_dc_feature(s, ARM_FEATURE_NEON)) {
+        return false;
+    }
+
+    /* UNDEF accesses to D16-D31 if they don't exist. */
+    if (!dc_isar_feature(aa32_simd_r32, s) &&
+        ((a->vd | a->vn | a->vm) & 0x10)) {
+        return false;
+    }
+
+    if (!opfn || !narrowfn) {
+        /* size == 3 case, which is an entirely different insn group */
+        return false;
+    }
+
+    if ((a->vn | a->vm) & 1) {
+        return false;
+    }
+
+    if (!vfp_access_check(s)) {
+        return true;
+    }
+
+    rn_64 = tcg_temp_new_i64(tcg_ctx);
+    rm_64 = tcg_temp_new_i64(tcg_ctx);
+    rd0 = tcg_temp_new_i32(tcg_ctx);
+    rd1 = tcg_temp_new_i32(tcg_ctx);
+
+    neon_load_reg64(s, rn_64, a->vn);
+    neon_load_reg64(s, rm_64, a->vm);
+
+    opfn(tcg_ctx, rn_64, rn_64, rm_64);
+
+    narrowfn(tcg_ctx, rd0, rn_64);
+
+    neon_load_reg64(s, rn_64, a->vn + 1);
+    neon_load_reg64(s, rm_64, a->vm + 1);
+
+    opfn(tcg_ctx, rn_64, rn_64, rm_64);
+
+    narrowfn(tcg_ctx, rd1, rn_64);
+
+    neon_store_reg(s, a->vd, 0, rd0);
+    neon_store_reg(s, a->vd, 1, rd1);
+
+    tcg_temp_free_i64(tcg_ctx, rn_64);
+    tcg_temp_free_i64(tcg_ctx, rm_64);
+
+    return true;
+}
+
+#define DO_NARROW_3D(INSN, OP, NARROWTYPE, EXTOP)                       \
+    static bool trans_##INSN##_3d(DisasContext *s, arg_3diff *a)        \
+    {                                                                   \
+        static NeonGenTwo64OpFn * const addfn[] = {                     \
+            gen_helper_neon_##OP##l_u16,                                \
+            gen_helper_neon_##OP##l_u32,                                \
+            tcg_gen_##OP##_i64,                                         \
+            NULL,                                                       \
+        };                                                              \
+        static NeonGenNarrowFn * const narrowfn[] = {                   \
+            gen_helper_neon_##NARROWTYPE##_high_u8,                     \
+            gen_helper_neon_##NARROWTYPE##_high_u16,                    \
+            EXTOP,                                                      \
+            NULL,                                                       \
+        };                                                              \
+        return do_narrow_3d(s, a, addfn[a->size], narrowfn[a->size]);   \
+    }
+
+static void gen_narrow_round_high_u32(TCGContext *s, TCGv_i32 rd, TCGv_i64 rn)
+{
+    tcg_gen_addi_i64(s, rn, rn, 1u << 31);
+    tcg_gen_extrh_i64_i32(s, rd, rn);
+}
+
+DO_NARROW_3D(VADDHN, add, narrow, tcg_gen_extrh_i64_i32)
+DO_NARROW_3D(VSUBHN, sub, narrow, tcg_gen_extrh_i64_i32)
+DO_NARROW_3D(VRADDHN, add, narrow_round, gen_narrow_round_high_u32)
+DO_NARROW_3D(VRSUBHN, sub, narrow_round, gen_narrow_round_high_u32)
