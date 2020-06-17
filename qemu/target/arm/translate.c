@@ -385,45 +385,6 @@ static void gen_revsh(DisasContext *s, TCGv_i32 dest, TCGv_i32 var)
     tcg_gen_ext16s_i32(tcg_ctx, dest, var);
 }
 
-/* 32x32->64 multiply.  Marks inputs as dead.  */
-static TCGv_i64 gen_mulu_i64_i32(DisasContext *s, TCGv_i32 a, TCGv_i32 b)
-{
-    TCGContext *tcg_ctx = s->uc->tcg_ctx;
-    TCGv_i32 lo = tcg_temp_new_i32(tcg_ctx);
-    TCGv_i32 hi = tcg_temp_new_i32(tcg_ctx);
-    TCGv_i64 ret;
-
-    tcg_gen_mulu2_i32(tcg_ctx, lo, hi, a, b);
-    tcg_temp_free_i32(tcg_ctx, a);
-    tcg_temp_free_i32(tcg_ctx, b);
-
-    ret = tcg_temp_new_i64(tcg_ctx);
-    tcg_gen_concat_i32_i64(tcg_ctx, ret, lo, hi);
-    tcg_temp_free_i32(tcg_ctx, lo);
-    tcg_temp_free_i32(tcg_ctx, hi);
-
-    return ret;
-}
-
-static TCGv_i64 gen_muls_i64_i32(DisasContext *s, TCGv_i32 a, TCGv_i32 b)
-{
-    TCGContext *tcg_ctx = s->uc->tcg_ctx;
-    TCGv_i32 lo = tcg_temp_new_i32(tcg_ctx);
-    TCGv_i32 hi = tcg_temp_new_i32(tcg_ctx);
-    TCGv_i64 ret;
-
-    tcg_gen_muls2_i32(tcg_ctx, lo, hi, a, b);
-    tcg_temp_free_i32(tcg_ctx, a);
-    tcg_temp_free_i32(tcg_ctx, b);
-
-    ret = tcg_temp_new_i64(tcg_ctx);
-    tcg_gen_concat_i32_i64(tcg_ctx, ret, lo, hi);
-    tcg_temp_free_i32(tcg_ctx, lo);
-    tcg_temp_free_i32(tcg_ctx, hi);
-
-    return ret;
-}
-
 /* Swap low and high halfwords.  */
 static void gen_swap_half(DisasContext *s, TCGv_i32 var)
 {
@@ -3280,61 +3241,6 @@ static inline void gen_neon_addl(DisasContext *s, int size)
     }
 }
 
-static inline void gen_neon_negl(DisasContext *s, TCGv_i64 var, int size)
-{
-    TCGContext *tcg_ctx = s->uc->tcg_ctx;
-    switch (size) {
-    case 0: gen_helper_neon_negl_u16(tcg_ctx, var, var); break;
-    case 1: gen_helper_neon_negl_u32(tcg_ctx, var, var); break;
-    case 2:
-        tcg_gen_neg_i64(tcg_ctx, var, var);
-        break;
-    default: abort();
-    }
-}
-
-static inline void gen_neon_addl_saturate(DisasContext *s, TCGv_i64 op0, TCGv_i64 op1, int size)
-{
-    TCGContext *tcg_ctx = s->uc->tcg_ctx;
-    switch (size) {
-    case 1: gen_helper_neon_addl_saturate_s32(tcg_ctx, op0, tcg_ctx->cpu_env, op0, op1); break;
-    case 2: gen_helper_neon_addl_saturate_s64(tcg_ctx, op0, tcg_ctx->cpu_env, op0, op1); break;
-    default: abort();
-    }
-}
-
-static inline void gen_neon_mull(DisasContext *s, TCGv_i64 dest, TCGv_i32 a, TCGv_i32 b,
-                                 int size, int u)
-{
-    TCGContext *tcg_ctx = s->uc->tcg_ctx;
-    TCGv_i64 tmp;
-
-    switch ((size << 1) | u) {
-    case 0: gen_helper_neon_mull_s8(tcg_ctx, dest, a, b); break;
-    case 1: gen_helper_neon_mull_u8(tcg_ctx, dest, a, b); break;
-    case 2: gen_helper_neon_mull_s16(tcg_ctx, dest, a, b); break;
-    case 3: gen_helper_neon_mull_u16(tcg_ctx, dest, a, b); break;
-    case 4:
-        tmp = gen_muls_i64_i32(s, a, b);
-        tcg_gen_mov_i64(tcg_ctx, dest, tmp);
-        tcg_temp_free_i64(tcg_ctx, tmp);
-        break;
-    case 5:
-        tmp = gen_mulu_i64_i32(s, a, b);
-        tcg_gen_mov_i64(tcg_ctx, dest, tmp);
-        tcg_temp_free_i64(tcg_ctx, tmp);
-        break;
-    default: abort();
-    }
-
-    /* gen_helper_neon_mull_[su]{8|16} do not free their parameters.
-       Don't forget to clean them now.  */
-    if (size < 2) {
-        tcg_temp_free_i32(tcg_ctx, a);
-        tcg_temp_free_i32(tcg_ctx, b);
-    }
-}
-
 static void gen_neon_narrow_op(DisasContext *s, int op, int u, int size,
                                TCGv_i32 dest, TCGv_i64 src)
 {
@@ -5238,7 +5144,7 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
     int u;
     int vec_size;
     uint32_t imm;
-    TCGv_i32 tmp, tmp2, tmp3, tmp4, tmp5;
+    TCGv_i32 tmp, tmp2, tmp3, tmp5;
     TCGv_ptr ptr1;
     TCGv_i64 tmp64;
 
@@ -5276,92 +5182,11 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
         return 1;
     } else { /* (insn & 0x00800010 == 0x00800000) */
         if (size != 3) {
-            op = (insn >> 8) & 0xf;
-            if ((insn & (1 << 6)) == 0) {
-                /* Three registers of different lengths: handled by decodetree */
-                return 1;
-            } else {
-                /* Two registers and a scalar. NB that for ops of this form
-                 * the ARM ARM labels bit 24 as Q, but it is in our variable
-                 * 'u', not 'q'.
-                 */
-                if (size == 0) {
-                    return 1;
-                }
-                switch (op) {
-                case 0: /* Integer VMLA scalar */
-                case 4: /* Integer VMLS scalar */
-                case 8: /* Integer VMUL scalar */
-                case 1: /* Float VMLA scalar */
-                case 5: /* Floating point VMLS scalar */
-                case 9: /* Floating point VMUL scalar */
-                case 12: /* VQDMULH scalar */
-                case 13: /* VQRDMULH scalar */
-                case 14: /* VQRDMLAH scalar */
-                case 15: /* VQRDMLSH scalar */
-                    return 1; /* handled by decodetree */
-
-                case 3: /* VQDMLAL scalar */
-                case 7: /* VQDMLSL scalar */
-                case 11: /* VQDMULL scalar */
-                    if (u == 1) {
-                        return 1;
-                    }
-                    /* fall through */
-                case 2: /* VMLAL sclar */
-                case 6: /* VMLSL scalar */
-                case 10: /* VMULL scalar */
-                    if (rd & 1) {
-                        return 1;
-                    }
-                    tmp2 = neon_get_scalar(s, size, rm);
-                    /* We need a copy of tmp2 because gen_neon_mull
-                     * deletes it during pass 0.  */
-                    tmp4 = tcg_temp_new_i32(tcg_ctx);
-                    tcg_gen_mov_i32(tcg_ctx, tmp4, tmp2);
-                    tmp3 = neon_load_reg(s, rn, 1);
-
-                    for (pass = 0; pass < 2; pass++) {
-                        if (pass == 0) {
-                            tmp = neon_load_reg(s, rn, 0);
-                        } else {
-                            tmp = tmp3;
-                            tmp2 = tmp4;
-                        }
-                        gen_neon_mull(s, s->V0, tmp, tmp2, size, u);
-                        if (op != 11) {
-                            neon_load_reg64(s, s->V1, rd + pass);
-                        }
-                        switch (op) {
-                        case 6:
-                            gen_neon_negl(s, s->V0, size);
-                            /* Fall through */
-                        case 2:
-                            gen_neon_addl(s, size);
-                            break;
-                        case 3: case 7:
-                            gen_neon_addl_saturate(s, s->V0, s->V0, size);
-                            if (op == 7) {
-                                gen_neon_negl(s, s->V0, size);
-                            }
-                            gen_neon_addl_saturate(s, s->V0, s->V1, size);
-                            break;
-                        case 10:
-                            /* no-op */
-                            break;
-                        case 11:
-                            gen_neon_addl_saturate(s, s->V0, s->V0, size);
-                            break;
-                        default:
-                            abort();
-                        }
-                        neon_store_reg64(s, s->V0, rd + pass);
-                    }
-                    break;
-                default:
-                    g_assert_not_reached();
-                }
-            }
+            /*
+             * Three registers of different lengths, or two registers and
+             * a scalar: handled by decodetree
+             */
+            return 1;
         } else { /* size == 3 */
             if (!u) {
                 /* Extract.  */
