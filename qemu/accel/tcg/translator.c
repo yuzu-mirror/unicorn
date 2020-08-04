@@ -57,6 +57,9 @@ void translator_loop(const TranslatorOps *ops, DisasContextBase *db,
      * the "run until" address. */
     if (tb->pc == cpu->uc->addr_end) {
         gen_tb_start(tcg_ctx, tb);
+        // This should catch that instruction is at the end
+        // and generate appropriate halting code. 
+        ops->translate_insn(db, cpu);
         goto tb_end;
     }
 
