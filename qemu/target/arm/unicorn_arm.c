@@ -9,6 +9,7 @@
 #include "unicorn.h"
 #include "unicorn_common.h"
 #include "uc_priv.h"
+#include "exec/helper-proto.h"
 
 const int ARM_REGS_STORAGE_SIZE = offsetof(CPUARMState, tlb_table);
 
