@@ -10151,9 +10151,11 @@ static void thumb_tr_translate_insn(DisasContextBase *dcbase, CPUState *cpu)
     // Unicorn: trace this instruction on request
     const uint32_t insn_size = is_16bit ? 2 : 4;
     if (HOOK_EXISTS_BOUNDED(dc->uc, UC_HOOK_CODE, dc->base.pc_next - insn_size)) {
-        gen_uc_tracecode(tcg_ctx, insn_size, UC_HOOK_CODE_IDX, dc->uc, dc->base.pc_next - insn_size);
-        // the callback might want to stop emulation immediately
-        check_exit_request(tcg_ctx);
+        if (!dc->condexec_mask) {
+            gen_uc_tracecode(tcg_ctx, insn_size, UC_HOOK_CODE_IDX, dc->uc, dc->base.pc_next - insn_size);
+            // the callback might want to stop emulation immediately
+            check_exit_request(tcg_ctx);
+        }
     }
 
     if (is_16bit) {
