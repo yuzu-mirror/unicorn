@@ -407,7 +407,7 @@ static TCGv_i64 gen_mte_check1_mmuidx(DisasContext *s, TCGv_i64 addr,
         tcg_desc = tcg_const_i32(tcg_ctx, desc);
 
         ret = new_tmp_a64(s);
-        gen_helper_mte_check1(tcg_ctx, ret, tcg_ctx->cpu_env, tcg_desc, addr);
+        gen_helper_mte_check_1(tcg_ctx, ret, tcg_ctx->cpu_env, tcg_desc, addr);
         tcg_temp_free_i32(tcg_ctx, tcg_desc);
 
         return ret;

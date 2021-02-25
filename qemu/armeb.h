@@ -3515,6 +3515,8 @@
 #define helper_gvec_usra_s helper_gvec_usra_s_armeb
 #define helper_probe_access_armfn helper_probe_access_armfn_armeb
 #define helper_vjcvt helper_vjcvt_armeb
+#define mte_check1 mte_check1_armeb
+#define mte_probe1 mte_probe1_armeb
 #define pmu_init pmu_init_armeb
 #define pmsav8_mpu_lookup pmsav8_mpu_lookup_armeb
 #define pmu_op_start pmu_op_start_armeb
