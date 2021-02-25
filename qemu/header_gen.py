@@ -3719,6 +3719,7 @@ aarch64_symbols = (
     'helper_msr_i_daifset',
     'helper_msr_i_spsel',
     'helper_mte_check1',
+    'helper_mte_checkN',
     'helper_neon_addlp_s16',
     'helper_neon_addlp_s8',
     'helper_neon_addlp_u16',
