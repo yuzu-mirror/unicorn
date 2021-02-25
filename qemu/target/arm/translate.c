@@ -8044,9 +8044,6 @@ static bool do_ldm(DisasContext *s, arg_ldst_block *a, int min_n)
             gen_io_start(tcg_ctx);
         }
         gen_helper_cpsr_write_eret(tcg_ctx, tcg_ctx->cpu_env, tmp);
-        if (tb_cflags(s->base.tb) & CF_USE_ICOUNT) {
-            gen_io_end(tcg_ctx);
-        }
         tcg_temp_free_i32(tcg_ctx, tmp);
         /* Must exit loop to check un-masked IRQs */
         s->base.is_jmp = DISAS_EXIT;
