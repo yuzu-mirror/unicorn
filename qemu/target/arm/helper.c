@@ -10415,6 +10415,16 @@ static int aa64_va_parameter_tbid(uint64_t tcr, ARMMMUIdx mmu_idx)
     }
 }
 
+static int aa64_va_parameter_tcma(uint64_t tcr, ARMMMUIdx mmu_idx)
+{
+    if (regime_has_2_ranges(mmu_idx)) {
+        return extract64(tcr, 57, 2);
+    } else {
+        /* Replicate the single TCMA bit so we always have 2 bits.  */
+        return extract32(tcr, 30, 1) * 3;
+    }
+}
+
 ARMVAParameters aa64_va_parameters(CPUARMState *env, uint64_t va,
                                    ARMMMUIdx mmu_idx, bool data)
 {
@@ -12279,17 +12289,15 @@ void cpu_get_tb_cpu_state(CPUARMState *env, target_ulong *pc,
         flags = FIELD_DP32(flags, TBFLAG_ANY, AARCH64_STATE, 1);
         ARMMMUIdx stage1 = stage_1_mmu_idx(mmu_idx);
 
-        {
-            uint64_t tcr = regime_tcr(env, mmu_idx)->raw_tcr;
-            int tbii, tbid;
+        uint64_t tcr = regime_tcr(env, mmu_idx)->raw_tcr;
+        int tbii, tbid;
 
-            /* Get control bits for tagged addresses.  */
-            tbid = aa64_va_parameter_tbi(tcr, mmu_idx);
-            tbii = tbid & ~aa64_va_parameter_tbid(tcr, mmu_idx);
+        /* Get control bits for tagged addresses.  */
+        tbid = aa64_va_parameter_tbi(tcr, mmu_idx);
+        tbii = tbid & ~aa64_va_parameter_tbid(tcr, mmu_idx);
 
-            flags = FIELD_DP32(flags, TBFLAG_A64, TBII, tbii);
-            flags = FIELD_DP32(flags, TBFLAG_A64, TBID, tbid);
-        }
+        flags = FIELD_DP32(flags, TBFLAG_A64, TBII, tbii);
+        flags = FIELD_DP32(flags, TBFLAG_A64, TBID, tbid);
 
         if (cpu_isar_feature(aa64_sve, cpu)) {
             int sve_el = sve_exception_el(env, current_el);
@@ -12354,6 +12362,36 @@ void cpu_get_tb_cpu_state(CPUARMState *env, target_ulong *pc,
             default:
                 break;
             }
+        }
+
+        if (cpu_isar_feature(aa64_mte, env_archcpu(env))) {
+            /*
+             * Set MTE_ACTIVE if any access may be Checked, and leave clear
+             * if all accesses must be Unchecked:
+             * 1) If no TBI, then there are no tags in the address to check,
+             * 2) If Tag Check Override, then all accesses are Unchecked,
+             * 3) If Tag Check Fail == 0, then Checked access have no effect,
+             * 4) If no Allocation Tag Access, then all accesses are Unchecked.
+             */
+            if (allocation_tag_access_enabled(env, current_el, sctlr)) {
+                flags = FIELD_DP32(flags, TBFLAG_A64, ATA, 1);
+                if (tbid
+                    && !(env->pstate & PSTATE_TCO)
+                    && (sctlr & (current_el == 0 ? SCTLR_TCF0 : SCTLR_TCF))) {
+                    flags = FIELD_DP32(flags, TBFLAG_A64, MTE_ACTIVE, 1);
+                }
+            }
+            /* And again for unprivileged accesses, if required.  */
+            if (FIELD_EX32(flags, TBFLAG_A64, UNPRIV)
+                && tbid
+                && !(env->pstate & PSTATE_TCO)
+                && (sctlr & SCTLR_TCF0)
+                && allocation_tag_access_enabled(env, 0, sctlr)) {
+                flags = FIELD_DP32(flags, TBFLAG_A64, MTE0_ACTIVE, 1);
+            }
+            /* Cache TCMA as well as TBI. */
+            flags = FIELD_DP32(flags, TBFLAG_A64, TCMA,
+                               aa64_va_parameter_tcma(tcr, mmu_idx));
         }
     } else {
         *pc = env->regs[15];
