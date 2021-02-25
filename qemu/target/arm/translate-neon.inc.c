@@ -3976,3 +3976,45 @@ DO_VCVT(VCVTPU, FPROUNDING_POSINF, false)
 DO_VCVT(VCVTPS, FPROUNDING_POSINF, true)
 DO_VCVT(VCVTMU, FPROUNDING_NEGINF, false)
 DO_VCVT(VCVTMS, FPROUNDING_NEGINF, true)
+
+static bool trans_VSWP(DisasContext *s, arg_2misc *a)
+{
+    TCGv_i64 rm, rd;
+    int pass;
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+
+    if (!arm_dc_feature(s, ARM_FEATURE_NEON)) {
+        return false;
+    }
+
+    /* UNDEF accesses to D16-D31 if they don't exist. */
+    if (!dc_isar_feature(aa32_simd_r32, s) &&
+        ((a->vd | a->vm) & 0x10)) {
+        return false;
+    }
+
+    if (a->size != 0) {
+        return false;
+    }
+
+    if ((a->vd | a->vm) & a->q) {
+        return false;
+    }
+
+    if (!vfp_access_check(s)) {
+        return true;
+    }
+
+    rm = tcg_temp_new_i64(tcg_ctx);
+    rd = tcg_temp_new_i64(tcg_ctx);
+    for (pass = 0; pass < (a->q ? 2 : 1); pass++) {
+        neon_load_reg64(s, rm, a->vm + pass);
+        neon_load_reg64(s, rd, a->vd + pass);
+        neon_store_reg64(s, rm, a->vd + pass);
+        neon_store_reg64(s, rd, a->vm + pass);
+    }
+    tcg_temp_free_i64(tcg_ctx, rm);
+    tcg_temp_free_i64(tcg_ctx, rd);
+
+    return true;
+}

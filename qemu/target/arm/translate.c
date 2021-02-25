@@ -5045,6 +5045,7 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                 case NEON_2RM_VCVTPS:
                 case NEON_2RM_VCVTMU:
                 case NEON_2RM_VCVTMS:
+                case NEON_2RM_VSWP:
                     /* handled by decodetree */
                     return 1;
                 case NEON_2RM_VTRN:
@@ -5066,10 +5067,6 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                     for (pass = 0; pass < (q ? 4 : 2); pass++) {
                         tmp = neon_load_reg(s, rm, pass);
                         switch (op) {
-                        case NEON_2RM_VSWP:
-                            tmp2 = neon_load_reg(s, rd, pass);
-                            neon_store_reg(s, rm, pass, tmp2);
-                            break;
                         case NEON_2RM_VTRN:
                             tmp2 = neon_load_reg(s, rd, pass);
                             switch (size) {
