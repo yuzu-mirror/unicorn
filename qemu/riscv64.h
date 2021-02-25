@@ -3458,6 +3458,7 @@
 #define helper_fsqrt_s helper_fsqrt_s_riscv64
 #define helper_fsub_d helper_fsub_d_riscv64
 #define helper_fsub_s helper_fsub_s_riscv64
+#define helper_hyp_tlb_flush helper_hyp_tlb_flush_riscv64
 #define helper_mret helper_mret_riscv64
 #define helper_tlb_flush helper_tlb_flush_riscv64
 #define helper_set_rounding_mode helper_set_rounding_mode_riscv64

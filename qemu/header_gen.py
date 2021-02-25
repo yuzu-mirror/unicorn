@@ -5707,6 +5707,7 @@ riscv_symbols = (
     'helper_fsqrt_s',
     'helper_fsub_d',
     'helper_fsub_s',
+    'helper_hyp_tlb_flush',
     'helper_mret',
     'helper_tlb_flush',
     'helper_set_rounding_mode',
