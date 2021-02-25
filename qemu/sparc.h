@@ -678,6 +678,8 @@
 #define floatx80_le_quiet floatx80_le_quiet_sparc
 #define floatx80_lt floatx80_lt_sparc
 #define floatx80_lt_quiet floatx80_lt_quiet_sparc
+#define floatx80_mod floatx80_mod_sparc
+#define floatx80_modrem floatx80_modrem_sparc
 #define floatx80_mul floatx80_mul_sparc
 #define floatx80_rem floatx80_rem_sparc
 #define floatx80_round floatx80_round_sparc

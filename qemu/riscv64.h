@@ -678,6 +678,8 @@
 #define floatx80_le_quiet floatx80_le_quiet_riscv64
 #define floatx80_lt floatx80_lt_riscv64
 #define floatx80_lt_quiet floatx80_lt_quiet_riscv64
+#define floatx80_mod floatx80_mod_riscv64
+#define floatx80_modrem floatx80_modrem_riscv64
 #define floatx80_mul floatx80_mul_riscv64
 #define floatx80_rem floatx80_rem_riscv64
 #define floatx80_round floatx80_round_riscv64

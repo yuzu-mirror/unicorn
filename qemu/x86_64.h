@@ -678,6 +678,8 @@
 #define floatx80_le_quiet floatx80_le_quiet_x86_64
 #define floatx80_lt floatx80_lt_x86_64
 #define floatx80_lt_quiet floatx80_lt_quiet_x86_64
+#define floatx80_mod floatx80_mod_x86_64
+#define floatx80_modrem floatx80_modrem_x86_64
 #define floatx80_mul floatx80_mul_x86_64
 #define floatx80_rem floatx80_rem_x86_64
 #define floatx80_round floatx80_round_x86_64
