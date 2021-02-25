@@ -125,7 +125,7 @@ static bool full_vfp_access_check(DisasContext *s, bool ignore_vfp_enabled)
              * this to be the last insn in the TB).
              */
             if (tb_cflags(s->base.tb) & CF_USE_ICOUNT) {
-                s->base.is_jmp = DISAS_UPDATE;
+                s->base.is_jmp = DISAS_UPDATE_EXIT;
                 gen_io_start(tcg_ctx);
             }
             gen_helper_v7m_preserve_fp_state(tcg_ctx, tcg_ctx->cpu_env);
@@ -2909,6 +2909,6 @@ static bool trans_VLLDM_VLSTM(DisasContext *s, arg_VLLDM_VLSTM *a)
     tcg_temp_free_i32(tcg_ctx, fptr);
 
     /* End the TB, because we have updated FP control bits */
-    s->base.is_jmp = DISAS_UPDATE;
+    s->base.is_jmp = DISAS_UPDATE_EXIT;
     return true;
 }
