@@ -3479,6 +3479,7 @@
 #define gen_ushl_i32 gen_ushl_i32_aarch64eb
 #define gen_ushl_i64 gen_ushl_i64_aarch64eb
 #define pmu_init pmu_init_aarch64eb
+#define helper_addsubg helper_addsubg_aarch64eb
 #define helper_advsimd_acge_f16 helper_advsimd_acge_f16_aarch64eb
 #define helper_advsimd_acgt_f16 helper_advsimd_acgt_f16_aarch64eb
 #define helper_advsimd_add2h helper_advsimd_add2h_aarch64eb

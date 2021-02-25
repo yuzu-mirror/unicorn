@@ -3613,6 +3613,7 @@ aarch64_symbols = (
     'gen_ushl_i32',
     'gen_ushl_i64',
     'pmu_init',
+    'helper_addsubg',
     'helper_advsimd_acge_f16',
     'helper_advsimd_acgt_f16',
     'helper_advsimd_add2h',
