@@ -3579,6 +3579,7 @@
 #define helper_gvec_usra_s helper_gvec_usra_s_aarch64eb
 #define helper_irg helper_irg_aarch64eb
 #define helper_ldg helper_ldg_aarch64eb
+#define helper_ldgm helper_ldgm_aarch64eb
 #define helper_msr_i_daifclear helper_msr_i_daifclear_aarch64eb
 #define helper_msr_i_daifset helper_msr_i_daifset_aarch64eb
 #define helper_msr_i_spsel helper_msr_i_spsel_aarch64eb
@@ -3615,6 +3616,8 @@
 #define helper_stg helper_stg_aarch64eb
 #define helper_stg_parallel helper_stg_parallel_aarch64eb
 #define helper_stg_stub helper_stg_stub_aarch64eb
+#define helper_stgm helper_stgm_aarch64eb
+#define helper_stzgm_tags helper_stzgm_tags_aarch64eb
 #define helper_sve_abs_b helper_sve_abs_b_aarch64eb
 #define helper_sve_abs_d helper_sve_abs_d_aarch64eb
 #define helper_sve_abs_h helper_sve_abs_h_aarch64eb
