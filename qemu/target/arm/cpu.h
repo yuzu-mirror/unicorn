@@ -2220,7 +2220,7 @@ static inline uint64_t cpreg_to_kvm_id(uint32_t cpregid)
  * migration or KVM state synchronization. (Typically this is for "registers"
  * which are actually used as instructions for cache maintenance and so on.)
  * IO indicates that this register does I/O and therefore its accesses
- * need to be surrounded by gen_io_start()/gen_io_end(). In particular,
+ * need to be marked with gen_io_start() and also end the TB. In particular,
  * registers which implement clocks or timers require this.
  * RAISES_EXC is for when the read or write hook might raise an exception;
  * the generated code will synchronize the CPU state before calling the hook
@@ -3669,6 +3669,16 @@ static inline bool isar_feature_aa64_uao(const ARMISARegisters *id)
 static inline bool isar_feature_aa64_bti(const ARMISARegisters *id)
 {
     return FIELD_EX64(id->id_aa64pfr1, ID_AA64PFR1, BT) != 0;
+}
+
+static inline bool isar_feature_aa64_mte_insn_reg(const ARMISARegisters *id)
+{
+    return FIELD_EX64(id->id_aa64pfr1, ID_AA64PFR1, MTE) != 0;
+}
+
+static inline bool isar_feature_aa64_mte(const ARMISARegisters *id)
+{
+    return FIELD_EX64(id->id_aa64pfr1, ID_AA64PFR1, MTE) >= 2;
 }
 
 static inline bool isar_feature_aa64_pmu_8_1(const ARMISARegisters *id)
