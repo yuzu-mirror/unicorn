@@ -3575,6 +3575,7 @@
 #define helper_gvec_usra_d helper_gvec_usra_d_aarch64
 #define helper_gvec_usra_h helper_gvec_usra_h_aarch64
 #define helper_gvec_usra_s helper_gvec_usra_s_aarch64
+#define helper_irg helper_irg_aarch64
 #define helper_msr_i_daifclear helper_msr_i_daifclear_aarch64
 #define helper_msr_i_daifset helper_msr_i_daifset_aarch64
 #define helper_msr_i_spsel helper_msr_i_spsel_aarch64

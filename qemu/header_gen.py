@@ -3709,6 +3709,7 @@ aarch64_symbols = (
     'helper_gvec_usra_d',
     'helper_gvec_usra_h',
     'helper_gvec_usra_s',
+    'helper_irg',
     'helper_msr_i_daifclear',
     'helper_msr_i_daifset',
     'helper_msr_i_spsel',
