@@ -443,7 +443,7 @@ static TCGv_i64 gen_mte_checkN(DisasContext *s, TCGv_i64 addr, bool is_write,
         tcg_desc = tcg_const_i32(tcg_ctx, desc);
 
         ret = new_tmp_a64(s);
-        gen_helper_mte_checkN(tcg_ctx, ret, tcg_ctx->cpu_env, tcg_desc, addr);
+        gen_helper_mte_check_N(tcg_ctx, ret, tcg_ctx->cpu_env, tcg_desc, addr);
         tcg_temp_free_i32(tcg_ctx, tcg_desc);
 
         return ret;

@@ -3516,6 +3516,7 @@
 #define helper_probe_access_armfn helper_probe_access_armfn_arm
 #define helper_vjcvt helper_vjcvt_arm
 #define mte_check1 mte_check1_arm
+#define mte_checkN mte_checkN_arm
 #define mte_probe1 mte_probe1_arm
 #define pmu_init pmu_init_arm
 #define pmsav8_mpu_lookup pmsav8_mpu_lookup_arm

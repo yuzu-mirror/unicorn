@@ -3584,7 +3584,7 @@
 #define helper_msr_i_daifset helper_msr_i_daifset_aarch64
 #define helper_msr_i_spsel helper_msr_i_spsel_aarch64
 #define helper_mte_check_1 helper_mte_check_1_aarch64
-#define helper_mte_checkN helper_mte_checkN_aarch64
+#define helper_mte_check_N helper_mte_check_N_aarch64
 #define helper_neon_addlp_s16 helper_neon_addlp_s16_aarch64
 #define helper_neon_addlp_s8 helper_neon_addlp_s8_aarch64
 #define helper_neon_addlp_u16 helper_neon_addlp_u16_aarch64
@@ -4527,6 +4527,7 @@
 #define helper_xpaci helper_xpaci_aarch64
 #define logic_imm_decode_wmask logic_imm_decode_wmask_aarch64
 #define mte_check1 mte_check1_aarch64
+#define mte_checkN mte_checkN_aarch64
 #define mte_probe1 mte_probe1_aarch64
 #define new_tmp_a64 new_tmp_a64_aarch64
 #define new_tmp_a64_zero new_tmp_a64_zero_aarch64
