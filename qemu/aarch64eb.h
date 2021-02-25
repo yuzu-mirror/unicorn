@@ -3585,6 +3585,7 @@
 #define helper_msr_i_spsel helper_msr_i_spsel_aarch64eb
 #define helper_mte_check_1 helper_mte_check_1_aarch64eb
 #define helper_mte_check_N helper_mte_check_N_aarch64eb
+#define helper_mte_check_zva helper_mte_check_zva_aarch64eb
 #define helper_neon_addlp_s16 helper_neon_addlp_s16_aarch64eb
 #define helper_neon_addlp_s8 helper_neon_addlp_s8_aarch64eb
 #define helper_neon_addlp_u16 helper_neon_addlp_u16_aarch64eb
