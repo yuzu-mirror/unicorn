@@ -3577,6 +3577,7 @@
 #define helper_gvec_usra_h helper_gvec_usra_h_aarch64eb
 #define helper_gvec_usra_s helper_gvec_usra_s_aarch64eb
 #define helper_irg helper_irg_aarch64eb
+#define helper_ldg helper_ldg_aarch64eb
 #define helper_msr_i_daifclear helper_msr_i_daifclear_aarch64eb
 #define helper_msr_i_daifset helper_msr_i_daifset_aarch64eb
 #define helper_msr_i_spsel helper_msr_i_spsel_aarch64eb
@@ -3596,6 +3597,7 @@
 #define helper_paired_cmpxchg64_be_parallel helper_paired_cmpxchg64_be_parallel_aarch64eb
 #define helper_paired_cmpxchg64_le helper_paired_cmpxchg64_le_aarch64eb
 #define helper_paired_cmpxchg64_le_parallel helper_paired_cmpxchg64_le_parallel_aarch64eb
+#define helper_probe_access_armfn helper_probe_access_armfn_aarch64eb
 #define helper_rbit64 helper_rbit64_aarch64eb
 #define helper_recpsf_f16 helper_recpsf_f16_aarch64eb
 #define helper_recpsf_f32 helper_recpsf_f32_aarch64eb
@@ -3606,6 +3608,12 @@
 #define helper_sdiv64 helper_sdiv64_aarch64eb
 #define helper_simd_tbl helper_simd_tbl_aarch64eb
 #define helper_sqrt_f16 helper_sqrt_f16_aarch64eb
+#define helper_st2g helper_st2g_aarch64eb
+#define helper_st2g_parallel helper_st2g_parallel_aarch64eb
+#define helper_st2g_stub helper_st2g_stub_aarch64eb
+#define helper_stg helper_stg_aarch64eb
+#define helper_stg_parallel helper_stg_parallel_aarch64eb
+#define helper_stg_stub helper_stg_stub_aarch64eb
 #define helper_sve_abs_b helper_sve_abs_b_aarch64eb
 #define helper_sve_abs_d helper_sve_abs_d_aarch64eb
 #define helper_sve_abs_h helper_sve_abs_h_aarch64eb

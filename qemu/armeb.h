@@ -3512,6 +3512,7 @@
 #define helper_gvec_usra_d helper_gvec_usra_d_armeb
 #define helper_gvec_usra_h helper_gvec_usra_h_armeb
 #define helper_gvec_usra_s helper_gvec_usra_s_armeb
+#define helper_probe_access_armfn helper_probe_access_armfn_armeb
 #define helper_vjcvt helper_vjcvt_armeb
 #define pmu_init pmu_init_armeb
 #define pmsav8_mpu_lookup pmsav8_mpu_lookup_armeb
