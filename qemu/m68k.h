@@ -327,6 +327,7 @@
 #define cpu_restore_state cpu_restore_state_m68k
 #define cpu_restore_state_from_tb cpu_restore_state_from_tb_m68k
 #define cpu_single_step cpu_single_step_m68k
+#define cpu_stb_mmuidx_ra cpu_stb_mmuidx_ra_m68k
 #define cpu_tb_exec cpu_tb_exec_m68k
 #define cpu_to_be64 cpu_to_be64_m68k
 #define cpu_to_le32 cpu_to_le32_m68k

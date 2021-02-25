@@ -327,6 +327,7 @@
 #define cpu_restore_state cpu_restore_state_sparc64
 #define cpu_restore_state_from_tb cpu_restore_state_from_tb_sparc64
 #define cpu_single_step cpu_single_step_sparc64
+#define cpu_stb_mmuidx_ra cpu_stb_mmuidx_ra_sparc64
 #define cpu_tb_exec cpu_tb_exec_sparc64
 #define cpu_to_be64 cpu_to_be64_sparc64
 #define cpu_to_le32 cpu_to_le32_sparc64

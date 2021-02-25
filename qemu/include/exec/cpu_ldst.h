@@ -416,6 +416,9 @@ static inline CPUTLBEntry *tlb_entry(CPUArchState *env, uintptr_t mmu_idx,
 #undef MEMSUFFIX
 #undef SOFTMMU_CODE_ACCESS
 
+void cpu_stb_mmuidx_ra(CPUArchState *env, target_ulong addr, uint32_t val,
+                       int mmu_idx, uintptr_t retaddr);
+
 #endif /* defined(CONFIG_USER_ONLY) */
 
 /**

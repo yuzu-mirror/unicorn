@@ -327,6 +327,7 @@
 #define cpu_restore_state cpu_restore_state_armeb
 #define cpu_restore_state_from_tb cpu_restore_state_from_tb_armeb
 #define cpu_single_step cpu_single_step_armeb
+#define cpu_stb_mmuidx_ra cpu_stb_mmuidx_ra_armeb
 #define cpu_tb_exec cpu_tb_exec_armeb
 #define cpu_to_be64 cpu_to_be64_armeb
 #define cpu_to_le32 cpu_to_le32_armeb
