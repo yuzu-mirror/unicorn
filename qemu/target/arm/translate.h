@@ -381,7 +381,7 @@ typedef void NeonGenWidenFn(TCGContext *t, TCGv_i64, TCGv_i32);
 typedef void NeonGenTwoOpWidenFn(TCGContext *t, TCGv_i64, TCGv_i32, TCGv_i32);
 typedef void NeonGenTwoSingleOPFn(TCGContext *t, TCGv_i32, TCGv_i32, TCGv_i32, TCGv_ptr);
 typedef void NeonGenTwoDoubleOPFn(TCGContext *t, TCGv_i64, TCGv_i64, TCGv_i64, TCGv_ptr);
-typedef void NeonGenOneOpFn(TCGContext *t, TCGv_i64, TCGv_i64);
+typedef void NeonGenOne64OpFn(TCGContext *t, TCGv_i64, TCGv_i64);
 typedef void CryptoTwoOpFn(TCGContext *, TCGv_ptr, TCGv_ptr);
 typedef void CryptoThreeOpIntFn(TCGContext *, TCGv_ptr, TCGv_ptr, TCGv_i32);
 typedef void CryptoThreeOpFn(TCGContext *, TCGv_ptr, TCGv_ptr, TCGv_ptr);
