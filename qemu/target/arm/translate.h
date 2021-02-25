@@ -370,6 +370,7 @@ typedef void GVecGen4Fn(TCGContext *, unsigned, uint32_t, uint32_t, uint32_t,
                         uint32_t, uint32_t, uint32_t);
 
 /* Function prototype for gen_ functions for calling Neon helpers */
+typedef void NeonGenOneOpFn(TCGContext *t, TCGv_i32, TCGv_i32);
 typedef void NeonGenOneOpEnvFn(TCGContext *t, TCGv_i32, TCGv_ptr, TCGv_i32);
 typedef void NeonGenTwoOpFn(TCGContext *t, TCGv_i32, TCGv_i32, TCGv_i32);
 typedef void NeonGenTwoOpEnvFn(TCGContext *t, TCGv_i32, TCGv_ptr, TCGv_i32, TCGv_i32);

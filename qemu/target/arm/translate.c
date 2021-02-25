@@ -362,9 +362,8 @@ static void gen_smul_dual(DisasContext *s, TCGv_i32 a, TCGv_i32 b)
 }
 
 /* Byteswap each halfword.  */
-static void gen_rev16(DisasContext *s, TCGv_i32 dest, TCGv_i32 var)
+static void gen_rev16(TCGContext *tcg_ctx, TCGv_i32 dest, TCGv_i32 var)
 {
-    TCGContext *tcg_ctx = s->uc->tcg_ctx;
     TCGv_i32 tmp = tcg_temp_new_i32(tcg_ctx);
     TCGv_i32 mask = tcg_const_i32(tcg_ctx, 0x00ff00ff);
     tcg_gen_shri_i32(tcg_ctx, tmp, var, 8);
@@ -377,19 +376,17 @@ static void gen_rev16(DisasContext *s, TCGv_i32 dest, TCGv_i32 var)
 }
 
 /* Byteswap low halfword and sign extend.  */
-static void gen_revsh(DisasContext *s, TCGv_i32 dest, TCGv_i32 var)
+static void gen_revsh(TCGContext *tcg_ctx, TCGv_i32 dest, TCGv_i32 var)
 {
-    TCGContext *tcg_ctx = s->uc->tcg_ctx;
     tcg_gen_ext16u_i32(tcg_ctx, var, var);
     tcg_gen_bswap16_i32(tcg_ctx, var, var);
     tcg_gen_ext16s_i32(tcg_ctx, dest, var);
 }
 
 /* Swap low and high halfwords.  */
-static void gen_swap_half(DisasContext *s, TCGv_i32 dest, TCGv_i32 var)
+static void gen_swap_half(TCGContext *s, TCGv_i32 dest, TCGv_i32 var)
 {
-    TCGContext *tcg_ctx = s->uc->tcg_ctx;
-    tcg_gen_rotri_i32(tcg_ctx, dest, var, 16);
+    tcg_gen_rotri_i32(s, dest, var, 16);
 }
 
 /* Dual 16-bit add.  Result placed in t0 and t1 is marked as dead.
@@ -5041,6 +5038,8 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                 case NEON_2RM_AESE: case NEON_2RM_AESMC:
                 case NEON_2RM_SHA1H:
                 case NEON_2RM_SHA1SU1:
+                case NEON_2RM_VREV32:
+                case NEON_2RM_VREV16:
                     /* handled by decodetree */
                     return 1;
                 case NEON_2RM_VTRN:
@@ -5062,16 +5061,6 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                     for (pass = 0; pass < (q ? 4 : 2); pass++) {
                         tmp = neon_load_reg(s, rm, pass);
                         switch (op) {
-                        case NEON_2RM_VREV32:
-                            switch (size) {
-                            case 0: tcg_gen_bswap32_i32(tcg_ctx, tmp, tmp); break;
-                            case 1: gen_swap_half(s, tmp, tmp); break;
-                            default: abort();
-                            }
-                            break;
-                        case NEON_2RM_VREV16:
-                            gen_rev16(s, tmp, tmp);
-                            break;
                         case NEON_2RM_VCLS:
                             switch (size) {
                             case 0: gen_helper_neon_cls_s8(tcg_ctx, tmp, tmp); break;
@@ -6087,10 +6076,9 @@ static void gen_ext16u_i32(DisasContext *s, TCGv_i32 dest, TCGv_i32 src)
     tcg_gen_ext16u_i32(tcg_ctx, dest, src);
 }
 
-static void gen_bswap32_i32(DisasContext *s, TCGv_i32 dest, TCGv_i32 src)
+static void gen_bswap32_i32(TCGContext *s, TCGv_i32 dest, TCGv_i32 src)
 {
-    TCGContext *tcg_ctx = s->uc->tcg_ctx;
-    tcg_gen_bswap32_i32(tcg_ctx, dest, src);
+    tcg_gen_bswap32_i32(s, dest, src);
 }
 
 static void gen_ssat_dectree(DisasContext *s, TCGv_i32 dest, TCGv_env env, TCGv_i32 a, TCGv_i32 b)
@@ -6129,9 +6117,8 @@ static void gen_uxtb16_dectree(DisasContext *s, TCGv_i32 dest, TCGv_i32 src)
     gen_helper_uxtb16(tcg_ctx, dest, src);
 }
 
-static void gen_rbit_dectree(DisasContext* s, TCGv_i32 dest, TCGv_i32 src)
+static void gen_rbit_dectree(TCGContext* tcg_ctx, TCGv_i32 dest, TCGv_i32 src)
 {
-    TCGContext *tcg_ctx = s->uc->tcg_ctx;
     gen_helper_rbit(tcg_ctx, dest, src);
 }
 
@@ -8250,12 +8237,13 @@ static bool trans_SEL(DisasContext *s, arg_rrr *a)
 }
 
 static bool op_rr(DisasContext *s, arg_rr *a,
-                  void (*gen)(DisasContext* s, TCGv_i32, TCGv_i32))
+                  void (*gen)(TCGContext* s, TCGv_i32, TCGv_i32))
 {
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
     TCGv_i32 tmp;
 
     tmp = load_reg(s, a->rm);
-    gen(s, tmp, tmp);
+    gen(tcg_ctx, tmp, tmp);
     store_reg(s, a->rd, tmp);
     return true;
 }
@@ -8308,7 +8296,7 @@ static bool op_smlad(DisasContext *s, arg_rrrr *a, bool m_swap, bool sub)
     t1 = load_reg(s, a->rn);
     t2 = load_reg(s, a->rm);
     if (m_swap) {
-        gen_swap_half(s, t2, t2);
+        gen_swap_half(tcg_ctx, t2, t2);
     }
     gen_smul_dual(s, t1, t2);
 
@@ -8367,7 +8355,7 @@ static bool op_smlald(DisasContext *s, arg_rrrr *a, bool m_swap, bool sub)
     t1 = load_reg(s, a->rn);
     t2 = load_reg(s, a->rm);
     if (m_swap) {
-        gen_swap_half(s, t2, t2);
+        gen_swap_half(tcg_ctx, t2, t2);
     }
     gen_smul_dual(s, t1, t2);
 
