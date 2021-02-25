@@ -3038,8 +3038,6 @@ static void gen_exception_return(DisasContext *s, TCGv_i32 pc)
     gen_rfe(s, pc, load_cpu_field(s, spsr));
 }
 
-#define CPU_V001 s->V0, s->V0, s->V1
-
 static int gen_neon_unzip(DisasContext *s, int rd, int rm, int size, int q)
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
@@ -3228,17 +3226,6 @@ static inline void gen_neon_widen(DisasContext *s, TCGv_i64 dest, TCGv_i32 src, 
         }
     }
     tcg_temp_free_i32(tcg_ctx, src);
-}
-
-static inline void gen_neon_addl(DisasContext *s, int size)
-{
-    TCGContext *tcg_ctx = s->uc->tcg_ctx;
-    switch (size) {
-    case 0: gen_helper_neon_addl_u16(tcg_ctx, CPU_V001); break;
-    case 1: gen_helper_neon_addl_u32(tcg_ctx, CPU_V001); break;
-    case 2: tcg_gen_add_i64(tcg_ctx, CPU_V001); break;
-    default: abort();
-    }
 }
 
 static void gen_neon_narrow_op(DisasContext *s, int op, int u, int size,
@@ -5205,29 +5192,10 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                 }
                 switch (op) {
                 case NEON_2RM_VREV64:
-                    /* handled by decodetree */
-                    return 1;
                 case NEON_2RM_VPADDL: case NEON_2RM_VPADDL_U:
                 case NEON_2RM_VPADAL: case NEON_2RM_VPADAL_U:
-                    for (pass = 0; pass < q + 1; pass++) {
-                        tmp = neon_load_reg(s, rm, pass * 2);
-                        gen_neon_widen(s, s->V0, tmp, size, op & 1);
-                        tmp = neon_load_reg(s, rm, pass * 2 + 1);
-                        gen_neon_widen(s, s->V1, tmp, size, op & 1);
-                        switch (size) {
-                        case 0: gen_helper_neon_paddl_u16(tcg_ctx, CPU_V001); break;
-                        case 1: gen_helper_neon_paddl_u32(tcg_ctx, CPU_V001); break;
-                        case 2: tcg_gen_add_i64(tcg_ctx, CPU_V001); break;
-                        default: abort();
-                        }
-                        if (op >= NEON_2RM_VPADAL) {
-                            /* Accumulate.  */
-                            neon_load_reg64(s, s->V1, rd + pass);
-                            gen_neon_addl(s, size);
-                        }
-                        neon_store_reg64(s, s->V0, rd + pass);
-                    }
-                    break;
+                    /* handled by decodetree */
+                    return 1;
                 case NEON_2RM_VTRN:
                     if (size == 2) {
                         int n;
