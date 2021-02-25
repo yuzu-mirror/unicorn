@@ -3081,27 +3081,6 @@ static void gen_neon_trn_u16(DisasContext *s, TCGv_i32 t0, TCGv_i32 t1)
     tcg_temp_free_i32(tcg_ctx, rd);
 }
 
-static inline void gen_neon_widen(DisasContext *s, TCGv_i64 dest, TCGv_i32 src, int size, int u)
-{
-    TCGContext *tcg_ctx = s->uc->tcg_ctx;
-    if (u) {
-        switch (size) {
-        case 0: gen_helper_neon_widen_u8(tcg_ctx, dest, src); break;
-        case 1: gen_helper_neon_widen_u16(tcg_ctx, dest, src); break;
-        case 2: tcg_gen_extu_i32_i64(tcg_ctx, dest, src); break;
-        default: abort();
-        }
-    } else {
-        switch (size) {
-        case 0: gen_helper_neon_widen_s8(tcg_ctx, dest, src); break;
-        case 1: gen_helper_neon_widen_s16(tcg_ctx, dest, src); break;
-        case 2: tcg_gen_ext_i32_i64(tcg_ctx, dest, src); break;
-        default: abort();
-        }
-    }
-    tcg_temp_free_i32(tcg_ctx, src);
-}
-
 /* Symbolic constants for op fields for Neon 2-register miscellaneous.
  * The values correspond to bits [17:16,10:7]; see the ARM ARM DDI0406B
  * table A7-13.
@@ -5052,6 +5031,7 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                 case NEON_2RM_VUZP:
                 case NEON_2RM_VZIP:
                 case NEON_2RM_VMOVN: case NEON_2RM_VQMOVN:
+                case NEON_2RM_VSHLL:
                     /* handled by decodetree */
                     return 1;
                 case NEON_2RM_VTRN:
@@ -5065,20 +5045,6 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                         }
                     } else {
                         goto elementwise;
-                    }
-                    break;
-                case NEON_2RM_VSHLL:
-                    if (q || (rd & 1)) {
-                        return 1;
-                    }
-                    tmp = neon_load_reg(s, rm, 0);
-                    tmp2 = neon_load_reg(s, rm, 1);
-                    for (pass = 0; pass < 2; pass++) {
-                        if (pass == 1)
-                            tmp = tmp2;
-                        gen_neon_widen(s, s->V0, tmp, size, 1);
-                        tcg_gen_shli_i64(tcg_ctx, s->V0, s->V0, 8 << size);
-                        neon_store_reg64(s, s->V0, rd + pass);
                     }
                     break;
                 case NEON_2RM_VCVT_F16_F32:
