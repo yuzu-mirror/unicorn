@@ -3583,6 +3583,7 @@
 #define helper_msr_i_daifclear helper_msr_i_daifclear_aarch64
 #define helper_msr_i_daifset helper_msr_i_daifset_aarch64
 #define helper_msr_i_spsel helper_msr_i_spsel_aarch64
+#define helper_mte_check1 helper_mte_check1_aarch64
 #define helper_neon_addlp_s16 helper_neon_addlp_s16_aarch64
 #define helper_neon_addlp_s8 helper_neon_addlp_s8_aarch64
 #define helper_neon_addlp_u16 helper_neon_addlp_u16_aarch64
