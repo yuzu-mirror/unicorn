@@ -386,10 +386,10 @@ static void gen_revsh(DisasContext *s, TCGv_i32 dest, TCGv_i32 var)
 }
 
 /* Swap low and high halfwords.  */
-static void gen_swap_half(DisasContext *s, TCGv_i32 var)
+static void gen_swap_half(DisasContext *s, TCGv_i32 dest, TCGv_i32 var)
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
-    tcg_gen_rotri_i32(tcg_ctx, var, var, 16);
+    tcg_gen_rotri_i32(tcg_ctx, dest, var, 16);
 }
 
 /* Dual 16-bit add.  Result placed in t0 and t1 is marked as dead.
@@ -5065,7 +5065,7 @@ static int disas_neon_data_insn(DisasContext *s, uint32_t insn)
                         case NEON_2RM_VREV32:
                             switch (size) {
                             case 0: tcg_gen_bswap32_i32(tcg_ctx, tmp, tmp); break;
-                            case 1: gen_swap_half(s, tmp); break;
+                            case 1: gen_swap_half(s, tmp, tmp); break;
                             default: abort();
                             }
                             break;
@@ -8308,7 +8308,7 @@ static bool op_smlad(DisasContext *s, arg_rrrr *a, bool m_swap, bool sub)
     t1 = load_reg(s, a->rn);
     t2 = load_reg(s, a->rm);
     if (m_swap) {
-        gen_swap_half(s, t2);
+        gen_swap_half(s, t2, t2);
     }
     gen_smul_dual(s, t1, t2);
 
@@ -8367,7 +8367,7 @@ static bool op_smlald(DisasContext *s, arg_rrrr *a, bool m_swap, bool sub)
     t1 = load_reg(s, a->rn);
     t2 = load_reg(s, a->rm);
     if (m_swap) {
-        gen_swap_half(s, t2);
+        gen_swap_half(s, t2, t2);
     }
     gen_smul_dual(s, t1, t2);
 

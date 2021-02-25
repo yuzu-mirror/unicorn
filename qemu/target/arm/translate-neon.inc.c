@@ -3045,7 +3045,7 @@ static bool trans_VREV64(DisasContext *s, arg_VREV64 *a)
                 tcg_gen_bswap32_i32(tcg_ctx, tmp[half], tmp[half]);
                 break;
             case 1:
-                gen_swap_half(s, tmp[half]);
+                gen_swap_half(s, tmp[half], tmp[half]);
                 break;
             case 2:
                 break;
