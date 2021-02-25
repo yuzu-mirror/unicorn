@@ -3459,6 +3459,8 @@
 #define gen_gvec_urshr gen_gvec_urshr_armeb
 #define gen_gvec_ushl gen_gvec_ushl_armeb
 #define gen_gvec_usra gen_gvec_usra_armeb
+#define gen_mte_check1 gen_mte_check1_armeb
+#define gen_mte_checkN gen_mte_checkN_armeb
 #define get_phys_addr get_phys_addr_armeb
 #define gen_sshl_i32 gen_sshl_i32_armeb
 #define gen_sshl_i64 gen_sshl_i64_armeb
@@ -3515,8 +3517,8 @@
 #define helper_gvec_usra_s helper_gvec_usra_s_armeb
 #define helper_probe_access_armfn helper_probe_access_armfn_armeb
 #define helper_vjcvt helper_vjcvt_armeb
-#define mte_check1 mte_check1_armeb
-#define mte_checkN mte_checkN_armeb
+#define mte_check1_ mte_check1__armeb
+#define mte_checkN_ mte_checkN__armeb
 #define mte_probe1 mte_probe1_armeb
 #define pmu_init pmu_init_armeb
 #define pmsav8_mpu_lookup pmsav8_mpu_lookup_armeb

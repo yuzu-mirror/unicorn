@@ -474,8 +474,8 @@ bool mte_probe1(CPUARMState *env, uint32_t desc, uint64_t ptr)
     return mte_probe1_int(env, desc, ptr, 0, bit55);
 }
 
-uint64_t mte_check1(CPUARMState *env, uint32_t desc,
-                    uint64_t ptr, uintptr_t ra)
+uint64_t mte_check1_(CPUARMState *env, uint32_t desc,
+                     uint64_t ptr, uintptr_t ra)
 {
     int bit55 = extract64(ptr, 55, 1);
 
@@ -494,7 +494,7 @@ uint64_t mte_check1(CPUARMState *env, uint32_t desc,
 
 uint64_t HELPER(mte_check_1)(CPUARMState *env, uint32_t desc, uint64_t ptr)
 {
-    return mte_check1(env, desc, ptr, GETPC());
+    return mte_check1_(env, desc, ptr, GETPC());
 }
 
 /**
@@ -559,8 +559,8 @@ static int checkN(uint8_t *mem, int odd, int cmp, int count)
     return n;
 }
 
-uint64_t mte_checkN(CPUARMState *env, uint32_t desc,
-                    uint64_t ptr, uintptr_t ra)
+uint64_t mte_checkN_(CPUARMState *env, uint32_t desc,
+                     uint64_t ptr, uintptr_t ra)
 {
     int mmu_idx, ptr_tag, bit55;
     uint64_t ptr_last, ptr_end, prev_page, next_page;
@@ -661,7 +661,7 @@ uint64_t mte_checkN(CPUARMState *env, uint32_t desc,
 
 uint64_t HELPER(mte_check_N)(CPUARMState *env, uint32_t desc, uint64_t ptr)
 {
-    return mte_checkN(env, desc, ptr, GETPC());
+    return mte_checkN_(env, desc, ptr, GETPC());
 }
 
 /*

@@ -415,8 +415,8 @@ static TCGv_i64 gen_mte_check1_mmuidx(DisasContext *s, TCGv_i64 addr,
     return clean_data_tbi(s, addr);
 }
 
-static TCGv_i64 gen_mte_check1(DisasContext *s, TCGv_i64 addr, bool is_write,
-                               bool tag_checked, int log2_size)
+TCGv_i64 gen_mte_check1(DisasContext *s, TCGv_i64 addr, bool is_write,
+                        bool tag_checked, int log2_size)
 {
     return gen_mte_check1_mmuidx(s, addr, is_write, tag_checked, log2_size,
                                  false, get_mem_index(s));
@@ -425,8 +425,8 @@ static TCGv_i64 gen_mte_check1(DisasContext *s, TCGv_i64 addr, bool is_write,
 /*
  * For MTE, check multiple logical sequential accesses.
  */
-static TCGv_i64 gen_mte_checkN(DisasContext *s, TCGv_i64 addr, bool is_write,
-                               bool tag_checked, int log2_esize, int total_size)
+TCGv_i64 gen_mte_checkN(DisasContext *s, TCGv_i64 addr, bool is_write,
+                        bool tag_checked, int log2_esize, int total_size)
 {
     if (tag_checked && s->mte_active[0] && total_size != (1 << log2_esize)) {
         TCGv_i32 tcg_desc;

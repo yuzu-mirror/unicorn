@@ -3474,6 +3474,8 @@
 #define gen_gvec_urshr gen_gvec_urshr_aarch64
 #define gen_gvec_ushl gen_gvec_ushl_aarch64
 #define gen_gvec_usra gen_gvec_usra_aarch64
+#define gen_mte_check1 gen_mte_check1_aarch64
+#define gen_mte_checkN gen_mte_checkN_aarch64
 #define get_phys_addr get_phys_addr_aarch64
 #define gen_sshl_i32 gen_sshl_i32_aarch64
 #define gen_sshl_i64 gen_sshl_i64_aarch64
@@ -4527,8 +4529,8 @@
 #define helper_xpacd helper_xpacd_aarch64
 #define helper_xpaci helper_xpaci_aarch64
 #define logic_imm_decode_wmask logic_imm_decode_wmask_aarch64
-#define mte_check1 mte_check1_aarch64
-#define mte_checkN mte_checkN_aarch64
+#define mte_check1_ mte_check1__aarch64
+#define mte_checkN_ mte_checkN__aarch64
 #define mte_probe1 mte_probe1_aarch64
 #define new_tmp_a64 new_tmp_a64_aarch64
 #define new_tmp_a64_zero new_tmp_a64_zero_aarch64
