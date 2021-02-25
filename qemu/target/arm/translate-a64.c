@@ -9811,7 +9811,7 @@ static void handle_2misc_fcmp_zero(DisasContext *s, int opcode,
         TCGv_i64 tcg_op = tcg_temp_new_i64(tcg_ctx);
         TCGv_i64 tcg_zero = tcg_const_i64(tcg_ctx, 0);
         TCGv_i64 tcg_res = tcg_temp_new_i64(tcg_ctx);
-        NeonGenTwoDoubleOPFn *genfn;
+        NeonGenTwoDoubleOpFn *genfn;
         bool swap = false;
         int pass;
 
@@ -9853,7 +9853,7 @@ static void handle_2misc_fcmp_zero(DisasContext *s, int opcode,
         TCGv_i32 tcg_op = tcg_temp_new_i32(tcg_ctx);
         TCGv_i32 tcg_zero = tcg_const_i32(tcg_ctx, 0);
         TCGv_i32 tcg_res = tcg_temp_new_i32(tcg_ctx);
-        NeonGenTwoSingleOPFn *genfn;
+        NeonGenTwoSingleOpFn *genfn;
         bool swap = false;
         int pass, maxpasses;
 

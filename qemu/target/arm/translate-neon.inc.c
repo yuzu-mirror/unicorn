@@ -1686,7 +1686,7 @@ static bool trans_VSHLL_U_2sh(DisasContext *s, arg_2reg_shift *a)
 }
 
 static bool do_fp_2sh(DisasContext *s, arg_2reg_shift *a,
-                      NeonGenTwoSingleOPFn *fn)
+                      NeonGenTwoSingleOpFn *fn)
 {
     /* FP operations in 2-reg-and-shift group */
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
