@@ -3598,7 +3598,7 @@ static bool trans_FMLA_zzxz(DisasContext *s, arg_FMLA_zzxz *a)
     if (sve_access_check(s)) {
         TCGContext *tcg_ctx = s->uc->tcg_ctx;
         unsigned vsz = vec_full_reg_size(s);
-        TCGv_ptr status = get_fpstatus_ptr(tcg_ctx, a->esz == MO_16);
+        TCGv_ptr status = fpstatus_ptr(tcg_ctx, a->esz == MO_16 ? FPST_FPCR_F16 : FPST_FPCR);
         tcg_gen_gvec_4_ptr(tcg_ctx, vec_full_reg_offset(s, a->rd),
                            vec_full_reg_offset(s, a->rn),
                            vec_full_reg_offset(s, a->rm),
@@ -3625,7 +3625,7 @@ static bool trans_FMUL_zzx(DisasContext *s, arg_FMUL_zzx *a)
     if (sve_access_check(s)) {
         TCGContext *tcg_ctx = s->uc->tcg_ctx;
         unsigned vsz = vec_full_reg_size(s);
-        TCGv_ptr status = get_fpstatus_ptr(tcg_ctx, a->esz == MO_16);
+        TCGv_ptr status = fpstatus_ptr(tcg_ctx, a->esz == MO_16 ? FPST_FPCR_F16 : FPST_FPCR);
         tcg_gen_gvec_3_ptr(tcg_ctx, vec_full_reg_offset(s, a->rd),
                            vec_full_reg_offset(s, a->rn),
                            vec_full_reg_offset(s, a->rm),
@@ -3658,7 +3658,7 @@ static void do_reduce(DisasContext *s, arg_rpr_esz *a,
 
     tcg_gen_addi_ptr(tcg_ctx, t_zn, tcg_ctx->cpu_env, vec_full_reg_offset(s, a->rn));
     tcg_gen_addi_ptr(tcg_ctx, t_pg, tcg_ctx->cpu_env, pred_full_reg_offset(s, a->pg));
-    status = get_fpstatus_ptr(tcg_ctx, a->esz == MO_16);
+    status = fpstatus_ptr(tcg_ctx, a->esz == MO_16 ? FPST_FPCR_F16 : FPST_FPCR);
 
     fn(tcg_ctx, temp, t_zn, t_pg, status, t_desc);
     tcg_temp_free_ptr(tcg_ctx, t_zn);
@@ -3701,7 +3701,7 @@ static void do_zz_fp(DisasContext *s, arg_rr_esz *a, gen_helper_gvec_2_ptr *fn)
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
     unsigned vsz = vec_full_reg_size(s);
-    TCGv_ptr status = get_fpstatus_ptr(tcg_ctx, a->esz == MO_16);
+    TCGv_ptr status = fpstatus_ptr(tcg_ctx, a->esz == MO_16 ? FPST_FPCR_F16 : FPST_FPCR);
 
     tcg_gen_gvec_2_ptr(tcg_ctx, vec_full_reg_offset(s, a->rd),
                        vec_full_reg_offset(s, a->rn),
@@ -3750,7 +3750,7 @@ static void do_ppz_fp(DisasContext *s, arg_rpr_esz *a,
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
     unsigned vsz = vec_full_reg_size(s);
-    TCGv_ptr status = get_fpstatus_ptr(tcg_ctx, a->esz == MO_16);
+    TCGv_ptr status = fpstatus_ptr(tcg_ctx, a->esz == MO_16 ? FPST_FPCR_F16 : FPST_FPCR);
 
     tcg_gen_gvec_3_ptr(tcg_ctx, pred_full_reg_offset(s, a->rd),
                        vec_full_reg_offset(s, a->rn),
@@ -3803,7 +3803,7 @@ static bool trans_FTMAD(DisasContext *s, arg_FTMAD *a)
     if (sve_access_check(s)) {
         TCGContext *tcg_ctx = s->uc->tcg_ctx;
         unsigned vsz = vec_full_reg_size(s);
-        TCGv_ptr status = get_fpstatus_ptr(tcg_ctx, a->esz == MO_16);
+        TCGv_ptr status = fpstatus_ptr(tcg_ctx, a->esz == MO_16 ? FPST_FPCR_F16 : FPST_FPCR);
         tcg_gen_gvec_3_ptr(tcg_ctx, vec_full_reg_offset(s, a->rd),
                            vec_full_reg_offset(s, a->rn),
                            vec_full_reg_offset(s, a->rm),
@@ -3844,7 +3844,7 @@ static bool trans_FADDA(DisasContext *s, arg_rprr_esz *a)
     t_pg = tcg_temp_new_ptr(tcg_ctx);
     tcg_gen_addi_ptr(tcg_ctx, t_rm, tcg_ctx->cpu_env, vec_full_reg_offset(s, a->rm));
     tcg_gen_addi_ptr(tcg_ctx, t_pg, tcg_ctx->cpu_env, pred_full_reg_offset(s, a->pg));
-    t_fpst = get_fpstatus_ptr(tcg_ctx, a->esz == MO_16);
+    t_fpst = fpstatus_ptr(tcg_ctx, a->esz == MO_16 ? FPST_FPCR_F16 : FPST_FPCR);
     t_desc = tcg_const_i32(tcg_ctx, simd_desc(vsz, vsz, 0));
 
     fns[a->esz - 1](tcg_ctx, t_val, t_val, t_rm, t_pg, t_fpst, t_desc);
@@ -3872,7 +3872,7 @@ static bool do_zzz_fp(DisasContext *s, arg_rrr_esz *a,
     if (sve_access_check(s)) {
         TCGContext *tcg_ctx = s->uc->tcg_ctx;
         unsigned vsz = vec_full_reg_size(s);
-        TCGv_ptr status = get_fpstatus_ptr(tcg_ctx, a->esz == MO_16);
+        TCGv_ptr status = fpstatus_ptr(tcg_ctx, a->esz == MO_16 ? FPST_FPCR_F16 : FPST_FPCR);
         tcg_gen_gvec_3_ptr(tcg_ctx, vec_full_reg_offset(s, a->rd),
                            vec_full_reg_offset(s, a->rn),
                            vec_full_reg_offset(s, a->rm),
@@ -3915,7 +3915,7 @@ static bool do_zpzz_fp(DisasContext *s, arg_rprr_esz *a,
     if (sve_access_check(s)) {
         TCGContext *tcg_ctx = s->uc->tcg_ctx;
         unsigned vsz = vec_full_reg_size(s);
-        TCGv_ptr status = get_fpstatus_ptr(tcg_ctx, a->esz == MO_16);
+        TCGv_ptr status = fpstatus_ptr(tcg_ctx, a->esz == MO_16 ? FPST_FPCR_F16 : FPST_FPCR);
         tcg_gen_gvec_4_ptr(tcg_ctx, vec_full_reg_offset(s, a->rd),
                            vec_full_reg_offset(s, a->rn),
                            vec_full_reg_offset(s, a->rm),
@@ -3968,7 +3968,7 @@ static void do_fp_scalar(DisasContext *s, int zd, int zn, int pg, bool is_fp16,
     tcg_gen_addi_ptr(tcg_ctx, t_zn, tcg_ctx->cpu_env, vec_full_reg_offset(s, zn));
     tcg_gen_addi_ptr(tcg_ctx, t_pg, tcg_ctx->cpu_env, pred_full_reg_offset(s, pg));
 
-    status = get_fpstatus_ptr(tcg_ctx, is_fp16);
+    status = fpstatus_ptr(tcg_ctx, is_fp16 ? FPST_FPCR_F16 : FPST_FPCR);
     desc = tcg_const_i32(tcg_ctx, simd_desc(vsz, vsz, 0));
     fn(tcg_ctx, t_zd, t_zn, t_pg, scalar, status, desc);
 
@@ -4034,7 +4034,7 @@ static bool do_fp_cmp(DisasContext *s, arg_rprr_esz *a,
     if (sve_access_check(s)) {
         TCGContext *tcg_ctx = s->uc->tcg_ctx;
         unsigned vsz = vec_full_reg_size(s);
-        TCGv_ptr status = get_fpstatus_ptr(tcg_ctx, a->esz == MO_16);
+        TCGv_ptr status = fpstatus_ptr(tcg_ctx, a->esz == MO_16 ? FPST_FPCR_F16 : FPST_FPCR);
         tcg_gen_gvec_4_ptr(tcg_ctx, pred_full_reg_offset(s, a->rd),
                            vec_full_reg_offset(s, a->rn),
                            vec_full_reg_offset(s, a->rm),
@@ -4079,7 +4079,7 @@ static bool trans_FCADD(DisasContext *s, arg_FCADD *a)
     if (sve_access_check(s)) {
         TCGContext *tcg_ctx = s->uc->tcg_ctx;
         unsigned vsz = vec_full_reg_size(s);
-        TCGv_ptr status = get_fpstatus_ptr(tcg_ctx, a->esz == MO_16);
+        TCGv_ptr status = fpstatus_ptr(tcg_ctx, a->esz == MO_16 ? FPST_FPCR_F16 : FPST_FPCR);
         tcg_gen_gvec_4_ptr(tcg_ctx, vec_full_reg_offset(s, a->rd),
                            vec_full_reg_offset(s, a->rn),
                            vec_full_reg_offset(s, a->rm),
@@ -4100,7 +4100,7 @@ static bool do_fmla(DisasContext *s, arg_rprrr_esz *a,
     if (sve_access_check(s)) {
         TCGContext *tcg_ctx = s->uc->tcg_ctx;
         unsigned vsz = vec_full_reg_size(s);
-        TCGv_ptr status = get_fpstatus_ptr(tcg_ctx, a->esz == MO_16);
+        TCGv_ptr status = fpstatus_ptr(tcg_ctx, a->esz == MO_16 ? FPST_FPCR_F16 : FPST_FPCR);
         tcg_gen_gvec_5_ptr(tcg_ctx, vec_full_reg_offset(s, a->rd),
                            vec_full_reg_offset(s, a->rn),
                            vec_full_reg_offset(s, a->rm),
@@ -4145,7 +4145,7 @@ static bool trans_FCMLA_zpzzz(DisasContext *s, arg_FCMLA_zpzzz *a)
     if (sve_access_check(s)) {
         TCGContext *tcg_ctx = s->uc->tcg_ctx;
         unsigned vsz = vec_full_reg_size(s);
-        TCGv_ptr status = get_fpstatus_ptr(tcg_ctx, a->esz == MO_16);
+        TCGv_ptr status = fpstatus_ptr(tcg_ctx, a->esz == MO_16 ? FPST_FPCR_F16 : FPST_FPCR);
         tcg_gen_gvec_5_ptr(tcg_ctx, vec_full_reg_offset(s, a->rd),
                            vec_full_reg_offset(s, a->rn),
                            vec_full_reg_offset(s, a->rm),
@@ -4169,7 +4169,7 @@ static bool trans_FCMLA_zzxz(DisasContext *s, arg_FCMLA_zzxz *a)
     if (sve_access_check(s)) {
         TCGContext *tcg_ctx = s->uc->tcg_ctx;
         unsigned vsz = vec_full_reg_size(s);
-        TCGv_ptr status = get_fpstatus_ptr(tcg_ctx, a->esz == MO_16);
+        TCGv_ptr status = fpstatus_ptr(tcg_ctx, a->esz == MO_16 ? FPST_FPCR_F16 : FPST_FPCR);
         tcg_gen_gvec_3_ptr(tcg_ctx, vec_full_reg_offset(s, a->rd),
                            vec_full_reg_offset(s, a->rn),
                            vec_full_reg_offset(s, a->rm),
@@ -4191,7 +4191,7 @@ static bool do_zpz_ptr(DisasContext *s, int rd, int rn, int pg,
     if (sve_access_check(s)) {
         TCGContext *tcg_ctx = s->uc->tcg_ctx;
         unsigned vsz = vec_full_reg_size(s);
-        TCGv_ptr status = get_fpstatus_ptr(tcg_ctx, is_fp16);
+        TCGv_ptr status = fpstatus_ptr(tcg_ctx, is_fp16 ? FPST_FPCR_F16 : FPST_FPCR);
         tcg_gen_gvec_3_ptr(tcg_ctx, vec_full_reg_offset(s, rd),
                            vec_full_reg_offset(s, rn),
                            pred_full_reg_offset(s, pg),
@@ -4338,7 +4338,7 @@ static bool do_frint_mode(DisasContext *s, arg_rpr_esz *a, int mode)
         TCGContext *tcg_ctx = s->uc->tcg_ctx;
         unsigned vsz = vec_full_reg_size(s);
         TCGv_i32 tmode = tcg_const_i32(tcg_ctx, mode);
-        TCGv_ptr status = get_fpstatus_ptr(tcg_ctx, a->esz == MO_16);
+        TCGv_ptr status = fpstatus_ptr(tcg_ctx, a->esz == MO_16 ? FPST_FPCR_F16 : FPST_FPCR);
 
         gen_helper_set_rmode(tcg_ctx, tmode, tmode, status);
 
