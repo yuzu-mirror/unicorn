@@ -926,6 +926,7 @@ void riscv_translate_init(struct uc_struct *uc)
     }
 
     tcg_ctx->cpu_pc_risc = tcg_global_mem_new(tcg_ctx, tcg_ctx->cpu_env, offsetof(CPURISCVState, pc), "pc");
+    tcg_ctx->cpu_vl_risc = tcg_global_mem_new(tcg_ctx, tcg_ctx->cpu_env, offsetof(CPURISCVState, vl), "vl");
     tcg_ctx->load_res_risc = tcg_global_mem_new(tcg_ctx, tcg_ctx->cpu_env, offsetof(CPURISCVState, load_res),
                              "load_res");
     tcg_ctx->load_val_risc = tcg_global_mem_new(tcg_ctx, tcg_ctx->cpu_env, offsetof(CPURISCVState, load_val),
