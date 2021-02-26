@@ -3494,6 +3494,7 @@
 #define bif_op bif_op_aarch64eb
 #define bit_op bit_op_aarch64eb
 #define bsl_op bsl_op_aarch64eb
+#define clean_data_tbi clean_data_tbi_aarch64eb
 #define cpu_mmu_index cpu_mmu_index_aarch64eb
 #define cpu_reg cpu_reg_aarch64eb
 #define cpu_reg_sp cpu_reg_sp_aarch64eb

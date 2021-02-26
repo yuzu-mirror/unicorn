@@ -351,7 +351,7 @@ static void gen_a64_set_pc(DisasContext *s, TCGv_i64 src)
  * Always return a fresh temporary that we can increment independently
  * of the write-back address.
  */
-static TCGv_i64 clean_data_tbi(DisasContext *s, TCGv_i64 addr)
+TCGv_i64 clean_data_tbi(DisasContext *s, TCGv_i64 addr)
 {
     TCGv_i64 clean = new_tmp_a64(s);
 #ifdef CONFIG_USER_ONLY

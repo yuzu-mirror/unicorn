@@ -3634,6 +3634,7 @@ aarch64_symbols = (
     'bif_op',
     'bit_op',
     'bsl_op',
+    'clean_data_tbi',
     'cpu_mmu_index',
     'cpu_reg',
     'cpu_reg_sp',
