@@ -139,6 +139,19 @@ static int pred_gvec_reg_size(DisasContext *s)
     return size_for_gvec(pred_full_reg_size(s));
 }
 
+/* Invoke an out-of-line helper on 2 Zregs and a predicate. */
+static void gen_gvec_ool_zzp(DisasContext *s, gen_helper_gvec_3 *fn,
+                             int rd, int rn, int pg, int data)
+{
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+    unsigned vsz = vec_full_reg_size(s);
+    tcg_gen_gvec_3_ool(tcg_ctx, vec_full_reg_offset(s, rd),
+                       vec_full_reg_offset(s, rn),
+                       pred_full_reg_offset(s, pg),
+                       vsz, vsz, data, fn);
+}
+
+
 /* Invoke an out-of-line helper on 3 Zregs and a predicate. */
 static void gen_gvec_ool_zzzp(DisasContext *s, gen_helper_gvec_4 *fn,
                               int rd, int rn, int rm, int pg, int data)
@@ -421,12 +434,7 @@ static bool do_zpz_ool(DisasContext *s, arg_rpr_esz *a, gen_helper_gvec_3 *fn)
         return false;
     }
     if (sve_access_check(s)) {
-        TCGContext *tcg_ctx = s->uc->tcg_ctx;
-        unsigned vsz = vec_full_reg_size(s);
-        tcg_gen_gvec_3_ool(tcg_ctx, vec_full_reg_offset(s, a->rd),
-                           vec_full_reg_offset(s, a->rn),
-                           pred_full_reg_offset(s, a->pg),
-                           vsz, vsz, 0, fn);
+        gen_gvec_ool_zzp(s, fn, a->rd, a->rn, a->pg, 0);
     }
     return true;
 }
@@ -611,12 +619,7 @@ static bool do_movz_zpz(DisasContext *s, int rd, int rn, int pg,
     };
 
     if (sve_access_check(s)) {
-        TCGContext *tcg_ctx = s->uc->tcg_ctx;
-        unsigned vsz = vec_full_reg_size(s);
-        tcg_gen_gvec_3_ool(tcg_ctx, vec_full_reg_offset(s, rd),
-                           vec_full_reg_offset(s, rn),
-                           pred_full_reg_offset(s, pg),
-                           vsz, vsz, invert, fns[esz]);
+        gen_gvec_ool_zzp(s, fns[esz], rd, rn, pg, invert);
     }
     return true;
 }
@@ -625,12 +628,7 @@ static bool do_zpzi_ool(DisasContext *s, arg_rpri_esz *a,
                         gen_helper_gvec_3 *fn)
 {
     if (sve_access_check(s)) {
-        TCGContext *tcg_ctx = s->uc->tcg_ctx;
-        unsigned vsz = vec_full_reg_size(s);
-        tcg_gen_gvec_3_ool(tcg_ctx, vec_full_reg_offset(s, a->rd),
-                           vec_full_reg_offset(s, a->rn),
-                           pred_full_reg_offset(s, a->pg),
-                           vsz, vsz, a->imm, fn);
+        gen_gvec_ool_zzp(s, fn, a->rd, a->rn, a->pg, a->imm);
     }
     return true;
 }
