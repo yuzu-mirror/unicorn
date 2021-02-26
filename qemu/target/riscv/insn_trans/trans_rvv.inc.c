@@ -641,3 +641,143 @@ GEN_VEXT_TRANS(vleff_v, 3, r2nfvm, ldff_op, ld_us_check)
 GEN_VEXT_TRANS(vlbuff_v, 4, r2nfvm, ldff_op, ld_us_check)
 GEN_VEXT_TRANS(vlhuff_v, 5, r2nfvm, ldff_op, ld_us_check)
 GEN_VEXT_TRANS(vlwuff_v, 6, r2nfvm, ldff_op, ld_us_check)
+
+/*
+ *** vector atomic operation
+ */
+typedef void gen_helper_amo(TCGContext *, TCGv_ptr, TCGv_ptr, TCGv, TCGv_ptr,
+                            TCGv_env, TCGv_i32);
+
+static bool amo_trans(uint32_t vd, uint32_t rs1, uint32_t vs2,
+                      uint32_t data, gen_helper_amo *fn, DisasContext *s)
+{
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+    TCGv_ptr dest, mask, index;
+    TCGv base;
+    TCGv_i32 desc;
+
+    TCGLabel *over = gen_new_label(tcg_ctx);
+    tcg_gen_brcondi_tl(tcg_ctx, TCG_COND_EQ, tcg_ctx->cpu_vl_risc, 0, over);
+
+    dest = tcg_temp_new_ptr(tcg_ctx);
+    mask = tcg_temp_new_ptr(tcg_ctx);
+    index = tcg_temp_new_ptr(tcg_ctx);
+    base = tcg_temp_new(tcg_ctx);
+    desc = tcg_const_i32(tcg_ctx, simd_desc(0, s->vlen / 8, data));
+
+    gen_get_gpr(s, base, rs1);
+    tcg_gen_addi_ptr(tcg_ctx, dest, tcg_ctx->cpu_env, vreg_ofs(s, vd));
+    tcg_gen_addi_ptr(tcg_ctx, index,tcg_ctx->cpu_env, vreg_ofs(s, vs2));
+    tcg_gen_addi_ptr(tcg_ctx, mask, tcg_ctx->cpu_env, vreg_ofs(s, 0));
+
+    fn(tcg_ctx, dest, mask, base, index, tcg_ctx->cpu_env, desc);
+
+    tcg_temp_free_ptr(tcg_ctx, dest);
+    tcg_temp_free_ptr(tcg_ctx, mask);
+    tcg_temp_free_ptr(tcg_ctx, index);
+    tcg_temp_free(tcg_ctx, base);
+    tcg_temp_free_i32(tcg_ctx, desc);
+    gen_set_label(tcg_ctx, over);
+    return true;
+}
+
+static bool amo_op(DisasContext *s, arg_rwdvm *a, uint8_t seq)
+{
+    uint32_t data = 0;
+    gen_helper_amo *fn;
+    static gen_helper_amo *const fnsw[9] = {
+        /* no atomic operation */
+        gen_helper_vamoswapw_v_w,
+        gen_helper_vamoaddw_v_w,
+        gen_helper_vamoxorw_v_w,
+        gen_helper_vamoandw_v_w,
+        gen_helper_vamoorw_v_w,
+        gen_helper_vamominw_v_w,
+        gen_helper_vamomaxw_v_w,
+        gen_helper_vamominuw_v_w,
+        gen_helper_vamomaxuw_v_w
+    };
+#ifdef TARGET_RISCV64
+    static gen_helper_amo *const fnsd[18] = {
+        gen_helper_vamoswapw_v_d,
+        gen_helper_vamoaddw_v_d,
+        gen_helper_vamoxorw_v_d,
+        gen_helper_vamoandw_v_d,
+        gen_helper_vamoorw_v_d,
+        gen_helper_vamominw_v_d,
+        gen_helper_vamomaxw_v_d,
+        gen_helper_vamominuw_v_d,
+        gen_helper_vamomaxuw_v_d,
+        gen_helper_vamoswapd_v_d,
+        gen_helper_vamoaddd_v_d,
+        gen_helper_vamoxord_v_d,
+        gen_helper_vamoandd_v_d,
+        gen_helper_vamoord_v_d,
+        gen_helper_vamomind_v_d,
+        gen_helper_vamomaxd_v_d,
+        gen_helper_vamominud_v_d,
+        gen_helper_vamomaxud_v_d
+    };
+#endif
+
+    if (tb_cflags(s->base.tb) & CF_PARALLEL) {
+        TCGContext *tcg_ctx = s->uc->tcg_ctx;
+        gen_helper_exit_atomic(tcg_ctx, tcg_ctx->cpu_env);
+        s->base.is_jmp = DISAS_NORETURN;
+        return true;
+    } else {
+        if (s->sew == 3) {
+#ifdef TARGET_RISCV64
+            fn = fnsd[seq];
+#else
+            /* Check done in amo_check(). */
+            g_assert_not_reached();
+#endif
+        } else {
+            fn = fnsw[seq];
+        }
+    }
+
+    data = FIELD_DP32(data, VDATA, MLEN, s->mlen);
+    data = FIELD_DP32(data, VDATA, VM, a->vm);
+    data = FIELD_DP32(data, VDATA, LMUL, s->lmul);
+    data = FIELD_DP32(data, VDATA, WD, a->wd);
+    return amo_trans(a->rd, a->rs1, a->rs2, data, fn, s);
+}
+/*
+ * There are two rules check here.
+ *
+ * 1. SEW must be at least as wide as the AMO memory element size.
+ *
+ * 2. If SEW is greater than XLEN, an illegal instruction exception is raised.
+ */
+static bool amo_check(DisasContext *s, arg_rwdvm* a)
+{
+    return (!s->vill && has_ext(s, RVA) &&
+            (!a->wd || vext_check_overlap_mask(s, a->rd, a->vm, false)) &&
+            vext_check_reg(s, a->rd, false) &&
+            vext_check_reg(s, a->rs2, false) &&
+            ((1 << s->sew) <= sizeof(target_ulong)) &&
+            ((1 << s->sew) >= 4));
+}
+
+GEN_VEXT_TRANS(vamoswapw_v, 0, rwdvm, amo_op, amo_check)
+GEN_VEXT_TRANS(vamoaddw_v, 1, rwdvm, amo_op, amo_check)
+GEN_VEXT_TRANS(vamoxorw_v, 2, rwdvm, amo_op, amo_check)
+GEN_VEXT_TRANS(vamoandw_v, 3, rwdvm, amo_op, amo_check)
+GEN_VEXT_TRANS(vamoorw_v, 4, rwdvm, amo_op, amo_check)
+GEN_VEXT_TRANS(vamominw_v, 5, rwdvm, amo_op, amo_check)
+GEN_VEXT_TRANS(vamomaxw_v, 6, rwdvm, amo_op, amo_check)
+GEN_VEXT_TRANS(vamominuw_v, 7, rwdvm, amo_op, amo_check)
+GEN_VEXT_TRANS(vamomaxuw_v, 8, rwdvm, amo_op, amo_check)
+#ifdef TARGET_RISCV64
+GEN_VEXT_TRANS(vamoswapd_v, 9, rwdvm, amo_op, amo_check)
+GEN_VEXT_TRANS(vamoaddd_v, 10, rwdvm, amo_op, amo_check)
+GEN_VEXT_TRANS(vamoxord_v, 11, rwdvm, amo_op, amo_check)
+GEN_VEXT_TRANS(vamoandd_v, 12, rwdvm, amo_op, amo_check)
+GEN_VEXT_TRANS(vamoord_v, 13, rwdvm, amo_op, amo_check)
+GEN_VEXT_TRANS(vamomind_v, 14, rwdvm, amo_op, amo_check)
+GEN_VEXT_TRANS(vamomaxd_v, 15, rwdvm, amo_op, amo_check)
+GEN_VEXT_TRANS(vamominud_v, 16, rwdvm, amo_op, amo_check)
+GEN_VEXT_TRANS(vamomaxud_v, 17, rwdvm, amo_op, amo_check)
+#endif
