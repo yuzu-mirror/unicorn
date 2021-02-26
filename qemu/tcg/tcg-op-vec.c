@@ -659,7 +659,9 @@ static void do_minmax(TCGContext *s, unsigned vece, TCGv_vec r, TCGv_vec a,
                       TCGv_vec b, TCGOpcode opc, TCGCond cond)
 {
     if (!do_op3(s, vece, r, a, b, opc)) {
+        const TCGOpcode *hold_list = tcg_swap_vecop_list(s, NULL);
         tcg_gen_cmpsel_vec(s, cond, vece, r, a, b, a, b);
+        tcg_swap_vecop_list(s, hold_list);
     }
 }
 
