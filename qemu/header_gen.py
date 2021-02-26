@@ -2331,6 +2331,7 @@ symbols = (
     'print_type_size',
     'print_type_str',
     'probe_access',
+    'probe_access_flags',
     'probe_read',
     'probe_write',
     'propagateFloat128NaN',

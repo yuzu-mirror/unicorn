@@ -2325,6 +2325,7 @@
 #define print_type_size print_type_size_armeb
 #define print_type_str print_type_str_armeb
 #define probe_access probe_access_armeb
+#define probe_access_flags probe_access_flags_armeb
 #define probe_read probe_read_armeb
 #define probe_write probe_write_armeb
 #define propagateFloat128NaN propagateFloat128NaN_armeb

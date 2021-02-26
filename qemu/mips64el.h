@@ -2325,6 +2325,7 @@
 #define print_type_size print_type_size_mips64el
 #define print_type_str print_type_str_mips64el
 #define probe_access probe_access_mips64el
+#define probe_access_flags probe_access_flags_mips64el
 #define probe_read probe_read_mips64el
 #define probe_write probe_write_mips64el
 #define propagateFloat128NaN propagateFloat128NaN_mips64el

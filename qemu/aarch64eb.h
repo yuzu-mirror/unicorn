@@ -2325,6 +2325,7 @@
 #define print_type_size print_type_size_aarch64eb
 #define print_type_str print_type_str_aarch64eb
 #define probe_access probe_access_aarch64eb
+#define probe_access_flags probe_access_flags_aarch64eb
 #define probe_read probe_read_aarch64eb
 #define probe_write probe_write_aarch64eb
 #define propagateFloat128NaN propagateFloat128NaN_aarch64eb

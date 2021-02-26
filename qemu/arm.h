@@ -2325,6 +2325,7 @@
 #define print_type_size print_type_size_arm
 #define print_type_str print_type_str_arm
 #define probe_access probe_access_arm
+#define probe_access_flags probe_access_flags_arm
 #define probe_read probe_read_arm
 #define probe_write probe_write_arm
 #define propagateFloat128NaN propagateFloat128NaN_arm
