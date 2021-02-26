@@ -1347,16 +1347,17 @@ static void do_vec_ld(DisasContext *s, int destidx, int element,
  */
 static inline bool fp_access_check(DisasContext *s)
 {
-    assert(!s->fp_access_checked);
-    s->fp_access_checked = true;
+    if (s->fp_excp_el) {
+        assert(!s->fp_access_checked);
+        s->fp_access_checked = true;
 
-    if (!s->fp_excp_el) {
-        return true;
+        gen_exception_insn(s, s->pc_curr, EXCP_UDEF,
+                           syn_fp_access_trap(1, 0xe, false), s->fp_excp_el);
+        return false;
     }
 
-    gen_exception_insn(s, s->pc_curr, EXCP_UDEF,
-                       syn_fp_access_trap(1, 0xe, false), s->fp_excp_el);
-    return false;
+    s->fp_access_checked = true;
+    return true;
 }
 
 /* Check that SVE access is enabled.  If it is, return true.
@@ -1365,10 +1366,14 @@ static inline bool fp_access_check(DisasContext *s)
 bool sve_access_check(DisasContext *s)
 {
     if (s->sve_excp_el) {
-        gen_exception_insn(s, s->pc_curr, EXCP_UDEF, syn_sve_access_trap(),
-                           s->sve_excp_el);
+        assert(!s->sve_access_checked);
+        s->sve_access_checked = true;
+
+        gen_exception_insn(s, s->pc_curr, EXCP_UDEF,
+                           syn_sve_access_trap(), s->sve_excp_el);
         return false;
     }
+    s->sve_access_checked = true;
     return fp_access_check(s);
 }
 
@@ -14858,6 +14863,7 @@ static void disas_a64_insn(CPUARMState *env, DisasContext *s)
     }
 
     s->fp_access_checked = false;
+    s->sve_access_checked = false;
 
     if (dc_isar_feature(aa64_bti, s)) {
         if (s->base.num_insns == 1) {
