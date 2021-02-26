@@ -1007,16 +1007,40 @@ static int arm_cpu_realizefn(struct uc_struct *uc, DeviceState *dev, Error **err
     init_cpreg_list(cpu);
 
 #ifndef CONFIG_USER_ONLY
-    if (cpu->has_el3 || arm_feature(env, ARM_FEATURE_M_SECURITY)) {
-        cs->num_ases = 2;
+    bool has_secure = cpu->has_el3 || arm_feature(env, ARM_FEATURE_M_SECURITY);
 
+    /*
+     * We must set cs->num_ases to the final value before
+     * the first call to cpu_address_space_init.
+     */
+    if (cpu->tag_memory != NULL) {
+        cs->num_ases = 3 + has_secure;
+    } else {
+        cs->num_ases = 1 + has_secure;
+    }
+
+    if (has_secure) {
         if (!cpu->secure_memory) {
             cpu->secure_memory = cs->memory;
         }
         cpu_address_space_init(cs, ARMASIdx_S, "cpu-secure-memory",
                                cpu->secure_memory);
-    } else {
-        cs->num_ases = 1;
+    }
+    if (cpu->tag_memory != NULL) {
+        cpu_address_space_init(cs, ARMASIdx_TagNS, "cpu-tag-memory",
+                               cpu->tag_memory);
+        if (has_secure) {
+            cpu_address_space_init(cs, ARMASIdx_TagS, "cpu-tag-memory",
+                                   cpu->secure_tag_memory);
+        }
+    } else if (cpu_isar_feature(aa64_mte, cpu)) {
+        /*
+         * Since there is no tag memory, we can't meaningfully support MTE
+         * to its fullest.  To avoid problems later, when we would come to
+         * use the tag memory, downgrade support to insns only.
+         */
+        cpu->isar.id_aa64pfr1 =
+            FIELD_DP64(cpu->isar.id_aa64pfr1, ID_AA64PFR1, MTE, 1);
     }
     cpu_address_space_init(cs, ARMASIdx_NS, "cpu-memory", cs->memory);
 
