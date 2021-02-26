@@ -568,6 +568,8 @@
 #define float16_sqrt float16_sqrt_mips
 #define float16_squash_input_denormal float16_squash_input_denormal_mips
 #define float16_sub float16_sub_mips
+#define float16_to_int8 float16_to_int8_mips
+#define float16_to_int8_scalbn float16_to_int8_scalbn_mips
 #define float16_to_int16 float16_to_int16_mips
 #define float16_to_int16_round_to_zero float16_to_int16_round_to_zero_mips
 #define float16_to_int16_scalbn float16_to_int16_scalbn_mips
@@ -579,6 +581,8 @@
 #define float16_to_int64_scalbn float16_to_int64_scalbn_mips
 #define float16_to_float32 float16_to_float32_mips
 #define float16_to_float64 float16_to_float64_mips
+#define float16_to_uint8 float16_to_uint8_mips
+#define float16_to_uint8_scalbn float16_to_uint8_scalbn_mips
 #define float16_to_uint16 float16_to_uint16_mips
 #define float16_to_uint16_round_to_zero float16_to_uint16_round_to_zero_mips
 #define float16_to_uint16_scalbn float16_to_uint16_scalbn_mips
@@ -1967,6 +1971,7 @@
 #define int128_sub int128_sub_mips
 #define int128_subfrom int128_subfrom_mips
 #define int128_zero int128_zero_mips
+#define int8_to_float16 int8_to_float16_mips
 #define int16_to_float16 int16_to_float16_mips
 #define int16_to_float16_scalbn int16_to_float16_scalbn_mips
 #define int16_to_float32 int16_to_float32_mips
@@ -3379,6 +3384,7 @@
 #define type_table_add type_table_add_mips
 #define type_table_get type_table_get_mips
 #define type_table_lookup type_table_lookup_mips
+#define uint8_to_float16 uint8_to_float16_mips
 #define uint16_to_float16 uint16_to_float16_mips
 #define uint16_to_float16_scalbn uint16_to_float16_scalbn_mips
 #define uint16_to_float32 uint16_to_float32_mips

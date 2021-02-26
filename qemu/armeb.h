@@ -568,6 +568,8 @@
 #define float16_sqrt float16_sqrt_armeb
 #define float16_squash_input_denormal float16_squash_input_denormal_armeb
 #define float16_sub float16_sub_armeb
+#define float16_to_int8 float16_to_int8_armeb
+#define float16_to_int8_scalbn float16_to_int8_scalbn_armeb
 #define float16_to_int16 float16_to_int16_armeb
 #define float16_to_int16_round_to_zero float16_to_int16_round_to_zero_armeb
 #define float16_to_int16_scalbn float16_to_int16_scalbn_armeb
@@ -579,6 +581,8 @@
 #define float16_to_int64_scalbn float16_to_int64_scalbn_armeb
 #define float16_to_float32 float16_to_float32_armeb
 #define float16_to_float64 float16_to_float64_armeb
+#define float16_to_uint8 float16_to_uint8_armeb
+#define float16_to_uint8_scalbn float16_to_uint8_scalbn_armeb
 #define float16_to_uint16 float16_to_uint16_armeb
 #define float16_to_uint16_round_to_zero float16_to_uint16_round_to_zero_armeb
 #define float16_to_uint16_scalbn float16_to_uint16_scalbn_armeb
@@ -1967,6 +1971,7 @@
 #define int128_sub int128_sub_armeb
 #define int128_subfrom int128_subfrom_armeb
 #define int128_zero int128_zero_armeb
+#define int8_to_float16 int8_to_float16_armeb
 #define int16_to_float16 int16_to_float16_armeb
 #define int16_to_float16_scalbn int16_to_float16_scalbn_armeb
 #define int16_to_float32 int16_to_float32_armeb
@@ -3379,6 +3384,7 @@
 #define type_table_add type_table_add_armeb
 #define type_table_get type_table_get_armeb
 #define type_table_lookup type_table_lookup_armeb
+#define uint8_to_float16 uint8_to_float16_armeb
 #define uint16_to_float16 uint16_to_float16_armeb
 #define uint16_to_float16_scalbn uint16_to_float16_scalbn_armeb
 #define uint16_to_float32 uint16_to_float32_armeb

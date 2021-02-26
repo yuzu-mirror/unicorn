@@ -568,6 +568,8 @@
 #define float16_sqrt float16_sqrt_aarch64
 #define float16_squash_input_denormal float16_squash_input_denormal_aarch64
 #define float16_sub float16_sub_aarch64
+#define float16_to_int8 float16_to_int8_aarch64
+#define float16_to_int8_scalbn float16_to_int8_scalbn_aarch64
 #define float16_to_int16 float16_to_int16_aarch64
 #define float16_to_int16_round_to_zero float16_to_int16_round_to_zero_aarch64
 #define float16_to_int16_scalbn float16_to_int16_scalbn_aarch64
@@ -579,6 +581,8 @@
 #define float16_to_int64_scalbn float16_to_int64_scalbn_aarch64
 #define float16_to_float32 float16_to_float32_aarch64
 #define float16_to_float64 float16_to_float64_aarch64
+#define float16_to_uint8 float16_to_uint8_aarch64
+#define float16_to_uint8_scalbn float16_to_uint8_scalbn_aarch64
 #define float16_to_uint16 float16_to_uint16_aarch64
 #define float16_to_uint16_round_to_zero float16_to_uint16_round_to_zero_aarch64
 #define float16_to_uint16_scalbn float16_to_uint16_scalbn_aarch64
@@ -1967,6 +1971,7 @@
 #define int128_sub int128_sub_aarch64
 #define int128_subfrom int128_subfrom_aarch64
 #define int128_zero int128_zero_aarch64
+#define int8_to_float16 int8_to_float16_aarch64
 #define int16_to_float16 int16_to_float16_aarch64
 #define int16_to_float16_scalbn int16_to_float16_scalbn_aarch64
 #define int16_to_float32 int16_to_float32_aarch64
@@ -3379,6 +3384,7 @@
 #define type_table_add type_table_add_aarch64
 #define type_table_get type_table_get_aarch64
 #define type_table_lookup type_table_lookup_aarch64
+#define uint8_to_float16 uint8_to_float16_aarch64
 #define uint16_to_float16 uint16_to_float16_aarch64
 #define uint16_to_float16_scalbn uint16_to_float16_scalbn_aarch64
 #define uint16_to_float32 uint16_to_float32_aarch64
