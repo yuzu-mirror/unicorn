@@ -8827,7 +8827,6 @@ static void arm_tr_init_disas_context(DisasContextBase *dcbase, CPUState *cs)
 
     dc->V0 = tcg_temp_new_i64(tcg_ctx);
     dc->V1 = tcg_temp_new_i64(tcg_ctx);
-    /* FIXME: dc->M0 can probably be the same as dc->V0.  */
     dc->M0 = tcg_temp_new_i64(tcg_ctx);
 }
 

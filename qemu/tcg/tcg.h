@@ -810,7 +810,6 @@ struct TCGContext {
     TCGv store_dummy;
 
     /* qemu/target-arm/translate.c */
-    /* We reuse the same 64-bit temporaries for efficiency.  */
     TCGv_i32 cpu_R[16];
     TCGv_i32 cpu_CF, cpu_NF, cpu_VF, cpu_ZF;
     TCGv_i64 cpu_exclusive_addr;

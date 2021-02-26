@@ -103,6 +103,7 @@ typedef struct DisasContext {
     TCGv_i64 tmp_a64[TMP_A64_MAX];
 
     // Unicorn: Moved here to avoid global state.
+    /* These are TCG temporaries used only by the legacy iwMMXt decoder */
     TCGv_i64 V0;
     TCGv_i64 V1;
     TCGv_i64 M0;
