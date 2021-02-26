@@ -3522,6 +3522,7 @@
 #define helper_tlb_flush helper_tlb_flush_riscv64
 #define helper_set_rounding_mode helper_set_rounding_mode_riscv64
 #define helper_sret helper_sret_riscv64
+#define helper_vsetvl helper_vsetvl_riscv64
 #define pmp_hart_has_privs pmp_hart_has_privs_riscv64
 #define pmpaddr_csr_read pmpaddr_csr_read_riscv64
 #define pmpaddr_csr_write pmpaddr_csr_write_riscv64

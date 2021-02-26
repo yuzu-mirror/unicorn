@@ -6068,6 +6068,7 @@ riscv_symbols = (
     'helper_tlb_flush',
     'helper_set_rounding_mode',
     'helper_sret',
+    'helper_vsetvl',
     'pmp_hart_has_privs',
     'pmpaddr_csr_read',
     'pmpaddr_csr_write',
