@@ -7690,6 +7690,7 @@ static target_ulong disas_insn(DisasContext *s, CPUState *cpu)
             l1 = gen_new_label(tcg_ctx);
             l2 = gen_new_label(tcg_ctx);
             l3 = gen_new_label(tcg_ctx);
+            gen_update_cc_op(s);
             b &= 3;
             switch(b) {
             case 0: /* loopnz */
