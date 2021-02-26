@@ -186,7 +186,7 @@ static bool trans_VCMLA(DisasContext *s, arg_VCMLA *a)
     }
 
     opr_sz = (1 + a->q) * 8;
-    fpst = fpstatus_ptr(tcg_ctx, FPST_STD);
+    fpst = fpstatus_ptr(tcg_ctx, a->size == 0 ? FPST_STD_F16 : FPST_STD);
     fn_gvec_ptr = a->size ? gen_helper_gvec_fcmlas : gen_helper_gvec_fcmlah;
     tcg_gen_gvec_3_ptr(tcg_ctx, vfp_reg_offset(1, a->vd),
                        vfp_reg_offset(1, a->vn),
@@ -224,7 +224,7 @@ static bool trans_VCADD(DisasContext *s, arg_VCADD *a)
     }
 
     opr_sz = (1 + a->q) * 8;
-    fpst = fpstatus_ptr(tcg_ctx, FPST_STD);
+    fpst = fpstatus_ptr(tcg_ctx, a->size == 0 ? FPST_STD_F16 : FPST_STD);
     fn_gvec_ptr = a->size ? gen_helper_gvec_fcadds : gen_helper_gvec_fcaddh;
     tcg_gen_gvec_3_ptr(tcg_ctx, vfp_reg_offset(1, a->vd),
                        vfp_reg_offset(1, a->vn),
@@ -331,7 +331,7 @@ static bool trans_VCMLA_scalar(DisasContext *s, arg_VCMLA_scalar *a)
     fn_gvec_ptr = (a->size ? gen_helper_gvec_fcmlas_idx
                    : gen_helper_gvec_fcmlah_idx);
     opr_sz = (1 + a->q) * 8;
-    fpst = fpstatus_ptr(tcg_ctx, FPST_STD);
+    fpst = fpstatus_ptr(tcg_ctx, a->size == 0 ? FPST_STD_F16 : FPST_STD);
     tcg_gen_gvec_3_ptr(tcg_ctx, vfp_reg_offset(1, a->vd),
                        vfp_reg_offset(1, a->vn),
                        vfp_reg_offset(1, a->vm),
