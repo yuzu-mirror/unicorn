@@ -712,6 +712,27 @@ DO_3OP(gvec_rsqrts_d, helper_rsqrtsf_f64, float64)
  */
 
 #define DO_MUL_IDX(NAME, TYPE, H) \
+void HELPER(NAME)(void *vd, void *vn, void *vm, uint32_t desc) \
+{                                                                          \
+    intptr_t i, j, oprsz = simd_oprsz(desc), segment = 16 / sizeof(TYPE);  \
+    intptr_t idx = simd_data(desc);                                        \
+    TYPE *d = vd, *n = vn, *m = vm;                                        \
+    for (i = 0; i < oprsz / sizeof(TYPE); i += segment) {                  \
+        TYPE mm = m[H(i + idx)];                                           \
+        for (j = 0; j < segment; j++) {                                    \
+            d[i + j] = n[i + j] * mm;                                      \
+        }                                                                  \
+    }                                                                      \
+    clear_tail(d, oprsz, simd_maxsz(desc));                                \
+}
+
+DO_MUL_IDX(gvec_mul_idx_h, uint16_t, H2)
+DO_MUL_IDX(gvec_mul_idx_s, uint32_t, H4)
+DO_MUL_IDX(gvec_mul_idx_d, uint64_t, )
+
+#undef DO_MUL_IDX
+
+#define DO_MUL_IDX(NAME, TYPE, H) \
 void HELPER(NAME)(void *vd, void *vn, void *vm, void *stat, uint32_t desc) \
 {                                                                          \
     intptr_t i, j, oprsz = simd_oprsz(desc), segment = 16 / sizeof(TYPE);  \

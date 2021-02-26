@@ -3582,6 +3582,9 @@
 #define helper_frecpx_f32 helper_frecpx_f32_aarch64
 #define helper_frecpx_f64 helper_frecpx_f64_aarch64
 #define helper_fjcvtzs helper_fjcvtzs_aarch64
+#define helper_gvec_mul_idx_d helper_gvec_mul_idx_d_aarch64
+#define helper_gvec_mul_idx_h helper_gvec_mul_idx_h_aarch64
+#define helper_gvec_mul_idx_s helper_gvec_mul_idx_s_aarch64
 #define helper_gvec_recps_d helper_gvec_recps_d_aarch64
 #define helper_gvec_recps_h helper_gvec_recps_h_aarch64
 #define helper_gvec_recps_s helper_gvec_recps_s_aarch64
