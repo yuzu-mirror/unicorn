@@ -8708,6 +8708,7 @@ case 0x101:
                 gen_exception(s, EXCP07_PREX, pc_start - s->cs_base);
                 break;
             }
+            gen_helper_update_mxcsr(tcg_ctx, tcg_ctx->cpu_env);
             gen_lea_modrm(env, s, modrm);
             tcg_gen_ld32u_tl(tcg_ctx, s->T0, cpu_env, offsetof(CPUX86State, mxcsr));
             gen_op_st_v(s, MO_32, s->T0, s->A0);
