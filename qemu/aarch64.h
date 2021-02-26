@@ -4858,6 +4858,7 @@
 #define mte_checkN_ mte_checkN__aarch64
 #define mte_probe1 mte_probe1_aarch64
 #define new_tmp_a64 new_tmp_a64_aarch64
+#define new_tmp_a64_local new_tmp_a64_local_aarch64
 #define new_tmp_a64_zero new_tmp_a64_zero_aarch64
 #define pmsav8_mpu_lookup pmsav8_mpu_lookup_aarch64
 #define pmu_op_start pmu_op_start_aarch64

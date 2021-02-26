@@ -4998,6 +4998,7 @@ aarch64_symbols = (
     'mte_checkN_',
     'mte_probe1',
     'new_tmp_a64',
+    'new_tmp_a64_local',
     'new_tmp_a64_zero',
     'pmsav8_mpu_lookup',
     'pmu_op_start',

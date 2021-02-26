@@ -607,6 +607,14 @@ TCGv_i64 new_tmp_a64(DisasContext *s)
     return s->tmp_a64[s->tmp_a64_count++] = tcg_temp_new_i64(tcg_ctx);
 }
 
+TCGv_i64 new_tmp_a64_local(DisasContext *s)
+{
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+    assert(s->tmp_a64_count < TMP_A64_MAX);
+    return s->tmp_a64[s->tmp_a64_count++] = tcg_temp_local_new_i64(tcg_ctx);
+}
+
+
 TCGv_i64 new_tmp_a64_zero(DisasContext *s)
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
