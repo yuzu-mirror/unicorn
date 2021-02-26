@@ -3738,10 +3738,6 @@
 #define helper_sve_brkpas helper_sve_brkpas_aarch64eb
 #define helper_sve_brkpb helper_sve_brkpb_aarch64eb
 #define helper_sve_brkpbs helper_sve_brkpbs_aarch64eb
-#define helper_sve_clr_b helper_sve_clr_b_aarch64eb
-#define helper_sve_clr_d helper_sve_clr_d_aarch64eb
-#define helper_sve_clr_h helper_sve_clr_h_aarch64eb
-#define helper_sve_clr_s helper_sve_clr_s_aarch64eb
 #define helper_sve_cls_b helper_sve_cls_b_aarch64eb
 #define helper_sve_cls_d helper_sve_cls_d_aarch64eb
 #define helper_sve_cls_h helper_sve_cls_h_aarch64eb
