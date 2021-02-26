@@ -98,6 +98,11 @@ static void set_priv_version(CPURISCVState *env, int priv_ver)
     env->priv_ver = priv_ver;
 }
 
+static void set_vext_version(CPURISCVState *env, int vext_ver)
+{
+    env->vext_ver = vext_ver;
+}
+
 static void set_feature(CPURISCVState *env, int feature)
 {
     env->features |= (1ULL << feature);
@@ -114,7 +119,8 @@ static void riscv_any_cpu_init(struct uc_struct *uc, Object *obj, void *opaque)
 {
     CPURISCVState *env = &RISCV_CPU(uc, obj)->env;
     set_misa(env, RVXLEN | RVI | RVM | RVA | RVF | RVD | RVC | RVU);
-set_priv_version(env, PRIV_VERSION_1_11_0);
+    set_priv_version(env, PRIV_VERSION_1_11_0);
+    set_vext_version(env, VEXT_VERSION_0_07_1);
     set_resetvec(env, DEFAULT_RSTVEC);
 }
 
