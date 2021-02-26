@@ -3624,9 +3624,11 @@ static void disas_ldst_pac(DisasContext *s, uint32_t insn,
 
     if (s->pauth_active) {
         if (use_key_a) {
-            gen_helper_autda(tcg_ctx, dirty_addr, tcg_ctx->cpu_env, dirty_addr, tcg_ctx->cpu_X[31]);
+            gen_helper_autda(tcg_ctx, dirty_addr, tcg_ctx->cpu_env, dirty_addr,
+                             new_tmp_a64_zero(s));
         } else {
-            gen_helper_autdb(tcg_ctx, dirty_addr, tcg_ctx->cpu_env, dirty_addr, tcg_ctx->cpu_X[31]);
+            gen_helper_autdb(tcg_ctx, dirty_addr, tcg_ctx->cpu_env, dirty_addr,
+                             new_tmp_a64_zero(s));
         }
     }
 
