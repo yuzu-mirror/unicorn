@@ -178,33 +178,14 @@ static void do_dupi_z(DisasContext *s, int rd, uint64_t word)
 }
 
 /* Invoke a vector expander on three Pregs.  */
-static bool do_vector3_p(DisasContext *s, GVecGen3Fn *gvec_fn,
-                         int esz, int rd, int rn, int rm)
+static void gen_gvec_fn_ppp(DisasContext *s, GVecGen3Fn *gvec_fn,
+                            int rd, int rn, int rm)
 {
-    if (sve_access_check(s)) {
-        TCGContext *tcg_ctx = s->uc->tcg_ctx;
-        unsigned psz = pred_gvec_reg_size(s);
-        gvec_fn(tcg_ctx, esz, pred_full_reg_offset(s, rd),
-                pred_full_reg_offset(s, rn),
-                pred_full_reg_offset(s, rm), psz, psz);
-    }
-    return true;
-}
-
-/* Invoke a vector operation on four Pregs.  */
-static bool do_vecop4_p(DisasContext *s, const GVecGen4 *gvec_op,
-                        int rd, int rn, int rm, int rg)
-{
-    if (sve_access_check(s)) {
-        TCGContext *tcg_ctx = s->uc->tcg_ctx;
-        unsigned psz = pred_gvec_reg_size(s);
-        tcg_gen_gvec_4(tcg_ctx, pred_full_reg_offset(s, rd),
-                       pred_full_reg_offset(s, rn),
-                       pred_full_reg_offset(s, rm),
-                       pred_full_reg_offset(s, rg),
-                       psz, psz, gvec_op);
-    }
-    return true;
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+    unsigned psz = pred_gvec_reg_size(s);
+    gvec_fn(tcg_ctx, MO_64, pred_full_reg_offset(s, rd),
+            pred_full_reg_offset(s, rn),
+            pred_full_reg_offset(s, rm), psz, psz);
 }
 
 /* Invoke a vector move on two Pregs.  */
@@ -1129,6 +1110,11 @@ static bool do_pppp_flags(DisasContext *s, arg_rprr_s *a,
     int mofs = pred_full_reg_offset(s, a->rm);
     int gofs = pred_full_reg_offset(s, a->pg);
 
+    if (!a->s) {
+        tcg_gen_gvec_4(tcg_ctx, dofs, nofs, mofs, gofs, psz, psz, gvec_op);
+        return true;
+    }
+
     if (psz == 8) {
         /* Do the operation and the flags generation in temps.  */
         TCGv_i64 pd = tcg_temp_new_i64(tcg_ctx);
@@ -1183,28 +1169,29 @@ static void gen_and_pg_vec(TCGContext *s, unsigned vece, TCGv_vec pd, TCGv_vec p
 static bool trans_AND_pppp(DisasContext *s, arg_rprr_s *a)
 {
     static const GVecGen4 op = {
-        gen_and_pg_i64,
-        NULL,
-        gen_and_pg_vec,
-        gen_helper_sve_and_pppp,
-        0,
-        0,
-        0,
-        TCG_TARGET_REG_BITS == 64,
+        .fni8 = gen_and_pg_i64,
+        .fniv = gen_and_pg_vec,
+        .fno = gen_helper_sve_and_pppp,
+        .prefer_i64 = TCG_TARGET_REG_BITS == 64,
     };
-    if (a->s) {
-        return do_pppp_flags(s, a, &op);
-    } else if (a->rn == a->rm) {
-        if (a->pg == a->rn) {
-            return do_mov_p(s, a->rd, a->rn);
-        } else {
-            return do_vector3_p(s, tcg_gen_gvec_and, 0, a->rd, a->rn, a->pg);
+
+    if (!a->s) {
+        if (!sve_access_check(s)) {
+            return true;
         }
-    } else if (a->pg == a->rn || a->pg == a->rm) {
-        return do_vector3_p(s, tcg_gen_gvec_and, 0, a->rd, a->rn, a->rm);
-    } else {
-        return do_vecop4_p(s, &op, a->rd, a->rn, a->rm, a->pg);
+        if (a->rn == a->rm) {
+            if (a->pg == a->rn) {
+                do_mov_p(s, a->rd, a->rn);
+            } else {
+                gen_gvec_fn_ppp(s, tcg_gen_gvec_and, a->rd, a->rn, a->pg);
+            }
+            return true;
+        } else if (a->pg == a->rn || a->pg == a->rm) {
+            gen_gvec_fn_ppp(s, tcg_gen_gvec_and, a->rd, a->rn, a->rm);
+            return true;
+        }
     }
+    return do_pppp_flags(s, a, &op);
 }
 
 static void gen_bic_pg_i64(TCGContext *s, TCGv_i64 pd, TCGv_i64 pn, TCGv_i64 pm, TCGv_i64 pg)
@@ -1223,22 +1210,19 @@ static void gen_bic_pg_vec(TCGContext *s, unsigned vece, TCGv_vec pd, TCGv_vec p
 static bool trans_BIC_pppp(DisasContext *s, arg_rprr_s *a)
 {
     static const GVecGen4 op = {
-        gen_bic_pg_i64,
-        NULL,
-        gen_bic_pg_vec,
-        gen_helper_sve_bic_pppp,
-        0,
-        0,
-        0,
-        TCG_TARGET_REG_BITS == 64,
+        .fni8 = gen_bic_pg_i64,
+        .fniv = gen_bic_pg_vec,
+        .fno = gen_helper_sve_bic_pppp,
+        .prefer_i64 = TCG_TARGET_REG_BITS == 64,
     };
-    if (a->s) {
-        return do_pppp_flags(s, a, &op);
-    } else if (a->pg == a->rn) {
-        return do_vector3_p(s, tcg_gen_gvec_andc, 0, a->rd, a->rn, a->rm);
-    } else {
-        return do_vecop4_p(s, &op, a->rd, a->rn, a->rm, a->pg);
+
+    if (!a->s && a->pg == a->rn) {
+        if (sve_access_check(s)) {
+            gen_gvec_fn_ppp(s, tcg_gen_gvec_andc, a->rd, a->rn, a->rm);
+        }
+        return true;
     }
+    return do_pppp_flags(s, a, &op);
 }
 
 static void gen_eor_pg_i64(TCGContext *s, TCGv_i64 pd, TCGv_i64 pn, TCGv_i64 pm, TCGv_i64 pg)
@@ -1257,20 +1241,12 @@ static void gen_eor_pg_vec(TCGContext *s, unsigned vece, TCGv_vec pd, TCGv_vec p
 static bool trans_EOR_pppp(DisasContext *s, arg_rprr_s *a)
 {
     static const GVecGen4 op = {
-        gen_eor_pg_i64,
-        NULL,
-        gen_eor_pg_vec,
-        gen_helper_sve_eor_pppp,
-        0,
-        0,
-        0,
-        TCG_TARGET_REG_BITS == 64,
+        .fni8 = gen_eor_pg_i64,
+        .fniv = gen_eor_pg_vec,
+        .fno = gen_helper_sve_eor_pppp,
+        .prefer_i64 = TCG_TARGET_REG_BITS == 64,
     };
-    if (a->s) {
-        return do_pppp_flags(s, a, &op);
-    } else {
-        return do_vecop4_p(s, &op, a->rd, a->rn, a->rm, a->pg);
-    }
+    return do_pppp_flags(s, a, &op);
 }
 
 static void gen_sel_pg_i64(TCGContext *s, TCGv_i64 pd, TCGv_i64 pn, TCGv_i64 pm, TCGv_i64 pg)
@@ -1291,20 +1267,16 @@ static void gen_sel_pg_vec(TCGContext *s, unsigned vece, TCGv_vec pd, TCGv_vec p
 static bool trans_SEL_pppp(DisasContext *s, arg_rprr_s *a)
 {
     static const GVecGen4 op = {
-        gen_sel_pg_i64,
-        NULL,
-        gen_sel_pg_vec,
-        gen_helper_sve_sel_pppp,
-        0,
-        0,
-        0,
-        TCG_TARGET_REG_BITS == 64,
+        .fni8 = gen_sel_pg_i64,
+        .fniv = gen_sel_pg_vec,
+        .fno = gen_helper_sve_sel_pppp,
+        .prefer_i64 = TCG_TARGET_REG_BITS == 64,
     };
+
     if (a->s) {
         return false;
-    } else {
-        return do_vecop4_p(s, &op, a->rd, a->rn, a->rm, a->pg);
     }
+    return do_pppp_flags(s, a, &op);
 }
 
 static void gen_orr_pg_i64(TCGContext *s, TCGv_i64 pd, TCGv_i64 pn, TCGv_i64 pm, TCGv_i64 pg)
@@ -1323,22 +1295,16 @@ static void gen_orr_pg_vec(TCGContext *s, unsigned vece, TCGv_vec pd, TCGv_vec p
 static bool trans_ORR_pppp(DisasContext *s, arg_rprr_s *a)
 {
     static const GVecGen4 op = {
-        gen_orr_pg_i64,
-        NULL,
-        gen_orr_pg_vec,
-        gen_helper_sve_orr_pppp,
-        0,
-        0,
-        0,
-        TCG_TARGET_REG_BITS == 64,
+        .fni8 = gen_orr_pg_i64,
+        .fniv = gen_orr_pg_vec,
+        .fno = gen_helper_sve_orr_pppp,
+        .prefer_i64 = TCG_TARGET_REG_BITS == 64,
     };
-    if (a->s) {
-        return do_pppp_flags(s, a, &op);
-    } else if (a->pg == a->rn && a->rn == a->rm) {
+
+    if (!a->s && a->pg == a->rn && a->rn == a->rm) {
         return do_mov_p(s, a->rd, a->rn);
-    } else {
-        return do_vecop4_p(s, &op, a->rd, a->rn, a->rm, a->pg);
     }
+    return do_pppp_flags(s, a, &op);
 }
 
 static void gen_orn_pg_i64(TCGContext *s, TCGv_i64 pd, TCGv_i64 pn, TCGv_i64 pm, TCGv_i64 pg)
@@ -1357,20 +1323,12 @@ static void gen_orn_pg_vec(TCGContext *s, unsigned vece, TCGv_vec pd, TCGv_vec p
 static bool trans_ORN_pppp(DisasContext *s, arg_rprr_s *a)
 {
     static const GVecGen4 op = {
-        gen_orn_pg_i64,
-        NULL,
-        gen_orn_pg_vec,
-        gen_helper_sve_orn_pppp,
-        0,
-        0,
-        0,
-        TCG_TARGET_REG_BITS == 64,
+        .fni8 = gen_orn_pg_i64,
+        .fniv = gen_orn_pg_vec,
+        .fno = gen_helper_sve_orn_pppp,
+        .prefer_i64 = TCG_TARGET_REG_BITS == 64,
     };
-    if (a->s) {
-        return do_pppp_flags(s, a, &op);
-    } else {
-        return do_vecop4_p(s, &op, a->rd, a->rn, a->rm, a->pg);
-    }
+    return do_pppp_flags(s, a, &op);
 }
 
 static void gen_nor_pg_i64(TCGContext *s, TCGv_i64 pd, TCGv_i64 pn, TCGv_i64 pm, TCGv_i64 pg)
@@ -1389,20 +1347,12 @@ static void gen_nor_pg_vec(TCGContext *s, unsigned vece, TCGv_vec pd, TCGv_vec p
 static bool trans_NOR_pppp(DisasContext *s, arg_rprr_s *a)
 {
     static const GVecGen4 op = {
-        gen_nor_pg_i64,
-        NULL,
-        gen_nor_pg_vec,
-        gen_helper_sve_nor_pppp,
-        0,
-        0,
-        0,
-        TCG_TARGET_REG_BITS == 64,
+        .fni8 = gen_nor_pg_i64,
+        .fniv = gen_nor_pg_vec,
+        .fno = gen_helper_sve_nor_pppp,
+        .prefer_i64 = TCG_TARGET_REG_BITS == 64,
     };
-    if (a->s) {
-        return do_pppp_flags(s, a, &op);
-    } else {
-        return do_vecop4_p(s, &op, a->rd, a->rn, a->rm, a->pg);
-    }
+    return do_pppp_flags(s, a, &op);
 }
 
 static void gen_nand_pg_i64(TCGContext *s, TCGv_i64 pd, TCGv_i64 pn, TCGv_i64 pm, TCGv_i64 pg)
@@ -1421,20 +1371,12 @@ static void gen_nand_pg_vec(TCGContext *s, unsigned vece, TCGv_vec pd, TCGv_vec 
 static bool trans_NAND_pppp(DisasContext *s, arg_rprr_s *a)
 {
     static const GVecGen4 op = {
-        gen_nand_pg_i64,
-        NULL,
-        gen_nand_pg_vec,
-        gen_helper_sve_nand_pppp,
-        0,
-        0,
-        0,
-        TCG_TARGET_REG_BITS == 64,
+        .fni8 = gen_nand_pg_i64,
+        .fniv = gen_nand_pg_vec,
+        .fno = gen_helper_sve_nand_pppp,
+        .prefer_i64 = TCG_TARGET_REG_BITS == 64,
     };
-    if (a->s) {
-        return do_pppp_flags(s, a, &op);
-    } else {
-        return do_vecop4_p(s, &op, a->rd, a->rn, a->rm, a->pg);
-    }
+    return do_pppp_flags(s, a, &op);
 }
 
 /*
