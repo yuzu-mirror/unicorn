@@ -1707,6 +1707,10 @@
 #define helper_neon_sqadd_u32 helper_neon_sqadd_u32_arm
 #define helper_neon_sqadd_u64 helper_neon_sqadd_u64_arm
 #define helper_neon_sqadd_u8 helper_neon_sqadd_u8_arm
+#define helper_neon_sqdmulh_h helper_neon_sqdmulh_h_arm
+#define helper_neon_sqdmulh_s helper_neon_sqdmulh_s_arm
+#define helper_neon_sqrdmulh_h helper_neon_sqrdmulh_h_arm
+#define helper_neon_sqrdmulh_s helper_neon_sqrdmulh_s_arm
 #define helper_neon_sub_u16 helper_neon_sub_u16_arm
 #define helper_neon_sub_u8 helper_neon_sub_u8_arm
 #define helper_neon_subl_u16 helper_neon_subl_u16_arm
@@ -3523,6 +3527,15 @@
 #define gen_ushl_i32 gen_ushl_i32_arm
 #define gen_ushl_i64 gen_ushl_i64_arm
 #define helper_fjcvtzs helper_fjcvtzs_arm
+#define helper_gvec_mla_idx_d helper_gvec_mla_idx_d_arm
+#define helper_gvec_mla_idx_h helper_gvec_mla_idx_h_arm
+#define helper_gvec_mla_idx_s helper_gvec_mla_idx_s_arm
+#define helper_gvec_mls_idx_d helper_gvec_mls_idx_d_arm
+#define helper_gvec_mls_idx_h helper_gvec_mls_idx_h_arm
+#define helper_gvec_mls_idx_s helper_gvec_mls_idx_s_arm
+#define helper_gvec_mul_idx_d helper_gvec_mul_idx_d_arm
+#define helper_gvec_mul_idx_h helper_gvec_mul_idx_h_arm
+#define helper_gvec_mul_idx_s helper_gvec_mul_idx_s_arm
 #define helper_gvec_saba_b helper_gvec_saba_b_arm
 #define helper_gvec_saba_d helper_gvec_saba_d_arm
 #define helper_gvec_saba_h helper_gvec_saba_h_arm

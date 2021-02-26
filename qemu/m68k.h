@@ -1707,6 +1707,10 @@
 #define helper_neon_sqadd_u32 helper_neon_sqadd_u32_m68k
 #define helper_neon_sqadd_u64 helper_neon_sqadd_u64_m68k
 #define helper_neon_sqadd_u8 helper_neon_sqadd_u8_m68k
+#define helper_neon_sqdmulh_h helper_neon_sqdmulh_h_m68k
+#define helper_neon_sqdmulh_s helper_neon_sqdmulh_s_m68k
+#define helper_neon_sqrdmulh_h helper_neon_sqrdmulh_h_m68k
+#define helper_neon_sqrdmulh_s helper_neon_sqrdmulh_s_m68k
 #define helper_neon_sub_u16 helper_neon_sub_u16_m68k
 #define helper_neon_sub_u8 helper_neon_sub_u8_m68k
 #define helper_neon_subl_u16 helper_neon_subl_u16_m68k

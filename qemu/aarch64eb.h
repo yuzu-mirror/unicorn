@@ -1707,6 +1707,10 @@
 #define helper_neon_sqadd_u32 helper_neon_sqadd_u32_aarch64eb
 #define helper_neon_sqadd_u64 helper_neon_sqadd_u64_aarch64eb
 #define helper_neon_sqadd_u8 helper_neon_sqadd_u8_aarch64eb
+#define helper_neon_sqdmulh_h helper_neon_sqdmulh_h_aarch64eb
+#define helper_neon_sqdmulh_s helper_neon_sqdmulh_s_aarch64eb
+#define helper_neon_sqrdmulh_h helper_neon_sqrdmulh_h_aarch64eb
+#define helper_neon_sqrdmulh_s helper_neon_sqrdmulh_s_aarch64eb
 #define helper_neon_sub_u16 helper_neon_sub_u16_aarch64eb
 #define helper_neon_sub_u8 helper_neon_sub_u8_aarch64eb
 #define helper_neon_subl_u16 helper_neon_subl_u16_aarch64eb
@@ -3661,6 +3665,10 @@
 #define helper_neon_ceq_f64 helper_neon_ceq_f64_aarch64eb
 #define helper_neon_cge_f64 helper_neon_cge_f64_aarch64eb
 #define helper_neon_cgt_f64 helper_neon_cgt_f64_aarch64eb
+#define helper_neon_sqdmulh_h helper_neon_sqdmulh_h_aarch64eb
+#define helper_neon_sqdmulh_s helper_neon_sqdmulh_s_aarch64eb
+#define helper_neon_sqrdmulh_h helper_neon_sqrdmulh_h_aarch64eb
+#define helper_neon_sqrdmulh_s helper_neon_sqrdmulh_s_aarch64eb
 #define helper_pacda helper_pacda_aarch64eb
 #define helper_pacdb helper_pacdb_aarch64eb
 #define helper_pacga helper_pacga_aarch64eb
