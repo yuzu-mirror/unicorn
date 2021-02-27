@@ -219,6 +219,8 @@ symbols = (
     'bfloat16_sqrt',
     'bfloat16_compare',
     'bfloat16_compare_quiet',
+    'bfloat16_is_quiet_nan',
+    'bfloat16_is_signaling_nan',
     'bfloat16_silence_nan',
     'bfloat16_default_nan',
     'bfloat16_to_float32',

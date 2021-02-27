@@ -213,6 +213,8 @@
 #define bfloat16_sqrt bfloat16_sqrt_mips64el
 #define bfloat16_compare bfloat16_compare_mips64el
 #define bfloat16_compare_quiet bfloat16_compare_quiet_mips64el
+#define bfloat16_is_quiet_nan bfloat16_is_quiet_nan_mips64el
+#define bfloat16_is_signaling_nan bfloat16_is_signaling_nan_mips64el
 #define bfloat16_silence_nan bfloat16_silence_nan_mips64el
 #define bfloat16_default_nan bfloat16_default_nan_mips64el
 #define bfloat16_to_float32 bfloat16_to_float32_mips64el
