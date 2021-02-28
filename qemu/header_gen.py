@@ -1930,6 +1930,7 @@ symbols = (
     'helper_vfp_mulh',
     'helper_vfp_muls',
     'helper_vfp_negd',
+    'helper_vfp_negh',
     'helper_vfp_negs',
     'helper_vfp_set_fpscr',
     'helper_vfp_shtod',

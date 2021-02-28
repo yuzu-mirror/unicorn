@@ -1924,6 +1924,7 @@
 #define helper_vfp_mulh helper_vfp_mulh_aarch64eb
 #define helper_vfp_muls helper_vfp_muls_aarch64eb
 #define helper_vfp_negd helper_vfp_negd_aarch64eb
+#define helper_vfp_negh helper_vfp_negh_aarch64eb
 #define helper_vfp_negs helper_vfp_negs_aarch64eb
 #define helper_vfp_set_fpscr helper_vfp_set_fpscr_aarch64eb
 #define helper_vfp_shtod helper_vfp_shtod_aarch64eb
