@@ -1892,8 +1892,10 @@
 #define helper_vfp_addh helper_vfp_addh_sparc
 #define helper_vfp_adds helper_vfp_adds_sparc
 #define helper_vfp_cmpd helper_vfp_cmpd_sparc
+#define helper_vfp_cmph_a32 helper_vfp_cmph_a32_sparc
 #define helper_vfp_cmph_a64 helper_vfp_cmph_a64_sparc
 #define helper_vfp_cmped helper_vfp_cmped_sparc
+#define helper_vfp_cmpeh_a32 helper_vfp_cmpeh_a32_sparc
 #define helper_vfp_cmpeh_a64 helper_vfp_cmpeh_a64_sparc
 #define helper_vfp_cmpes helper_vfp_cmpes_sparc
 #define helper_vfp_cmps helper_vfp_cmps_sparc

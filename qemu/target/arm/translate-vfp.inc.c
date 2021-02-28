@@ -2355,6 +2355,46 @@ DO_VFP_2OP(VSQRT, hp, gen_VSQRT_hp)
 DO_VFP_2OP(VSQRT, sp, gen_VSQRT_sp)
 DO_VFP_2OP(VSQRT, dp, gen_VSQRT_dp)
 
+static bool trans_VCMP_hp(DisasContext *s, arg_VCMP_sp *a)
+{
+    TCGv_i32 vd, vm;
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+
+    if (!dc_isar_feature(aa32_fp16_arith, s)) {
+        return false;
+    }
+
+    /* Vm/M bits must be zero for the Z variant */
+    if (a->z && a->vm != 0) {
+        return false;
+    }
+
+    if (!vfp_access_check(s)) {
+        return true;
+    }
+
+    vd = tcg_temp_new_i32(tcg_ctx);
+    vm = tcg_temp_new_i32(tcg_ctx);
+
+    neon_load_reg32(s, vd, a->vd);
+    if (a->z) {
+        tcg_gen_movi_i32(tcg_ctx, vm, 0);
+    } else {
+        neon_load_reg32(s, vm, a->vm);
+    }
+
+    if (a->e) {
+        gen_helper_vfp_cmpeh_a32(tcg_ctx, vd, vm, tcg_ctx->cpu_env);
+    } else {
+        gen_helper_vfp_cmph_a32(tcg_ctx, vd, vm, tcg_ctx->cpu_env);
+    }
+
+    tcg_temp_free_i32(tcg_ctx, vd);
+    tcg_temp_free_i32(tcg_ctx, vm);
+
+    return true;
+}
+
 static bool trans_VCMP_sp(DisasContext *s, arg_VCMP_sp *a)
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;

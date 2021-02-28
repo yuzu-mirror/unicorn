@@ -1892,8 +1892,10 @@
 #define helper_vfp_addh helper_vfp_addh_riscv64
 #define helper_vfp_adds helper_vfp_adds_riscv64
 #define helper_vfp_cmpd helper_vfp_cmpd_riscv64
+#define helper_vfp_cmph_a32 helper_vfp_cmph_a32_riscv64
 #define helper_vfp_cmph_a64 helper_vfp_cmph_a64_riscv64
 #define helper_vfp_cmped helper_vfp_cmped_riscv64
+#define helper_vfp_cmpeh_a32 helper_vfp_cmpeh_a32_riscv64
 #define helper_vfp_cmpeh_a64 helper_vfp_cmpeh_a64_riscv64
 #define helper_vfp_cmpes helper_vfp_cmpes_riscv64
 #define helper_vfp_cmps helper_vfp_cmps_riscv64

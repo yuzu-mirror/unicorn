@@ -1892,8 +1892,10 @@
 #define helper_vfp_addh helper_vfp_addh_m68k
 #define helper_vfp_adds helper_vfp_adds_m68k
 #define helper_vfp_cmpd helper_vfp_cmpd_m68k
+#define helper_vfp_cmph_a32 helper_vfp_cmph_a32_m68k
 #define helper_vfp_cmph_a64 helper_vfp_cmph_a64_m68k
 #define helper_vfp_cmped helper_vfp_cmped_m68k
+#define helper_vfp_cmpeh_a32 helper_vfp_cmpeh_a32_m68k
 #define helper_vfp_cmpeh_a64 helper_vfp_cmpeh_a64_m68k
 #define helper_vfp_cmpes helper_vfp_cmpes_m68k
 #define helper_vfp_cmps helper_vfp_cmps_m68k
