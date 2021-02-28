@@ -1919,6 +1919,7 @@
 #define helper_vfp_minnums helper_vfp_minnums_x86_64
 #define helper_vfp_mins helper_vfp_mins_x86_64
 #define helper_vfp_muladdd helper_vfp_muladdd_x86_64
+#define helper_vfp_muladdh helper_vfp_muladdh_x86_64
 #define helper_vfp_muladds helper_vfp_muladds_x86_64
 #define helper_vfp_muld helper_vfp_muld_x86_64
 #define helper_vfp_mulh helper_vfp_mulh_x86_64

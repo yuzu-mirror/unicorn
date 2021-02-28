@@ -1919,6 +1919,7 @@
 #define helper_vfp_minnums helper_vfp_minnums_riscv32
 #define helper_vfp_mins helper_vfp_mins_riscv32
 #define helper_vfp_muladdd helper_vfp_muladdd_riscv32
+#define helper_vfp_muladdh helper_vfp_muladdh_riscv32
 #define helper_vfp_muladds helper_vfp_muladds_riscv32
 #define helper_vfp_muld helper_vfp_muld_riscv32
 #define helper_vfp_mulh helper_vfp_mulh_riscv32
