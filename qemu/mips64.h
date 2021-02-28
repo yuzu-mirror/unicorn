@@ -1932,6 +1932,7 @@
 #define helper_vfp_negs helper_vfp_negs_mips64
 #define helper_vfp_set_fpscr helper_vfp_set_fpscr_mips64
 #define helper_vfp_shtod helper_vfp_shtod_mips64
+#define helper_vfp_shtoh helper_vfp_shtoh_mips64
 #define helper_vfp_shtos helper_vfp_shtos_mips64
 #define helper_vfp_sitod helper_vfp_sitod_mips64
 #define helper_vfp_sitoh helper_vfp_sitoh_mips64
@@ -1951,6 +1952,7 @@
 #define helper_vfp_toshd helper_vfp_toshd_mips64
 #define helper_vfp_toshd_round_to_zero helper_vfp_toshd_round_to_zero_mips64
 #define helper_vfp_toshh helper_vfp_toshh_mips64
+#define helper_vfp_toshh_round_to_zero helper_vfp_toshh_round_to_zero_mips64
 #define helper_vfp_toshs helper_vfp_toshs_mips64
 #define helper_vfp_toshs_round_to_zero helper_vfp_toshs_round_to_zero_mips64
 #define helper_vfp_tosid helper_vfp_tosid_mips64
@@ -1962,6 +1964,7 @@
 #define helper_vfp_tosld helper_vfp_tosld_mips64
 #define helper_vfp_tosld_round_to_zero helper_vfp_tosld_round_to_zero_mips64
 #define helper_vfp_toslh helper_vfp_toslh_mips64
+#define helper_vfp_toslh_round_to_zero helper_vfp_toslh_round_to_zero_mips64
 #define helper_vfp_tosls helper_vfp_tosls_mips64
 #define helper_vfp_tosls_round_to_zero helper_vfp_tosls_round_to_zero_mips64
 #define helper_vfp_tosqd helper_vfp_tosqd_mips64
@@ -1970,6 +1973,7 @@
 #define helper_vfp_touhd helper_vfp_touhd_mips64
 #define helper_vfp_touhd_round_to_zero helper_vfp_touhd_round_to_zero_mips64
 #define helper_vfp_touhh helper_vfp_touhh_mips64
+#define helper_vfp_touhh_round_to_zero helper_vfp_touhh_round_to_zero_mips64
 #define helper_vfp_touhs helper_vfp_touhs_mips64
 #define helper_vfp_touhs_round_to_zero helper_vfp_touhs_round_to_zero_mips64
 #define helper_vfp_touid helper_vfp_touid_mips64
@@ -1981,12 +1985,14 @@
 #define helper_vfp_tould helper_vfp_tould_mips64
 #define helper_vfp_tould_round_to_zero helper_vfp_tould_round_to_zero_mips64
 #define helper_vfp_toulh helper_vfp_toulh_mips64
+#define helper_vfp_toulh_round_to_zero helper_vfp_toulh_round_to_zero_mips64
 #define helper_vfp_touls helper_vfp_touls_mips64
 #define helper_vfp_touls_round_to_zero helper_vfp_touls_round_to_zero_mips64
 #define helper_vfp_touqd helper_vfp_touqd_mips64
 #define helper_vfp_touqh helper_vfp_touqh_mips64
 #define helper_vfp_touqs helper_vfp_touqs_mips64
 #define helper_vfp_uhtod helper_vfp_uhtod_mips64
+#define helper_vfp_uhtoh helper_vfp_uhtoh_mips64
 #define helper_vfp_uhtos helper_vfp_uhtos_mips64
 #define helper_vfp_uitod helper_vfp_uitod_mips64
 #define helper_vfp_uitoh helper_vfp_uitoh_mips64

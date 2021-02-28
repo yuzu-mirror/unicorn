@@ -1932,6 +1932,7 @@
 #define helper_vfp_negs helper_vfp_negs_sparc
 #define helper_vfp_set_fpscr helper_vfp_set_fpscr_sparc
 #define helper_vfp_shtod helper_vfp_shtod_sparc
+#define helper_vfp_shtoh helper_vfp_shtoh_sparc
 #define helper_vfp_shtos helper_vfp_shtos_sparc
 #define helper_vfp_sitod helper_vfp_sitod_sparc
 #define helper_vfp_sitoh helper_vfp_sitoh_sparc
@@ -1951,6 +1952,7 @@
 #define helper_vfp_toshd helper_vfp_toshd_sparc
 #define helper_vfp_toshd_round_to_zero helper_vfp_toshd_round_to_zero_sparc
 #define helper_vfp_toshh helper_vfp_toshh_sparc
+#define helper_vfp_toshh_round_to_zero helper_vfp_toshh_round_to_zero_sparc
 #define helper_vfp_toshs helper_vfp_toshs_sparc
 #define helper_vfp_toshs_round_to_zero helper_vfp_toshs_round_to_zero_sparc
 #define helper_vfp_tosid helper_vfp_tosid_sparc
@@ -1962,6 +1964,7 @@
 #define helper_vfp_tosld helper_vfp_tosld_sparc
 #define helper_vfp_tosld_round_to_zero helper_vfp_tosld_round_to_zero_sparc
 #define helper_vfp_toslh helper_vfp_toslh_sparc
+#define helper_vfp_toslh_round_to_zero helper_vfp_toslh_round_to_zero_sparc
 #define helper_vfp_tosls helper_vfp_tosls_sparc
 #define helper_vfp_tosls_round_to_zero helper_vfp_tosls_round_to_zero_sparc
 #define helper_vfp_tosqd helper_vfp_tosqd_sparc
@@ -1970,6 +1973,7 @@
 #define helper_vfp_touhd helper_vfp_touhd_sparc
 #define helper_vfp_touhd_round_to_zero helper_vfp_touhd_round_to_zero_sparc
 #define helper_vfp_touhh helper_vfp_touhh_sparc
+#define helper_vfp_touhh_round_to_zero helper_vfp_touhh_round_to_zero_sparc
 #define helper_vfp_touhs helper_vfp_touhs_sparc
 #define helper_vfp_touhs_round_to_zero helper_vfp_touhs_round_to_zero_sparc
 #define helper_vfp_touid helper_vfp_touid_sparc
@@ -1981,12 +1985,14 @@
 #define helper_vfp_tould helper_vfp_tould_sparc
 #define helper_vfp_tould_round_to_zero helper_vfp_tould_round_to_zero_sparc
 #define helper_vfp_toulh helper_vfp_toulh_sparc
+#define helper_vfp_toulh_round_to_zero helper_vfp_toulh_round_to_zero_sparc
 #define helper_vfp_touls helper_vfp_touls_sparc
 #define helper_vfp_touls_round_to_zero helper_vfp_touls_round_to_zero_sparc
 #define helper_vfp_touqd helper_vfp_touqd_sparc
 #define helper_vfp_touqh helper_vfp_touqh_sparc
 #define helper_vfp_touqs helper_vfp_touqs_sparc
 #define helper_vfp_uhtod helper_vfp_uhtod_sparc
+#define helper_vfp_uhtoh helper_vfp_uhtoh_sparc
 #define helper_vfp_uhtos helper_vfp_uhtos_sparc
 #define helper_vfp_uitod helper_vfp_uitod_sparc
 #define helper_vfp_uitoh helper_vfp_uitoh_sparc
