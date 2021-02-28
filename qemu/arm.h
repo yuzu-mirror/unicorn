@@ -1886,6 +1886,7 @@
 #define helper_v7m_vlstm helper_v7m_vlstm_arm
 #define helper_v8m_stackcheck helper_v8m_stackcheck_arm
 #define helper_vfp_absd helper_vfp_absd_arm
+#define helper_vfp_absh helper_vfp_absh_arm
 #define helper_vfp_abss helper_vfp_abss_arm
 #define helper_vfp_addd helper_vfp_addd_arm
 #define helper_vfp_addh helper_vfp_addh_arm
@@ -1937,6 +1938,7 @@
 #define helper_vfp_sltoh helper_vfp_sltoh_arm
 #define helper_vfp_sltos helper_vfp_sltos_arm
 #define helper_vfp_sqrtd helper_vfp_sqrtd_arm
+#define helper_vfp_sqrth helper_vfp_sqrth_arm
 #define helper_vfp_sqrts helper_vfp_sqrts_arm
 #define helper_vfp_sqtod helper_vfp_sqtod_arm
 #define helper_vfp_sqtoh helper_vfp_sqtoh_arm

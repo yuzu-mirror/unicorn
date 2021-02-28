@@ -1886,6 +1886,7 @@
 #define helper_v7m_vlstm helper_v7m_vlstm_m68k
 #define helper_v8m_stackcheck helper_v8m_stackcheck_m68k
 #define helper_vfp_absd helper_vfp_absd_m68k
+#define helper_vfp_absh helper_vfp_absh_m68k
 #define helper_vfp_abss helper_vfp_abss_m68k
 #define helper_vfp_addd helper_vfp_addd_m68k
 #define helper_vfp_addh helper_vfp_addh_m68k
@@ -1937,6 +1938,7 @@
 #define helper_vfp_sltoh helper_vfp_sltoh_m68k
 #define helper_vfp_sltos helper_vfp_sltos_m68k
 #define helper_vfp_sqrtd helper_vfp_sqrtd_m68k
+#define helper_vfp_sqrth helper_vfp_sqrth_m68k
 #define helper_vfp_sqrts helper_vfp_sqrts_m68k
 #define helper_vfp_sqtod helper_vfp_sqtod_m68k
 #define helper_vfp_sqtoh helper_vfp_sqtoh_m68k
