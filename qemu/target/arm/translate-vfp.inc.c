@@ -3153,6 +3153,7 @@ static bool trans_VCVT_hp_int(DisasContext *s, arg_VCVT_sp_int *a)
 {
     TCGv_i32 vm;
     TCGv_ptr fpst;
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
 
     if (!dc_isar_feature(aa32_fp16_arith, s)) {
         return false;
