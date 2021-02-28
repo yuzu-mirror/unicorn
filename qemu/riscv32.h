@@ -1888,6 +1888,7 @@
 #define helper_vfp_absd helper_vfp_absd_riscv32
 #define helper_vfp_abss helper_vfp_abss_riscv32
 #define helper_vfp_addd helper_vfp_addd_riscv32
+#define helper_vfp_addh helper_vfp_addh_riscv32
 #define helper_vfp_adds helper_vfp_adds_riscv32
 #define helper_vfp_cmpd helper_vfp_cmpd_riscv32
 #define helper_vfp_cmph_a64 helper_vfp_cmph_a64_riscv32
@@ -1896,6 +1897,7 @@
 #define helper_vfp_cmpes helper_vfp_cmpes_riscv32
 #define helper_vfp_cmps helper_vfp_cmps_riscv32
 #define helper_vfp_divd helper_vfp_divd_riscv32
+#define helper_vfp_divh helper_vfp_divh_riscv32
 #define helper_vfp_divs helper_vfp_divs_riscv32
 #define helper_vfp_fcvt_f16_to_f32 helper_vfp_fcvt_f16_to_f32_riscv32
 #define helper_vfp_fcvt_f16_to_f64 helper_vfp_fcvt_f16_to_f64_riscv32
@@ -1905,16 +1907,21 @@
 #define helper_vfp_fcvtsd helper_vfp_fcvtsd_riscv32
 #define helper_vfp_get_fpscr helper_vfp_get_fpscr_riscv32
 #define helper_vfp_maxd helper_vfp_maxd_riscv32
+#define helper_vfp_maxh helper_vfp_maxh_riscv32
 #define helper_vfp_maxnumd helper_vfp_maxnumd_riscv32
+#define helper_vfp_maxnumh helper_vfp_maxnumh_riscv32
 #define helper_vfp_maxnums helper_vfp_maxnums_riscv32
 #define helper_vfp_maxs helper_vfp_maxs_riscv32
 #define helper_vfp_mind helper_vfp_mind_riscv32
+#define helper_vfp_minh helper_vfp_minh_riscv32
 #define helper_vfp_minnumd helper_vfp_minnumd_riscv32
+#define helper_vfp_minnumh helper_vfp_minnumh_riscv32
 #define helper_vfp_minnums helper_vfp_minnums_riscv32
 #define helper_vfp_mins helper_vfp_mins_riscv32
 #define helper_vfp_muladdd helper_vfp_muladdd_riscv32
 #define helper_vfp_muladds helper_vfp_muladds_riscv32
 #define helper_vfp_muld helper_vfp_muld_riscv32
+#define helper_vfp_mulh helper_vfp_mulh_riscv32
 #define helper_vfp_muls helper_vfp_muls_riscv32
 #define helper_vfp_negd helper_vfp_negd_riscv32
 #define helper_vfp_negs helper_vfp_negs_riscv32
@@ -1933,6 +1940,7 @@
 #define helper_vfp_sqtoh helper_vfp_sqtoh_riscv32
 #define helper_vfp_sqtos helper_vfp_sqtos_riscv32
 #define helper_vfp_subd helper_vfp_subd_riscv32
+#define helper_vfp_subh helper_vfp_subh_riscv32
 #define helper_vfp_subs helper_vfp_subs_riscv32
 #define helper_vfp_toshd helper_vfp_toshd_riscv32
 #define helper_vfp_toshd_round_to_zero helper_vfp_toshd_round_to_zero_riscv32

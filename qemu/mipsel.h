@@ -1888,6 +1888,7 @@
 #define helper_vfp_absd helper_vfp_absd_mipsel
 #define helper_vfp_abss helper_vfp_abss_mipsel
 #define helper_vfp_addd helper_vfp_addd_mipsel
+#define helper_vfp_addh helper_vfp_addh_mipsel
 #define helper_vfp_adds helper_vfp_adds_mipsel
 #define helper_vfp_cmpd helper_vfp_cmpd_mipsel
 #define helper_vfp_cmph_a64 helper_vfp_cmph_a64_mipsel
@@ -1896,6 +1897,7 @@
 #define helper_vfp_cmpes helper_vfp_cmpes_mipsel
 #define helper_vfp_cmps helper_vfp_cmps_mipsel
 #define helper_vfp_divd helper_vfp_divd_mipsel
+#define helper_vfp_divh helper_vfp_divh_mipsel
 #define helper_vfp_divs helper_vfp_divs_mipsel
 #define helper_vfp_fcvt_f16_to_f32 helper_vfp_fcvt_f16_to_f32_mipsel
 #define helper_vfp_fcvt_f16_to_f64 helper_vfp_fcvt_f16_to_f64_mipsel
@@ -1905,16 +1907,21 @@
 #define helper_vfp_fcvtsd helper_vfp_fcvtsd_mipsel
 #define helper_vfp_get_fpscr helper_vfp_get_fpscr_mipsel
 #define helper_vfp_maxd helper_vfp_maxd_mipsel
+#define helper_vfp_maxh helper_vfp_maxh_mipsel
 #define helper_vfp_maxnumd helper_vfp_maxnumd_mipsel
+#define helper_vfp_maxnumh helper_vfp_maxnumh_mipsel
 #define helper_vfp_maxnums helper_vfp_maxnums_mipsel
 #define helper_vfp_maxs helper_vfp_maxs_mipsel
 #define helper_vfp_mind helper_vfp_mind_mipsel
+#define helper_vfp_minh helper_vfp_minh_mipsel
 #define helper_vfp_minnumd helper_vfp_minnumd_mipsel
+#define helper_vfp_minnumh helper_vfp_minnumh_mipsel
 #define helper_vfp_minnums helper_vfp_minnums_mipsel
 #define helper_vfp_mins helper_vfp_mins_mipsel
 #define helper_vfp_muladdd helper_vfp_muladdd_mipsel
 #define helper_vfp_muladds helper_vfp_muladds_mipsel
 #define helper_vfp_muld helper_vfp_muld_mipsel
+#define helper_vfp_mulh helper_vfp_mulh_mipsel
 #define helper_vfp_muls helper_vfp_muls_mipsel
 #define helper_vfp_negd helper_vfp_negd_mipsel
 #define helper_vfp_negs helper_vfp_negs_mipsel
@@ -1933,6 +1940,7 @@
 #define helper_vfp_sqtoh helper_vfp_sqtoh_mipsel
 #define helper_vfp_sqtos helper_vfp_sqtos_mipsel
 #define helper_vfp_subd helper_vfp_subd_mipsel
+#define helper_vfp_subh helper_vfp_subh_mipsel
 #define helper_vfp_subs helper_vfp_subs_mipsel
 #define helper_vfp_toshd helper_vfp_toshd_mipsel
 #define helper_vfp_toshd_round_to_zero helper_vfp_toshd_round_to_zero_mipsel

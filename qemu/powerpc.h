@@ -1888,6 +1888,7 @@
 #define helper_vfp_absd helper_vfp_absd_powerpc
 #define helper_vfp_abss helper_vfp_abss_powerpc
 #define helper_vfp_addd helper_vfp_addd_powerpc
+#define helper_vfp_addh helper_vfp_addh_powerpc
 #define helper_vfp_adds helper_vfp_adds_powerpc
 #define helper_vfp_cmpd helper_vfp_cmpd_powerpc
 #define helper_vfp_cmph_a64 helper_vfp_cmph_a64_powerpc
@@ -1896,6 +1897,7 @@
 #define helper_vfp_cmpes helper_vfp_cmpes_powerpc
 #define helper_vfp_cmps helper_vfp_cmps_powerpc
 #define helper_vfp_divd helper_vfp_divd_powerpc
+#define helper_vfp_divh helper_vfp_divh_powerpc
 #define helper_vfp_divs helper_vfp_divs_powerpc
 #define helper_vfp_fcvt_f16_to_f32 helper_vfp_fcvt_f16_to_f32_powerpc
 #define helper_vfp_fcvt_f16_to_f64 helper_vfp_fcvt_f16_to_f64_powerpc
@@ -1905,16 +1907,21 @@
 #define helper_vfp_fcvtsd helper_vfp_fcvtsd_powerpc
 #define helper_vfp_get_fpscr helper_vfp_get_fpscr_powerpc
 #define helper_vfp_maxd helper_vfp_maxd_powerpc
+#define helper_vfp_maxh helper_vfp_maxh_powerpc
 #define helper_vfp_maxnumd helper_vfp_maxnumd_powerpc
+#define helper_vfp_maxnumh helper_vfp_maxnumh_powerpc
 #define helper_vfp_maxnums helper_vfp_maxnums_powerpc
 #define helper_vfp_maxs helper_vfp_maxs_powerpc
 #define helper_vfp_mind helper_vfp_mind_powerpc
+#define helper_vfp_minh helper_vfp_minh_powerpc
 #define helper_vfp_minnumd helper_vfp_minnumd_powerpc
+#define helper_vfp_minnumh helper_vfp_minnumh_powerpc
 #define helper_vfp_minnums helper_vfp_minnums_powerpc
 #define helper_vfp_mins helper_vfp_mins_powerpc
 #define helper_vfp_muladdd helper_vfp_muladdd_powerpc
 #define helper_vfp_muladds helper_vfp_muladds_powerpc
 #define helper_vfp_muld helper_vfp_muld_powerpc
+#define helper_vfp_mulh helper_vfp_mulh_powerpc
 #define helper_vfp_muls helper_vfp_muls_powerpc
 #define helper_vfp_negd helper_vfp_negd_powerpc
 #define helper_vfp_negs helper_vfp_negs_powerpc
@@ -1933,6 +1940,7 @@
 #define helper_vfp_sqtoh helper_vfp_sqtoh_powerpc
 #define helper_vfp_sqtos helper_vfp_sqtos_powerpc
 #define helper_vfp_subd helper_vfp_subd_powerpc
+#define helper_vfp_subh helper_vfp_subh_powerpc
 #define helper_vfp_subs helper_vfp_subs_powerpc
 #define helper_vfp_toshd helper_vfp_toshd_powerpc
 #define helper_vfp_toshd_round_to_zero helper_vfp_toshd_round_to_zero_powerpc

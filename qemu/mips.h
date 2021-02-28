@@ -1888,6 +1888,7 @@
 #define helper_vfp_absd helper_vfp_absd_mips
 #define helper_vfp_abss helper_vfp_abss_mips
 #define helper_vfp_addd helper_vfp_addd_mips
+#define helper_vfp_addh helper_vfp_addh_mips
 #define helper_vfp_adds helper_vfp_adds_mips
 #define helper_vfp_cmpd helper_vfp_cmpd_mips
 #define helper_vfp_cmph_a64 helper_vfp_cmph_a64_mips
@@ -1896,6 +1897,7 @@
 #define helper_vfp_cmpes helper_vfp_cmpes_mips
 #define helper_vfp_cmps helper_vfp_cmps_mips
 #define helper_vfp_divd helper_vfp_divd_mips
+#define helper_vfp_divh helper_vfp_divh_mips
 #define helper_vfp_divs helper_vfp_divs_mips
 #define helper_vfp_fcvt_f16_to_f32 helper_vfp_fcvt_f16_to_f32_mips
 #define helper_vfp_fcvt_f16_to_f64 helper_vfp_fcvt_f16_to_f64_mips
@@ -1905,16 +1907,21 @@
 #define helper_vfp_fcvtsd helper_vfp_fcvtsd_mips
 #define helper_vfp_get_fpscr helper_vfp_get_fpscr_mips
 #define helper_vfp_maxd helper_vfp_maxd_mips
+#define helper_vfp_maxh helper_vfp_maxh_mips
 #define helper_vfp_maxnumd helper_vfp_maxnumd_mips
+#define helper_vfp_maxnumh helper_vfp_maxnumh_mips
 #define helper_vfp_maxnums helper_vfp_maxnums_mips
 #define helper_vfp_maxs helper_vfp_maxs_mips
 #define helper_vfp_mind helper_vfp_mind_mips
+#define helper_vfp_minh helper_vfp_minh_mips
 #define helper_vfp_minnumd helper_vfp_minnumd_mips
+#define helper_vfp_minnumh helper_vfp_minnumh_mips
 #define helper_vfp_minnums helper_vfp_minnums_mips
 #define helper_vfp_mins helper_vfp_mins_mips
 #define helper_vfp_muladdd helper_vfp_muladdd_mips
 #define helper_vfp_muladds helper_vfp_muladds_mips
 #define helper_vfp_muld helper_vfp_muld_mips
+#define helper_vfp_mulh helper_vfp_mulh_mips
 #define helper_vfp_muls helper_vfp_muls_mips
 #define helper_vfp_negd helper_vfp_negd_mips
 #define helper_vfp_negs helper_vfp_negs_mips
@@ -1933,6 +1940,7 @@
 #define helper_vfp_sqtoh helper_vfp_sqtoh_mips
 #define helper_vfp_sqtos helper_vfp_sqtos_mips
 #define helper_vfp_subd helper_vfp_subd_mips
+#define helper_vfp_subh helper_vfp_subh_mips
 #define helper_vfp_subs helper_vfp_subs_mips
 #define helper_vfp_toshd helper_vfp_toshd_mips
 #define helper_vfp_toshd_round_to_zero helper_vfp_toshd_round_to_zero_mips
