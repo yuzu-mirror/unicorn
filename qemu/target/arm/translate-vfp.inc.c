@@ -2892,6 +2892,36 @@ static bool trans_VCVT_dp(DisasContext *s, arg_VCVT_dp *a)
     return true;
 }
 
+static bool trans_VCVT_int_hp(DisasContext *s, arg_VCVT_int_sp *a)
+{
+    TCGv_i32 vm;
+    TCGv_ptr fpst;
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+
+    if (!dc_isar_feature(aa32_fp16_arith, s)) {
+        return false;
+    }
+
+    if (!vfp_access_check(s)) {
+        return true;
+    }
+
+    vm = tcg_temp_new_i32(tcg_ctx);
+    neon_load_reg32(s, vm, a->vm);
+    fpst = fpstatus_ptr(tcg_ctx, FPST_FPCR_F16);
+    if (a->s) {
+        /* i32 -> f16 */
+        gen_helper_vfp_sitoh(tcg_ctx, vm, vm, fpst);
+    } else {
+        /* u32 -> f16 */
+        gen_helper_vfp_uitoh(tcg_ctx, vm, vm, fpst);
+    }
+    neon_store_reg32(s, vm, a->vd);
+    tcg_temp_free_i32(tcg_ctx, vm);
+    tcg_temp_free_ptr(tcg_ctx, fpst);
+    return true;
+}
+
 static bool trans_VCVT_int_sp(DisasContext *s, arg_VCVT_int_sp *a)
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
@@ -3115,6 +3145,42 @@ static bool trans_VCVT_fix_dp(DisasContext *s, arg_VCVT_fix_dp *a)
     neon_store_reg64(s, vd, a->vd);
     tcg_temp_free_i64(tcg_ctx, vd);
     tcg_temp_free_i32(tcg_ctx, shift);
+    tcg_temp_free_ptr(tcg_ctx, fpst);
+    return true;
+}
+
+static bool trans_VCVT_hp_int(DisasContext *s, arg_VCVT_sp_int *a)
+{
+    TCGv_i32 vm;
+    TCGv_ptr fpst;
+
+    if (!dc_isar_feature(aa32_fp16_arith, s)) {
+        return false;
+    }
+
+    if (!vfp_access_check(s)) {
+        return true;
+    }
+
+    fpst = fpstatus_ptr(tcg_ctx, FPST_FPCR_F16);
+    vm = tcg_temp_new_i32(tcg_ctx);
+    neon_load_reg32(s, vm, a->vm);
+
+    if (a->s) {
+        if (a->rz) {
+            gen_helper_vfp_tosizh(tcg_ctx, vm, vm, fpst);
+        } else {
+            gen_helper_vfp_tosih(tcg_ctx, vm, vm, fpst);
+        }
+    } else {
+        if (a->rz) {
+            gen_helper_vfp_touizh(tcg_ctx, vm, vm, fpst);
+        } else {
+            gen_helper_vfp_touih(tcg_ctx, vm, vm, fpst);
+        }
+    }
+    neon_store_reg32(s, vm, a->vd);
+    tcg_temp_free_i32(tcg_ctx, vm);
     tcg_temp_free_ptr(tcg_ctx, fpst);
     return true;
 }
