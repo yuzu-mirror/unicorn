@@ -439,6 +439,9 @@ struct Object
  * @instance_size: The size of the object (derivative of #Object).  If
  *   @instance_size is 0, then the size of the object will be the size of the
  *   parent object.
+ * @instance_align: The required alignment of the object.  If @instance_align
+ *   is 0, then normal malloc alignment is sufficient; if non-zero, then we
+ *   must use qemu_memalign for allocation.
  * @instance_init: This function is called to initialize an object.  The parent
  *   class will have already been initialized so the type is only responsible
  *   for initializing its own members.
@@ -479,6 +482,7 @@ struct TypeInfo
 
     size_t class_size;
     size_t instance_size;
+    size_t instance_align;
     void *instance_userdata;
 
     void (*instance_init)(struct uc_struct *uc, Object *obj, void *opaque);
