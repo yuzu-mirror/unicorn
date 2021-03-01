@@ -1852,6 +1852,10 @@
 #define helper_gvec_vrint_rm_s helper_gvec_vrint_rm_s_mips64
 #define helper_gvec_vrintx_h helper_gvec_vrintx_h_mips64
 #define helper_gvec_vrintx_s helper_gvec_vrintx_s_mips64
+#define helper_gvec_fmla_nf_idx_h helper_gvec_fmla_nf_idx_h_mips64
+#define helper_gvec_fmla_nf_idx_s helper_gvec_fmla_nf_idx_s_mips64
+#define helper_gvec_fmls_nf_idx_h helper_gvec_fmls_nf_idx_h_mips64
+#define helper_gvec_fmls_nf_idx_s helper_gvec_fmls_nf_idx_s_mips64
 #define helper_power_down helper_power_down_mips64
 #define helper_pre_hvc helper_pre_hvc_mips64
 #define helper_pre_smc helper_pre_smc_mips64
