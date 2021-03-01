@@ -1272,6 +1272,12 @@
 #define helper_gvec_fcaddh helper_gvec_fcaddh_mipsel
 #define helper_gvec_fcadds helper_gvec_fcadds_mipsel
 #define helper_gvec_fcaddd helper_gvec_fcaddd_mipsel
+#define helper_gvec_fceq_h helper_gvec_fceq_h_mipsel
+#define helper_gvec_fceq_s helper_gvec_fceq_s_mipsel
+#define helper_gvec_fcge_h helper_gvec_fcge_h_mipsel
+#define helper_gvec_fcge_s helper_gvec_fcge_s_mipsel
+#define helper_gvec_fcgt_h helper_gvec_fcgt_h_mipsel
+#define helper_gvec_fcgt_s helper_gvec_fcgt_s_mipsel
 #define helper_gvec_fcmlad helper_gvec_fcmlad_mipsel
 #define helper_gvec_fcmlah helper_gvec_fcmlah_mipsel
 #define helper_gvec_fcmlah_idx helper_gvec_fcmlah_idx_mipsel

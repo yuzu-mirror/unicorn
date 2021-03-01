@@ -1272,6 +1272,12 @@
 #define helper_gvec_fcaddh helper_gvec_fcaddh_m68k
 #define helper_gvec_fcadds helper_gvec_fcadds_m68k
 #define helper_gvec_fcaddd helper_gvec_fcaddd_m68k
+#define helper_gvec_fceq_h helper_gvec_fceq_h_m68k
+#define helper_gvec_fceq_s helper_gvec_fceq_s_m68k
+#define helper_gvec_fcge_h helper_gvec_fcge_h_m68k
+#define helper_gvec_fcge_s helper_gvec_fcge_s_m68k
+#define helper_gvec_fcgt_h helper_gvec_fcgt_h_m68k
+#define helper_gvec_fcgt_s helper_gvec_fcgt_s_m68k
 #define helper_gvec_fcmlad helper_gvec_fcmlad_m68k
 #define helper_gvec_fcmlah helper_gvec_fcmlah_m68k
 #define helper_gvec_fcmlah_idx helper_gvec_fcmlah_idx_m68k
