@@ -193,19 +193,22 @@ static bool trans_VSEL(DisasContext *s, arg_VSEL *a)
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
     uint32_t rd, rn, rm;
-    bool dp = a->dp;
+    int sz = a->sz;
 
     if (!dc_isar_feature(aa32_vsel, s)) {
         return false;
     }
 
-    /* UNDEF accesses to D16-D31 if they don't exist */
-    if (dp && !dc_isar_feature(aa32_fpdp_v2, s)) {
+    if (sz == 3 && !dc_isar_feature(aa32_fpdp_v2, s)) {
+        return false;
+    }
+
+    if (sz == 1 && !dc_isar_feature(aa32_fp16_arith, s)) {
         return false;
     }
 
     /* UNDEF accesses to D16-D31 if they don't exist */
-    if (dp && !dc_isar_feature(aa32_simd_r32, s) &&
+    if (sz == 3 && !dc_isar_feature(aa32_simd_r32, s) &&
         ((a->vm | a->vn | a->vd) & 0x10)) {
         return false;
     }
@@ -218,7 +221,7 @@ static bool trans_VSEL(DisasContext *s, arg_VSEL *a)
         return true;
     }
 
-    if (dp) {
+    if (sz == 3) {
         TCGv_i64 frn, frm, dest;
         TCGv_i64 tmp, zero, zf, nf, vf;
 
@@ -310,6 +313,10 @@ static bool trans_VSEL(DisasContext *s, arg_VSEL *a)
                                 dest, frm);
             tcg_temp_free_i32(tcg_ctx, tmp);
             break;
+        }
+        /* For fp16 the top half is always zeroes */
+        if (sz == 1) {
+            tcg_gen_andi_i32(tcg_ctx, dest, dest, 0xffff);
         }
         neon_store_reg32(s, dest, rd);
         tcg_temp_free_i32(tcg_ctx, frn);
