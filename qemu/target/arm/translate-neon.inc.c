@@ -3791,22 +3791,44 @@ static bool trans_VCNT(DisasContext *s, arg_2misc *a)
     return do_2misc(s, a, gen_helper_neon_cnt_u8);
 }
 
+static void gen_VABS_F(TCGContext *s, unsigned vece, uint32_t rd_ofs, uint32_t rm_ofs,
+                       uint32_t oprsz, uint32_t maxsz)
+{
+    tcg_gen_gvec_andi(s, vece, rd_ofs, rm_ofs,
+                      vece == MO_16 ? 0x7fff : 0x7fffffff,
+                      oprsz, maxsz);
+}
+
 static bool trans_VABS_F(DisasContext *s, arg_2misc *a)
 {
-    if (a->size != 2) {
+    if (a->size == MO_16) {
+        if (!dc_isar_feature(aa32_fp16_arith, s)) {
+            return false;
+        }
+    } else if (a->size != MO_32) {
         return false;
     }
-    /* TODO: FP16 : size == 1 */
-    return do_2misc(s, a, gen_helper_vfp_abss);
+    return do_2misc_vec(s, a, gen_VABS_F);
+}
+
+static void gen_VNEG_F(TCGContext *s, unsigned vece, uint32_t rd_ofs, uint32_t rm_ofs,
+                       uint32_t oprsz, uint32_t maxsz)
+{
+    tcg_gen_gvec_xori(s, vece, rd_ofs, rm_ofs,
+                      vece == MO_16 ? 0x8000 : 0x80000000,
+                      oprsz, maxsz);
 }
 
 static bool trans_VNEG_F(DisasContext *s, arg_2misc *a)
 {
-    if (a->size != 2) {
+    if (a->size == MO_16) {
+        if (!dc_isar_feature(aa32_fp16_arith, s)) {
+            return false;
+        }
+    } else if (a->size != MO_32) {
         return false;
     }
-    /* TODO: FP16 : size == 1 */
-    return do_2misc(s, a, gen_helper_vfp_negs);
+    return do_2misc_vec(s, a, gen_VNEG_F);
 }
 
 static bool trans_VRECPE(DisasContext *s, arg_2misc *a)
@@ -3914,7 +3936,7 @@ DO_2MISC_FP(VCVT_SF, gen_helper_vfp_tosizs)
 DO_2MISC_FP(VCVT_UF, gen_helper_vfp_touizs)
 
 #define DO_2MISC_FP_VEC(INSN, HFUNC, SFUNC)                             \
-    static void gen_##INSN(unsigned vece, uint32_t rd_ofs,              \
+    static void gen_##INSN(TCGContext *s, unsigned vece, uint32_t rd_ofs, \
                            uint32_t rm_ofs,                             \
                            uint32_t oprsz, uint32_t maxsz)              \
     {                                                                   \
@@ -3922,10 +3944,10 @@ DO_2MISC_FP(VCVT_UF, gen_helper_vfp_touizs)
             NULL, HFUNC, SFUNC, NULL,                                   \
         };                                                              \
         TCGv_ptr fpst;                                                  \
-        fpst = fpstatus_ptr(vece == MO_16 ? FPST_STD_F16 : FPST_STD);   \
-        tcg_gen_gvec_2_ptr(rd_ofs, rm_ofs, fpst, oprsz, maxsz, 0,       \
+        fpst = fpstatus_ptr(s, vece == MO_16 ? FPST_STD_F16 : FPST_STD);   \
+        tcg_gen_gvec_2_ptr(s, rd_ofs, rm_ofs, fpst, oprsz, maxsz, 0,       \
                            fns[vece]);                                  \
-        tcg_temp_free_ptr(fpst);                                        \
+        tcg_temp_free_ptr(s, fpst);                                        \
     }                                                                   \
     static bool trans_##INSN(DisasContext *s, arg_2misc *a)             \
     {                                                                   \
