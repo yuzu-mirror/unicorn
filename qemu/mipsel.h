@@ -1264,6 +1264,7 @@
 #define helper_gvec_eq32 helper_gvec_eq32_mipsel
 #define helper_gvec_eq64 helper_gvec_eq64_mipsel
 #define helper_gvec_eqv helper_gvec_eqv_mipsel
+#define helper_gvec_fabd_h helper_gvec_fabd_h_mipsel
 #define helper_gvec_fabd_s helper_gvec_fabd_s_mipsel
 #define helper_gvec_fadd_d helper_gvec_fadd_d_mipsel
 #define helper_gvec_fadd_h helper_gvec_fadd_h_mipsel

@@ -1264,6 +1264,7 @@
 #define helper_gvec_eq32 helper_gvec_eq32_mips
 #define helper_gvec_eq64 helper_gvec_eq64_mips
 #define helper_gvec_eqv helper_gvec_eqv_mips
+#define helper_gvec_fabd_h helper_gvec_fabd_h_mips
 #define helper_gvec_fabd_s helper_gvec_fabd_s_mips
 #define helper_gvec_fadd_d helper_gvec_fadd_d_mips
 #define helper_gvec_fadd_h helper_gvec_fadd_h_mips

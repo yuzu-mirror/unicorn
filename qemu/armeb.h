@@ -1264,6 +1264,7 @@
 #define helper_gvec_eq32 helper_gvec_eq32_armeb
 #define helper_gvec_eq64 helper_gvec_eq64_armeb
 #define helper_gvec_eqv helper_gvec_eqv_armeb
+#define helper_gvec_fabd_h helper_gvec_fabd_h_armeb
 #define helper_gvec_fabd_s helper_gvec_fabd_s_armeb
 #define helper_gvec_fadd_d helper_gvec_fadd_d_armeb
 #define helper_gvec_fadd_h helper_gvec_fadd_h_armeb

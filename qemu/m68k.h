@@ -1264,6 +1264,7 @@
 #define helper_gvec_eq32 helper_gvec_eq32_m68k
 #define helper_gvec_eq64 helper_gvec_eq64_m68k
 #define helper_gvec_eqv helper_gvec_eqv_m68k
+#define helper_gvec_fabd_h helper_gvec_fabd_h_m68k
 #define helper_gvec_fabd_s helper_gvec_fabd_s_m68k
 #define helper_gvec_fadd_d helper_gvec_fadd_d_m68k
 #define helper_gvec_fadd_h helper_gvec_fadd_h_m68k
