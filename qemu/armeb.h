@@ -1836,6 +1836,10 @@
 #define helper_gvec_tosizs helper_gvec_tosizs_armeb
 #define helper_gvec_touszh helper_gvec_touszh_armeb
 #define helper_gvec_touizs helper_gvec_touizs_armeb
+#define helper_gvec_vcvt_sf helper_gvec_vcvt_sf_armeb
+#define helper_gvec_vcvt_uf helper_gvec_vcvt_uf_armeb
+#define helper_gvec_vcvt_fs helper_gvec_vcvt_fs_armeb
+#define helper_gvec_vcvt_fu helper_gvec_vcvt_fu_armeb
 #define helper_power_down helper_power_down_armeb
 #define helper_pre_hvc helper_pre_hvc_armeb
 #define helper_pre_smc helper_pre_smc_armeb
