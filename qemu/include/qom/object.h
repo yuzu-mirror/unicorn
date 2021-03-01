@@ -729,7 +729,7 @@ type_init(do_qemu_init_ ## type_array)
  * of this function.  The only difference in behavior is that this function
  * asserts instead of returning #NULL on failure if QOM cast debugging is
  * enabled.  This function is not meant to be called directly, but only through
- * the wrapper macros OBJECT_CLASS_CHECK and INTERFACE_CHECK.
+ * the wrapper macro OBJECT_CLASS_CHECK.
  */
 ObjectClass *object_class_dynamic_cast_assert(struct uc_struct *uc, ObjectClass *klass,
                                               const char *typename,
@@ -1012,7 +1012,7 @@ void object_property_set_bool(struct uc_struct *uc, Object *obj, bool value,
  * @name: the name of the property
  * @errp: returns an error if this function fails
  *
- * Returns: the value of the property, converted to a boolean, or NULL if
+ * Returns: the value of the property, converted to a boolean, or false if
  * an error occurs (including when the property value is not a bool).
  */
 bool object_property_get_bool(struct uc_struct *uc, Object *obj,
@@ -1035,7 +1035,7 @@ void object_property_set_int(struct uc_struct *uc, Object *obj, int64_t value,
  * @name: the name of the property
  * @errp: returns an error if this function fails
  *
- * Returns: the value of the property, converted to an integer, or negative if
+ * Returns: the value of the property, converted to an integer, or -1 if
  * an error occurs (including when the property value is not an integer).
  */
 int64_t object_property_get_int(struct uc_struct *uc, Object *obj,
