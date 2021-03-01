@@ -1856,6 +1856,8 @@ symbols = (
     'helper_gvec_vcvt_rm_uh',
     'helper_gvec_vrint_rm_h',
     'helper_gvec_vrint_rm_s',
+    'helper_gvec_vrintx_h',
+    'helper_gvec_vrintx_s',
     'helper_power_down',
     'helper_pre_hvc',
     'helper_pre_smc',
