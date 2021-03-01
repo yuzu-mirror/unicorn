@@ -2074,6 +2074,7 @@ void arm_cpu_register(struct uc_struct *uc, const ARMCPUInfo *info)
     TypeInfo type_info = {
         .parent = TYPE_ARM_CPU,
         .instance_size = sizeof(ARMCPU),
+        .instance_align = __alignof__(ARMCPU),
         .instance_init = info->initfn,
         .class_size = sizeof(ARMCPUClass),
         .class_init = info->class_init,
@@ -2094,6 +2095,7 @@ void arm_cpu_register_types(void *opaque)
     arm_cpu_type_info.parent = TYPE_CPU,
     arm_cpu_type_info.instance_userdata = opaque,
     arm_cpu_type_info.instance_size = sizeof(ARMCPU),
+    arm_cpu_type_info.instance_align = __alignof__(ARMCPU),
     arm_cpu_type_info.instance_init = arm_cpu_initfn,
     arm_cpu_type_info.instance_post_init = arm_cpu_post_init,
     arm_cpu_type_info.instance_finalize = arm_cpu_finalizefn,

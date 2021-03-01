@@ -308,24 +308,18 @@ static void cpu_class_init(struct uc_struct *uc, ObjectClass *klass, void *data)
 }
 
 static const TypeInfo cpu_type_info = {
-    TYPE_CPU,
-    TYPE_DEVICE,
+    .name = TYPE_CPU,
+    .parent = TYPE_DEVICE,
 
-    sizeof(CPUClass),
-    sizeof(CPUState),
-    NULL,
+    .class_size = sizeof(CPUClass),
+    .instance_size = sizeof(CPUState),
 
-    cpu_common_initfn,
-    NULL,
-    cpu_common_finalize,
+    .instance_init = cpu_common_initfn,
+    .instance_finalize = cpu_common_finalize,
 
-    NULL,
+    .class_init = cpu_class_init,
 
-    cpu_class_init,
-    NULL,
-    NULL,
-
-    true,
+    .abstract = true,
 };
 
 void cpu_register_types(struct uc_struct *uc)

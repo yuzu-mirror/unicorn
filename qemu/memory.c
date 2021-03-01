@@ -2029,16 +2029,14 @@ struct MemoryRegionList {
 typedef QTAILQ_HEAD(queue, MemoryRegionList) MemoryRegionListHead;
 
 static const TypeInfo memory_region_info = {
-    TYPE_MEMORY_REGION,
-    TYPE_OBJECT,
+    .name = TYPE_MEMORY_REGION,
+    .parent = TYPE_OBJECT,
 
-    0,
-    sizeof(MemoryRegion),
-    NULL,
+    .class_size = 0,
+    .instance_size = sizeof(MemoryRegion),
 
-    memory_region_initfn,
-    NULL,
-    memory_region_finalize,
+    .instance_init = memory_region_initfn,
+    .instance_finalize = memory_region_finalize,
 };
 
 void memory_register_types(struct uc_struct *uc)

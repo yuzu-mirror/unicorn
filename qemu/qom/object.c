@@ -2012,45 +2012,18 @@ static void object_class_init(struct uc_struct *uc, ObjectClass *klass, void *op
 void register_types_object(struct uc_struct *uc)
 {
     static TypeInfo interface_info = {
-        TYPE_INTERFACE,	// name
-        NULL,
-
-        sizeof(InterfaceClass),	// class_size
-        0,
-        NULL,
-
-        NULL,
-        NULL,
-        NULL,
-
-        NULL,
-
-        NULL,
-        NULL,
-        NULL,
-
-        true,	// abstract
+        .name = TYPE_INTERFACE,
+        .class_size = sizeof(InterfaceClass),
+        .instance_size = 0,
+        .abstract = true,
     };
 
     static TypeInfo object_info = {
-        TYPE_OBJECT,
-        NULL,
-
-        0,
-        sizeof(Object),
-        NULL,
-
-        NULL,
-        NULL,
-        NULL,
-
-        NULL,
-
-        object_class_init,
-        NULL,
-        NULL,
-
-        true,
+        .name = TYPE_OBJECT,
+        .class_size = 0,
+        .instance_size = sizeof(Object),
+        .class_init = object_class_init,
+        .abstract = true,
     };
 
     uc->type_interface = type_register_internal(uc, &interface_info);
