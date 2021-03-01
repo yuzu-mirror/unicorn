@@ -1807,6 +1807,8 @@
 #define helper_ret_stb_mmu helper_ret_stb_mmu_mips
 #define helper_rintd helper_rintd_mips
 #define helper_rintd_exact helper_rintd_exact_mips
+#define helper_rinth helper_rinth_mips
+#define helper_rinth_exact helper_rinth_exact_mips
 #define helper_rints helper_rints_mips
 #define helper_rints_exact helper_rints_exact_mips
 #define helper_ror_cc helper_ror_cc_mips

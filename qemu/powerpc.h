@@ -1807,6 +1807,8 @@
 #define helper_ret_stb_mmu helper_ret_stb_mmu_powerpc
 #define helper_rintd helper_rintd_powerpc
 #define helper_rintd_exact helper_rintd_exact_powerpc
+#define helper_rinth helper_rinth_powerpc
+#define helper_rinth_exact helper_rinth_exact_powerpc
 #define helper_rints helper_rints_powerpc
 #define helper_rints_exact helper_rints_exact_powerpc
 #define helper_ror_cc helper_ror_cc_powerpc

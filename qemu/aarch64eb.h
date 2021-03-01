@@ -1807,6 +1807,8 @@
 #define helper_ret_stb_mmu helper_ret_stb_mmu_aarch64eb
 #define helper_rintd helper_rintd_aarch64eb
 #define helper_rintd_exact helper_rintd_exact_aarch64eb
+#define helper_rinth helper_rinth_aarch64eb
+#define helper_rinth_exact helper_rinth_exact_aarch64eb
 #define helper_rints helper_rints_aarch64eb
 #define helper_rints_exact helper_rints_exact_aarch64eb
 #define helper_ror_cc helper_ror_cc_aarch64eb

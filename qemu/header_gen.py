@@ -1813,6 +1813,8 @@ symbols = (
     'helper_ret_stb_mmu',
     'helper_rintd',
     'helper_rintd_exact',
+    'helper_rinth',
+    'helper_rinth_exact',
     'helper_rints',
     'helper_rints_exact',
     'helper_ror_cc',
