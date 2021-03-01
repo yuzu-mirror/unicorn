@@ -1473,6 +1473,10 @@
 #define helper_gvec_ussub16 helper_gvec_ussub16_sparc
 #define helper_gvec_ussub32 helper_gvec_ussub32_sparc
 #define helper_gvec_ussub64 helper_gvec_ussub64_sparc
+#define helper_gvec_vfma_h helper_gvec_vfma_h_sparc
+#define helper_gvec_vfma_s helper_gvec_vfma_s_sparc
+#define helper_gvec_vfms_h helper_gvec_vfms_h_sparc
+#define helper_gvec_vfms_s helper_gvec_vfms_s_sparc
 #define helper_gvec_xor helper_gvec_xor_sparc
 #define helper_gvec_xors helper_gvec_xors_sparc
 #define helper_iwmmxt_addcb helper_iwmmxt_addcb_sparc

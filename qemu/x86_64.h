@@ -1473,6 +1473,10 @@
 #define helper_gvec_ussub16 helper_gvec_ussub16_x86_64
 #define helper_gvec_ussub32 helper_gvec_ussub32_x86_64
 #define helper_gvec_ussub64 helper_gvec_ussub64_x86_64
+#define helper_gvec_vfma_h helper_gvec_vfma_h_x86_64
+#define helper_gvec_vfma_s helper_gvec_vfma_s_x86_64
+#define helper_gvec_vfms_h helper_gvec_vfms_h_x86_64
+#define helper_gvec_vfms_s helper_gvec_vfms_s_x86_64
 #define helper_gvec_xor helper_gvec_xor_x86_64
 #define helper_gvec_xors helper_gvec_xors_x86_64
 #define helper_iwmmxt_addcb helper_iwmmxt_addcb_x86_64

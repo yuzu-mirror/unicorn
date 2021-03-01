@@ -1473,6 +1473,10 @@
 #define helper_gvec_ussub16 helper_gvec_ussub16_m68k
 #define helper_gvec_ussub32 helper_gvec_ussub32_m68k
 #define helper_gvec_ussub64 helper_gvec_ussub64_m68k
+#define helper_gvec_vfma_h helper_gvec_vfma_h_m68k
+#define helper_gvec_vfma_s helper_gvec_vfma_s_m68k
+#define helper_gvec_vfms_h helper_gvec_vfms_h_m68k
+#define helper_gvec_vfms_s helper_gvec_vfms_s_m68k
 #define helper_gvec_xor helper_gvec_xor_m68k
 #define helper_gvec_xors helper_gvec_xors_m68k
 #define helper_iwmmxt_addcb helper_iwmmxt_addcb_m68k
