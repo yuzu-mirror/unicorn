@@ -1379,6 +1379,8 @@
 #define helper_gvec_qrdmlah_s32 helper_gvec_qrdmlah_s32_x86_64
 #define helper_gvec_qrdmlsh_s16 helper_gvec_qrdmlsh_s16_x86_64
 #define helper_gvec_qrdmlsh_s32 helper_gvec_qrdmlsh_s32_x86_64
+#define helper_gvec_recps_nf_h helper_gvec_recps_nf_h_x86_64
+#define helper_gvec_recps_nf_s helper_gvec_recps_nf_s_x86_64
 #define helper_gvec_rotl8i helper_gvec_rotl8i_x86_64
 #define helper_gvec_rotl16i helper_gvec_rotl16i_x86_64
 #define helper_gvec_rotl32i helper_gvec_rotl32i_x86_64

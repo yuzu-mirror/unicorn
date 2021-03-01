@@ -1385,6 +1385,8 @@ symbols = (
     'helper_gvec_qrdmlah_s32',
     'helper_gvec_qrdmlsh_s16',
     'helper_gvec_qrdmlsh_s32',
+    'helper_gvec_recps_nf_h',
+    'helper_gvec_recps_nf_s',
     'helper_gvec_rotl8i',
     'helper_gvec_rotl16i',
     'helper_gvec_rotl32i',
