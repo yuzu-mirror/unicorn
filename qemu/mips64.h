@@ -1290,7 +1290,11 @@
 #define helper_gvec_fmax_h helper_gvec_fmax_h_mips64
 #define helper_gvec_fmax_s helper_gvec_fmax_s_mips64
 #define helper_gvec_fmin_h helper_gvec_fmin_h_mips64
+#define helper_gvec_fmaxnum_h helper_gvec_fmaxnum_h_mips64
+#define helper_gvec_fmaxnum_s helper_gvec_fmaxnum_s_mips64
 #define helper_gvec_fmin_s helper_gvec_fmin_s_mips64
+#define helper_gvec_fminnum_h helper_gvec_fminnum_h_mips64
+#define helper_gvec_fminnum_s helper_gvec_fminnum_s_mips64
 #define helper_gvec_fmla_idx_d helper_gvec_fmla_idx_d_mips64
 #define helper_gvec_fmla_idx_h helper_gvec_fmla_idx_h_mips64
 #define helper_gvec_fmla_idx_s helper_gvec_fmla_idx_s_mips64
