@@ -1828,6 +1828,14 @@
 #define helper_neon_widen_u8 helper_neon_widen_u8_m68k
 #define helper_neon_zip16 helper_neon_zip16_m68k
 #define helper_neon_zip8 helper_neon_zip8_m68k
+#define helper_gvec_sstoh helper_gvec_sstoh_m68k
+#define helper_gvec_sitos helper_gvec_sitos_m68k
+#define helper_gvec_ustoh helper_gvec_ustoh_m68k
+#define helper_gvec_uitos helper_gvec_uitos_m68k
+#define helper_gvec_tosszh helper_gvec_tosszh_m68k
+#define helper_gvec_tosizs helper_gvec_tosizs_m68k
+#define helper_gvec_touszh helper_gvec_touszh_m68k
+#define helper_gvec_touizs helper_gvec_touizs_m68k
 #define helper_power_down helper_power_down_m68k
 #define helper_pre_hvc helper_pre_hvc_m68k
 #define helper_pre_smc helper_pre_smc_m68k

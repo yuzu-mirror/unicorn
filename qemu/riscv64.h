@@ -1828,6 +1828,14 @@
 #define helper_neon_widen_u8 helper_neon_widen_u8_riscv64
 #define helper_neon_zip16 helper_neon_zip16_riscv64
 #define helper_neon_zip8 helper_neon_zip8_riscv64
+#define helper_gvec_sstoh helper_gvec_sstoh_riscv64
+#define helper_gvec_sitos helper_gvec_sitos_riscv64
+#define helper_gvec_ustoh helper_gvec_ustoh_riscv64
+#define helper_gvec_uitos helper_gvec_uitos_riscv64
+#define helper_gvec_tosszh helper_gvec_tosszh_riscv64
+#define helper_gvec_tosizs helper_gvec_tosizs_riscv64
+#define helper_gvec_touszh helper_gvec_touszh_riscv64
+#define helper_gvec_touizs helper_gvec_touizs_riscv64
 #define helper_power_down helper_power_down_riscv64
 #define helper_pre_hvc helper_pre_hvc_riscv64
 #define helper_pre_smc helper_pre_smc_riscv64
