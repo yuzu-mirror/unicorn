@@ -1848,6 +1848,8 @@
 #define helper_gvec_vcvt_rm_us helper_gvec_vcvt_rm_us_x86_64
 #define helper_gvec_vcvt_rm_sh helper_gvec_vcvt_rm_sh_x86_64
 #define helper_gvec_vcvt_rm_uh helper_gvec_vcvt_rm_uh_x86_64
+#define helper_gvec_vrint_rm_h helper_gvec_vrint_rm_h_x86_64
+#define helper_gvec_vrint_rm_s helper_gvec_vrint_rm_s_x86_64
 #define helper_power_down helper_power_down_x86_64
 #define helper_pre_hvc helper_pre_hvc_x86_64
 #define helper_pre_smc helper_pre_smc_x86_64
@@ -1894,7 +1896,6 @@
 #define helper_sel_flags helper_sel_flags_x86_64
 #define helper_set_cp_reg helper_set_cp_reg_x86_64
 #define helper_set_cp_reg64 helper_set_cp_reg64_x86_64
-#define helper_set_neon_rmode helper_set_neon_rmode_x86_64
 #define helper_set_r13_banked helper_set_r13_banked_x86_64
 #define helper_set_rmode helper_set_rmode_x86_64
 #define helper_set_user_reg helper_set_user_reg_x86_64

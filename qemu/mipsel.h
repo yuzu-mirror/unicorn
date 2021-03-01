@@ -1848,6 +1848,8 @@
 #define helper_gvec_vcvt_rm_us helper_gvec_vcvt_rm_us_mipsel
 #define helper_gvec_vcvt_rm_sh helper_gvec_vcvt_rm_sh_mipsel
 #define helper_gvec_vcvt_rm_uh helper_gvec_vcvt_rm_uh_mipsel
+#define helper_gvec_vrint_rm_h helper_gvec_vrint_rm_h_mipsel
+#define helper_gvec_vrint_rm_s helper_gvec_vrint_rm_s_mipsel
 #define helper_power_down helper_power_down_mipsel
 #define helper_pre_hvc helper_pre_hvc_mipsel
 #define helper_pre_smc helper_pre_smc_mipsel
@@ -1894,7 +1896,6 @@
 #define helper_sel_flags helper_sel_flags_mipsel
 #define helper_set_cp_reg helper_set_cp_reg_mipsel
 #define helper_set_cp_reg64 helper_set_cp_reg64_mipsel
-#define helper_set_neon_rmode helper_set_neon_rmode_mipsel
 #define helper_set_r13_banked helper_set_r13_banked_mipsel
 #define helper_set_rmode helper_set_rmode_mipsel
 #define helper_set_user_reg helper_set_user_reg_mipsel

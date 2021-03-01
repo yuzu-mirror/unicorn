@@ -1848,6 +1848,8 @@
 #define helper_gvec_vcvt_rm_us helper_gvec_vcvt_rm_us_powerpc
 #define helper_gvec_vcvt_rm_sh helper_gvec_vcvt_rm_sh_powerpc
 #define helper_gvec_vcvt_rm_uh helper_gvec_vcvt_rm_uh_powerpc
+#define helper_gvec_vrint_rm_h helper_gvec_vrint_rm_h_powerpc
+#define helper_gvec_vrint_rm_s helper_gvec_vrint_rm_s_powerpc
 #define helper_power_down helper_power_down_powerpc
 #define helper_pre_hvc helper_pre_hvc_powerpc
 #define helper_pre_smc helper_pre_smc_powerpc
@@ -1894,7 +1896,6 @@
 #define helper_sel_flags helper_sel_flags_powerpc
 #define helper_set_cp_reg helper_set_cp_reg_powerpc
 #define helper_set_cp_reg64 helper_set_cp_reg64_powerpc
-#define helper_set_neon_rmode helper_set_neon_rmode_powerpc
 #define helper_set_r13_banked helper_set_r13_banked_powerpc
 #define helper_set_rmode helper_set_rmode_powerpc
 #define helper_set_user_reg helper_set_user_reg_powerpc
