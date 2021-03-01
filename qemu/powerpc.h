@@ -1840,6 +1840,10 @@
 #define helper_gvec_vcvt_uf helper_gvec_vcvt_uf_powerpc
 #define helper_gvec_vcvt_fs helper_gvec_vcvt_fs_powerpc
 #define helper_gvec_vcvt_fu helper_gvec_vcvt_fu_powerpc
+#define helper_gvec_vcvt_sh helper_gvec_vcvt_sh_powerpc
+#define helper_gvec_vcvt_uh helper_gvec_vcvt_uh_powerpc
+#define helper_gvec_vcvt_hs helper_gvec_vcvt_hs_powerpc
+#define helper_gvec_vcvt_hu helper_gvec_vcvt_hu_powerpc
 #define helper_power_down helper_power_down_powerpc
 #define helper_pre_hvc helper_pre_hvc_powerpc
 #define helper_pre_smc helper_pre_smc_powerpc

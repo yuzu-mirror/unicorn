@@ -1840,6 +1840,10 @@
 #define helper_gvec_vcvt_uf helper_gvec_vcvt_uf_x86_64
 #define helper_gvec_vcvt_fs helper_gvec_vcvt_fs_x86_64
 #define helper_gvec_vcvt_fu helper_gvec_vcvt_fu_x86_64
+#define helper_gvec_vcvt_sh helper_gvec_vcvt_sh_x86_64
+#define helper_gvec_vcvt_uh helper_gvec_vcvt_uh_x86_64
+#define helper_gvec_vcvt_hs helper_gvec_vcvt_hs_x86_64
+#define helper_gvec_vcvt_hu helper_gvec_vcvt_hu_x86_64
 #define helper_power_down helper_power_down_x86_64
 #define helper_pre_hvc helper_pre_hvc_x86_64
 #define helper_pre_smc helper_pre_smc_x86_64

@@ -1840,6 +1840,10 @@
 #define helper_gvec_vcvt_uf helper_gvec_vcvt_uf_m68k
 #define helper_gvec_vcvt_fs helper_gvec_vcvt_fs_m68k
 #define helper_gvec_vcvt_fu helper_gvec_vcvt_fu_m68k
+#define helper_gvec_vcvt_sh helper_gvec_vcvt_sh_m68k
+#define helper_gvec_vcvt_uh helper_gvec_vcvt_uh_m68k
+#define helper_gvec_vcvt_hs helper_gvec_vcvt_hs_m68k
+#define helper_gvec_vcvt_hu helper_gvec_vcvt_hu_m68k
 #define helper_power_down helper_power_down_m68k
 #define helper_pre_hvc helper_pre_hvc_m68k
 #define helper_pre_smc helper_pre_smc_m68k
