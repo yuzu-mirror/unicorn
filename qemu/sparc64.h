@@ -1844,6 +1844,10 @@
 #define helper_gvec_vcvt_uh helper_gvec_vcvt_uh_sparc64
 #define helper_gvec_vcvt_hs helper_gvec_vcvt_hs_sparc64
 #define helper_gvec_vcvt_hu helper_gvec_vcvt_hu_sparc64
+#define helper_gvec_vcvt_rm_ss helper_gvec_vcvt_rm_ss_sparc64
+#define helper_gvec_vcvt_rm_us helper_gvec_vcvt_rm_us_sparc64
+#define helper_gvec_vcvt_rm_sh helper_gvec_vcvt_rm_sh_sparc64
+#define helper_gvec_vcvt_rm_uh helper_gvec_vcvt_rm_uh_sparc64
 #define helper_power_down helper_power_down_sparc64
 #define helper_pre_hvc helper_pre_hvc_sparc64
 #define helper_pre_smc helper_pre_smc_sparc64

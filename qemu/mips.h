@@ -1844,6 +1844,10 @@
 #define helper_gvec_vcvt_uh helper_gvec_vcvt_uh_mips
 #define helper_gvec_vcvt_hs helper_gvec_vcvt_hs_mips
 #define helper_gvec_vcvt_hu helper_gvec_vcvt_hu_mips
+#define helper_gvec_vcvt_rm_ss helper_gvec_vcvt_rm_ss_mips
+#define helper_gvec_vcvt_rm_us helper_gvec_vcvt_rm_us_mips
+#define helper_gvec_vcvt_rm_sh helper_gvec_vcvt_rm_sh_mips
+#define helper_gvec_vcvt_rm_uh helper_gvec_vcvt_rm_uh_mips
 #define helper_power_down helper_power_down_mips
 #define helper_pre_hvc helper_pre_hvc_mips
 #define helper_pre_smc helper_pre_smc_mips

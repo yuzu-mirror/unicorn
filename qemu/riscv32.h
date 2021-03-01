@@ -1844,6 +1844,10 @@
 #define helper_gvec_vcvt_uh helper_gvec_vcvt_uh_riscv32
 #define helper_gvec_vcvt_hs helper_gvec_vcvt_hs_riscv32
 #define helper_gvec_vcvt_hu helper_gvec_vcvt_hu_riscv32
+#define helper_gvec_vcvt_rm_ss helper_gvec_vcvt_rm_ss_riscv32
+#define helper_gvec_vcvt_rm_us helper_gvec_vcvt_rm_us_riscv32
+#define helper_gvec_vcvt_rm_sh helper_gvec_vcvt_rm_sh_riscv32
+#define helper_gvec_vcvt_rm_uh helper_gvec_vcvt_rm_uh_riscv32
 #define helper_power_down helper_power_down_riscv32
 #define helper_pre_hvc helper_pre_hvc_riscv32
 #define helper_pre_smc helper_pre_smc_riscv32
