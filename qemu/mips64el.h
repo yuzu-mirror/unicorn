@@ -1393,6 +1393,8 @@
 #define helper_gvec_rotr16v helper_gvec_rotr16v_mips64el
 #define helper_gvec_rotr32v helper_gvec_rotr32v_mips64el
 #define helper_gvec_rotr64v helper_gvec_rotr64v_mips64el
+#define helper_gvec_rsqrts_nf_h helper_gvec_rsqrts_nf_h_mips64el
+#define helper_gvec_rsqrts_nf_s helper_gvec_rsqrts_nf_s_mips64el
 #define helper_gvec_sar8i helper_gvec_sar8i_mips64el
 #define helper_gvec_sar8v helper_gvec_sar8v_mips64el
 #define helper_gvec_sar16i helper_gvec_sar16i_mips64el
