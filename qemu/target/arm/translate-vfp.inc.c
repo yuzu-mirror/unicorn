@@ -3544,3 +3544,29 @@ static bool trans_VINS(DisasContext *s, arg_VINS *a)
     tcg_temp_free_i32(tcg_ctx, rd);
     return true;
 }
+
+static bool trans_VMOVX(DisasContext *s, arg_VINS *a)
+{
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+    TCGv_i32 rm;
+
+    if (!dc_isar_feature(aa32_fp16_arith, s)) {
+        return false;
+    }
+
+    if (s->vec_len != 0 || s->vec_stride != 0) {
+        return false;
+    }
+
+    if (!vfp_access_check(s)) {
+        return true;
+    }
+
+    /* Set Vd to high half of Vm */
+    rm = tcg_temp_new_i32(tcg_ctx);
+    neon_load_reg32(s, rm, a->vm);
+    tcg_gen_shri_i32(tcg_ctx, rm, rm, 16);
+    neon_store_reg32(s, rm, a->vd);
+    tcg_temp_free_i32(tcg_ctx, rm);
+    return true;
+}
