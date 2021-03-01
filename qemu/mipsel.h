@@ -1295,6 +1295,8 @@
 #define helper_gvec_fmin_s helper_gvec_fmin_s_mipsel
 #define helper_gvec_fminnum_h helper_gvec_fminnum_h_mipsel
 #define helper_gvec_fminnum_s helper_gvec_fminnum_s_mipsel
+#define helper_gvec_fmla_h helper_gvec_fmla_h_mipsel
+#define helper_gvec_fmla_s helper_gvec_fmla_s_mipsel
 #define helper_gvec_fmla_idx_d helper_gvec_fmla_idx_d_mipsel
 #define helper_gvec_fmla_idx_h helper_gvec_fmla_idx_h_mipsel
 #define helper_gvec_fmla_idx_s helper_gvec_fmla_idx_s_mipsel
@@ -1302,6 +1304,8 @@
 #define helper_gvec_fmlal_a64 helper_gvec_fmlal_a64_mipsel
 #define helper_gvec_fmlal_idx_a32 helper_gvec_fmlal_idx_a32_mipsel
 #define helper_gvec_fmlal_idx_a64 helper_gvec_fmlal_idx_a64_mipsel
+#define helper_gvec_fmls_h helper_gvec_fmls_h_mipsel
+#define helper_gvec_fmls_s helper_gvec_fmls_s_mipsel
 #define helper_gvec_fmul_d helper_gvec_fmul_d_mipsel
 #define helper_gvec_fmul_h helper_gvec_fmul_h_mipsel
 #define helper_gvec_fmul_s helper_gvec_fmul_s_mipsel
