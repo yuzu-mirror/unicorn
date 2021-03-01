@@ -2270,7 +2270,8 @@ static void gen_absv_mask(TCGContext *s, TCGv_i64 d, TCGv_i64 b, unsigned vece)
      * so we never have carry into the next element.
      */
     tcg_gen_xor_i64(s, d, b, t);
-    tcg_gen_sub_i64(s, d, d, t);
+    tcg_gen_andi_i64(s, t, t, dup_const(vece, 1));
+    tcg_gen_add_i64(s, d, d, t);
 
     tcg_temp_free_i64(s, t);
 }
