@@ -1287,6 +1287,10 @@
 #define helper_gvec_fcmlah_idx helper_gvec_fcmlah_idx_mips
 #define helper_gvec_fcmlas helper_gvec_fcmlas_mips
 #define helper_gvec_fcmlas_idx helper_gvec_fcmlas_idx_mips
+#define helper_gvec_fmax_h helper_gvec_fmax_h_mips
+#define helper_gvec_fmax_s helper_gvec_fmax_s_mips
+#define helper_gvec_fmin_h helper_gvec_fmin_h_mips
+#define helper_gvec_fmin_s helper_gvec_fmin_s_mips
 #define helper_gvec_fmla_idx_d helper_gvec_fmla_idx_d_mips
 #define helper_gvec_fmla_idx_h helper_gvec_fmla_idx_h_mips
 #define helper_gvec_fmla_idx_s helper_gvec_fmla_idx_s_mips

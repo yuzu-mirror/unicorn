@@ -1287,6 +1287,10 @@
 #define helper_gvec_fcmlah_idx helper_gvec_fcmlah_idx_sparc64
 #define helper_gvec_fcmlas helper_gvec_fcmlas_sparc64
 #define helper_gvec_fcmlas_idx helper_gvec_fcmlas_idx_sparc64
+#define helper_gvec_fmax_h helper_gvec_fmax_h_sparc64
+#define helper_gvec_fmax_s helper_gvec_fmax_s_sparc64
+#define helper_gvec_fmin_h helper_gvec_fmin_h_sparc64
+#define helper_gvec_fmin_s helper_gvec_fmin_s_sparc64
 #define helper_gvec_fmla_idx_d helper_gvec_fmla_idx_d_sparc64
 #define helper_gvec_fmla_idx_h helper_gvec_fmla_idx_h_sparc64
 #define helper_gvec_fmla_idx_s helper_gvec_fmla_idx_s_sparc64
