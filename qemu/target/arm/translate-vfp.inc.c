@@ -662,7 +662,7 @@ static bool trans_VDUP(DisasContext *s, arg_VDUP *a)
     }
 
     tmp = load_reg(s, a->rt);
-    tcg_gen_gvec_dup_i32(tcg_ctx, size, neon_reg_offset(a->vn, 0),
+    tcg_gen_gvec_dup_i32(tcg_ctx, size, neon_full_reg_offset(a->vn),
                          vec_size, vec_size, tmp);
     tcg_temp_free_i32(tcg_ctx, tmp);
 
