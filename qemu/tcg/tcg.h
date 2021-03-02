@@ -627,6 +627,7 @@ void tcg_dump_info(void);
 typedef struct TCGArgConstraint {
     uint16_t ct;
     uint8_t alias_index;
+    uint8_t sort_index;
     TCGRegSet regs;
 } TCGArgConstraint;
 
@@ -657,7 +658,6 @@ typedef struct TCGOpDef {
     uint8_t nb_oargs, nb_iargs, nb_cargs, nb_args;
     uint8_t flags;
     TCGArgConstraint *args_ct;
-    int *sorted_args;
 #if defined(CONFIG_DEBUG_TCG)
     int used;
 #endif
