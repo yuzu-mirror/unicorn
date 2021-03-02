@@ -1188,13 +1188,13 @@ static inline void neon_store_reg64(DisasContext *s, TCGv_i64 var, int reg)
     tcg_gen_st_i64(tcg_ctx, var, tcg_ctx->cpu_env, vfp_reg_offset(1, reg));
 }
 
-static inline void neon_load_reg32(DisasContext *s, TCGv_i32 var, int reg)
+static inline void vfp_load_reg32(DisasContext *s, TCGv_i32 var, int reg)
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
     tcg_gen_ld_i32(tcg_ctx, var, tcg_ctx->cpu_env, vfp_reg_offset(false, reg));
 }
 
-static inline void neon_store_reg32(DisasContext *s, TCGv_i32 var, int reg)
+static inline void vfp_store_reg32(DisasContext *s, TCGv_i32 var, int reg)
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
     tcg_gen_st_i32(tcg_ctx, var, tcg_ctx->cpu_env, vfp_reg_offset(false, reg));
