@@ -1227,6 +1227,20 @@ static void read_neon_element32(DisasContext *s, TCGv_i32 dest, int reg, int ele
     }
 }
 
+static void read_neon_element64(DisasContext *s, TCGv_i64 dest, int reg, int ele, MemOp memop)
+{
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+    long off = neon_element_offset(reg, ele, memop);
+
+    switch (memop) {
+    case MO_Q:
+        tcg_gen_ld_i64(tcg_ctx, dest, tcg_ctx->cpu_env, off);
+        break;
+    default:
+        g_assert_not_reached();
+    }
+}
+
 static void write_neon_element32(DisasContext *s, TCGv_i32 src, int reg, int ele, MemOp memop)
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
@@ -1241,6 +1255,20 @@ static void write_neon_element32(DisasContext *s, TCGv_i32 src, int reg, int ele
         break;
     case MO_32:
         tcg_gen_st_i32(tcg_ctx, src, tcg_ctx->cpu_env, off);
+        break;
+    default:
+        g_assert_not_reached();
+    }
+}
+
+static void write_neon_element64(DisasContext *s, TCGv_i64 src, int reg, int ele, MemOp memop)
+{
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+    long off = neon_element_offset(reg, ele, memop);
+
+    switch (memop) {
+    case MO_64:
+        tcg_gen_st_i64(tcg_ctx, src, tcg_ctx->cpu_env, off);
         break;
     default:
         g_assert_not_reached();
