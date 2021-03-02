@@ -60,25 +60,6 @@ static inline int neon_3same_fp_size(DisasContext *s, int x)
 #include "decode-neon-ls.inc.c"
 #include "decode-neon-shared.inc.c"
 
-/* Return the offset of a 2**SIZE piece of a NEON register, at index ELE,
- * where 0 is the least significant end of the register.
- */
-static inline long
-neon_element_offset(int reg, int element, MemOp size)
-{
-    int element_size = 1 << size;
-    int ofs = element * element_size;
-#ifdef HOST_WORDS_BIGENDIAN
-    /* Calculate the offset assuming fully little-endian,
-     * then XOR to account for the order of the 8-byte units.
-     */
-    if (element_size < 8) {
-        ofs ^= 8 - element_size;
-    }
-#endif
-    return neon_full_reg_offset(reg) + ofs;
-}
-
 static void neon_load_element(DisasContext *s, TCGv_i32 var, int reg, int ele, MemOp mop)
 {
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
