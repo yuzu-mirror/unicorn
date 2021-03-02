@@ -657,9 +657,6 @@ typedef struct TCGOpDef {
     uint8_t nb_oargs, nb_iargs, nb_cargs, nb_args;
     uint8_t flags;
     TCGArgConstraint *args_ct;
-#if defined(CONFIG_DEBUG_TCG)
-    int used;
-#endif
 } TCGOpDef;
 
 struct tcg_temp_info {
