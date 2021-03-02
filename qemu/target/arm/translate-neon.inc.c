@@ -2069,17 +2069,14 @@ static bool do_long_3d(DisasContext *s, arg_3diff *a,
     if (accfn) {
         tmp = tcg_temp_new_i64(tcg_ctx);
         read_neon_element64(s, tmp, a->vd, 0, MO_64);
-        accfn(tcg_ctx, tmp, tmp, rd0);
-        write_neon_element64(s, tmp, a->vd, 0, MO_64);
+        accfn(tcg_ctx, rd0, tmp, rd0);
         read_neon_element64(s, tmp, a->vd, 1, MO_64);
-        accfn(tcg_ctx, tmp, tmp, rd1);
-        write_neon_element64(s, tmp, a->vd, 1, MO_64);
+        accfn(tcg_ctx, rd1, tmp, rd1);
         tcg_temp_free_i64(tcg_ctx, tmp);
-    } else {
-        write_neon_element64(s, rd0, a->vd, 0, MO_64);
-        write_neon_element64(s, rd1, a->vd, 1, MO_64);
     }
 
+    write_neon_element64(s, rd0, a->vd, 0, MO_64);
+    write_neon_element64(s, rd1, a->vd, 1, MO_64);
     tcg_temp_free_i64(tcg_ctx, rd0);
     tcg_temp_free_i64(tcg_ctx, rd1);
 
@@ -2709,16 +2706,14 @@ static bool do_2scalar_long(DisasContext *s, arg_2scalar *a,
     if (accfn) {
         TCGv_i64 t64 = tcg_temp_new_i64(tcg_ctx);
         read_neon_element64(s, t64, a->vd, 0, MO_64);
-        accfn(tcg_ctx, t64, t64, rn0_64);
-        write_neon_element64(s, t64, a->vd, 0, MO_64);
+        accfn(tcg_ctx, rn0_64, t64, rn0_64);
         read_neon_element64(s, t64, a->vd, 1, MO_64);
-        accfn(tcg_ctx, t64, t64, rn1_64);
-        write_neon_element64(s, t64, a->vd, 1, MO_64);
+        accfn(tcg_ctx, rn1_64, t64, rn1_64);
         tcg_temp_free_i64(tcg_ctx, t64);
-    } else {
-        write_neon_element64(s, rn0_64, a->vd, 0, MO_64);
-        write_neon_element64(s, rn1_64, a->vd, 1, MO_64);
     }
+
+    write_neon_element64(s, rn0_64, a->vd, 0, MO_64);
+    write_neon_element64(s, rn1_64, a->vd, 1, MO_64);
     tcg_temp_free_i64(tcg_ctx, rn0_64);
     tcg_temp_free_i64(tcg_ctx, rn1_64);
     return true;
