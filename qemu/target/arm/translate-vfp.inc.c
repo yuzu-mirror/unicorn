@@ -3197,16 +3197,16 @@ static bool trans_VCVT_fix_hp(DisasContext *s, arg_VCVT_fix_sp *a)
     /* Switch on op:U:sx bits */
     switch (a->opc) {
     case 0:
-        gen_helper_vfp_shtoh(tcg_ctx, vd, vd, shift, fpst);
+        gen_helper_vfp_shtoh_round_to_nearest(tcg_ctx, vd, vd, shift, fpst);
         break;
     case 1:
-        gen_helper_vfp_sltoh(tcg_ctx, vd, vd, shift, fpst);
+        gen_helper_vfp_sltoh_round_to_nearest(tcg_ctx, vd, vd, shift, fpst);
         break;
     case 2:
-        gen_helper_vfp_uhtoh(tcg_ctx, vd, vd, shift, fpst);
+        gen_helper_vfp_uhtoh_round_to_nearest(tcg_ctx, vd, vd, shift, fpst);
         break;
     case 3:
-        gen_helper_vfp_ultoh(tcg_ctx, vd, vd, shift, fpst);
+        gen_helper_vfp_ultoh_round_to_nearest(tcg_ctx, vd, vd, shift, fpst);
         break;
     case 4:
         gen_helper_vfp_toshh_round_to_zero(tcg_ctx, vd, vd, shift, fpst);
@@ -3257,16 +3257,16 @@ static bool trans_VCVT_fix_sp(DisasContext *s, arg_VCVT_fix_sp *a)
     /* Switch on op:U:sx bits */
     switch (a->opc) {
     case 0:
-        gen_helper_vfp_shtos(tcg_ctx, vd, vd, shift, fpst);
+        gen_helper_vfp_shtos_round_to_nearest(tcg_ctx, vd, vd, shift, fpst);
         break;
     case 1:
-        gen_helper_vfp_sltos(tcg_ctx, vd, vd, shift, fpst);
+        gen_helper_vfp_sltos_round_to_nearest(tcg_ctx, vd, vd, shift, fpst);
         break;
     case 2:
-        gen_helper_vfp_uhtos(tcg_ctx, vd, vd, shift, fpst);
+        gen_helper_vfp_uhtos_round_to_nearest(tcg_ctx, vd, vd, shift, fpst);
         break;
     case 3:
-        gen_helper_vfp_ultos(tcg_ctx, vd, vd, shift, fpst);
+        gen_helper_vfp_ultos_round_to_nearest(tcg_ctx, vd, vd, shift, fpst);
         break;
     case 4:
         gen_helper_vfp_toshs_round_to_zero(tcg_ctx, vd, vd, shift, fpst);
@@ -3323,16 +3323,16 @@ static bool trans_VCVT_fix_dp(DisasContext *s, arg_VCVT_fix_dp *a)
     /* Switch on op:U:sx bits */
     switch (a->opc) {
     case 0:
-        gen_helper_vfp_shtod(tcg_ctx, vd, vd, shift, fpst);
+        gen_helper_vfp_shtod_round_to_nearest(tcg_ctx, vd, vd, shift, fpst);
         break;
     case 1:
-        gen_helper_vfp_sltod(tcg_ctx, vd, vd, shift, fpst);
+        gen_helper_vfp_sltod_round_to_nearest(tcg_ctx, vd, vd, shift, fpst);
         break;
     case 2:
-        gen_helper_vfp_uhtod(tcg_ctx, vd, vd, shift, fpst);
+        gen_helper_vfp_uhtod_round_to_nearest(tcg_ctx, vd, vd, shift, fpst);
         break;
     case 3:
-        gen_helper_vfp_ultod(tcg_ctx, vd, vd, shift, fpst);
+        gen_helper_vfp_ultod_round_to_nearest(tcg_ctx, vd, vd, shift, fpst);
         break;
     case 4:
         gen_helper_vfp_toshd_round_to_zero(tcg_ctx, vd, vd, shift, fpst);
