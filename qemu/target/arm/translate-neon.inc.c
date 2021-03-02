@@ -2916,10 +2916,6 @@ static bool trans_VTBL(DisasContext *s, arg_VTBL *a)
         return false;
     }
 
-    if (!vfp_access_check(s)) {
-        return true;
-    }
-
     if ((a->vn + a->len + 1) > 32) {
         /*
          * This is UNPREDICTABLE; we choose to UNDEF to avoid the
@@ -2927,6 +2923,11 @@ static bool trans_VTBL(DisasContext *s, arg_VTBL *a)
          */
         return false;
     }
+
+    if (!vfp_access_check(s)) {
+        return true;
+    }
+
     desc = tcg_const_i32(tcg_ctx, (a->vn << 2) | a->len);
     def = tcg_temp_new_i64(tcg_ctx);
 
