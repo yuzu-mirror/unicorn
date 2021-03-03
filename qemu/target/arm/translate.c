@@ -93,6 +93,16 @@ void arm_translate_init(struct uc_struct *uc)
     a64_translate_init(uc);
 }
 
+/* Generate a label used for skipping this instruction */
+static void arm_gen_condlabel(DisasContext *s)
+{
+    if (!s->condjmp) {
+        TCGContext *tcg_ctx = s->uc->tcg_ctx;
+        s->condlabel = gen_new_label(tcg_ctx);
+        s->condjmp = 1;
+    }
+}
+
 /* Flags for the disas_set_da_iss info argument:
  * lower bits hold the Rt register number, higher bits are flags.
  */
@@ -1273,6 +1283,9 @@ static void write_neon_element64(DisasContext *s, TCGv_i64 src, int reg, int ele
     long off = neon_element_offset(reg, ele, memop);
 
     switch (memop) {
+    case MO_32:
+        tcg_gen_st32_i64(tcg_ctx, src, tcg_ctx->cpu_env, off);
+        break;
     case MO_64:
         tcg_gen_st_i64(tcg_ctx, src, tcg_ctx->cpu_env, off);
         break;
@@ -5234,17 +5247,6 @@ static void gen_srs(DisasContext *s,
     }
     tcg_temp_free_i32(tcg_ctx, addr);
     s->base.is_jmp = DISAS_UPDATE_EXIT;
-}
-
-/* Generate a label used for skipping this instruction */
-static void arm_gen_condlabel(DisasContext *s)
-{
-    if (!s->condjmp) {
-        TCGContext *tcg_ctx = s->uc->tcg_ctx;
-
-        s->condlabel = gen_new_label(tcg_ctx);
-        s->condjmp = 1;
-    }
 }
 
 /* Skip this instruction if the ARM condition is false */
