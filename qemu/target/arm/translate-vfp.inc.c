@@ -754,7 +754,7 @@ static bool gen_M_fp_sysreg_read(DisasContext *s, int regno,
          * helper call for the "VMRS to CPSR.NZCV" insn.
          */
         tmp = load_cpu_field(s, vfp.xregs[ARM_VFP_FPSCR]);
-        tcg_gen_andi_i32(tcg_ctx, tmp, tmp, 0xf0000000);
+        tcg_gen_andi_i32(tcg_ctx, tmp, tmp, FPCR_NZCV_MASK);
         storefn(s, opaque, tmp);
         break;
     default:
@@ -897,7 +897,7 @@ static bool trans_VMSR_VMRS(DisasContext *s, arg_VMSR_VMRS *a)
         case ARM_VFP_FPSCR:
             if (a->rt == 15) {
                 tmp = load_cpu_field(s, vfp.xregs[ARM_VFP_FPSCR]);
-                tcg_gen_andi_i32(tcg_ctx, tmp, tmp, 0xf0000000);
+                tcg_gen_andi_i32(tcg_ctx, tmp, tmp, FPCR_NZCV_MASK);
             } else {
                 tmp = tcg_temp_new_i32(tcg_ctx);
                 gen_helper_vfp_get_fpscr(tcg_ctx, tmp, tcg_ctx->cpu_env);
