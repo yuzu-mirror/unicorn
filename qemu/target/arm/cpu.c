@@ -916,7 +916,7 @@ static int arm_cpu_realizefn(struct uc_struct *uc, DeviceState *dev, Error **err
         }
     }
 
-    if (!cpu->has_el3) {
+    if (!arm_feature(env, ARM_FEATURE_M) && !cpu->has_el3) {
         /* If the has_el3 CPU property is disabled then we need to disable the
          * feature.
          */
