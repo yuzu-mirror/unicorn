@@ -657,6 +657,11 @@ static FPSysRegCheckResult fp_sysreg_checks(DisasContext *s, int regno)
     case ARM_VFP_FPSCR:
     case QEMU_VFP_FPSCR_NZCV:
         break;
+    case ARM_VFP_FPSCR_NZCVQC:
+        if (!arm_dc_feature(s, ARM_FEATURE_V8_1M)) {
+            return false;
+        }
+        break;
     default:
         return FPSysRegCheckFailed;
     }
@@ -692,6 +697,22 @@ static bool gen_M_fp_sysreg_write(DisasContext *s, int regno,
         tcg_temp_free_i32(tcg_ctx, tmp);
         gen_lookup_tb(s);
         break;
+    case ARM_VFP_FPSCR_NZCVQC:
+    {
+        TCGv_i32 fpscr;
+        tmp = loadfn(s, opaque);
+        /*
+         * TODO: when we implement MVE, write the QC bit.
+         * For non-MVE, QC is RES0.
+         */
+        tcg_gen_andi_i32(tcg_ctx, tmp, tmp, FPCR_NZCV_MASK);
+        fpscr = load_cpu_field(s, vfp.xregs[ARM_VFP_FPSCR]);
+        tcg_gen_andi_i32(tcg_ctx, fpscr, fpscr, ~FPCR_NZCV_MASK);
+        tcg_gen_or_i32(tcg_ctx, fpscr, fpscr, tmp);
+        store_cpu_field(s, fpscr, vfp.xregs[ARM_VFP_FPSCR]);
+        tcg_temp_free_i32(tcg_ctx, tmp);
+        break;
+    }
     default:
         g_assert_not_reached();
     }
@@ -721,6 +742,12 @@ static bool gen_M_fp_sysreg_read(DisasContext *s, int regno,
         gen_helper_vfp_get_fpscr(tcg_ctx, tmp, tcg_ctx->cpu_env);
         storefn(s, opaque, tmp);
         break;
+    case ARM_VFP_FPSCR_NZCVQC:
+        /*
+         * TODO: MVE has a QC bit, which we probably won't store
+         * in the xregs[] field. For non-MVE, where QC is RES0,
+         * we can just fall through to the FPSCR_NZCV case.
+         */
     case QEMU_VFP_FPSCR_NZCV:
         /*
          * Read just NZCV; this is a special case to avoid the
