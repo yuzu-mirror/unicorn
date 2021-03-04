@@ -40,7 +40,8 @@ static void mips_cpu_set_pc(CPUState *cs, vaddr value)
     }
 }
 
-static void mips_cpu_synchronize_from_tb(CPUState *cs, TranslationBlock *tb)
+#ifdef CONFIG_TCG
+static void mips_cpu_synchronize_from_tb(CPUState *cs, const TranslationBlock *tb)
 {
     MIPSCPU *cpu = MIPS_CPU(cs->uc, cs);
     CPUMIPSState *env = &cpu->env;
@@ -49,6 +50,7 @@ static void mips_cpu_synchronize_from_tb(CPUState *cs, TranslationBlock *tb)
     env->hflags &= ~MIPS_HFLAG_BMASK;
     env->hflags |= tb->flags & MIPS_HFLAG_BMASK;
 }
+#endif /* CONFIG_TCG */
 
 static bool mips_cpu_has_work(CPUState *cs)
 {
@@ -174,7 +176,6 @@ static void mips_cpu_class_init(struct uc_struct *uc, ObjectClass *c, void *data
     cc->do_interrupt = mips_cpu_do_interrupt;
     cc->cpu_exec_interrupt = mips_cpu_exec_interrupt;
     cc->set_pc = mips_cpu_set_pc;
-    cc->synchronize_from_tb = mips_cpu_synchronize_from_tb;
 #ifndef CONFIG_USER_ONLY
     cc->do_transaction_failed = mips_cpu_do_transaction_failed;
     cc->do_unaligned_access = mips_cpu_do_unaligned_access;
@@ -182,6 +183,7 @@ static void mips_cpu_class_init(struct uc_struct *uc, ObjectClass *c, void *data
 #endif
 #ifdef CONFIG_TCG
     cc->tcg_ops.initialize = mips_tcg_init;
+    cc->tcg_ops.synchronize_from_tb = mips_cpu_synchronize_from_tb;
     cc->tlb_fill = mips_cpu_tlb_fill;
 #endif
 }

@@ -60,17 +60,19 @@ static inline tcg_target_ulong cpu_tb_exec(CPUState *cpu, TranslationBlock *itb)
          * or timer mode is in effect, since these already fix the PC.
          */
         if (!HOOK_EXISTS(env->uc, UC_HOOK_CODE) && !env->uc->timeout) {
-            if (cc->synchronize_from_tb) {
+            if (cc->tcg_ops.synchronize_from_tb) {
                 // avoid sync twice when helper_uc_tracecode() already did this.
                 if (env->uc->emu_counter <= env->uc->emu_count &&
-                        !env->uc->stop_request && !env->uc->quit_request)
-                    cc->synchronize_from_tb(cpu, last_tb);
+                        !env->uc->stop_request && !env->uc->quit_request) {
+                    cc->tcg_ops.synchronize_from_tb(cpu, last_tb);
+                }
             } else {
                 assert(cc->set_pc);
                 // avoid sync twice when helper_uc_tracecode() already did this.
                 if (env->uc->emu_counter <= env->uc->emu_count &&
-                        !env->uc->stop_request && !env->uc->quit_request)
+                        !env->uc->stop_request && !env->uc->quit_request) {
                     cc->set_pc(cpu, last_tb->pc);
+                }
             }
         }
     }
