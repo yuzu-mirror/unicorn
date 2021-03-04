@@ -135,6 +135,10 @@ typedef struct TcgCpuOperations {
     void (*do_unaligned_access)(CPUState *cpu, vaddr addr,
                                 MMUAccessType access_type,
                                 int mmu_idx, uintptr_t retaddr);
+    /**
+     * @adjust_watchpoint_address: hack for cpu_check_watchpoint used by ARM
+     */
+    vaddr (*adjust_watchpoint_address)(CPUState *cpu, vaddr addr, int len);
 
 } TcgCpuOperations;
 
@@ -207,8 +211,6 @@ typedef struct CPUClass {
     bool (*debug_check_watchpoint)(CPUState *cpu, CPUWatchpoint *wp);
 
     const struct VMStateDescription *vmsd;
-
-    vaddr (*adjust_watchpoint_address)(CPUState *cpu, vaddr addr, int len);
 
     /* Keep non-pointer data at the end to minimize holes.  */
     TcgCpuOperations tcg_ops;
