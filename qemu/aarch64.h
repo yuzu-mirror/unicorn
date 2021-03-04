@@ -2963,6 +2963,7 @@
 #define tcg_constant_folding tcg_constant_folding_aarch64
 #define tcg_constant_internal tcg_constant_internal_aarch64
 #define tcg_constant_vec tcg_constant_vec_aarch64
+#define tcg_constant_vec_matching tcg_constant_vec_matching_aarch64
 #define tcg_context_init tcg_context_init_aarch64
 #define tcg_cpu_exec tcg_cpu_exec_aarch64
 #define tcg_current_code_size tcg_current_code_size_aarch64

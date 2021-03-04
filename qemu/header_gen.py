@@ -2969,6 +2969,7 @@ symbols = (
     'tcg_constant_folding',
     'tcg_constant_internal',
     'tcg_constant_vec',
+    'tcg_constant_vec_matching',
     'tcg_context_init',
     'tcg_cpu_exec',
     'tcg_current_code_size',
