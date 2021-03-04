@@ -856,6 +856,7 @@ void tcg_optimize(TCGContext *s)
             if ((arg_info(op->args[1])->mask & 0x80) != 0) {
                 break;
             }
+            QEMU_FALLTHROUGH;
         CASE_OP_32_64(ext8u):
             mask = 0xff;
             goto and_const;
@@ -863,6 +864,7 @@ void tcg_optimize(TCGContext *s)
             if ((arg_info(op->args[1])->mask & 0x8000) != 0) {
                 break;
             }
+            QEMU_FALLTHROUGH;
         CASE_OP_32_64(ext16u):
             mask = 0xffff;
             goto and_const;
@@ -870,6 +872,7 @@ void tcg_optimize(TCGContext *s)
             if ((arg_info(op->args[1])->mask & 0x80000000) != 0) {
                 break;
             }
+            QEMU_FALLTHROUGH;
         case INDEX_op_ext32u_i64:
             mask = 0xffffffffU;
             goto and_const;
@@ -887,6 +890,7 @@ void tcg_optimize(TCGContext *s)
             if ((arg_info(op->args[1])->mask & 0x80000000) != 0) {
                 break;
             }
+            QEMU_FALLTHROUGH;
         case INDEX_op_extu_i32_i64:
             /* We do not compute affected as it is a size changing op.  */
             mask = (uint32_t)arg_info(op->args[1])->mask;

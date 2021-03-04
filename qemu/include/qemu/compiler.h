@@ -277,4 +277,15 @@ static union MSVC_FLOAT_HACK __NAN = {{0x00, 0x00, 0xC0, 0x7F}};
 
 #endif // _MSC_VER
 
+/**
+ * In most cases, normal "fallthrough" comments are good enough for
+ * switch-case statements, but sometimes the compiler has problems
+ * with those. In that case you can use QEMU_FALLTHROUGH instead.
+ */
+#if __has_attribute(fallthrough)
+# define QEMU_FALLTHROUGH __attribute__((fallthrough))
+#else
+# define QEMU_FALLTHROUGH do {} while (0) /* fallthrough */
+#endif
+
 #endif /* COMPILER_H */
