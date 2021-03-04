@@ -444,7 +444,7 @@ static TCGv gen_addr_index(DisasContext *s, uint16_t ext, TCGv tmp)
 }
 
 /*
- * Handle a base + index + displacement effective addresss.
+ * Handle a base + index + displacement effective address.
  * A NULL_QREG base means pc-relative.
  */
 static TCGv gen_lea_indexed(CPUM68KState *env, DisasContext *s, TCGv base)
@@ -1740,7 +1740,7 @@ static void bcd_add(DisasContext *s, TCGv dest, TCGv src)
 
     /*
      * t1 = (src + 0x066) + dest + X
-     *    = result with some possible exceding 0x6
+     *    = result with some possible exceeding 0x6
      */
 
     t0 = tcg_const_i32(tcg_ctx, 0x066);
@@ -1750,7 +1750,7 @@ static void bcd_add(DisasContext *s, TCGv dest, TCGv src)
     tcg_gen_add_i32(tcg_ctx, t1, t0, dest);
     tcg_gen_add_i32(tcg_ctx, t1, t1, tcg_ctx->QREG_CC_X);
 
-    /* we will remove exceding 0x6 where there is no carry */
+    /* we will remove exceeding 0x6 where there is no carry */
 
     /*
      * t0 = (src + 0x0066) ^ dest
@@ -1780,7 +1780,7 @@ static void bcd_add(DisasContext *s, TCGv dest, TCGv src)
     tcg_temp_free(tcg_ctx, t0);
 
     /*
-     * remove the exceding 0x6
+     * remove the exceeding 0x6
      * for digits that have not generated a carry
      */
 
@@ -2723,7 +2723,7 @@ DISAS_INSN(negx)
     gen_flush_flags(s); /* compute old Z */
 
     /*
-     * Perform substract with borrow.
+     * Perform subtract with borrow.
      * (X, N) =  -(src + X);
      */
 
@@ -2738,7 +2738,7 @@ DISAS_INSN(negx)
     /*
      * Compute signed-overflow for negation.  The normal formula for
      * subtraction is (res ^ src) & (src ^ dest), but with dest==0
-     * this simplies to res & src.
+     * this simplifies to res & src.
      */
 
     tcg_gen_and_i32(tcg_ctx, QREG_CC_V, QREG_CC_N, src);
@@ -3279,7 +3279,7 @@ static inline void gen_subx(DisasContext *s, TCGv src, TCGv dest, int opsize)
     gen_flush_flags(s); /* compute old Z */
 
     /*
-     * Perform substract with borrow.
+     * Perform subtract with borrow.
      * (X, N) = dest - (src + X);
      */
 
@@ -3289,7 +3289,7 @@ static inline void gen_subx(DisasContext *s, TCGv src, TCGv dest, int opsize)
     gen_ext(s, QREG_CC_N, QREG_CC_N, opsize, 1);
     tcg_gen_andi_i32(tcg_ctx, QREG_CC_X, QREG_CC_X, 1);
 
-    /* Compute signed-overflow for substract.  */
+    /* Compute signed-overflow for subtract.  */
 
     tcg_gen_xor_i32(tcg_ctx, QREG_CC_V, QREG_CC_N, dest);
     tcg_gen_xor_i32(tcg_ctx, tmp, dest, src);
