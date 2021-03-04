@@ -1138,6 +1138,23 @@ static void unallocated_encoding(DisasContext *s)
                        default_exception_el(s));
 }
 
+static void gen_exception_el(DisasContext *s, int excp, uint32_t syn,
+                             TCGv_i32 tcg_el)
+{
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+    TCGv_i32 tcg_excp;
+    TCGv_i32 tcg_syn;
+
+    gen_set_condexec(s);
+    gen_set_pc_im(s, s->pc_curr);
+    tcg_excp = tcg_const_i32(tcg_ctx, excp);
+    tcg_syn = tcg_const_i32(tcg_ctx, syn);
+    gen_helper_exception_with_syndrome(tcg_ctx, tcg_ctx->cpu_env, tcg_excp, tcg_syn, tcg_el);
+    tcg_temp_free_i32(tcg_ctx, tcg_syn);
+    tcg_temp_free_i32(tcg_ctx, tcg_excp);
+    s->base.is_jmp = DISAS_NORETURN;
+}
+
 /* Force a TB lookup after an instruction that changes the CPU state.  */
 static inline void gen_lookup_tb(DisasContext *s)
 {
@@ -2778,6 +2795,7 @@ static int gen_set_psr_im(DisasContext *s, uint32_t mask, int spsr, uint32_t val
 static bool msr_banked_access_decode(DisasContext *s, int r, int sysm, int rn,
                                      int *tgtmode, int *regno)
 {
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
     /* Decode the r and sysm fields of MSR/MRS banked accesses into
      * the target mode and register number, and identify the various
      * unpredictable cases.
@@ -2914,8 +2932,11 @@ static bool msr_banked_access_decode(DisasContext *s, int r, int sysm, int rn,
             /* If we're in Secure EL1 (which implies that EL3 is AArch64)
              * then accesses to Mon registers trap to EL3
              */
-            exc_target = 3;
-            goto undef;
+            TCGv_i32 tcg_el = tcg_const_i32(tcg_ctx, 3);
+
+            gen_exception_el(s, EXCP_UDEF, syn_uncategorized(), tcg_el);
+            tcg_temp_free_i32(tcg_ctx, tcg_el);
+            return false;
         }
         break;
     case ARM_CPU_MODE_HYP:
