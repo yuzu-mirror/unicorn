@@ -35,8 +35,6 @@
 #define OS_PACKED   6
 #define OS_UNSIZED  7
 
-#define MAX_QREGS 32
-
 #define EXCP_ACCESS         2   /* Access (MMU) error.  */
 #define EXCP_ADDRESS        3   /* Address error.  */
 #define EXCP_ILLEGAL        4   /* Illegal instruction.  */
@@ -140,8 +138,6 @@ typedef struct CPUM68KState {
 
     int pending_vector;
     int pending_level;
-
-    uint32_t qregs[MAX_QREGS];
 
     /* Fields up to this point are cleared by a CPU reset */
     struct {} end_reset_fields;
