@@ -92,30 +92,35 @@ static void reset_all_temps(TCGContext *s, int nb_temps)
 /* Initialize and activate a temporary.  */
 static void init_ts_info(TCGContext *s, TCGTemp *ts)
 {
-    TempOptInfo *temps = s->temps2;
     TCGTempSet *temps_used = &s->temps2_used;
 
+    TempOptInfo *ti;
     size_t idx = temp_idx(s, ts);
-    if (!test_bit(idx, temps_used->l)) {
-        TempOptInfo *ti = &temps[idx];
 
+    if (test_bit(idx, temps_used->l)) {
+        return;
+    }
+    set_bit(idx, temps_used->l);
+
+    ti = ts->state_ptr;
+    if (ti == NULL) {
+        ti = tcg_malloc(s, sizeof(TempOptInfo));
         ts->state_ptr = ti;
-        ti->next_copy = ts;
-        ti->prev_copy = ts;
+    }
+
+    ti->next_copy = ts;
+    ti->prev_copy = ts;
+    if (ts->kind == TEMP_CONST) {
+        ti->is_const = true;
+        ti->val = ts->val;
+        ti->mask = ts->val;
+        if (TCG_TARGET_REG_BITS > 32 && ts->type == TCG_TYPE_I32) {
+            /* High bits of a 32-bit quantity are garbage.  */
+            ti->mask |= ~0xffffffffull;
+        }
+    } else {
         ti->is_const = false;
         ti->mask = -1;
-        if (ts->kind == TEMP_CONST) {
-            ti->is_const = true;
-            ti->val = ti->mask = ts->val;
-            if (TCG_TARGET_REG_BITS > 32 && ts->type == TCG_TYPE_I32) {
-                /* High bits of a 32-bit quantity are garbage.  */
-                ti->mask |= ~0xffffffffull;
-            }
-        } else {
-            ti->is_const = false;
-            ti->mask = -1;
-        }
-        set_bit(idx, temps_used->l);
     }
 }
 
@@ -610,7 +615,7 @@ static bool swap_commutative2(TCGContext *s, TCGArg *p1, TCGArg *p2)
 /* Propagate constants and copies, fold constant expressions. */
 void tcg_optimize(TCGContext *s)
 {
-    int nb_temps, nb_globals;
+    int nb_temps, nb_globals, i;
     TCGOp *op, *op_next, *prev_mb = NULL;
 
     /* Array VALS has an element for each temp.
@@ -622,9 +627,13 @@ void tcg_optimize(TCGContext *s)
     nb_globals = s->nb_globals;
     reset_all_temps(s, nb_temps);
 
+    for (i = 0; i < nb_temps; ++i) {
+        s->temps[i].state_ptr = NULL;
+    }
+
     QTAILQ_FOREACH_SAFE(op, &s->ops, link, op_next) {
         uint64_t mask, partmask, affected, tmp;
-        int nb_oargs, nb_iargs, i;
+        int nb_oargs, nb_iargs;
         TCGOpcode opc = op->opc;
         const TCGOpDef *def = &s->tcg_op_defs[opc];
 
