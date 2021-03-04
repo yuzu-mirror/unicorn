@@ -2622,6 +2622,7 @@ symbols = (
     'qdict_rename_keys',
     'qdict_size',
     'qdict_type',
+    'qemu_build_not_reached_always',
     'qemu_clock_get_us',
     'qemu_clock_ptr',
     'qemu_clocks',

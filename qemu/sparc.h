@@ -2616,6 +2616,7 @@
 #define qdict_rename_keys qdict_rename_keys_sparc
 #define qdict_size qdict_size_sparc
 #define qdict_type qdict_type_sparc
+#define qemu_build_not_reached_always qemu_build_not_reached_always_sparc
 #define qemu_clock_get_us qemu_clock_get_us_sparc
 #define qemu_clock_ptr qemu_clock_ptr_sparc
 #define qemu_clocks qemu_clocks_sparc
@@ -3068,10 +3069,6 @@
 #define tcg_gen_div_i64 tcg_gen_div_i64_sparc
 #define tcg_gen_divu_i32 tcg_gen_divu_i32_sparc
 #define tcg_gen_divu_i64 tcg_gen_divu_i64_sparc
-#define tcg_gen_dup8i_vec tcg_gen_dup8i_vec_sparc
-#define tcg_gen_dup16i_vec tcg_gen_dup16i_vec_sparc
-#define tcg_gen_dup32i_vec tcg_gen_dup32i_vec_sparc
-#define tcg_gen_dup64i_vec tcg_gen_dup64i_vec_sparc
 #define tcg_gen_dupi_vec tcg_gen_dupi_vec_sparc
 #define tcg_gen_dupm_vec tcg_gen_dupm_vec_sparc
 #define tcg_gen_dup_i32_vec tcg_gen_dup_i32_vec_sparc

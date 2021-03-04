@@ -2616,6 +2616,7 @@
 #define qdict_rename_keys qdict_rename_keys_aarch64eb
 #define qdict_size qdict_size_aarch64eb
 #define qdict_type qdict_type_aarch64eb
+#define qemu_build_not_reached_always qemu_build_not_reached_always_aarch64eb
 #define qemu_clock_get_us qemu_clock_get_us_aarch64eb
 #define qemu_clock_ptr qemu_clock_ptr_aarch64eb
 #define qemu_clocks qemu_clocks_aarch64eb
@@ -3068,10 +3069,6 @@
 #define tcg_gen_div_i64 tcg_gen_div_i64_aarch64eb
 #define tcg_gen_divu_i32 tcg_gen_divu_i32_aarch64eb
 #define tcg_gen_divu_i64 tcg_gen_divu_i64_aarch64eb
-#define tcg_gen_dup8i_vec tcg_gen_dup8i_vec_aarch64eb
-#define tcg_gen_dup16i_vec tcg_gen_dup16i_vec_aarch64eb
-#define tcg_gen_dup32i_vec tcg_gen_dup32i_vec_aarch64eb
-#define tcg_gen_dup64i_vec tcg_gen_dup64i_vec_aarch64eb
 #define tcg_gen_dupi_vec tcg_gen_dupi_vec_aarch64eb
 #define tcg_gen_dupm_vec tcg_gen_dupm_vec_aarch64eb
 #define tcg_gen_dup_i32_vec tcg_gen_dup_i32_vec_aarch64eb
