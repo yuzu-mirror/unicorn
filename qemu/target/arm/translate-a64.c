@@ -1892,6 +1892,18 @@ static void handle_msr_i(DisasContext *s, uint32_t insn,
         tcg_temp_free_i32(tcg_ctx, t1);
         break;
 
+    case 0x1a: /* DIT */
+        if (!dc_isar_feature(aa64_dit, s)) {
+            goto do_unallocated;
+        }
+        if (crm & 1) {
+            set_pstate_bits(s, PSTATE_DIT);
+        } else {
+            clear_pstate_bits(s, PSTATE_DIT);
+        }
+        /* There's no need to rebuild hflags because DIT is a nop */
+        break;
+
     case 0x1e: /* DAIFSet */
         t1 = tcg_const_i32(tcg_ctx, crm);
         gen_helper_msr_i_daifset(tcg_ctx, tcg_ctx->cpu_env, t1);
