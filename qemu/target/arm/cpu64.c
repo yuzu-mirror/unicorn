@@ -321,6 +321,8 @@ static void aarch64_max_initfn(struct uc_struct *uc, Object *obj, void *opaque)
 
     t = cpu->isar.id_aa64mmfr2;
     t = FIELD_DP64(t, ID_AA64MMFR2, UAO, 1);
+    t = FIELD_DP64(t, ID_AA64MMFR2, CNP, 1); /* TTCNP */
+    t = FIELD_DP64(t, ID_AA64MMFR2, ST, 1); /* TTST */
     cpu->isar.id_aa64mmfr2 = t;
 
     /* Replicate the same data to the 32-bit id registers.  */
