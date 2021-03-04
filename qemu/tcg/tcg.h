@@ -875,6 +875,11 @@ struct TCGContext {
     TCGLabel *exitreq_label;  // gen_tb_start()
 };
 
+static inline bool temp_readonly(TCGTemp *ts)
+{
+    return ts->kind == TEMP_FIXED;
+}
+
 static inline size_t temp_idx(TCGContext *tcg_ctx, TCGTemp *ts)
 {
     ptrdiff_t n = ts - tcg_ctx->temps;
