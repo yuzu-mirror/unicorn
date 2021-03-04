@@ -2961,6 +2961,8 @@
 #define tcg_const_zeros_vec tcg_const_zeros_vec_mipsel
 #define tcg_const_zeros_vec_matching tcg_const_zeros_vec_matching_mipsel
 #define tcg_constant_folding tcg_constant_folding_mipsel
+#define tcg_constant_internal tcg_constant_internal_mipsel
+#define tcg_constant_vec tcg_constant_vec_mipsel
 #define tcg_context_init tcg_context_init_mipsel
 #define tcg_cpu_exec tcg_cpu_exec_mipsel
 #define tcg_current_code_size tcg_current_code_size_mipsel

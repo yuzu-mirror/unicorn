@@ -499,6 +499,8 @@ typedef enum TCGTempKind {
     TEMP_GLOBAL,
     /* Temp is in a fixed register. */
     TEMP_FIXED,
+    /* Temp is a fixed constant. */
+    TEMP_CONST,
 } TCGTempKind;
 
 typedef struct TCGTemp {
@@ -735,6 +737,7 @@ struct TCGContext {
     struct TCGLabelPoolData *pool_labels;
 #endif
 
+    GHashTable *const_table[TCG_TYPE_COUNT];
     TCGTempSet free_temps[TCG_TYPE_COUNT * 2];
     TCGTemp temps[TCG_MAX_TEMPS]; /* globals first, temps after */
 
@@ -877,7 +880,7 @@ struct TCGContext {
 
 static inline bool temp_readonly(TCGTemp *ts)
 {
-    return ts->kind == TEMP_FIXED;
+    return ts->kind >= TEMP_FIXED;
 }
 
 static inline size_t temp_idx(TCGContext *tcg_ctx, TCGTemp *ts)
@@ -1140,6 +1143,7 @@ static inline void *tcg_malloc(TCGContext *s, int size)
     }
 }
 
+/* Allocate a new temporary and initialize it with a constant. */
 TCGv_i32 tcg_const_i32(TCGContext *s, int32_t val);
 TCGv_i64 tcg_const_i64(TCGContext *s, int64_t val);
 TCGv_i32 tcg_const_local_i32(TCGContext *s, int32_t val);
@@ -1148,6 +1152,24 @@ TCGv_vec tcg_const_zeros_vec(TCGContext *s, TCGType);
 TCGv_vec tcg_const_ones_vec(TCGContext *s, TCGType);
 TCGv_vec tcg_const_zeros_vec_matching(TCGContext *s, TCGv_vec);
 TCGv_vec tcg_const_ones_vec_matching(TCGContext *s, TCGv_vec);
+
+/*
+ * Locate or create a read-only temporary that is a constant.
+ * This kind of temporary need not and should not be freed.
+ */
+TCGTemp *tcg_constant_internal(TCGContext *s, TCGType type, int64_t val);
+
+static inline TCGv_i32 tcg_constant_i32(TCGContext *s, int32_t val)
+{
+    return temp_tcgv_i32(s, tcg_constant_internal(s, TCG_TYPE_I32, val));
+}
+
+static inline TCGv_i64 tcg_constant_i64(TCGContext *s, int64_t val)
+{
+    return temp_tcgv_i64(s, tcg_constant_internal(s, TCG_TYPE_I64, val));
+}
+
+TCGv_vec tcg_constant_vec(TCGContext *s, TCGType type, unsigned vece, int64_t val);
 
 #if UINTPTR_MAX == UINT32_MAX
 # define tcg_const_ptr(t, x)             ((TCGv_ptr)tcg_const_i32((t), (intptr_t)(x)))

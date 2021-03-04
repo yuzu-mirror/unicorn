@@ -2967,6 +2967,8 @@ symbols = (
     'tcg_const_zeros_vec',
     'tcg_const_zeros_vec_matching',
     'tcg_constant_folding',
+    'tcg_constant_internal',
+    'tcg_constant_vec',
     'tcg_context_init',
     'tcg_cpu_exec',
     'tcg_current_code_size',

@@ -2961,6 +2961,8 @@
 #define tcg_const_zeros_vec tcg_const_zeros_vec_mips64el
 #define tcg_const_zeros_vec_matching tcg_const_zeros_vec_matching_mips64el
 #define tcg_constant_folding tcg_constant_folding_mips64el
+#define tcg_constant_internal tcg_constant_internal_mips64el
+#define tcg_constant_vec tcg_constant_vec_mips64el
 #define tcg_context_init tcg_context_init_mips64el
 #define tcg_cpu_exec tcg_cpu_exec_mips64el
 #define tcg_current_code_size tcg_current_code_size_mips64el

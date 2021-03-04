@@ -2961,6 +2961,8 @@
 #define tcg_const_zeros_vec tcg_const_zeros_vec_sparc
 #define tcg_const_zeros_vec_matching tcg_const_zeros_vec_matching_sparc
 #define tcg_constant_folding tcg_constant_folding_sparc
+#define tcg_constant_internal tcg_constant_internal_sparc
+#define tcg_constant_vec tcg_constant_vec_sparc
 #define tcg_context_init tcg_context_init_sparc
 #define tcg_cpu_exec tcg_cpu_exec_sparc
 #define tcg_current_code_size tcg_current_code_size_sparc
