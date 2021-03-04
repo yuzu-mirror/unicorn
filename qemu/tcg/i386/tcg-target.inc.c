@@ -3492,7 +3492,7 @@ static void expand_vec_rotv(TCGContext *s, TCGType type, unsigned vece, TCGv_vec
 static void expand_vec_mul(TCGContext *s, TCGType type, unsigned vece,
                            TCGv_vec v0, TCGv_vec v1, TCGv_vec v2)
 {
-    TCGv_vec t1, t2, t3, t4;
+    TCGv_vec t1, t2, t3, t4, zero;
 
     tcg_debug_assert(vece == MO_8);
 
@@ -3510,11 +3510,11 @@ static void expand_vec_mul(TCGContext *s, TCGType type, unsigned vece,
     case TCG_TYPE_V64:
         t1 = tcg_temp_new_vec(s, TCG_TYPE_V128);
         t2 = tcg_temp_new_vec(s, TCG_TYPE_V128);
-        tcg_gen_dup16i_vec(s, t2, 0);
+        zero = tcg_constant_vec(s, TCG_TYPE_V128, MO_8, 0);
         vec_gen_3(s, INDEX_op_x86_punpckl_vec, TCG_TYPE_V128, MO_8,
-                  tcgv_vec_arg(s, t1), tcgv_vec_arg(s, v1), tcgv_vec_arg(s, t2));
+                  tcgv_vec_arg(s, t1), tcgv_vec_arg(s, v1), tcgv_vec_arg(s, zero));
         vec_gen_3(s, INDEX_op_x86_punpckl_vec, TCG_TYPE_V128, MO_8,
-                  tcgv_vec_arg(s, t2), tcgv_vec_arg(s, t2), tcgv_vec_arg(s, v2));
+                  tcgv_vec_arg(s, t2), tcgv_vec_arg(s, zero), tcgv_vec_arg(s, v2));
         tcg_gen_mul_vec(s, MO_16, t1, t1, t2);
         tcg_gen_shri_vec(s, MO_16, t1, t1, 8);
         vec_gen_3(s, INDEX_op_x86_packus_vec, TCG_TYPE_V128, MO_8,
@@ -3529,15 +3529,15 @@ static void expand_vec_mul(TCGContext *s, TCGType type, unsigned vece,
         t2 = tcg_temp_new_vec(s, type);
         t3 = tcg_temp_new_vec(s, type);
         t4 = tcg_temp_new_vec(s, type);
-        tcg_gen_dup16i_vec(s, t4, 0);
+        zero = tcg_constant_vec(s, TCG_TYPE_V128, MO_8, 0);
         vec_gen_3(s, INDEX_op_x86_punpckl_vec, type, MO_8,
-                  tcgv_vec_arg(s, t1), tcgv_vec_arg(s, v1), tcgv_vec_arg(s, t4));
+                  tcgv_vec_arg(s, t1), tcgv_vec_arg(s, v1), tcgv_vec_arg(s, zero));
         vec_gen_3(s, INDEX_op_x86_punpckl_vec, type, MO_8,
-                  tcgv_vec_arg(s, t2), tcgv_vec_arg(s, t4), tcgv_vec_arg(s, v2));
+                  tcgv_vec_arg(s, t2), tcgv_vec_arg(s, zero), tcgv_vec_arg(s, v2));
         vec_gen_3(s, INDEX_op_x86_punpckh_vec, type, MO_8,
-                  tcgv_vec_arg(s, t3), tcgv_vec_arg(s, v1), tcgv_vec_arg(s, t4));
+                  tcgv_vec_arg(s, t3), tcgv_vec_arg(s, v1), tcgv_vec_arg(s, zero));
         vec_gen_3(s, INDEX_op_x86_punpckh_vec, type, MO_8,
-                  tcgv_vec_arg(s, t4), tcgv_vec_arg(s, t4), tcgv_vec_arg(s, v2));
+                  tcgv_vec_arg(s, t4), tcgv_vec_arg(s, zero), tcgv_vec_arg(s, v2));
         tcg_gen_mul_vec(s, MO_16, t1, t1, t2);
         tcg_gen_mul_vec(s, MO_16, t3, t3, t4);
         tcg_gen_shri_vec(s, MO_16, t1, t1, 8);
@@ -3565,7 +3565,7 @@ static bool expand_vec_cmp_noinv(TCGContext *s, TCGType type, unsigned vece, TCG
         NEED_UMIN = 8,
         NEED_UMAX = 16,
     };
-    TCGv_vec t1, t2;
+    TCGv_vec t1, t2, t3;
     uint8_t fixup;
 
     switch (cond) {
@@ -3636,9 +3636,9 @@ static bool expand_vec_cmp_noinv(TCGContext *s, TCGType type, unsigned vece, TCG
     } else if (fixup & NEED_BIAS) {
         t1 = tcg_temp_new_vec(s, type);
         t2 = tcg_temp_new_vec(s, type);
-        tcg_gen_dupi_vec(s, vece, t2, 1ull << ((8 << vece) - 1));
-        tcg_gen_sub_vec(s, vece, t1, v1, t2);
-        tcg_gen_sub_vec(s, vece, t2, v2, t2);
+        t3 = tcg_constant_vec(s, type, vece, 1ull << ((8 << vece) - 1));
+        tcg_gen_sub_vec(s, vece, t1, v1, t3);
+        tcg_gen_sub_vec(s, vece, t2, v2, t3);
         v1 = t1;
         v2 = t2;
         cond = tcg_signed_cond(cond);
