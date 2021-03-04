@@ -4429,6 +4429,11 @@ static uint32_t x86_cpu_get_supported_feature_word(struct uc_struct *uc,
     } else {
         return ~0;
     }
+  #ifndef TARGET_X86_64
+    if (w == FEAT_8000_0001_EDX) {
+        r &= ~CPUID_EXT2_LM;
+    }
+#endif
     if (migratable_only) {
         r &= x86_cpu_get_migratable_flags(w);
     }
