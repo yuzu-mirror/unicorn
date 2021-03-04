@@ -290,7 +290,9 @@ static inline void cpu_handle_debug_exception(CPUState *cpu)
         }
     }
 
-    cc->debug_excp_handler(cpu);
+    if (cc->tcg_ops.debug_excp_handler) {
+        cc->tcg_ops.debug_excp_handler(cpu);
+    }
 }
 
 static inline bool cpu_handle_exception(struct uc_struct *uc, CPUState *cpu, int *ret)

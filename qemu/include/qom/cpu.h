@@ -116,6 +116,8 @@ typedef struct TcgCpuOperations {
     bool (*tlb_fill)(CPUState *cpu, vaddr address, int size,
                      MMUAccessType access_type, int mmu_idx,
                      bool probe, uintptr_t retaddr);
+    /** @debug_excp_handler: Callback for handling debug exceptions */
+    void (*debug_excp_handler)(CPUState *cpu);
 
 } TcgCpuOperations;
 
@@ -155,7 +157,6 @@ typedef struct TcgCpuOperations {
  *       instead of get_phys_page_debug.
  * @asidx_from_attrs: Callback to return the CPU AddressSpace to use for
  *       a memory access with the specified memory transaction attributes.
- * @debug_excp_handler: Callback for handling debug exceptions.
  * @debug_check_watchpoint: Callback: return true if the architectural
  *       watchpoint whose address has matched should really fire.
  * @vmsd: State description for migration.
@@ -200,7 +201,6 @@ typedef struct CPUClass {
                                         MemTxAttrs *attrs);
     int (*asidx_from_attrs)(CPUState *cpu, MemTxAttrs attrs);
     bool (*debug_check_watchpoint)(CPUState *cpu, CPUWatchpoint *wp);
-    void (*debug_excp_handler)(CPUState *cpu);
 
     const struct VMStateDescription *vmsd;
 

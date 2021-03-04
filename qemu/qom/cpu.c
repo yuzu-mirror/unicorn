@@ -293,7 +293,7 @@ static void cpu_class_init(struct uc_struct *uc, ObjectClass *klass, void *data)
     k->has_work = cpu_common_has_work;
     k->get_paging_enabled = cpu_common_get_paging_enabled;
     k->get_memory_mapping = cpu_common_get_memory_mapping;
-    k->debug_excp_handler = cpu_common_noop;
+    k->tcg_ops.debug_excp_handler = cpu_common_noop;
     k->debug_check_watchpoint = cpu_common_debug_check_watchpoint;
     k->tcg_ops.cpu_exec_enter = cpu_common_noop;
     k->tcg_ops.cpu_exec_exit = cpu_common_noop;
