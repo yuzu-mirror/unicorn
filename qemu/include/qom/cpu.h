@@ -75,6 +75,19 @@ typedef void (*CPUUnassignedAccess)(CPUState *cpu, hwaddr addr,
 struct TranslationBlock;
 
 /**
+ * struct TcgCpuOperations: TCG operations specific to a CPU class
+ */
+typedef struct TcgCpuOperations {
+    /**
+     * @initialize: Initalize TCG state
+     *
+     * Called when the first CPU is realized.
+     */
+    void (*initialize)(struct uc_struct *uc);
+
+} TcgCpuOperations;
+
+/**
  * CPUClass:
  * @class_by_name: Callback to map -cpu command line model name to an
  * instantiatable CPU type.
@@ -183,9 +196,9 @@ typedef struct CPUClass {
     void (*cpu_exec_exit)(CPUState *cpu);
     bool (*cpu_exec_interrupt)(CPUState *cpu, int interrupt_request);
     vaddr (*adjust_watchpoint_address)(CPUState *cpu, vaddr addr, int len);
-    void (*tcg_initialize)(struct uc_struct *uc);
 
     /* Keep non-pointer data at the end to minimize holes.  */
+    TcgCpuOperations tcg_ops;
     bool tcg_initialized;
 } CPUClass;
 

@@ -856,7 +856,7 @@ static void sparc_cpu_class_init(struct uc_struct *uc, ObjectClass *oc, void *da
     // Unicorn: commented out
     //cc->vmsd = &vmstate_sparc_cpu;
 #endif
-    cc->tcg_initialize = sparc_tcg_init;
+    cc->tcg_ops.initialize = sparc_tcg_init;
 }
 
 static void sparc_cpu_cpudef_class_init(struct uc_struct *uc, ObjectClass *oc, void *data)

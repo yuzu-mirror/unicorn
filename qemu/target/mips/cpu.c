@@ -181,7 +181,7 @@ static void mips_cpu_class_init(struct uc_struct *uc, ObjectClass *c, void *data
     cc->get_phys_page_debug = mips_cpu_get_phys_page_debug;
 #endif
 #ifdef CONFIG_TCG
-    cc->tcg_initialize = mips_tcg_init;
+    cc->tcg_ops.initialize = mips_tcg_init;
     cc->tlb_fill = mips_cpu_tlb_fill;
 #endif
 }

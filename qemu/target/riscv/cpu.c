@@ -373,7 +373,7 @@ static void riscv_cpu_class_init(struct uc_struct *uc, ObjectClass *oc, void *da
     cc->get_phys_page_debug = riscv_cpu_get_phys_page_debug;
 #endif
 #ifdef CONFIG_TCG
-    cc->tcg_initialize = riscv_translate_init;
+    cc->tcg_ops.initialize = riscv_translate_init;
     cc->tlb_fill = riscv_cpu_tlb_fill;
 #endif
     /* For now, mark unmigratable: */

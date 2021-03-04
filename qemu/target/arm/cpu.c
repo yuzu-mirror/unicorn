@@ -2108,7 +2108,7 @@ static void arm_cpu_class_init(struct uc_struct *uc, ObjectClass *oc, void *data
     //cc->virtio_is_big_endian = arm_cpu_is_big_endian;
 #endif
 #ifdef CONFIG_TCG
-    cc->tcg_initialize = arm_translate_init;
+    cc->tcg_ops.initialize = arm_translate_init;
     cc->tlb_fill = arm_cpu_tlb_fill;
     cc->debug_excp_handler = arm_debug_excp_handler;
     cc->debug_check_watchpoint = arm_debug_check_watchpoint;

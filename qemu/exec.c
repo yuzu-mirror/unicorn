@@ -640,11 +640,13 @@ void cpu_exec_init(CPUState *cpu, Error **errp, void *opaque)
     // Unicorn: Required to clean-slate TLB state
     tlb_flush(cpu);
 
+#ifdef CONFIG_TCG
     if (tcg_enabled(uc) && !cc->tcg_initialized) {
         cc->tcg_initialized = true;
-        cc->tcg_initialize(uc);
+        cc->tcg_ops.initialize(uc);
     }
     tlb_init(cpu);
+#endif /* CONFIG_TCG */
 
 #ifndef CONFIG_USER_ONLY
 
