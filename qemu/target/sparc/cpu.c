@@ -851,7 +851,7 @@ static void sparc_cpu_class_init(struct uc_struct *uc, ObjectClass *oc, void *da
     cc->tcg_ops.tlb_fill = sparc_cpu_tlb_fill;
 #ifndef CONFIG_USER_ONLY
     cc->tcg_ops.do_transaction_failed = sparc_cpu_do_transaction_failed;
-    cc->do_unaligned_access = sparc_cpu_do_unaligned_access;
+    cc->tcg_ops.do_unaligned_access = sparc_cpu_do_unaligned_access;
     cc->get_phys_page_debug = sparc_cpu_get_phys_page_debug;
     // Unicorn: commented out
     //cc->vmsd = &vmstate_sparc_cpu;

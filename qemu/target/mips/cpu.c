@@ -175,7 +175,6 @@ static void mips_cpu_class_init(struct uc_struct *uc, ObjectClass *c, void *data
     cc->has_work = mips_cpu_has_work;
     cc->set_pc = mips_cpu_set_pc;
 #ifndef CONFIG_USER_ONLY
-    cc->do_unaligned_access = mips_cpu_do_unaligned_access;
     cc->get_phys_page_debug = mips_cpu_get_phys_page_debug;
 #endif
 #ifdef CONFIG_TCG
@@ -186,6 +185,7 @@ static void mips_cpu_class_init(struct uc_struct *uc, ObjectClass *c, void *data
     cc->tcg_ops.tlb_fill = mips_cpu_tlb_fill;
 #ifndef CONFIG_USER_ONLY
     cc->tcg_ops.do_transaction_failed = mips_cpu_do_transaction_failed;
+    cc->tcg_ops.do_unaligned_access = mips_cpu_do_unaligned_access;
 #endif /* CONFIG_USER_ONLY */
 #endif /* CONFIG_TCG */
 }

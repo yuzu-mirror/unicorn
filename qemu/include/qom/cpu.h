@@ -129,6 +129,12 @@ typedef struct TcgCpuOperations {
                                   unsigned size, MMUAccessType access_type,
                                   int mmu_idx, MemTxAttrs attrs,
                                   MemTxResult response, uintptr_t retaddr);
+    /**
+     * @do_unaligned_access: Callback for unaligned access handling
+     */
+    void (*do_unaligned_access)(CPUState *cpu, vaddr addr,
+                                MMUAccessType access_type,
+                                int mmu_idx, uintptr_t retaddr);
 
 } TcgCpuOperations;
 
@@ -142,8 +148,6 @@ typedef struct TcgCpuOperations {
  * @has_work: Callback for checking if there is work to do.
  * @do_unassigned_access: Callback for unassigned access handling.
  * (this is deprecated: new targets should use do_transaction_failed instead)
- * @do_unaligned_access: Callback for unaligned access handling, if
- * the target defines #TARGET_ALIGNED_ONLY.
  * @memory_rw_debug: Callback for GDB memory access.
  * @dump_state: Callback for dumping state.
  * @dump_statistics: Callback for dumping statistics.
@@ -185,9 +189,6 @@ typedef struct CPUClass {
     int reset_dump_flags;
     bool (*has_work)(CPUState *cpu);
     CPUUnassignedAccess do_unassigned_access;
-    void (*do_unaligned_access)(CPUState *cpu, vaddr addr,
-                                MMUAccessType access_type,
-                                int mmu_idx, uintptr_t retaddr);
     int (*memory_rw_debug)(CPUState *cpu, vaddr addr,
                            uint8_t *buf, int len, bool is_write);
     void (*dump_state)(CPUState *cpu, FILE *f, fprintf_function cpu_fprintf,
@@ -754,7 +755,7 @@ static inline void cpu_unaligned_access(CPUState *cpu, vaddr addr,
 {
     CPUClass *cc = CPU_GET_CLASS(cpu->uc, cpu);
 
-    cc->do_unaligned_access(cpu, addr, access_type, mmu_idx, retaddr);
+    cc->tcg_ops.do_unaligned_access(cpu, addr, access_type, mmu_idx, retaddr);
 }
 
 static inline void cpu_transaction_failed(CPUState *cpu, hwaddr physaddr,

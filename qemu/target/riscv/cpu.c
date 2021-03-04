@@ -369,7 +369,7 @@ static void riscv_cpu_class_init(struct uc_struct *uc, ObjectClass *oc, void *da
     //cc->disas_set_info = riscv_cpu_disas_set_info;
 #ifndef CONFIG_USER_ONLY
     cc->do_unassigned_access = riscv_cpu_unassigned_access;
-    cc->do_unaligned_access = riscv_cpu_do_unaligned_access;
+    cc->tcg_ops.do_unaligned_access = riscv_cpu_do_unaligned_access;
     cc->get_phys_page_debug = riscv_cpu_get_phys_page_debug;
 #endif
     cc->tcg_ops.initialize = riscv_translate_init;
