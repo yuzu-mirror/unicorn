@@ -663,13 +663,13 @@ typedef struct TCGOpDef {
     TCGArgConstraint *args_ct;
 } TCGOpDef;
 
-struct tcg_temp_info {
+typedef struct TempOptInfo {
     bool is_const;
     TCGTemp *prev_copy;
     TCGTemp *next_copy;
     tcg_target_ulong val;
     tcg_target_ulong mask;
-};
+} TempOptInfo;
 
 struct TCGContext {
     uint8_t *pool_cur, *pool_end;
@@ -783,7 +783,7 @@ struct TCGContext {
     TCGOpDef *tcg_op_defs;
 
     /* qemu/tcg/optimize.c */
-    struct tcg_temp_info temps2[TCG_MAX_TEMPS];
+    TempOptInfo temps2[TCG_MAX_TEMPS];
     TCGTempSet temps2_used;
 
     /* qemu/target-m68k/translate.c */
