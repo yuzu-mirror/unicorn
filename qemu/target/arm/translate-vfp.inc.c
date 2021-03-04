@@ -734,8 +734,11 @@ static bool gen_M_fp_sysreg_write(DisasContext *s, int regno,
     }
     case ARM_VFP_FPCXT_S:
     {
-        TCGv_i32 sfpa, control, fpscr;
-        /* Set FPSCR[27:0] and CONTROL.SFPA from value */
+        TCGv_i32 sfpa, control;
+        /*
+         * Set FPSCR and CONTROL.SFPA from value; the new FPSCR takes
+         * bits [27:0] from value and zeroes bits [31:28].
+         */
         tmp = loadfn(s, opaque);
         sfpa = tcg_temp_new_i32(tcg_ctx);
         tcg_gen_shri_i32(tcg_ctx, sfpa, tmp, 31);
@@ -743,11 +746,8 @@ static bool gen_M_fp_sysreg_write(DisasContext *s, int regno,
         tcg_gen_deposit_i32(tcg_ctx, control, control, sfpa,
                             R_V7M_CONTROL_SFPA_SHIFT, 1);
         store_cpu_field(s, control, v7m.control[M_REG_S]);
-        fpscr = load_cpu_field(s, vfp.xregs[ARM_VFP_FPSCR]);
-        tcg_gen_andi_i32(tcg_ctx, fpscr, fpscr, FPCR_NZCV_MASK);
         tcg_gen_andi_i32(tcg_ctx, tmp, tmp, ~FPCR_NZCV_MASK);
-        tcg_gen_or_i32(tcg_ctx, fpscr, fpscr, tmp);
-        store_cpu_field(s, fpscr, vfp.xregs[ARM_VFP_FPSCR]);
+        gen_helper_vfp_set_fpscr(tcg_ctx, tcg_ctx->cpu_env, tmp);
         tcg_temp_free_i32(tcg_ctx, tmp);
         tcg_temp_free_i32(tcg_ctx, sfpa);
         break;
