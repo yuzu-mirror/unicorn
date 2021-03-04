@@ -407,7 +407,9 @@ static void aarch64_cpu_class_init(struct uc_struct *uc, ObjectClass *oc, void *
 {
     CPUClass *cc = CPU_CLASS(uc, oc);
 
-    cc->cpu_exec_interrupt = arm_cpu_exec_interrupt;
+#ifdef CONFIG_TCG
+    cc->tcg_ops.cpu_exec_interrupt = arm_cpu_exec_interrupt;
+#endif /* CONFIG_TCG */
 }
 
 void aarch64_cpu_register(struct uc_struct *uc, const ARMCPUInfo *info)

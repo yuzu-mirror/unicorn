@@ -295,9 +295,9 @@ static void cpu_class_init(struct uc_struct *uc, ObjectClass *klass, void *data)
     k->get_memory_mapping = cpu_common_get_memory_mapping;
     k->debug_excp_handler = cpu_common_noop;
     k->debug_check_watchpoint = cpu_common_debug_check_watchpoint;
-    k->cpu_exec_enter = cpu_common_noop;
-    k->cpu_exec_exit = cpu_common_noop;
-    k->cpu_exec_interrupt = cpu_common_exec_interrupt;
+    k->tcg_ops.cpu_exec_enter = cpu_common_noop;
+    k->tcg_ops.cpu_exec_exit = cpu_common_noop;
+    k->tcg_ops.cpu_exec_interrupt = cpu_common_exec_interrupt;
     k->adjust_watchpoint_address = cpu_adjust_watchpoint_address;
     dc->realize = cpu_common_realizefn;
     /*

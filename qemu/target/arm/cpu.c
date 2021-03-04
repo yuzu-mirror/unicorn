@@ -1513,7 +1513,7 @@ static void arm_v7m_class_init(struct uc_struct *uc, ObjectClass *oc, void *data
     cc->do_interrupt = arm_v7m_cpu_do_interrupt;
 #endif
 
-    cc->cpu_exec_interrupt = arm_v7m_cpu_exec_interrupt;
+    cc->tcg_ops.cpu_exec_interrupt = arm_v7m_cpu_exec_interrupt;
 }
 
 
@@ -2097,7 +2097,6 @@ static void arm_cpu_class_init(struct uc_struct *uc, ObjectClass *oc, void *data
 
     cc->class_by_name = arm_cpu_class_by_name;
     cc->has_work = arm_cpu_has_work;
-    cc->cpu_exec_interrupt = arm_cpu_exec_interrupt;
     //cc->dump_state = arm_cpu_dump_state;
     cc->set_pc = arm_cpu_set_pc;
 #ifndef CONFIG_USER_ONLY
@@ -2110,6 +2109,7 @@ static void arm_cpu_class_init(struct uc_struct *uc, ObjectClass *oc, void *data
 #endif
 #ifdef CONFIG_TCG
     cc->tcg_ops.initialize = arm_translate_init;
+    cc->tcg_ops.cpu_exec_interrupt = arm_cpu_exec_interrupt;
     cc->tcg_ops.synchronize_from_tb = arm_cpu_synchronize_from_tb;
     cc->tlb_fill = arm_cpu_tlb_fill;
     cc->debug_excp_handler = arm_debug_excp_handler;

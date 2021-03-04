@@ -98,6 +98,12 @@ typedef struct TcgCpuOperations {
      */
     void (*synchronize_from_tb)(CPUState *cpu,
                                 const struct TranslationBlock *tb);
+    /** @cpu_exec_enter: Callback for cpu_exec preparation */
+    void (*cpu_exec_enter)(CPUState *cpu);
+    /** @cpu_exec_exit: Callback for cpu_exec cleanup */
+    void (*cpu_exec_exit)(CPUState *cpu);
+    /** @cpu_exec_interrupt: Callback for processing interrupts in cpu_exec */
+    bool (*cpu_exec_interrupt)(CPUState *cpu, int interrupt_request);
 
 } TcgCpuOperations;
 
@@ -147,9 +153,6 @@ typedef struct TcgCpuOperations {
  * @debug_check_watchpoint: Callback: return true if the architectural
  *       watchpoint whose address has matched should really fire.
  * @vmsd: State description for migration.
- * @cpu_exec_enter: Callback for cpu_exec preparation.
- * @cpu_exec_exit: Callback for cpu_exec cleanup.
- * @cpu_exec_interrupt: Callback for processing interrupts in cpu_exec.
  * @adjust_watchpoint_address: Perform a target-specific adjustment to an
  * address before attempting to match it against watchpoints.
  *
@@ -198,9 +201,6 @@ typedef struct CPUClass {
 
     const struct VMStateDescription *vmsd;
 
-    void (*cpu_exec_enter)(CPUState *cpu);
-    void (*cpu_exec_exit)(CPUState *cpu);
-    bool (*cpu_exec_interrupt)(CPUState *cpu, int interrupt_request);
     vaddr (*adjust_watchpoint_address)(CPUState *cpu, vaddr addr, int len);
 
     /* Keep non-pointer data at the end to minimize holes.  */

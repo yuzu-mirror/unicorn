@@ -400,7 +400,8 @@ static inline bool cpu_handle_interrupt(CPUState *cpu,
            True when it is, and we should restart on a new TB,
            and via longjmp via cpu_loop_exit.  */
         else {
-            if (cc->cpu_exec_interrupt(cpu, interrupt_request)) {
+            if (cc->tcg_ops.cpu_exec_interrupt &&
+                cc->tcg_ops.cpu_exec_interrupt(cpu, interrupt_request)) {
                 cpu->exception_index = -1;
                 *last_tb = NULL;
             }
@@ -539,7 +540,9 @@ int cpu_exec(struct uc_struct *uc, CPUState *cpu)
     atomic_mb_set(&uc->current_cpu, cpu);
     atomic_mb_set(&uc->tcg_current_rr_cpu, cpu);
 
-    cc->cpu_exec_enter(cpu);
+    if (cc->tcg_ops.cpu_exec_enter) {
+        cc->tcg_ops.cpu_exec_enter(cpu);
+    }
     cpu->exception_index = -1;
     env->invalid_error = UC_ERR_OK;
 
@@ -592,7 +595,9 @@ int cpu_exec(struct uc_struct *uc, CPUState *cpu)
         }
     }
 
-    cc->cpu_exec_exit(cpu);
+    if (cc->tcg_ops.cpu_exec_exit) {
+        cc->tcg_ops.cpu_exec_exit(cpu);
+    }
 
     // Unicorn: flush JIT cache to because emulation might stop in
     // the middle of translation, thus generate incomplete code.
