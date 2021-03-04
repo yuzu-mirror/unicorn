@@ -140,6 +140,12 @@ typedef struct TcgCpuOperations {
      */
     vaddr (*adjust_watchpoint_address)(CPUState *cpu, vaddr addr, int len);
 
+    /**
+     * @debug_check_watchpoint: return true if the architectural
+     * watchpoint whose address has matched should really fire, used by ARM
+     */
+    bool (*debug_check_watchpoint)(CPUState *cpu, CPUWatchpoint *wp);
+
 } TcgCpuOperations;
 
 /**
@@ -173,8 +179,6 @@ typedef struct TcgCpuOperations {
  *       instead of get_phys_page_debug.
  * @asidx_from_attrs: Callback to return the CPU AddressSpace to use for
  *       a memory access with the specified memory transaction attributes.
- * @debug_check_watchpoint: Callback: return true if the architectural
- *       watchpoint whose address has matched should really fire.
  * @vmsd: State description for migration.
  * @adjust_watchpoint_address: Perform a target-specific adjustment to an
  * address before attempting to match it against watchpoints.
@@ -208,7 +212,6 @@ typedef struct CPUClass {
     hwaddr (*get_phys_page_attrs_debug)(CPUState *cpu, vaddr addr,
                                         MemTxAttrs *attrs);
     int (*asidx_from_attrs)(CPUState *cpu, MemTxAttrs attrs);
-    bool (*debug_check_watchpoint)(CPUState *cpu, CPUWatchpoint *wp);
 
     const struct VMStateDescription *vmsd;
 
