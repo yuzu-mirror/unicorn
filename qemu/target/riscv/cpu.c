@@ -358,7 +358,7 @@ static void riscv_cpu_class_init(struct uc_struct *uc, ObjectClass *oc, void *da
     cc->class_by_name = riscv_cpu_class_by_name;
     cc->has_work = riscv_cpu_has_work;
     cc->do_interrupt = riscv_cpu_do_interrupt;
-    cc->cpu_exec_interrupt = riscv_cpu_exec_interrupt;
+    cc->tcg_ops.cpu_exec_interrupt = riscv_cpu_exec_interrupt;
     //cc->dump_state = riscv_cpu_dump_state;
     cc->set_pc = riscv_cpu_set_pc;
     cc->tcg_ops.synchronize_from_tb = riscv_cpu_synchronize_from_tb;
@@ -373,7 +373,7 @@ static void riscv_cpu_class_init(struct uc_struct *uc, ObjectClass *oc, void *da
     cc->get_phys_page_debug = riscv_cpu_get_phys_page_debug;
 #endif
     cc->tcg_ops.initialize = riscv_translate_init;
-    cc->tlb_fill = riscv_cpu_tlb_fill;
+    cc->tcg_ops.tlb_fill = riscv_cpu_tlb_fill;
     /* For now, mark unmigratable: */
     //cc->vmsd = &vmstate_riscv_cpu;
 }

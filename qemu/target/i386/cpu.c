@@ -5884,12 +5884,12 @@ static void x86_cpu_common_class_init(struct uc_struct *uc, ObjectClass *oc, voi
 #endif
 #ifdef CONFIG_TCG
     cc->tcg_ops.initialize = tcg_x86_init;
+    cc->tcg_ops.tlb_fill = x86_cpu_tlb_fill;
     cc->tcg_ops.synchronize_from_tb = x86_cpu_synchronize_from_tb;
     cc->tcg_ops.cpu_exec_enter = x86_cpu_exec_enter;
     cc->tcg_ops.cpu_exec_exit = x86_cpu_exec_exit;
     cc->tcg_ops.cpu_exec_interrupt = x86_cpu_exec_interrupt;
     cc->do_interrupt = x86_cpu_do_interrupt;
-    cc->tlb_fill = x86_cpu_tlb_fill;
 #endif
 #if defined(CONFIG_TCG) && !defined(CONFIG_USER_ONLY)
     cc->debug_excp_handler = breakpoint_handler;

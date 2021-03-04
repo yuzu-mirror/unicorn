@@ -848,7 +848,7 @@ static void sparc_cpu_class_init(struct uc_struct *uc, ObjectClass *oc, void *da
 #endif
     cc->set_pc = sparc_cpu_set_pc;
     cc->tcg_ops.synchronize_from_tb = sparc_cpu_synchronize_from_tb;
-    cc->tlb_fill = sparc_cpu_tlb_fill;
+    cc->tcg_ops.tlb_fill = sparc_cpu_tlb_fill;
 #ifndef CONFIG_USER_ONLY
     cc->do_transaction_failed = sparc_cpu_do_transaction_failed;
     cc->do_unaligned_access = sparc_cpu_do_unaligned_access;

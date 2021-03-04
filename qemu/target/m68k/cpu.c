@@ -268,7 +268,7 @@ static void m68k_cpu_class_init(struct uc_struct *uc, ObjectClass *c, void *data
     cc->do_interrupt = m68k_cpu_do_interrupt;
     cc->tcg_ops.cpu_exec_interrupt = m68k_cpu_exec_interrupt;
     cc->set_pc = m68k_cpu_set_pc;
-    cc->tlb_fill = m68k_cpu_tlb_fill;
+    cc->tcg_ops.tlb_fill = m68k_cpu_tlb_fill;
 #if defined(CONFIG_SOFTMMU)
     cc->do_transaction_failed = m68k_cpu_transaction_failed;
     cc->get_phys_page_debug = m68k_cpu_get_phys_page_debug;
