@@ -1510,7 +1510,7 @@ static void arm_v7m_class_init(struct uc_struct *uc, ObjectClass *oc, void *data
     CPUClass *cc = CPU_CLASS(uc, oc);
 
 #ifndef CONFIG_USER_ONLY
-    cc->do_interrupt = arm_v7m_cpu_do_interrupt;
+    cc->tcg_ops.do_interrupt = arm_v7m_cpu_do_interrupt;
 #endif
 
     cc->tcg_ops.cpu_exec_interrupt = arm_v7m_cpu_exec_interrupt;
@@ -2115,11 +2115,11 @@ static void arm_cpu_class_init(struct uc_struct *uc, ObjectClass *oc, void *data
     cc->debug_check_watchpoint = arm_debug_check_watchpoint;
     cc->do_unaligned_access = arm_cpu_do_unaligned_access;
 #if !defined(CONFIG_USER_ONLY)
-    cc->do_transaction_failed = arm_cpu_do_transaction_failed;
+    cc->tcg_ops.do_transaction_failed = arm_cpu_do_transaction_failed;
     cc->adjust_watchpoint_address = arm_adjust_watchpoint_address;
     cc->tcg_ops.do_interrupt = arm_cpu_do_interrupt;
 #endif
-#endif
+#endif /* CONFIG_TCG */
 }
 
 void arm_cpu_register(struct uc_struct *uc, const ARMCPUInfo *info)
