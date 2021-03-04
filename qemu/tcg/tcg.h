@@ -667,8 +667,8 @@ typedef struct TempOptInfo {
     bool is_const;
     TCGTemp *prev_copy;
     TCGTemp *next_copy;
-    tcg_target_ulong val;
-    tcg_target_ulong mask;
+    uint64_t val;
+    uint64_t mask;
 } TempOptInfo;
 
 struct TCGContext {
