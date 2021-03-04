@@ -583,7 +583,7 @@ bool arm_cpu_exec_interrupt(CPUState *cs, int interrupt_request)
  found:
     cs->exception_index = excp_idx;
     env->exception.target_el = target_el;
-    cc->do_interrupt(cs);
+    cc->tcg_ops.do_interrupt(cs);
     return true;
 }
 
@@ -605,7 +605,7 @@ static bool arm_v7m_cpu_exec_interrupt(CPUState *cs, int interrupt_request)
     if (interrupt_request & CPU_INTERRUPT_HARD
         /*&& (armv7m_nvic_can_take_pending_exception(env->nvic)) */) {
         cs->exception_index = EXCP_IRQ;
-        cc->do_interrupt(cs);
+        cc->tcg_ops.do_interrupt(cs);
         ret = true;
     }
     return ret;
@@ -2100,7 +2100,6 @@ static void arm_cpu_class_init(struct uc_struct *uc, ObjectClass *oc, void *data
     //cc->dump_state = arm_cpu_dump_state;
     cc->set_pc = arm_cpu_set_pc;
 #ifndef CONFIG_USER_ONLY
-    cc->do_interrupt = arm_cpu_do_interrupt;
     cc->get_phys_page_attrs_debug = arm_cpu_get_phys_page_attrs_debug;
     cc->asidx_from_attrs = arm_asidx_from_attrs;
     // UNICORN: Commented out
@@ -2118,6 +2117,7 @@ static void arm_cpu_class_init(struct uc_struct *uc, ObjectClass *oc, void *data
 #if !defined(CONFIG_USER_ONLY)
     cc->do_transaction_failed = arm_cpu_do_transaction_failed;
     cc->adjust_watchpoint_address = arm_adjust_watchpoint_address;
+    cc->tcg_ops.do_interrupt = arm_cpu_do_interrupt;
 #endif
 #endif
 }

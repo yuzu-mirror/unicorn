@@ -5889,7 +5889,7 @@ static void x86_cpu_common_class_init(struct uc_struct *uc, ObjectClass *oc, voi
     cc->tcg_ops.cpu_exec_enter = x86_cpu_exec_enter;
     cc->tcg_ops.cpu_exec_exit = x86_cpu_exec_exit;
     cc->tcg_ops.cpu_exec_interrupt = x86_cpu_exec_interrupt;
-    cc->do_interrupt = x86_cpu_do_interrupt;
+    cc->tcg_ops.do_interrupt = x86_cpu_do_interrupt;
 #endif
 #if defined(CONFIG_TCG) && !defined(CONFIG_USER_ONLY)
     cc->tcg_ops.debug_excp_handler = breakpoint_handler;

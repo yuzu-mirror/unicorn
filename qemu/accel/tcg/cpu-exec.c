@@ -315,7 +315,7 @@ static inline bool cpu_handle_exception(struct uc_struct *uc, CPUState *cpu, int
            loop */
 #if defined(TARGET_I386)
             CPUClass *cc = CPU_GET_CLASS(uc, cpu);
-            cc->do_interrupt(cpu);
+            cc->tcg_ops.do_interrupt(cpu);
 #endif
             *ret = cpu->exception_index;
             cpu->exception_index = -1;
