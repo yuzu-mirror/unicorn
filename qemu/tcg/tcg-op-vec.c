@@ -243,26 +243,6 @@ TCGv_vec tcg_const_ones_vec_matching(TCGContext *s, TCGv_vec m)
     return tcg_const_ones_vec(s, t->base_type);
 }
 
-void tcg_gen_dup64i_vec(TCGContext *s, TCGv_vec r, uint64_t a)
-{
-    tcg_gen_dupi_vec(s, MO_64, r, a);
-}
-
-void tcg_gen_dup32i_vec(TCGContext *s, TCGv_vec r, uint32_t a)
-{
-    tcg_gen_dupi_vec(s, MO_32, r, a);
-}
-
-void tcg_gen_dup16i_vec(TCGContext *s, TCGv_vec r, uint32_t a)
-{
-    tcg_gen_dupi_vec(s, MO_16, r, a);
-}
-
-void tcg_gen_dup8i_vec(TCGContext *s, TCGv_vec r, uint32_t a)
-{
-    tcg_gen_dupi_vec(s, MO_8, r, a);
-}
-
 void tcg_gen_dupi_vec(TCGContext *s, unsigned vece, TCGv_vec r, uint64_t a)
 {
     TCGTemp *rt = tcgv_vec_temp(s, r);
