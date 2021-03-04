@@ -884,6 +884,7 @@
 #define have_bmi1 have_bmi1_riscv32
 #define have_bmi2 have_bmi2_riscv32
 #define have_popcnt have_popcnt_riscv32
+#define have_movbe have_movbe_riscv32
 #define hcr_write hcr_write_riscv32
 #define helper_access_check_cp_reg helper_access_check_cp_reg_riscv32
 #define helper_add_saturate helper_add_saturate_riscv32

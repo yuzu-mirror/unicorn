@@ -890,6 +890,7 @@ symbols = (
     'have_bmi1',
     'have_bmi2',
     'have_popcnt',
+    'have_movbe',
     'hcr_write',
     'helper_access_check_cp_reg',
     'helper_add_saturate',

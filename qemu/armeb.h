@@ -884,6 +884,7 @@
 #define have_bmi1 have_bmi1_armeb
 #define have_bmi2 have_bmi2_armeb
 #define have_popcnt have_popcnt_armeb
+#define have_movbe have_movbe_armeb
 #define hcr_write hcr_write_armeb
 #define helper_access_check_cp_reg helper_access_check_cp_reg_armeb
 #define helper_add_saturate helper_add_saturate_armeb

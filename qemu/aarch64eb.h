@@ -884,6 +884,7 @@
 #define have_bmi1 have_bmi1_aarch64eb
 #define have_bmi2 have_bmi2_aarch64eb
 #define have_popcnt have_popcnt_aarch64eb
+#define have_movbe have_movbe_aarch64eb
 #define hcr_write hcr_write_aarch64eb
 #define helper_access_check_cp_reg helper_access_check_cp_reg_aarch64eb
 #define helper_add_saturate helper_add_saturate_aarch64eb
