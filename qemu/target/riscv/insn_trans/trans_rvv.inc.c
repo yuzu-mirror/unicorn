@@ -1447,6 +1447,97 @@ GEN_OPIVI_GVEC_TRANS(vsll_vi, 1, vsll_vx,  shli)
 GEN_OPIVI_GVEC_TRANS(vsrl_vi, 1, vsrl_vx,  shri)
 GEN_OPIVI_GVEC_TRANS(vsra_vi, 1, vsra_vx,  sari)
 
+/* Vector Narrowing Integer Right Shift Instructions */
+static bool opivv_narrow_check(DisasContext *s, arg_rmrr *a)
+{
+    return (vext_check_isa_ill(s) &&
+            vext_check_overlap_mask(s, a->rd, a->vm, false) &&
+            vext_check_reg(s, a->rd, false) &&
+            vext_check_reg(s, a->rs2, true) &&
+            vext_check_reg(s, a->rs1, false) &&
+            vext_check_overlap_group(a->rd, 1 << s->lmul, a->rs2,
+                2 << s->lmul) &&
+            (s->lmul < 0x3) && (s->sew < 0x3));
+}
+
+/* OPIVV with NARROW */
+#define GEN_OPIVV_NARROW_TRANS(NAME)                               \
+static bool trans_##NAME(DisasContext *s, arg_rmrr *a)             \
+{                                                                  \
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;                          \
+    if (opivv_narrow_check(s, a)) {                                \
+        uint32_t data = 0;                                         \
+        static gen_helper_gvec_4_ptr * const fns[3] = {            \
+            gen_helper_##NAME##_b,                                 \
+            gen_helper_##NAME##_h,                                 \
+            gen_helper_##NAME##_w,                                 \
+        };                                                         \
+        TCGLabel *over = gen_new_label(tcg_ctx);                   \
+        tcg_gen_brcondi_tl(tcg_ctx, TCG_COND_EQ, tcg_ctx->cpu_vl_risc, 0, over); \
+                                                                   \
+        data = FIELD_DP32(data, VDATA, MLEN, s->mlen);             \
+        data = FIELD_DP32(data, VDATA, VM, a->vm);                 \
+        data = FIELD_DP32(data, VDATA, LMUL, s->lmul);             \
+        tcg_gen_gvec_4_ptr(tcg_ctx, vreg_ofs(s, a->rd), vreg_ofs(s, 0), \
+                           vreg_ofs(s, a->rs1),                    \
+                           vreg_ofs(s, a->rs2), tcg_ctx->cpu_env, 0, \
+                           s->vlen / 8, data, fns[s->sew]);        \
+        gen_set_label(tcg_ctx, over);                              \
+        return true;                                               \
+    }                                                              \
+    return false;                                                  \
+}
+GEN_OPIVV_NARROW_TRANS(vnsra_vv)
+GEN_OPIVV_NARROW_TRANS(vnsrl_vv)
+
+static bool opivx_narrow_check(DisasContext *s, arg_rmrr *a)
+{
+    return (vext_check_isa_ill(s) &&
+            vext_check_overlap_mask(s, a->rd, a->vm, false) &&
+            vext_check_reg(s, a->rd, false) &&
+            vext_check_reg(s, a->rs2, true) &&
+            vext_check_overlap_group(a->rd, 1 << s->lmul, a->rs2,
+                2 << s->lmul) &&
+            (s->lmul < 0x3) && (s->sew < 0x3));
+}
+
+/* OPIVX with NARROW */
+#define GEN_OPIVX_NARROW_TRANS(NAME)                                     \
+static bool trans_##NAME(DisasContext *s, arg_rmrr *a)                   \
+{                                                                        \
+    if (opivx_narrow_check(s, a)) {                                      \
+        static gen_helper_opivx * const fns[3] = {                       \
+            gen_helper_##NAME##_b,                                       \
+            gen_helper_##NAME##_h,                                       \
+            gen_helper_##NAME##_w,                                       \
+        };                                                               \
+        return opivx_trans(a->rd, a->rs1, a->rs2, a->vm, fns[s->sew], s);\
+    }                                                                    \
+    return false;                                                        \
+}
+
+GEN_OPIVX_NARROW_TRANS(vnsra_vx)
+GEN_OPIVX_NARROW_TRANS(vnsrl_vx)
+
+/* OPIVI with NARROW */
+#define GEN_OPIVI_NARROW_TRANS(NAME, ZX, OPIVX)                          \
+static bool trans_##NAME(DisasContext *s, arg_rmrr *a)                   \
+{                                                                        \
+    if (opivx_narrow_check(s, a)) {                                      \
+        static gen_helper_opivx * const fns[3] = {                       \
+            gen_helper_##OPIVX##_b,                                      \
+            gen_helper_##OPIVX##_h,                                      \
+            gen_helper_##OPIVX##_w,                                      \
+        };                                                               \
+        return opivi_trans(a->rd, a->rs1, a->rs2, a->vm,                 \
+                           fns[s->sew], s, ZX);                          \
+    }                                                                    \
+    return false;                                                        \
+}
+
+GEN_OPIVI_NARROW_TRANS(vnsra_vi, 1, vnsra_vx)
+GEN_OPIVI_NARROW_TRANS(vnsrl_vi, 1, vnsrl_vx)
+
 /* Vector Integer Comparison Instructions */
 /*
  * For all comparison instructions, an illegal instruction exception is raised
@@ -1720,3 +1811,123 @@ GEN_OPIVX_NARROW_TRANS(vnclipu_vx)
 GEN_OPIVX_NARROW_TRANS(vnclip_vx)
 GEN_OPIVI_NARROW_TRANS(vnclipu_vi, 1, vnclipu_vx)
 GEN_OPIVI_NARROW_TRANS(vnclip_vi, 1, vnclip_vx)
+
+/*
+ *** Vector Float Point Arithmetic Instructions
+ */
+/* Vector Single-Width Floating-Point Add/Subtract Instructions */
+
+/*
+ * If the current SEW does not correspond to a supported IEEE floating-point
+ * type, an illegal instruction exception is raised.
+ */
+static bool opfvv_check(DisasContext *s, arg_rmrr *a)
+{
+    return (vext_check_isa_ill(s) &&
+            vext_check_overlap_mask(s, a->rd, a->vm, false) &&
+            vext_check_reg(s, a->rd, false) &&
+            vext_check_reg(s, a->rs2, false) &&
+            vext_check_reg(s, a->rs1, false) &&
+            (s->sew != 0));
+}
+
+/* OPFVV without GVEC IR */
+#define GEN_OPFVV_TRANS(NAME, CHECK)                               \
+static bool trans_##NAME(DisasContext *s, arg_rmrr *a)             \
+{                                                                  \
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;                          \
+    if (CHECK(s, a)) {                                             \
+        uint32_t data = 0;                                         \
+        static gen_helper_gvec_4_ptr * const fns[3] = {            \
+            gen_helper_##NAME##_h,                                 \
+            gen_helper_##NAME##_w,                                 \
+            gen_helper_##NAME##_d,                                 \
+        };                                                         \
+        TCGLabel *over = gen_new_label(tcg_ctx);                   \
+        gen_set_rm(s, 7);                                          \
+        tcg_gen_brcondi_tl(tcg_ctx, TCG_COND_EQ, tcg_ctx->cpu_vl_risc, 0, over); \
+                                                                   \
+        data = FIELD_DP32(data, VDATA, MLEN, s->mlen);             \
+        data = FIELD_DP32(data, VDATA, VM, a->vm);                 \
+        data = FIELD_DP32(data, VDATA, LMUL, s->lmul);             \
+        tcg_gen_gvec_4_ptr(tcg_ctx, vreg_ofs(s, a->rd), vreg_ofs(s, 0),     \
+                           vreg_ofs(s, a->rs1),                    \
+                           vreg_ofs(s, a->rs2), tcg_ctx->cpu_env, 0,        \
+                           s->vlen / 8, data, fns[s->sew - 1]);    \
+        gen_set_label(tcg_ctx, over);                              \
+        return true;                                               \
+    }                                                              \
+    return false;                                                  \
+}
+GEN_OPFVV_TRANS(vfadd_vv, opfvv_check)
+GEN_OPFVV_TRANS(vfsub_vv, opfvv_check)
+
+typedef void gen_helper_opfvf(TCGContext *, TCGv_ptr, TCGv_ptr, TCGv_i64, TCGv_ptr,
+                              TCGv_env, TCGv_i32);
+
+static bool opfvf_trans(uint32_t vd, uint32_t rs1, uint32_t vs2,
+                        uint32_t data, gen_helper_opfvf *fn, DisasContext *s)
+{
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+    TCGv_ptr dest, src2, mask;
+    TCGv_i32 desc;
+
+    TCGLabel *over = gen_new_label(tcg_ctx);
+    tcg_gen_brcondi_tl(tcg_ctx, TCG_COND_EQ, tcg_ctx->cpu_vl_risc, 0, over);
+
+    dest = tcg_temp_new_ptr(tcg_ctx);
+    mask = tcg_temp_new_ptr(tcg_ctx);
+    src2 = tcg_temp_new_ptr(tcg_ctx);
+    desc = tcg_const_i32(tcg_ctx, simd_desc(0, s->vlen / 8, data));
+
+    tcg_gen_addi_ptr(tcg_ctx, dest, tcg_ctx->cpu_env, vreg_ofs(s, vd));
+    tcg_gen_addi_ptr(tcg_ctx, src2, tcg_ctx->cpu_env, vreg_ofs(s, vs2));
+    tcg_gen_addi_ptr(tcg_ctx, mask, tcg_ctx->cpu_env, vreg_ofs(s, 0));
+
+    fn(tcg_ctx, dest, mask, tcg_ctx->cpu_fpr_risc[rs1], src2, tcg_ctx->cpu_env, desc);
+
+    tcg_temp_free_ptr(tcg_ctx, dest);
+    tcg_temp_free_ptr(tcg_ctx, mask);
+    tcg_temp_free_ptr(tcg_ctx, src2);
+    tcg_temp_free_i32(tcg_ctx, desc);
+    gen_set_label(tcg_ctx, over);
+    return true;
+}
+
+static bool opfvf_check(DisasContext *s, arg_rmrr *a)
+{
+/*
+ * If the current SEW does not correspond to a supported IEEE floating-point
+ * type, an illegal instruction exception is raised
+ */
+    return (vext_check_isa_ill(s) &&
+            vext_check_overlap_mask(s, a->rd, a->vm, false) &&
+            vext_check_reg(s, a->rd, false) &&
+            vext_check_reg(s, a->rs2, false) &&
+            (s->sew != 0));
+}
+
+/* OPFVF without GVEC IR */
+#define GEN_OPFVF_TRANS(NAME, CHECK)                              \
+static bool trans_##NAME(DisasContext *s, arg_rmrr *a)            \
+{                                                                 \
+    if (CHECK(s, a)) {                                            \
+        uint32_t data = 0;                                        \
+        static gen_helper_opfvf *const fns[3] = {                 \
+            gen_helper_##NAME##_h,                                \
+            gen_helper_##NAME##_w,                                \
+            gen_helper_##NAME##_d,                                \
+        };                                                        \
+        gen_set_rm(s, 7);                                         \
+        data = FIELD_DP32(data, VDATA, MLEN, s->mlen);            \
+        data = FIELD_DP32(data, VDATA, VM, a->vm);                \
+        data = FIELD_DP32(data, VDATA, LMUL, s->lmul);            \
+        return opfvf_trans(a->rd, a->rs1, a->rs2, data,           \
+                           fns[s->sew - 1], s);                   \
+    }                                                             \
+    return false;                                                 \
+}
+
+GEN_OPFVF_TRANS(vfadd_vf,  opfvf_check)
+GEN_OPFVF_TRANS(vfsub_vf,  opfvf_check)
+GEN_OPFVF_TRANS(vfrsub_vf,  opfvf_check)
