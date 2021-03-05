@@ -869,19 +869,13 @@ static void sparc_register_cpudef_type(struct uc_struct *uc, const struct sparc_
 {
     char *typename = sparc_cpu_type_name(def->name);
     const TypeInfo ti = {
-        typename,
-        TYPE_SPARC_CPU,
-        0,
-        0,
-        uc,
+        .name = typename,
+        .parent = TYPE_SPARC_CPU,
 
-        NULL,
-        NULL,
-        NULL,
+        .instance_userdata = uc,
 
-        (void *)def,
-
-        sparc_cpu_cpudef_class_init,
+        .class_data = (void *)def,
+        .class_init = sparc_cpu_cpudef_class_init,
     };
 
     type_register(uc, &ti);
@@ -893,24 +887,17 @@ void sparc_cpu_register_types(void *opaque)
     int i;
 
     const TypeInfo sparc_cpu_type_info = {
-        TYPE_SPARC_CPU,
-        TYPE_CPU,
+        .name = TYPE_SPARC_CPU,
+        .parent = TYPE_CPU,
 
-        sizeof(SPARCCPUClass),
-        sizeof(SPARCCPU),
-        opaque,
+        .class_size = sizeof(SPARCCPUClass),
+        .instance_size = sizeof(SPARCCPU),
+        .instance_userdata = opaque,
 
-        sparc_cpu_initfn,
-        NULL,
-        NULL,
+        .instance_init = sparc_cpu_initfn,
+        .class_init = sparc_cpu_class_init,
 
-        NULL,
-
-        sparc_cpu_class_init,
-        NULL,
-        NULL,
-
-        true,
+        .abstract = true,
     };
 
     type_register(opaque, &sparc_cpu_type_info);
