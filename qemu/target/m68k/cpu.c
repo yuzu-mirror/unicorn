@@ -278,36 +278,24 @@ static void m68k_cpu_class_init(struct uc_struct *uc, ObjectClass *c, void *data
 
 #define DEFINE_M68K_CPU_TYPE(cpu_model, initfn) \
     {                                           \
-        M68K_CPU_TYPE_NAME(cpu_model),          \
-        TYPE_M68K_CPU,                          \
+        .name = M68K_CPU_TYPE_NAME(cpu_model),  \
+        .parent = TYPE_M68K_CPU,                \
                                                 \
-        0,                                      \
-        0,                                      \
-        NULL,                                   \
-                                                \
-        initfn,                                 \
+        .instance_init = initfn,                \
     }
 
 static TypeInfo m68k_cpus_type_infos[] = {
     { /* base class should be registered first */
-        TYPE_M68K_CPU,
-        TYPE_CPU,
+        .name = TYPE_M68K_CPU,
+        .parent = TYPE_CPU,
 
-        sizeof(M68kCPUClass),
-        sizeof(M68kCPU),
-        NULL,
+        .class_size = sizeof(M68kCPUClass),
+        .instance_size = sizeof(M68kCPU),
 
-        m68k_cpu_initfn,
-        NULL,
-        NULL,
+        .instance_init = m68k_cpu_initfn,
+        .class_init = m68k_cpu_class_init,
 
-        NULL,
-
-        m68k_cpu_class_init,
-        NULL,
-        NULL,
-
-        true,
+        .abstract = true,
     },
     DEFINE_M68K_CPU_TYPE("m68000", m68000_cpu_initfn),
     DEFINE_M68K_CPU_TYPE("m68020", m68020_cpu_initfn),
