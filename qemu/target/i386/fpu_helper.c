@@ -2942,7 +2942,7 @@ void update_mxcsr_status(CPUX86State *env)
 
 void update_mxcsr_from_sse_status(CPUX86State *env)
 {
-    if (tcg_enabled()) {
+    if (tcg_enabled(env->uc)) {
         uint8_t flags = get_float_exception_flags(&env->sse_status);
         /*
          * The MXCSR denormal flag has opposite semantics to

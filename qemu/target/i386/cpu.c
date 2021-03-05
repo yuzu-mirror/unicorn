@@ -5904,24 +5904,18 @@ static void x86_cpu_common_class_init(struct uc_struct *uc, ObjectClass *oc, voi
 void x86_cpu_register_types(void *opaque)
 {
     const TypeInfo x86_cpu_type_info = {
-        TYPE_X86_CPU,
-        TYPE_CPU,
+        .name = TYPE_X86_CPU,
+        .parent = TYPE_CPU,
 
-        sizeof(X86CPUClass),
-        sizeof(X86CPU),
-        opaque,
+        .class_size = sizeof(X86CPUClass),
+        .instance_size = sizeof(X86CPU),
+        .instance_userdata = opaque,
 
-        x86_cpu_initfn,
-        NULL,
-        NULL,
+        .instance_init = x86_cpu_initfn,
 
-        NULL,
+        .class_init = x86_cpu_common_class_init,
 
-        x86_cpu_common_class_init,
-        NULL,
-        NULL,
-
-        true,
+        .abstract = true,
     };
 
     int i;
