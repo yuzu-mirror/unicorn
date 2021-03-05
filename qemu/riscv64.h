@@ -4344,6 +4344,14 @@
 #define helper_vasub_vx_h helper_vasub_vx_h_riscv64
 #define helper_vasub_vx_w helper_vasub_vx_w_riscv64
 #define helper_vasub_vx_d helper_vasub_vx_d_riscv64
+#define helper_vsmul_vv_b helper_vsmul_vv_b_riscv64
+#define helper_vsmul_vv_h helper_vsmul_vv_h_riscv64
+#define helper_vsmul_vv_w helper_vsmul_vv_w_riscv64
+#define helper_vsmul_vv_d helper_vsmul_vv_d_riscv64
+#define helper_vsmul_vx_b helper_vsmul_vx_b_riscv64
+#define helper_vsmul_vx_h helper_vsmul_vx_h_riscv64
+#define helper_vsmul_vx_w helper_vsmul_vx_w_riscv64
+#define helper_vsmul_vx_d helper_vsmul_vx_d_riscv64
 #define pmp_hart_has_privs pmp_hart_has_privs_riscv64
 #define pmpaddr_csr_read pmpaddr_csr_read_riscv64
 #define pmpaddr_csr_write pmpaddr_csr_write_riscv64
