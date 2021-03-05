@@ -200,28 +200,11 @@ static void mips_register_cpudef_type(struct uc_struct *uc, const struct mips_de
 {
     char *typename = mips_cpu_type_name(def->name);
     TypeInfo ti = {
-        typename,
-        TYPE_MIPS_CPU,
+        .name = typename,
+        .parent = TYPE_MIPS_CPU,
 
-        0,
-        0,
-        NULL,
-
-        NULL,
-        NULL,
-        NULL,
-
-        (void *)def,
-
-        mips_cpu_cpudef_class_init,
-        NULL,
-        NULL,
-
-        false,
-
-        NULL,
-        NULL,
-        NULL,
+        .class_data = (void *)def,
+        .class_init = mips_cpu_cpudef_class_init,
     };
 
     type_register(uc, &ti);
@@ -233,24 +216,17 @@ void mips_cpu_register_types(void *opaque)
     int i;
 
     const TypeInfo mips_cpu_type_info = {
-        TYPE_MIPS_CPU,
-        TYPE_CPU,
+        .name = TYPE_MIPS_CPU,
+        .parent = TYPE_CPU,
 
-        sizeof(MIPSCPUClass),
-        sizeof(MIPSCPU),
-        opaque,
+        .class_size = sizeof(MIPSCPUClass),
+        .instance_size = sizeof(MIPSCPU),
+        .instance_userdata = opaque,
 
-        mips_cpu_initfn,
-        NULL,
-        NULL,
+        .instance_init = mips_cpu_initfn,
+        .class_init = mips_cpu_class_init,
 
-        NULL,
-
-        mips_cpu_class_init,
-        NULL,
-        NULL,
-
-        true,
+        .abstract = true,
     };
 
     type_register(opaque, &mips_cpu_type_info);

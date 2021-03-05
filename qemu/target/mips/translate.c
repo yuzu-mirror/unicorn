@@ -5863,6 +5863,7 @@ static void gen_loongson_multimedia(DisasContext *ctx, int rd, int rs, int rt)
 
     gen_store_fpr64(ctx, t0, rd);
 
+no_rd:
     tcg_temp_free_i64(tcg_ctx, t0);
     tcg_temp_free_i64(tcg_ctx, t1);
 }
