@@ -2553,3 +2553,30 @@ static bool trans_viota_m(DisasContext *s, arg_viota_m *a)
     }
     return false;
 }
+
+/* Vector Element Index Instruction */
+static bool trans_vid_v(DisasContext *s, arg_vid_v *a)
+{
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+
+    if (vext_check_isa_ill(s) &&
+        vext_check_reg(s, a->rd, false) &&
+        vext_check_overlap_mask(s, a->rd, a->vm, false)) {
+        uint32_t data = 0;
+        TCGLabel *over = gen_new_label(tcg_ctx);
+        tcg_gen_brcondi_tl(tcg_ctx, TCG_COND_EQ, tcg_ctx->cpu_vl_risc, 0, over);
+
+        data = FIELD_DP32(data, VDATA, MLEN, s->mlen);
+        data = FIELD_DP32(data, VDATA, VM, a->vm);
+        data = FIELD_DP32(data, VDATA, LMUL, s->lmul);
+        static gen_helper_gvec_2_ptr * const fns[4] = {
+            gen_helper_vid_v_b, gen_helper_vid_v_h,
+            gen_helper_vid_v_w, gen_helper_vid_v_d,
+        };
+        tcg_gen_gvec_2_ptr(tcg_ctx, vreg_ofs(s, a->rd), vreg_ofs(s, 0),
+                           tcg_ctx->cpu_env, 0, s->vlen / 8, data, fns[s->sew]);
+        gen_set_label(tcg_ctx, over);
+        return true;
+    }
+    return false;
+}

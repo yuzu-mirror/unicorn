@@ -4703,6 +4703,10 @@
 #define helper_viota_m_h helper_viota_m_h_riscv32
 #define helper_viota_m_w helper_viota_m_w_riscv32
 #define helper_viota_m_d helper_viota_m_d_riscv32
+#define helper_vid_v_b helper_vid_v_b_riscv32
+#define helper_vid_v_h helper_vid_v_h_riscv32
+#define helper_vid_v_w helper_vid_v_w_riscv32
+#define helper_vid_v_d helper_vid_v_d_riscv32
 #define pmp_hart_has_privs pmp_hart_has_privs_riscv32
 #define pmpaddr_csr_read pmpaddr_csr_read_riscv32
 #define pmpaddr_csr_write pmpaddr_csr_write_riscv32
