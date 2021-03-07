@@ -4694,6 +4694,7 @@
 #define helper_vmnor_mm helper_vmnor_mm_riscv64
 #define helper_vmornot_mm helper_vmornot_mm_riscv64
 #define helper_vmxnor_mm helper_vmxnor_mm_riscv64
+#define helper_vmpopc_m helper_vmpopc_m_riscv64
 #define pmp_hart_has_privs pmp_hart_has_privs_riscv64
 #define pmpaddr_csr_read pmpaddr_csr_read_riscv64
 #define pmpaddr_csr_write pmpaddr_csr_write_riscv64

@@ -2427,3 +2427,37 @@ GEN_MM_TRANS(vmor_mm)
 GEN_MM_TRANS(vmnor_mm)
 GEN_MM_TRANS(vmornot_mm)
 GEN_MM_TRANS(vmxnor_mm)
+
+/* Vector mask population count vmpopc */
+static bool trans_vmpopc_m(DisasContext *s, arg_rmr *a)
+{
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+
+    if (vext_check_isa_ill(s)) {
+        TCGv_ptr src2, mask;
+        TCGv dst;
+        TCGv_i32 desc;
+        uint32_t data = 0;
+        data = FIELD_DP32(data, VDATA, MLEN, s->mlen);
+        data = FIELD_DP32(data, VDATA, VM, a->vm);
+        data = FIELD_DP32(data, VDATA, LMUL, s->lmul);
+
+        mask = tcg_temp_new_ptr(tcg_ctx);
+        src2 = tcg_temp_new_ptr(tcg_ctx);
+        dst = tcg_temp_new(tcg_ctx);
+        desc = tcg_const_i32(tcg_ctx, simd_desc(0, s->vlen / 8, data));
+
+        tcg_gen_addi_ptr(tcg_ctx, src2, tcg_ctx->cpu_env, vreg_ofs(s, a->rs2));
+        tcg_gen_addi_ptr(tcg_ctx, mask, tcg_ctx->cpu_env, vreg_ofs(s, 0));
+
+        gen_helper_vmpopc_m(tcg_ctx, dst, mask, src2, tcg_ctx->cpu_env, desc);
+        gen_set_gpr(s, a->rd, dst);
+
+        tcg_temp_free_ptr(tcg_ctx, mask);
+        tcg_temp_free_ptr(tcg_ctx, src2);
+        tcg_temp_free(tcg_ctx, dst);
+        tcg_temp_free_i32(tcg_ctx, desc);
+        return true;
+    }
+    return false;
+}
