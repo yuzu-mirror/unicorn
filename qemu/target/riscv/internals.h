@@ -34,4 +34,9 @@ target_ulong fclass_h_risc(uint64_t frs1);
 target_ulong fclass_s_risc(uint64_t frs1);
 target_ulong fclass_d_risc(uint64_t frs1);
 
+#define SEW8  0
+#define SEW16 1
+#define SEW32 2
+#define SEW64 3
+
 #endif
