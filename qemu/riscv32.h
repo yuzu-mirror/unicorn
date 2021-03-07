@@ -4731,6 +4731,10 @@
 #define helper_vrgather_vx_h helper_vrgather_vx_h_riscv32
 #define helper_vrgather_vx_w helper_vrgather_vx_w_riscv32
 #define helper_vrgather_vx_d helper_vrgather_vx_d_riscv32
+#define helper_vcompress_vm_b helper_vcompress_vm_b_riscv32
+#define helper_vcompress_vm_h helper_vcompress_vm_h_riscv32
+#define helper_vcompress_vm_w helper_vcompress_vm_w_riscv32
+#define helper_vcompress_vm_d helper_vcompress_vm_d_riscv32
 #define pmp_hart_has_privs pmp_hart_has_privs_riscv32
 #define pmpaddr_csr_read pmpaddr_csr_read_riscv32
 #define pmpaddr_csr_write pmpaddr_csr_write_riscv32
