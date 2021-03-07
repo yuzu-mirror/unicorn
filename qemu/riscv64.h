@@ -4686,6 +4686,14 @@
 #define helper_vfredmin_vs_d helper_vfredmin_vs_d_riscv64
 #define helper_vfwredsum_vs_h helper_vfwredsum_vs_h_riscv64
 #define helper_vfwredsum_vs_w helper_vfwredsum_vs_w_riscv64
+#define helper_vmand_mm helper_vmand_mm_riscv64
+#define helper_vmnand_mm helper_vmnand_mm_riscv64
+#define helper_vmandnot_mm helper_vmandnot_mm_riscv64
+#define helper_vmxor_mm helper_vmxor_mm_riscv64
+#define helper_vmor_mm helper_vmor_mm_riscv64
+#define helper_vmnor_mm helper_vmnor_mm_riscv64
+#define helper_vmornot_mm helper_vmornot_mm_riscv64
+#define helper_vmxnor_mm helper_vmxnor_mm_riscv64
 #define pmp_hart_has_privs pmp_hart_has_privs_riscv64
 #define pmpaddr_csr_read pmpaddr_csr_read_riscv64
 #define pmpaddr_csr_write pmpaddr_csr_write_riscv64
