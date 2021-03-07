@@ -4459,6 +4459,10 @@
 #define helper_vfrdiv_vf_h helper_vfrdiv_vf_h_riscv32
 #define helper_vfrdiv_vf_w helper_vfrdiv_vf_w_riscv32
 #define helper_vfrdiv_vf_d helper_vfrdiv_vf_d_riscv32
+#define helper_vfwmul_vv_h helper_vfwmul_vv_h_riscv32
+#define helper_vfwmul_vv_w helper_vfwmul_vv_w_riscv32
+#define helper_vfwmul_vf_h helper_vfwmul_vf_h_riscv32
+#define helper_vfwmul_vf_w helper_vfwmul_vf_w_riscv32
 #define pmp_hart_has_privs pmp_hart_has_privs_riscv32
 #define pmpaddr_csr_read pmpaddr_csr_read_riscv32
 #define pmpaddr_csr_write pmpaddr_csr_write_riscv32
