@@ -97,7 +97,7 @@ typedef struct CPURISCVState CPURISCVState;
 
 #include "pmp.h"
 
-#define RV_VLEN_MAX 512
+#define RV_VLEN_MAX 256
 
 FIELD(VTYPE, VLMUL, 0, 2)
 FIELD(VTYPE, VSEW, 2, 3)
@@ -287,8 +287,11 @@ typedef struct RISCVCPU {
     CPURISCVState env;
 
     struct {
+        bool ext_v;
+
         bool ext_ifencei;
         bool ext_icsr;
+        char *vext_spec;
         uint16_t vlen;
         uint16_t elen;
     } cfg;
