@@ -28,4 +28,10 @@ FIELD(VDATA, LMUL, 9, 2)
 FIELD(VDATA, NF, 11, 4)
 FIELD(VDATA, WD, 11, 1)
 
+/* float point classify helpers */
+// Unicorn: Given _risc prefixes to avoid header gen clashing
+target_ulong fclass_h_risc(uint64_t frs1);
+target_ulong fclass_s_risc(uint64_t frs1);
+target_ulong fclass_d_risc(uint64_t frs1);
+
 #endif

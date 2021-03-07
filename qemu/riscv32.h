@@ -3648,6 +3648,9 @@
 #define decode_insn16 decode_insn16_riscv32
 #define decode_insn32 decode_insn32_riscv32
 #define do_raise_exception_err do_raise_exception_err_riscv32
+#define fclass_d_risc fclass_d_risc_riscv32
+#define fclass_h_risc fclass_h_risc_riscv32
+#define fclass_s_risc fclass_s_risc_riscv32
 #define gen_helper_tlb_flush gen_helper_tlb_flush_riscv32
 #define helper_csrrc helper_csrrc_riscv32
 #define helper_csrrs helper_csrrs_riscv32
@@ -4596,6 +4599,9 @@
 #define helper_vmford_vf_h helper_vmford_vf_h_riscv32
 #define helper_vmford_vf_w helper_vmford_vf_w_riscv32
 #define helper_vmford_vf_d helper_vmford_vf_d_riscv32
+#define helper_vfclass_v_h helper_vfclass_v_h_riscv32
+#define helper_vfclass_v_w helper_vfclass_v_w_riscv32
+#define helper_vfclass_v_d helper_vfclass_v_d_riscv32
 #define pmp_hart_has_privs pmp_hart_has_privs_riscv32
 #define pmpaddr_csr_read pmpaddr_csr_read_riscv32
 #define pmpaddr_csr_write pmpaddr_csr_write_riscv32
