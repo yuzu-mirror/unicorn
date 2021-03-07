@@ -7248,6 +7248,8 @@ riscv_symbols = (
     'helper_vfredmin_vs_h',
     'helper_vfredmin_vs_w',
     'helper_vfredmin_vs_d',
+    'helper_vfwredsum_vs_h',
+    'helper_vfwredsum_vs_w',
     'pmp_hart_has_privs',
     'pmpaddr_csr_read',
     'pmpaddr_csr_write',

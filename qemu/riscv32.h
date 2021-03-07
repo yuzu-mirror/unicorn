@@ -4684,6 +4684,8 @@
 #define helper_vfredmin_vs_h helper_vfredmin_vs_h_riscv32
 #define helper_vfredmin_vs_w helper_vfredmin_vs_w_riscv32
 #define helper_vfredmin_vs_d helper_vfredmin_vs_d_riscv32
+#define helper_vfwredsum_vs_h helper_vfwredsum_vs_h_riscv32
+#define helper_vfwredsum_vs_w helper_vfwredsum_vs_w_riscv32
 #define pmp_hart_has_privs pmp_hart_has_privs_riscv32
 #define pmpaddr_csr_read pmpaddr_csr_read_riscv32
 #define pmpaddr_csr_write pmpaddr_csr_write_riscv32
