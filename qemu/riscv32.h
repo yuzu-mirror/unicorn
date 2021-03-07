@@ -4602,6 +4602,9 @@
 #define helper_vfclass_v_h helper_vfclass_v_h_riscv32
 #define helper_vfclass_v_w helper_vfclass_v_w_riscv32
 #define helper_vfclass_v_d helper_vfclass_v_d_riscv32
+#define helper_vfmerge_vfm_h helper_vfmerge_vfm_h_riscv32
+#define helper_vfmerge_vfm_w helper_vfmerge_vfm_w_riscv32
+#define helper_vfmerge_vfm_d helper_vfmerge_vfm_d_riscv32
 #define pmp_hart_has_privs pmp_hart_has_privs_riscv32
 #define pmpaddr_csr_read pmpaddr_csr_read_riscv32
 #define pmpaddr_csr_write pmpaddr_csr_write_riscv32
