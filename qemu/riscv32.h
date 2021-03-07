@@ -4699,6 +4699,10 @@
 #define helper_vmsbf_m helper_vmsbf_m_riscv32
 #define helper_vmsif_m helper_vmsif_m_riscv32
 #define helper_vmsof_m helper_vmsof_m_riscv32
+#define helper_viota_m_b helper_viota_m_b_riscv32
+#define helper_viota_m_h helper_viota_m_h_riscv32
+#define helper_viota_m_w helper_viota_m_w_riscv32
+#define helper_viota_m_d helper_viota_m_d_riscv32
 #define pmp_hart_has_privs pmp_hart_has_privs_riscv32
 #define pmpaddr_csr_read pmpaddr_csr_read_riscv32
 #define pmpaddr_csr_write pmpaddr_csr_write_riscv32
