@@ -2580,3 +2580,122 @@ static bool trans_vid_v(DisasContext *s, arg_vid_v *a)
     }
     return false;
 }
+
+/*
+ *** Vector Permutation Instructions
+ */
+
+/* Integer Extract Instruction */
+
+static void load_element(TCGContext *s, TCGv_i64 dest, TCGv_ptr base,
+                         int ofs, int sew)
+{
+    switch (sew) {
+    case MO_8:
+        tcg_gen_ld8u_i64(s, dest, base, ofs);
+        break;
+    case MO_16:
+        tcg_gen_ld16u_i64(s, dest, base, ofs);
+        break;
+    case MO_32:
+        tcg_gen_ld32u_i64(s, dest, base, ofs);
+        break;
+    case MO_64:
+        tcg_gen_ld_i64(s, dest, base, ofs);
+        break;
+    default:
+        g_assert_not_reached();
+        break;
+    }
+}
+
+/* offset of the idx element with base regsiter r */
+static uint32_t endian_ofs(DisasContext *s, int r, int idx)
+{
+#ifdef HOST_WORDS_BIGENDIAN
+    return vreg_ofs(s, r) + ((idx ^ (7 >> s->sew)) << s->sew);
+#else
+    return vreg_ofs(s, r) + (idx << s->sew);
+#endif
+}
+
+/* adjust the index according to the endian */
+static void endian_adjust(TCGContext *s, TCGv_i32 ofs, int sew)
+{
+#ifdef HOST_WORDS_BIGENDIAN
+    tcg_gen_xori_i32(s, ofs, ofs, 7 >> sew);
+#endif
+}
+
+/* Load idx >= VLMAX ? 0 : vreg[idx] */
+static void vec_element_loadx(DisasContext *s, TCGv_i64 dest,
+                              int vreg, TCGv idx, int vlmax)
+{
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+    TCGv_i32 ofs = tcg_temp_new_i32(tcg_ctx);
+    TCGv_ptr base = tcg_temp_new_ptr(tcg_ctx);
+    TCGv_i64 t_idx = tcg_temp_new_i64(tcg_ctx);
+    TCGv_i64 t_vlmax, t_zero;
+
+    /*
+     * Mask the index to the length so that we do
+     * not produce an out-of-range load.
+     */
+    tcg_gen_trunc_tl_i32(tcg_ctx, ofs, idx);
+    tcg_gen_andi_i32(tcg_ctx, ofs, ofs, vlmax - 1);
+
+    /* Convert the index to an offset. */
+    endian_adjust(tcg_ctx, ofs, s->sew);
+    tcg_gen_shli_i32(tcg_ctx, ofs, ofs, s->sew);
+
+    /* Convert the index to a pointer. */
+    tcg_gen_ext_i32_ptr(tcg_ctx, base, ofs);
+    tcg_gen_add_ptr(tcg_ctx, base, base, tcg_ctx->cpu_env);
+
+    /* Perform the load. */
+    load_element(tcg_ctx, dest, base,
+                 vreg_ofs(s, vreg), s->sew);
+    tcg_temp_free_ptr(tcg_ctx, base);
+    tcg_temp_free_i32(tcg_ctx, ofs);
+
+    /* Flush out-of-range indexing to zero.  */
+    t_vlmax = tcg_const_i64(tcg_ctx, vlmax);
+    t_zero = tcg_const_i64(tcg_ctx, 0);
+    tcg_gen_extu_tl_i64(tcg_ctx, t_idx, idx);
+
+    tcg_gen_movcond_i64(tcg_ctx, TCG_COND_LTU, dest, t_idx,
+                        t_vlmax, dest, t_zero);
+
+    tcg_temp_free_i64(tcg_ctx, t_vlmax);
+    tcg_temp_free_i64(tcg_ctx, t_zero);
+    tcg_temp_free_i64(tcg_ctx, t_idx);
+}
+
+static void vec_element_loadi(DisasContext *s, TCGv_i64 dest,
+                              int vreg, int idx)
+{
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+    load_element(tcg_ctx, dest, tcg_ctx->cpu_env, endian_ofs(s, vreg, idx), s->sew);
+}
+
+static bool trans_vext_x_v(DisasContext *s, arg_r *a)
+{
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+    TCGv_i64 tmp = tcg_temp_new_i64(tcg_ctx);
+    TCGv dest = tcg_temp_new(tcg_ctx);
+
+    if (a->rs1 == 0) {
+        /* Special case vmv.x.s rd, vs2. */
+        vec_element_loadi(s, tmp, a->rs2, 0);
+    } else {
+        /* This instruction ignores LMUL and vector register groups */
+        int vlmax = s->vlen >> (3 + s->sew);
+        vec_element_loadx(s, tmp, a->rs2, tcg_ctx->cpu_gpr_risc[a->rs1], vlmax);
+    }
+    tcg_gen_trunc_i64_tl(tcg_ctx, dest, tmp);
+    gen_set_gpr(s, a->rd, dest);
+
+    tcg_temp_free(tcg_ctx, dest);
+    tcg_temp_free_i64(tcg_ctx, tmp);
+    return true;
+}
