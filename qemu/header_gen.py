@@ -7259,6 +7259,7 @@ riscv_symbols = (
     'helper_vmornot_mm',
     'helper_vmxnor_mm',
     'helper_vmpopc_m',
+    'helper_vmfirst_m',
     'pmp_hart_has_privs',
     'pmpaddr_csr_read',
     'pmpaddr_csr_write',
