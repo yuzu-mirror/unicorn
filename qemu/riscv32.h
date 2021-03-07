@@ -4527,6 +4527,9 @@
 #define helper_vfwmsac_vf_w helper_vfwmsac_vf_w_riscv32
 #define helper_vfwnmsac_vf_h helper_vfwnmsac_vf_h_riscv32
 #define helper_vfwnmsac_vf_w helper_vfwnmsac_vf_w_riscv32
+#define helper_vfsqrt_v_h helper_vfsqrt_v_h_riscv32
+#define helper_vfsqrt_v_w helper_vfsqrt_v_w_riscv32
+#define helper_vfsqrt_v_d helper_vfsqrt_v_d_riscv32
 #define pmp_hart_has_privs pmp_hart_has_privs_riscv32
 #define pmpaddr_csr_read pmpaddr_csr_read_riscv32
 #define pmpaddr_csr_write pmpaddr_csr_write_riscv32
