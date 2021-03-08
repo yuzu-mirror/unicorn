@@ -148,7 +148,11 @@ struct CPURISCVState {
     target_ulong resetvec;
 
     target_ulong mhartid;
-    target_ulong mstatus;
+    /*
+     * For RV32 this is 32-bit mstatus and 32-bit mstatush.
+     * For RV64 this is a 64-bit mstatus.
+     */
+    uint64_t mstatus;
 
     /*
      * CAUTION! Unlike the rest of this struct, mip is accessed asynchonously
@@ -160,10 +164,6 @@ struct CPURISCVState {
      * mip is 32-bits to allow qatomic_read on 32-bit hosts.
      */
     target_ulong mip;
-
-#ifdef TARGET_RISCV32
-    target_ulong mstatush;
-#endif
 
     uint32_t miclaim;
 
@@ -196,16 +196,17 @@ struct CPURISCVState {
     uint64_t htimedelta;
 
     /* Virtual CSRs */
-    target_ulong vsstatus;
+    /*
+     * For RV32 this is 32-bit vsstatus and 32-bit vsstatush.
+     * For RV64 this is a 64-bit vsstatus.
+     */
+    uint64_t vsstatus;
     target_ulong vstvec;
     target_ulong vsscratch;
     target_ulong vsepc;
     target_ulong vscause;
     target_ulong vstval;
     target_ulong vsatp;
-#ifdef TARGET_RISCV32
-    target_ulong vsstatush;
-#endif
 
     target_ulong mtval2;
     target_ulong mtinst;
@@ -217,10 +218,7 @@ struct CPURISCVState {
     target_ulong scause_hs;
     target_ulong stval_hs;
     target_ulong satp_hs;
-    target_ulong mstatus_hs;
-#ifdef TARGET_RISCV32
-    target_ulong mstatush_hs;
-#endif
+    uint64_t mstatus_hs;
 
     target_ulong scounteren;
     target_ulong mcounteren;
