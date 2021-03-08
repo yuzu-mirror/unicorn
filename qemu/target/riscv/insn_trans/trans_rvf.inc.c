@@ -189,6 +189,7 @@ static bool trans_fsgnj_s(DisasContext *ctx, arg_fsgnj_s *a)
         tcg_gen_deposit_i64(tcg_ctx, tcg_ctx->cpu_fpr_risc[a->rd], tcg_ctx->cpu_fpr_risc[a->rs2], tcg_ctx->cpu_fpr_risc[a->rs1],
                             0, 31);
     }
+    gen_nanbox_s(ctx, tcg_ctx->cpu_fpr_risc[a->rd], tcg_ctx->cpu_fpr_risc[a->rd]);
     mark_fs_dirty(ctx);
     return true;
 }
@@ -207,6 +208,7 @@ static bool trans_fsgnjn_s(DisasContext *ctx, arg_fsgnjn_s *a)
         tcg_gen_deposit_i64(tcg_ctx, tcg_ctx->cpu_fpr_risc[a->rd], t0, tcg_ctx->cpu_fpr_risc[a->rs1], 0, 31);
         tcg_temp_free_i64(tcg_ctx, t0);
     }
+    gen_nanbox_s(ctx, tcg_ctx->cpu_fpr_risc[a->rd], tcg_ctx->cpu_fpr_risc[a->rd]);
     mark_fs_dirty(ctx);
     return true;
 }
@@ -225,6 +227,7 @@ static bool trans_fsgnjx_s(DisasContext *ctx, arg_fsgnjx_s *a)
         tcg_gen_xor_i64(tcg_ctx, tcg_ctx->cpu_fpr_risc[a->rd], tcg_ctx->cpu_fpr_risc[a->rs1], t0);
         tcg_temp_free_i64(tcg_ctx, t0);
     }
+    gen_nanbox_s(ctx, tcg_ctx->cpu_fpr_risc[a->rd], tcg_ctx->cpu_fpr_risc[a->rd]);
     mark_fs_dirty(ctx);
     return true;
 }
@@ -419,6 +422,7 @@ static bool trans_fmv_w_x(DisasContext *ctx, arg_fmv_w_x *a)
 #else
     tcg_gen_extu_i32_i64(tcg_ctx, tcg_ctx->cpu_fpr_risc[a->rd], t0);
 #endif
+    gen_nanbox_s(ctx, tcg_ctx->cpu_fpr_risc[a->rd], tcg_ctx->cpu_fpr_risc[a->rd]);
 
     mark_fs_dirty(ctx);
     tcg_temp_free(tcg_ctx, t0);
