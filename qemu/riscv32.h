@@ -4760,6 +4760,7 @@
 #define riscv_cpu_fp_enabled riscv_cpu_fp_enabled_riscv32
 #define riscv_cpu_get_fflags riscv_cpu_get_fflags_riscv32
 #define riscv_cpu_get_phys_page_debug riscv_cpu_get_phys_page_debug_riscv32
+#define riscv_cpu_is_32bit riscv_cpu_is_32bit_riscv32
 #define riscv_cpu_list riscv_cpu_list_riscv32
 #define riscv_cpu_mmu_index riscv_cpu_mmu_index_riscv32
 #define riscv_cpu_register_types riscv_cpu_register_types_riscv32

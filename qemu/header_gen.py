@@ -7324,6 +7324,7 @@ riscv_symbols = (
     'riscv_cpu_fp_enabled',
     'riscv_cpu_get_fflags',
     'riscv_cpu_get_phys_page_debug',
+    'riscv_cpu_is_32bit',
     'riscv_cpu_list',
     'riscv_cpu_mmu_index',
     'riscv_cpu_register_types',
