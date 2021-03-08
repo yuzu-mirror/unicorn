@@ -84,7 +84,7 @@ static inline int pmp_is_locked(CPURISCVState *env, uint32_t pmp_index)
 /*
  * Count the number of active rules.
  */
-static inline uint32_t pmp_get_num_rules(CPURISCVState *env)
+uint32_t pmp_get_num_rules(CPURISCVState *env)
 {
      return env->pmp_state.num_rules;
 }
@@ -146,6 +146,20 @@ static void pmp_decode_napot(target_ulong a, target_ulong *sa, target_ulong *ea)
     }
 }
 
+
+void pmp_update_rule_nums(CPURISCVState *env)
+{
+    int i;
+
+    env->pmp_state.num_rules = 0;
+    for (i = 0; i < MAX_RISCV_PMPS; i++) {
+        const uint8_t a_field =
+            pmp_get_a_field(env->pmp_state.pmp[i].cfg_reg);
+        if (PMP_AMATCH_OFF != a_field) {
+            env->pmp_state.num_rules++;
+        }
+    }
+}
 
 /* Convert cfg/addr reg values here into simple 'sa' --> start address and 'ea'
  *   end address values.
@@ -239,7 +253,7 @@ bool pmp_hart_has_privs(CPURISCVState *env, target_ulong addr,
 
     /* Short cut if no rules */
     if (0 == pmp_get_num_rules(env)) {
-        return true;
+        return (env->priv == PRV_M) ? true : false;
     }
 
     /* 1.10 draft priv spec states there is an implicit order
