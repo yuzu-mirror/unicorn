@@ -7300,6 +7300,7 @@ riscv_symbols = (
     'helper_vcompress_vm_w',
     'helper_vcompress_vm_d',
     'pmp_hart_has_privs',
+    'pmp_is_range_in_tlb',
     'pmpaddr_csr_read',
     'pmpaddr_csr_write',
     'pmpcfg_csr_read',

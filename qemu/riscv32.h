@@ -4736,6 +4736,7 @@
 #define helper_vcompress_vm_w helper_vcompress_vm_w_riscv32
 #define helper_vcompress_vm_d helper_vcompress_vm_d_riscv32
 #define pmp_hart_has_privs pmp_hart_has_privs_riscv32
+#define pmp_is_range_in_tlb pmp_is_range_in_tlb_riscv32
 #define pmpaddr_csr_read pmpaddr_csr_read_riscv32
 #define pmpaddr_csr_write pmpaddr_csr_write_riscv32
 #define pmpcfg_csr_read pmpcfg_csr_read_riscv32
