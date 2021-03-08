@@ -3858,7 +3858,7 @@
 #define helper_rsqrtsf_f32 helper_rsqrtsf_f32_aarch64eb
 #define helper_rsqrtsf_f64 helper_rsqrtsf_f64_aarch64eb
 #define helper_sdiv64 helper_sdiv64_aarch64eb
-#define helper_simd_tbl helper_simd_tbl_aarch64eb
+#define helper_simd_tblx helper_simd_tblx_aarch64eb
 #define helper_sqrt_f16 helper_sqrt_f16_aarch64eb
 #define helper_st2g helper_st2g_aarch64eb
 #define helper_st2g_parallel helper_st2g_parallel_aarch64eb

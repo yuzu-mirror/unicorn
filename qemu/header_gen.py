@@ -4007,7 +4007,7 @@ aarch64_symbols = (
     'helper_rsqrtsf_f32',
     'helper_rsqrtsf_f64',
     'helper_sdiv64',
-    'helper_simd_tbl',
+    'helper_simd_tblx',
     'helper_sqrt_f16',
     'helper_st2g',
     'helper_st2g_parallel',
