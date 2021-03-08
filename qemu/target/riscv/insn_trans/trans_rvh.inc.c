@@ -279,20 +279,15 @@ static bool trans_hlvx_hu(DisasContext *ctx, arg_hlvx_hu *a)
     TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
     TCGv t0 = tcg_temp_new(tcg_ctx);
     TCGv t1 = tcg_temp_new(tcg_ctx);
-    TCGv mem_idx = tcg_temp_new(tcg_ctx);
-    TCGv memop = tcg_temp_new(tcg_ctx);
+
+    check_access(ctx);
 
     gen_get_gpr(ctx, t0, a->rs1);
-    tcg_gen_movi_tl(tcg_ctx, mem_idx, ctx->mem_idx);
-    tcg_gen_movi_tl(tcg_ctx, memop, MO_TEUW);
-
-    gen_helper_hyp_x_load(tcg_ctx, t1, tcg_ctx->cpu_env, t0, mem_idx, memop);
+    gen_helper_hyp_hlvx_hu(tcg_ctx, t1, tcg_ctx->cpu_env, t0);
     gen_set_gpr(ctx, a->rd, t1);
 
     tcg_temp_free(tcg_ctx, t0);
     tcg_temp_free(tcg_ctx, t1);
-    tcg_temp_free(tcg_ctx, mem_idx);
-    tcg_temp_free(tcg_ctx, memop);
     return true;
 #else
     return false;
@@ -306,20 +301,15 @@ static bool trans_hlvx_wu(DisasContext *ctx, arg_hlvx_wu *a)
     TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
     TCGv t0 = tcg_temp_new(tcg_ctx);
     TCGv t1 = tcg_temp_new(tcg_ctx);
-    TCGv mem_idx = tcg_temp_new(tcg_ctx);
-    TCGv memop = tcg_temp_new(tcg_ctx);
+
+    check_access(ctx);
 
     gen_get_gpr(ctx, t0, a->rs1);
-    tcg_gen_movi_tl(tcg_ctx, mem_idx, ctx->mem_idx);
-    tcg_gen_movi_tl(tcg_ctx, memop, MO_TEUL);
-
-    gen_helper_hyp_x_load(tcg_ctx, t1, tcg_ctx->cpu_env, t0, mem_idx, memop);
+    gen_helper_hyp_hlvx_wu(tcg_ctx, t1, tcg_ctx->cpu_env, t0);
     gen_set_gpr(ctx, a->rd, t1);
 
     tcg_temp_free(tcg_ctx, t0);
     tcg_temp_free(tcg_ctx, t1);
-    tcg_temp_free(tcg_ctx, mem_idx);
-    tcg_temp_free(tcg_ctx, memop);
     return true;
 #else
     return false;

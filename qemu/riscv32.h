@@ -3697,7 +3697,8 @@
 #define helper_fsub_s helper_fsub_s_riscv32
 #define helper_hyp_gvma_tlb_flush helper_hyp_gvma_tlb_flush_riscv32
 #define helper_hyp_tlb_flush helper_hyp_tlb_flush_riscv32
-#define helper_hyp_x_load helper_hyp_x_load_riscv32
+#define helper_hyp_hlvx_hu helper_hyp_hlvx_hu_riscv32
+#define helper_hyp_hlvx_wu helper_hyp_hlvx_wu_riscv32
 #define helper_mret helper_mret_riscv32
 #define helper_tlb_flush helper_tlb_flush_riscv32
 #define helper_set_rounding_mode helper_set_rounding_mode_riscv32
