@@ -294,6 +294,7 @@ typedef struct RISCVCPU {
         char *vext_spec;
         uint16_t vlen;
         uint16_t elen;
+        uint64_t resetvec;
     } cfg;
 } RISCVCPU;
 
