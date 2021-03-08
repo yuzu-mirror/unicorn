@@ -454,11 +454,7 @@ static bool trans_fmv_w_x(DisasContext *ctx, arg_fmv_w_x *a)
     TCGv t0 = tcg_temp_new(tcg_ctx);
     gen_get_gpr(ctx, t0, a->rs1);
 
-#if defined(TARGET_RISCV64)
-    tcg_gen_mov_i64(tcg_ctx, tcg_ctx->cpu_fpr_risc[a->rd], t0);
-#else
-    tcg_gen_extu_i32_i64(tcg_ctx, tcg_ctx->cpu_fpr_risc[a->rd], t0);
-#endif
+    tcg_gen_extu_tl_i64(tcg_ctx, tcg_ctx->cpu_fpr_risc[a->rd], t0);
     gen_nanbox_s(ctx, tcg_ctx->cpu_fpr_risc[a->rd], tcg_ctx->cpu_fpr_risc[a->rd]);
 
     mark_fs_dirty(ctx);
