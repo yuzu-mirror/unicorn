@@ -16,6 +16,359 @@
  * this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+static bool trans_hlv_b(DisasContext *ctx, arg_hlv_b *a)
+{
+    REQUIRE_EXT(ctx, RVH);
+#ifndef CONFIG_USER_ONLY
+    TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
+    TCGv t0 = tcg_temp_new(tcg_ctx);
+    TCGv t1 = tcg_temp_new(tcg_ctx);
+    TCGv mem_idx = tcg_temp_new(tcg_ctx);
+    TCGv memop = tcg_temp_new(tcg_ctx);
+
+    gen_get_gpr(ctx, t0, a->rs1);
+    tcg_gen_movi_tl(tcg_ctx, mem_idx, ctx->mem_idx);
+    tcg_gen_movi_tl(tcg_ctx, memop, MO_SB);
+
+    gen_helper_hyp_load(tcg_ctx, t1, tcg_ctx->cpu_env, t0, mem_idx, memop);
+    gen_set_gpr(ctx, a->rd, t1);
+
+    tcg_temp_free(tcg_ctx, t0);
+    tcg_temp_free(tcg_ctx, t1);
+    tcg_temp_free(tcg_ctx, mem_idx);
+    tcg_temp_free(tcg_ctx, memop);
+    return true;
+#else
+    return false;
+#endif
+}
+
+static bool trans_hlv_h(DisasContext *ctx, arg_hlv_h *a)
+{
+    REQUIRE_EXT(ctx, RVH);
+#ifndef CONFIG_USER_ONLY
+    TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
+    TCGv t0 = tcg_temp_new(tcg_ctx);
+    TCGv t1 = tcg_temp_new(tcg_ctx);
+    TCGv mem_idx = tcg_temp_new(tcg_ctx);
+    TCGv memop = tcg_temp_new(tcg_ctx);
+
+    gen_get_gpr(ctx, t0, a->rs1);
+    tcg_gen_movi_tl(tcg_ctx, mem_idx, ctx->mem_idx);
+    tcg_gen_movi_tl(tcg_ctx, memop, MO_TESW);
+
+    gen_helper_hyp_load(tcg_ctx, t1, tcg_ctx->cpu_env, t0, mem_idx, memop);
+    gen_set_gpr(ctx, a->rd, t1);
+
+    tcg_temp_free(tcg_ctx, t0);
+    tcg_temp_free(tcg_ctx, t1);
+    tcg_temp_free(tcg_ctx, mem_idx);
+    tcg_temp_free(tcg_ctx, memop);
+    return true;
+#else
+    return false;
+#endif
+}
+
+static bool trans_hlv_w(DisasContext *ctx, arg_hlv_w *a)
+{
+    REQUIRE_EXT(ctx, RVH);
+#ifndef CONFIG_USER_ONLY
+    TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
+    TCGv t0 = tcg_temp_new(tcg_ctx);
+    TCGv t1 = tcg_temp_new(tcg_ctx);
+    TCGv mem_idx = tcg_temp_new(tcg_ctx);
+    TCGv memop = tcg_temp_new(tcg_ctx);
+
+    gen_get_gpr(ctx, t0, a->rs1);
+    tcg_gen_movi_tl(tcg_ctx, mem_idx, ctx->mem_idx);
+    tcg_gen_movi_tl(tcg_ctx, memop, MO_TESL);
+
+    gen_helper_hyp_load(tcg_ctx, t1, tcg_ctx->cpu_env, t0, mem_idx, memop);
+    gen_set_gpr(ctx, a->rd, t1);
+
+    tcg_temp_free(tcg_ctx, t0);
+    tcg_temp_free(tcg_ctx, t1);
+    tcg_temp_free(tcg_ctx, mem_idx);
+    tcg_temp_free(tcg_ctx, memop);
+    return true;
+#else
+    return false;
+#endif
+}
+
+static bool trans_hlv_bu(DisasContext *ctx, arg_hlv_bu *a)
+{
+    REQUIRE_EXT(ctx, RVH);
+#ifndef CONFIG_USER_ONLY
+    TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
+    TCGv t0 = tcg_temp_new(tcg_ctx);
+    TCGv t1 = tcg_temp_new(tcg_ctx);
+    TCGv mem_idx = tcg_temp_new(tcg_ctx);
+    TCGv memop = tcg_temp_new(tcg_ctx);
+
+    gen_get_gpr(ctx, t0, a->rs1);
+    tcg_gen_movi_tl(tcg_ctx, mem_idx, ctx->mem_idx);
+    tcg_gen_movi_tl(tcg_ctx, memop, MO_UB);
+
+    gen_helper_hyp_load(tcg_ctx, t1, tcg_ctx->cpu_env, t0, mem_idx, memop);
+    gen_set_gpr(ctx, a->rd, t1);
+
+    tcg_temp_free(tcg_ctx, t0);
+    tcg_temp_free(tcg_ctx, t1);
+    tcg_temp_free(tcg_ctx, mem_idx);
+    tcg_temp_free(tcg_ctx, memop);
+    return true;
+#else
+    return false;
+#endif
+}
+
+static bool trans_hlv_hu(DisasContext *ctx, arg_hlv_hu *a)
+{
+    REQUIRE_EXT(ctx, RVH);
+#ifndef CONFIG_USER_ONLY
+    TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
+    TCGv t0 = tcg_temp_new(tcg_ctx);
+    TCGv t1 = tcg_temp_new(tcg_ctx);
+    TCGv mem_idx = tcg_temp_new(tcg_ctx);
+    TCGv memop = tcg_temp_new(tcg_ctx);
+
+    gen_get_gpr(ctx, t0, a->rs1);
+    tcg_gen_movi_tl(tcg_ctx, mem_idx, ctx->mem_idx);
+    tcg_gen_movi_tl(tcg_ctx, memop, MO_TEUW);
+
+    gen_helper_hyp_load(tcg_ctx, t1, tcg_ctx->cpu_env, t0, mem_idx, memop);
+    gen_set_gpr(ctx, a->rd, t1);
+
+    tcg_temp_free(tcg_ctx, t0);
+    tcg_temp_free(tcg_ctx, t1);
+    tcg_temp_free(tcg_ctx, mem_idx);
+    tcg_temp_free(tcg_ctx, memop);
+    return true;
+#else
+    return false;
+#endif
+}
+
+static bool trans_hsv_b(DisasContext *ctx, arg_hsv_b *a)
+{
+    REQUIRE_EXT(ctx, RVH);
+#ifndef CONFIG_USER_ONLY
+    TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
+    TCGv t0 = tcg_temp_new(tcg_ctx);
+    TCGv dat = tcg_temp_new(tcg_ctx);
+    TCGv mem_idx = tcg_temp_new(tcg_ctx);
+    TCGv memop = tcg_temp_new(tcg_ctx);
+
+    gen_get_gpr(ctx, t0, a->rs1);
+    gen_get_gpr(ctx, dat, a->rs2);
+    tcg_gen_movi_tl(tcg_ctx, mem_idx, ctx->mem_idx);
+    tcg_gen_movi_tl(tcg_ctx, memop, MO_SB);
+
+    gen_helper_hyp_store(tcg_ctx, tcg_ctx->cpu_env, t0, dat, mem_idx, memop);
+
+    tcg_temp_free(tcg_ctx, t0);
+    tcg_temp_free(tcg_ctx, dat);
+    tcg_temp_free(tcg_ctx, mem_idx);
+    tcg_temp_free(tcg_ctx, memop);
+    return true;
+#else
+    return false;
+#endif
+}
+
+static bool trans_hsv_h(DisasContext *ctx, arg_hsv_h *a)
+{
+    REQUIRE_EXT(ctx, RVH);
+#ifndef CONFIG_USER_ONLY
+    TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
+    TCGv t0 = tcg_temp_new(tcg_ctx);
+    TCGv dat = tcg_temp_new(tcg_ctx);
+    TCGv mem_idx = tcg_temp_new(tcg_ctx);
+    TCGv memop = tcg_temp_new(tcg_ctx);
+
+    gen_get_gpr(ctx, t0, a->rs1);
+    gen_get_gpr(ctx, dat, a->rs2);
+    tcg_gen_movi_tl(tcg_ctx, mem_idx, ctx->mem_idx);
+    tcg_gen_movi_tl(tcg_ctx, memop, MO_TESW);
+
+    gen_helper_hyp_store(tcg_ctx, tcg_ctx->cpu_env, t0, dat, mem_idx, memop);
+
+    tcg_temp_free(tcg_ctx, t0);
+    tcg_temp_free(tcg_ctx, dat);
+    tcg_temp_free(tcg_ctx, mem_idx);
+    tcg_temp_free(tcg_ctx, memop);
+    return true;
+#else
+    return false;
+#endif
+}
+
+static bool trans_hsv_w(DisasContext *ctx, arg_hsv_w *a)
+{
+    REQUIRE_EXT(ctx, RVH);
+#ifndef CONFIG_USER_ONLY
+    TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
+    TCGv t0 = tcg_temp_new(tcg_ctx);
+    TCGv dat = tcg_temp_new(tcg_ctx);
+    TCGv mem_idx = tcg_temp_new(tcg_ctx);
+    TCGv memop = tcg_temp_new(tcg_ctx);
+
+    gen_get_gpr(ctx, t0, a->rs1);
+    gen_get_gpr(ctx, dat, a->rs2);
+    tcg_gen_movi_tl(tcg_ctx, mem_idx, ctx->mem_idx);
+    tcg_gen_movi_tl(tcg_ctx, memop, MO_TESL);
+
+    gen_helper_hyp_store(tcg_ctx, tcg_ctx->cpu_env, t0, dat, mem_idx, memop);
+
+    tcg_temp_free(tcg_ctx, t0);
+    tcg_temp_free(tcg_ctx, dat);
+    tcg_temp_free(tcg_ctx, mem_idx);
+    tcg_temp_free(tcg_ctx, memop);
+    return true;
+#else
+    return false;
+#endif
+}
+
+#ifdef TARGET_RISCV64
+static bool trans_hlv_wu(DisasContext *ctx, arg_hlv_wu *a)
+{
+    REQUIRE_EXT(ctx, RVH);
+#ifndef CONFIG_USER_ONLY
+    TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
+    TCGv t0 = tcg_temp_new(tcg_ctx);
+    TCGv t1 = tcg_temp_new(tcg_ctx);
+    TCGv mem_idx = tcg_temp_new(tcg_ctx);
+    TCGv memop = tcg_temp_new(tcg_ctx);
+
+    gen_get_gpr(ctx, t0, a->rs1);
+    tcg_gen_movi_tl(tcg_ctx, mem_idx, ctx->mem_idx);
+    tcg_gen_movi_tl(tcg_ctx, memop, MO_TEUL);
+
+    gen_helper_hyp_load(tcg_ctx, t1, tcg_ctx->cpu_env, t0, mem_idx, memop);
+    gen_set_gpr(ctx, a->rd, t1);
+
+    tcg_temp_free(tcg_ctx, t0);
+    tcg_temp_free(tcg_ctx, t1);
+    tcg_temp_free(tcg_ctx, mem_idx);
+    tcg_temp_free(tcg_ctx, memop);
+    return true;
+#else
+    return false;
+#endif
+}
+
+static bool trans_hlv_d(DisasContext *ctx, arg_hlv_d *a)
+{
+    REQUIRE_EXT(ctx, RVH);
+#ifndef CONFIG_USER_ONLY
+    TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
+    TCGv t0 = tcg_temp_new(tcg_ctx);
+    TCGv t1 = tcg_temp_new(tcg_ctx);
+    TCGv mem_idx = tcg_temp_new(tcg_ctx);
+    TCGv memop = tcg_temp_new(tcg_ctx);
+
+    gen_get_gpr(ctx, t0, a->rs1);
+    tcg_gen_movi_tl(tcg_ctx, mem_idx, ctx->mem_idx);
+    tcg_gen_movi_tl(tcg_ctx, memop, MO_TEQ);
+
+    gen_helper_hyp_load(tcg_ctx, t1, tcg_ctx->cpu_env, t0, mem_idx, memop);
+    gen_set_gpr(ctx, a->rd, t1);
+
+    tcg_temp_free(tcg_ctx, t0);
+    tcg_temp_free(tcg_ctx, t1);
+    tcg_temp_free(tcg_ctx, mem_idx);
+    tcg_temp_free(tcg_ctx, memop);
+    return true;
+#else
+    return false;
+#endif
+}
+
+static bool trans_hsv_d(DisasContext *ctx, arg_hsv_d *a)
+{
+    REQUIRE_EXT(ctx, RVH);
+#ifndef CONFIG_USER_ONLY
+    TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
+    TCGv t0 = tcg_temp_new(tcg_ctx);
+    TCGv dat = tcg_temp_new(tcg_ctx);
+    TCGv mem_idx = tcg_temp_new(tcg_ctx);
+    TCGv memop = tcg_temp_new(tcg_ctx);
+
+    gen_get_gpr(ctx, t0, a->rs1);
+    gen_get_gpr(ctx, dat, a->rs2);
+    tcg_gen_movi_tl(tcg_ctx, mem_idx, ctx->mem_idx);
+    tcg_gen_movi_tl(tcg_ctx, memop, MO_TEQ);
+
+    gen_helper_hyp_store(tcg_ctx, tcg_ctx->cpu_env, t0, dat, mem_idx, memop);
+
+    tcg_temp_free(tcg_ctx, t0);
+    tcg_temp_free(tcg_ctx, dat);
+    tcg_temp_free(tcg_ctx, mem_idx);
+    tcg_temp_free(tcg_ctx, memop);
+    return true;
+#else
+    return false;
+#endif
+}
+#endif
+
+static bool trans_hlvx_hu(DisasContext *ctx, arg_hlvx_hu *a)
+{
+    REQUIRE_EXT(ctx, RVH);
+#ifndef CONFIG_USER_ONLY
+    TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
+    TCGv t0 = tcg_temp_new(tcg_ctx);
+    TCGv t1 = tcg_temp_new(tcg_ctx);
+    TCGv mem_idx = tcg_temp_new(tcg_ctx);
+    TCGv memop = tcg_temp_new(tcg_ctx);
+
+    gen_get_gpr(ctx, t0, a->rs1);
+    tcg_gen_movi_tl(tcg_ctx, mem_idx, ctx->mem_idx);
+    tcg_gen_movi_tl(tcg_ctx, memop, MO_TEUW);
+
+    gen_helper_hyp_x_load(tcg_ctx, t1, tcg_ctx->cpu_env, t0, mem_idx, memop);
+    gen_set_gpr(ctx, a->rd, t1);
+
+    tcg_temp_free(tcg_ctx, t0);
+    tcg_temp_free(tcg_ctx, t1);
+    tcg_temp_free(tcg_ctx, mem_idx);
+    tcg_temp_free(tcg_ctx, memop);
+    return true;
+#else
+    return false;
+#endif
+}
+
+static bool trans_hlvx_wu(DisasContext *ctx, arg_hlvx_wu *a)
+{
+    REQUIRE_EXT(ctx, RVH);
+#ifndef CONFIG_USER_ONLY
+    TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
+    TCGv t0 = tcg_temp_new(tcg_ctx);
+    TCGv t1 = tcg_temp_new(tcg_ctx);
+    TCGv mem_idx = tcg_temp_new(tcg_ctx);
+    TCGv memop = tcg_temp_new(tcg_ctx);
+
+    gen_get_gpr(ctx, t0, a->rs1);
+    tcg_gen_movi_tl(tcg_ctx, mem_idx, ctx->mem_idx);
+    tcg_gen_movi_tl(tcg_ctx, memop, MO_TEUL);
+
+    gen_helper_hyp_x_load(tcg_ctx, t1, tcg_ctx->cpu_env, t0, mem_idx, memop);
+    gen_set_gpr(ctx, a->rd, t1);
+
+    tcg_temp_free(tcg_ctx, t0);
+    tcg_temp_free(tcg_ctx, t1);
+    tcg_temp_free(tcg_ctx, mem_idx);
+    tcg_temp_free(tcg_ctx, memop);
+    return true;
+#else
+    return false;
+#endif
+}
+
 static bool trans_hfence_gvma(DisasContext *ctx, arg_sfence_vma *a)
 {
     REQUIRE_EXT(ctx, RVH);
