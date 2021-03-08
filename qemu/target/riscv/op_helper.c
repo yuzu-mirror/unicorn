@@ -335,11 +335,11 @@ target_ulong helper_hyp_x_load(CPURISCVState *env, target_ulong address,
         riscv_cpu_set_two_stage_lookup(env, true);
 
         switch (memop) {
-        case MO_TEUL:
-            pte = cpu_ldl_mmuidx_ra(env, address, cpu_mmu_index(env, true), GETPC());
-            break;
         case MO_TEUW:
             pte = cpu_lduw_mmuidx_ra(env, address, cpu_mmu_index(env, true), GETPC());
+            break;
+        case MO_TEUL:
+            pte = cpu_ldl_mmuidx_ra(env, address, cpu_mmu_index(env, true), GETPC());
             break;
         default:
             g_assert_not_reached();
