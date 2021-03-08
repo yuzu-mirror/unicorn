@@ -374,7 +374,7 @@ static bool trans_hfence_gvma(DisasContext *ctx, arg_sfence_vma *a)
     REQUIRE_EXT(ctx, RVH);
 #ifndef CONFIG_USER_ONLY
     TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
-    gen_helper_hyp_tlb_flush(tcg_ctx, tcg_ctx->cpu_env);
+    gen_helper_hyp_gvma_tlb_flush(tcg_ctx, tcg_ctx->cpu_env);
     return true;
 #endif
     return false;

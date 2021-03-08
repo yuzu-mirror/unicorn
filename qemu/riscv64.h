@@ -3695,6 +3695,7 @@
 #define helper_fsqrt_s helper_fsqrt_s_riscv64
 #define helper_fsub_d helper_fsub_d_riscv64
 #define helper_fsub_s helper_fsub_s_riscv64
+#define helper_hyp_gvma_tlb_flush helper_hyp_gvma_tlb_flush_riscv64
 #define helper_hyp_load helper_hyp_load_riscv64
 #define helper_hyp_store helper_hyp_store_riscv64
 #define helper_hyp_tlb_flush helper_hyp_tlb_flush_riscv64
