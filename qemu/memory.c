@@ -334,12 +334,12 @@ static void flatview_destroy(FlatView *view)
 
 static void flatview_ref(FlatView *view)
 {
-    atomic_inc(&view->ref);
+    qatomic_inc(&view->ref);
 }
 
 static void flatview_unref(FlatView *view)
 {
-    if (atomic_fetch_dec(&view->ref) == 1) {
+    if (qatomic_fetch_dec(&view->ref) == 1) {
         flatview_destroy(view);
     }
 }
@@ -355,8 +355,8 @@ void unicorn_free_empty_flat_view(struct uc_struct *uc)
 
 FlatView *address_space_to_flatview(AddressSpace *as)
 {
-    // Unicorn: atomic_read used instead of atomic_rcu_read
-    return atomic_read(&as->current_map);
+    // Unicorn: qatomic_read used instead of qatomic_rcu_read
+    return qatomic_read(&as->current_map);
 }
 
 AddressSpaceDispatch *flatview_to_dispatch(FlatView *fv)
@@ -900,7 +900,7 @@ static void address_space_set_flatview(AddressSpace *as)
     }
 
     /* Writes are protected by the BQL.  */
-    atomic_set(&as->current_map, new_view);
+    qatomic_set(&as->current_map, new_view);
     if (old_view) {
         flatview_unref(old_view);
     }

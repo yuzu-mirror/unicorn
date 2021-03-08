@@ -148,12 +148,12 @@ struct CPURISCVState {
 
     /*
      * CAUTION! Unlike the rest of this struct, mip is accessed asynchonously
-     * by I/O threads. It should be read with atomic_read. It should be updated
+     * by I/O threads. It should be read with qatomic_read. It should be updated
      * using riscv_cpu_update_mip with the iothread mutex held. The iothread
      * mutex must be held because mip must be consistent with the CPU inturrept
      * state. riscv_cpu_update_mip calls cpu_interrupt or cpu_reset_interrupt
      * wuth the invariant that CPU_INTERRUPT_HARD is set iff mip is non-zero.
-     * mip is 32-bits to allow atomic_read on 32-bit hosts.
+     * mip is 32-bits to allow qatomic_read on 32-bit hosts.
      */
     target_ulong mip;
 

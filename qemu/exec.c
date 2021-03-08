@@ -320,7 +320,7 @@ static MemoryRegionSection *address_space_lookup_region(AddressSpaceDispatch *d,
                                                         hwaddr addr,
                                                         bool resolve_subpage)
 {
-    MemoryRegionSection *section = atomic_read(&d->mru_section);
+    MemoryRegionSection *section = qatomic_read(&d->mru_section);
     subpage_t *subpage;
     bool update;
 
@@ -336,7 +336,7 @@ static MemoryRegionSection *address_space_lookup_region(AddressSpaceDispatch *d,
         section = &d->map.sections[subpage->sub_section[SUBPAGE_IDX(addr)]];
     }
     if (update) {
-        atomic_set(&d->mru_section, section);
+        qatomic_set(&d->mru_section, section);
     }
     return section;
 }
@@ -391,7 +391,6 @@ static MemoryRegionSection flatview_do_translate(FlatView *fv,
     AddressSpaceDispatch *d = flatview_to_dispatch(fv);
 
     for (;;) {
-        // Unicorn: atomic_read used instead of atomic_rcu_read
         section = address_space_translate_internal(
                 flatview_to_dispatch(fv), addr, &addr,
                 plen, is_mmio);
@@ -498,8 +497,8 @@ address_space_translate_for_iotlb(CPUState *cpu, int asidx, hwaddr addr,
                                   MemTxAttrs attrs, int *prot)
 {
     MemoryRegionSection *section;
-    // Unicorn: atomic_read used instead of atomic_rcu_read
-    AddressSpaceDispatch *d = atomic_read(&cpu->cpu_ases[asidx].memory_dispatch);
+    // Unicorn: qatomic_read used instead of qatomic_rcu_read
+    AddressSpaceDispatch *d = qatomic_read(&cpu->cpu_ases[asidx].memory_dispatch);
 
     section = address_space_translate_internal(d, addr, xlat, plen, false);
 
@@ -1884,8 +1883,8 @@ MemoryRegionSection *iotlb_to_section(CPUState *cpu,
 {
     int asidx = cpu_asidx_from_attrs(cpu, attrs);
     CPUAddressSpace *cpuas = &cpu->cpu_ases[asidx];
-    // Unicorn: uses atomic_read instead of atomic_rcu_read
-    AddressSpaceDispatch *d = atomic_read(&cpuas->memory_dispatch);
+    // Unicorn: uses qatomic_read instead of qatomic_rcu_read
+    AddressSpaceDispatch *d = qatomic_read(&cpuas->memory_dispatch);
     MemoryRegionSection *sections = d->map.sections;
 
     return &sections[index & ~TARGET_PAGE_MASK];
@@ -1931,8 +1930,8 @@ static void tcg_commit(MemoryListener *listener)
      * may have split the RCU critical section.
      */
     d = address_space_to_dispatch(cpuas->as);
-    // Unicorn: atomic_set used instead of atomic_rcu_set
-    atomic_set(&cpuas->memory_dispatch, d);
+    // Unicorn: qatomic_set used instead of qatomic_rcu_set
+    qatomic_set(&cpuas->memory_dispatch, d);
     tlb_flush(cpuas->cpu);
 }
 
@@ -2356,7 +2355,7 @@ void *address_space_map(AddressSpace *as,
     l = len;
     mr = flatview_translate(fv, addr, &xlat, &l, is_write);
     if (!memory_access_is_direct(mr, is_write)) {
-        if (atomic_xchg(&as->uc->bounce.in_use, true)) {
+        if (qatomic_xchg(&as->uc->bounce.in_use, true)) {
             return NULL;
         }
         /* Avoid unbounded allocations */
@@ -2406,7 +2405,7 @@ void address_space_unmap(AddressSpace *as, void *buffer, hwaddr len,
     qemu_vfree(as->uc->bounce.buffer);
     as->uc->bounce.buffer = NULL;
     memory_region_unref(as->uc->bounce.mr);
-    atomic_mb_set(&as->uc->bounce.in_use, false);
+    qatomic_mb_set(&as->uc->bounce.in_use, false);
 }
 
 void *cpu_physical_memory_map(AddressSpace *as, hwaddr addr,

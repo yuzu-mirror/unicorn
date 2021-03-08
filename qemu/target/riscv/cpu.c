@@ -229,7 +229,7 @@ static void riscv_cpu_dump_state(CPUState *cs, FILE *f,
     cpu_fprintf(f, " %s " TARGET_FMT_lx "\n", "mhartid ", env->mhartid);
     cpu_fprintf(f, " %s " TARGET_FMT_lx "\n", "mstatus ", env->mstatus);
     cpu_fprintf(f, " %s " TARGET_FMT_lx "\n", "mip     ",
-        (target_ulong)atomic_read(&env->mip));
+        (target_ulong)qatomic_read(&env->mip));
     cpu_fprintf(f, " %s " TARGET_FMT_lx "\n", "mie     ", env->mie);
     cpu_fprintf(f, " %s " TARGET_FMT_lx "\n", "mideleg ", env->mideleg);
     cpu_fprintf(f, " %s " TARGET_FMT_lx "\n", "medeleg ", env->medeleg);
@@ -280,7 +280,7 @@ static bool riscv_cpu_has_work(CPUState *cs)
      * Definition of the WFI instruction requires it to ignore the privilege
      * mode and delegation registers, but respect individual enables
      */
-    return (atomic_read(&env->mip) & env->mie) != 0;
+    return (qatomic_read(&env->mip) & env->mie) != 0;
 #else
     return true;
 #endif

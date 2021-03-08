@@ -253,12 +253,12 @@ int riscv_cpu_claim_interrupts(RISCVCPU *cpu, uint32_t interrupts)
 uint32_t riscv_cpu_update_mip(RISCVCPU *cpu, uint32_t mask, uint32_t value)
 {
     CPURISCVState *env = &cpu->env;
-    uint32_t old, new, cmp = atomic_read(&env->mip);
+    uint32_t old, new, cmp = qatomic_read(&env->mip);
 
     do {
         old = cmp;
         new = (old & ~mask) | (value & mask);
-        cmp = atomic_cmpxchg(&env->mip, old, new);
+        cmp = qatomic_cmpxchg(&env->mip, old, new);
     } while (old != cmp);
 
     if (new) {
@@ -531,7 +531,7 @@ restart:
                     *pte_pa = pte = updated_pte;
 #else
                     target_ulong old_pte =
-                        atomic_cmpxchg(pte_pa, pte, updated_pte);
+                        qatomic_cmpxchg(pte_pa, pte, updated_pte);
                     if (old_pte != pte) {
                         goto restart;
                     } else {

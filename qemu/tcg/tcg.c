@@ -1971,7 +1971,7 @@ void tcg_op_remove(TCGContext *s, TCGOp *op)
     s->nb_ops--;
 
 #ifdef CONFIG_PROFILER
-    atomic_set(&s->prof.del_op_count, s->prof.del_op_count + 1);
+    qatomic_set(&s->prof.del_op_count, s->prof.del_op_count + 1);
 #endif
 }
 
@@ -3772,15 +3772,15 @@ int tcg_gen_code(TCGContext *s, TranslationBlock *tb)
         QTAILQ_FOREACH(op, &s->ops, link) {
             n++;
         }
-        atomic_set(&prof->op_count, prof->op_count + n);
+        qatomic_set(&prof->op_count, prof->op_count + n);
         if (n > prof->op_count_max) {
-            atomic_set(&prof->op_count_max, n);
+            qatomic_set(&prof->op_count_max, n);
         }
 
         n = s->nb_temps;
-        atomic_set(&prof->temp_count, prof->temp_count + n);
+        qatomic_set(&prof->temp_count, prof->temp_count + n);
         if (n > prof->temp_count_max) {
-            atomic_set(&prof->temp_count_max, n);
+            qatomic_set(&prof->temp_count_max, n);
         }
     }
 #endif
@@ -3812,7 +3812,7 @@ int tcg_gen_code(TCGContext *s, TranslationBlock *tb)
 #endif
 
 #ifdef CONFIG_PROFILER
-    atomic_set(&prof->opt_time, prof->opt_time - profile_getclock());
+    qatomic_set(&prof->opt_time, prof->opt_time - profile_getclock());
 #endif
 
 #ifdef USE_TCG_OPTIMIZATIONS
@@ -3820,8 +3820,8 @@ int tcg_gen_code(TCGContext *s, TranslationBlock *tb)
 #endif
 
 #ifdef CONFIG_PROFILER
-    atomic_set(&prof->opt_time, prof->opt_time + profile_getclock());
-    atomic_set(&prof->la_time, prof->la_time - profile_getclock());
+    qatomic_set(&prof->opt_time, prof->opt_time + profile_getclock());
+    qatomic_set(&prof->la_time, prof->la_time - profile_getclock());
 #endif
 
     reachable_code_pass(s);
@@ -3844,7 +3844,7 @@ int tcg_gen_code(TCGContext *s, TranslationBlock *tb)
     }
 
 #ifdef CONFIG_PROFILER
-    atomic_set(&prof->la_time, prof->la_time + profile_getclock());
+    qatomic_set(&prof->la_time, prof->la_time + profile_getclock());
 #endif
 
 #ifdef DEBUG_DISAS
@@ -3873,7 +3873,7 @@ int tcg_gen_code(TCGContext *s, TranslationBlock *tb)
         TCGOpcode opc = op->opc;
 
 #ifdef CONFIG_PROFILER
-        atomic_set(&prof->table_op_count[opc], prof->table_op_count[opc] + 1);
+        qatomic_set(&prof->table_op_count[opc], prof->table_op_count[opc] + 1);
 #endif
 
         switch (opc) {

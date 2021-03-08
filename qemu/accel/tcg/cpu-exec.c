@@ -81,7 +81,7 @@ static inline tcg_target_ulong cpu_tb_exec(CPUState *cpu, TranslationBlock *itb)
         /* We were asked to stop executing TBs (probably a pending
          * interrupt. We've now stopped, so clear the flag.
          */
-        atomic_set(&cpu->tcg_exit_req, 0);
+        qatomic_set(&cpu->tcg_exit_req, 0);
     }
 
     return ret;
@@ -234,7 +234,7 @@ static inline TranslationBlock *tb_find(CPUState *cpu,
 
         mmap_unlock();
         /* We add the TB in the virtual pc hash table for the fast lookup */
-        atomic_set(&cpu->tb_jmp_cache[tb_jmp_cache_hash_func(pc)], tb);
+        qatomic_set(&cpu->tb_jmp_cache[tb_jmp_cache_hash_func(pc)], tb);
     }
 #ifndef CONFIG_USER_ONLY
     /* We don't take care of direct jumps when address mapping changes in
@@ -365,7 +365,7 @@ static inline bool cpu_handle_interrupt(CPUState *cpu,
 {
     CPUClass *cc = CPU_GET_CLASS(cpu->uc, cpu);
 
-    if (unlikely(atomic_read(&cpu->interrupt_request))) {
+    if (unlikely(qatomic_read(&cpu->interrupt_request))) {
         int interrupt_request = cpu->interrupt_request;
         if (unlikely(cpu->singlestep_enabled & SSTEP_NOIRQ)) {
             /* Mask out external interrupts for this step. */
@@ -420,8 +420,8 @@ static inline bool cpu_handle_interrupt(CPUState *cpu,
     }
 
     /* Finally, check if we need to exit to the main loop.  */
-    if (unlikely(atomic_read(&cpu->exit_request))) {
-        atomic_set(&cpu->exit_request, 0);
+    if (unlikely(qatomic_read(&cpu->exit_request))) {
+        qatomic_set(&cpu->exit_request, 0);
         if (cpu->exception_index == -1) {
             cpu->exception_index = EXCP_INTERRUPT;
         }
@@ -459,7 +459,7 @@ static inline void cpu_loop_exec_tb(CPUState *cpu, TranslationBlock *tb,
 #ifdef CONFIG_USER_ONLY
         abort();
 #else
-        int insns_left = atomic_read(&cpu_neg(cpu)->icount_decr.u32);
+        int insns_left = qatomic_read(&cpu_neg(cpu)->icount_decr.u32);
         *last_tb = NULL;
         if (cpu->icount_extra && insns_left >= 0) {
             /* Refill decrementer and continue execution.  */
@@ -539,8 +539,8 @@ int cpu_exec(struct uc_struct *uc, CPUState *cpu)
         return EXCP_HALTED;
     }
 
-    atomic_mb_set(&uc->current_cpu, cpu);
-    atomic_mb_set(&uc->tcg_current_rr_cpu, cpu);
+    qatomic_mb_set(&uc->current_cpu, cpu);
+    qatomic_mb_set(&uc->tcg_current_rr_cpu, cpu);
 
     if (cc->tcg_ops.cpu_exec_enter) {
         cc->tcg_ops.cpu_exec_enter(cpu);

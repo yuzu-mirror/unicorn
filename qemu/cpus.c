@@ -191,7 +191,7 @@ static bool tcg_exec_all(struct uc_struct* uc)
     }
 
     if (uc->cpu && uc->cpu->exit_request) {
-        atomic_mb_set(&uc->cpu->exit_request, 0);
+        qatomic_mb_set(&uc->cpu->exit_request, 0);
     }
 
     return finish;
