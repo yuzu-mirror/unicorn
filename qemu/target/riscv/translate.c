@@ -93,6 +93,18 @@ static inline bool has_ext(DisasContext *ctx, uint32_t ext)
     return ctx->misa & ext;
 }
 
+/*
+ * RISC-V requires NaN-boxing of narrower width floating point values.
+ * This applies when a 32-bit value is assigned to a 64-bit FP register.
+ * For consistency and simplicity, we nanbox results even when the RVD
+ * extension is not present.
+ */
+static void gen_nanbox_s(DisasContext *s, TCGv_i64 out, TCGv_i64 in)
+{
+    TCGContext *tcg_ctx = s->uc->tcg_ctx;
+    tcg_gen_ori_i64(tcg_ctx, out, in, MAKE_64BIT_MASK(32, 32));
+}
+
 static void generate_exception(DisasContext *ctx, int excp)
 {
     TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
