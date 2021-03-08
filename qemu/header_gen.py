@@ -6260,8 +6260,6 @@ riscv_symbols = (
     'helper_fsub_d',
     'helper_fsub_s',
     'helper_hyp_gvma_tlb_flush',
-    'helper_hyp_load',
-    'helper_hyp_store',
     'helper_hyp_tlb_flush',
     'helper_hyp_x_load',
     'helper_mret',
