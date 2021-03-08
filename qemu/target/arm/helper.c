@@ -12795,7 +12795,7 @@ void cpu_get_tb_cpu_state(CPUARMState *env, target_ulong *pc,
             if (FIELD_EX32(flags, TBFLAG_A64, UNPRIV)
                 && tbid
                 && !(env->pstate & PSTATE_TCO)
-                && (sctlr & SCTLR_TCF)
+                && (sctlr & SCTLR_TCF0)
                 && allocation_tag_access_enabled(env, 0, sctlr)) {
                 flags = FIELD_DP32(flags, TBFLAG_A64, MTE0_ACTIVE, 1);
             }
