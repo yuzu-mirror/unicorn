@@ -43,6 +43,11 @@ static void m68k_set_feature(CPUM68KState *env, int feature)
     env->features |= (1u << feature);
 }
 
+static void m68k_unset_feature(CPUM68KState *env, int feature)
+{
+    env->features &= (-1u - (1u << feature));
+}
+
 /* CPUClass::reset() */
 static void m68k_cpu_reset(CPUState *s)
 {
@@ -118,6 +123,7 @@ static void m68010_cpu_initfn(struct uc_struct *uc, Object *obj, void *opaque)
 {
     M68kCPU *cpu = M68K_CPU(uc, obj);
     CPUM68KState *env = &cpu->env;
+
     m68000_cpu_initfn(uc, obj, opaque);
     m68k_set_feature(env, M68K_FEATURE_M68010);
     m68k_set_feature(env, M68K_FEATURE_RTD);
@@ -158,8 +164,20 @@ static void m68020_cpu_initfn(struct uc_struct *uc, Object *obj, void *opaque)
     M68kCPU *cpu = M68K_CPU(uc, obj);
     CPUM68KState *env = &cpu->env;
 
-    m680x0_cpu_common(env);
+    m68010_cpu_initfn(uc, obj, opaque);
+    m68k_unset_feature(env, M68K_FEATURE_M68010);
     m68k_set_feature(env, M68K_FEATURE_M68020);
+    m68k_set_feature(env, M68K_FEATURE_QUAD_MULDIV);
+    m68k_set_feature(env, M68K_FEATURE_BRAL);
+    m68k_set_feature(env, M68K_FEATURE_BCCL);
+    m68k_set_feature(env, M68K_FEATURE_BITFIELD);
+    m68k_set_feature(env, M68K_FEATURE_EXT_FULL);
+    m68k_set_feature(env, M68K_FEATURE_SCALED_INDEX);
+    m68k_set_feature(env, M68K_FEATURE_LONG_MULDIV);
+    m68k_set_feature(env, M68K_FEATURE_FPU);
+    m68k_set_feature(env, M68K_FEATURE_CAS);
+    m68k_set_feature(env, M68K_FEATURE_CHK2);
+    m68k_set_feature(env, M68K_FEATURE_MSP);
 }
 
 /*
