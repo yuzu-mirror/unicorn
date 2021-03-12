@@ -111,6 +111,20 @@ static void m68000_cpu_initfn(struct uc_struct *uc, Object *obj, void *opaque)
     m68k_set_feature(env, M68K_FEATURE_MOVEP);
 }
 
+/*
+ * Adds BKPT, MOVE-from-SR *now priv instr, and MOVEC, MOVES, RTD
+ */
+static void m68010_cpu_initfn(struct uc_struct *uc, Object *obj, void *opaque)
+{
+    M68kCPU *cpu = M68K_CPU(uc, obj);
+    CPUM68KState *env = &cpu->env;
+    m68000_cpu_initfn(uc, obj, opaque);
+    m68k_set_feature(env, M68K_FEATURE_M68010);
+    m68k_set_feature(env, M68K_FEATURE_RTD);
+    m68k_set_feature(env, M68K_FEATURE_BKPT);
+    m68k_set_feature(env, M68K_FEATURE_MOVEC);
+}
+
 /* common features for 68020, 68030 and 68040 */
 static void m680x0_cpu_common(CPUM68KState *env)
 {
@@ -342,6 +356,7 @@ static TypeInfo m68k_cpus_type_infos[] = {
         .abstract = true,
     },
     DEFINE_M68K_CPU_TYPE("m68000", m68000_cpu_initfn),
+    DEFINE_M68K_CPU_TYPE("m68010", m68010_cpu_initfn),
     DEFINE_M68K_CPU_TYPE("m68020", m68020_cpu_initfn),
     DEFINE_M68K_CPU_TYPE("m68030", m68030_cpu_initfn),
     DEFINE_M68K_CPU_TYPE("m68040", m68040_cpu_initfn),
