@@ -4749,6 +4749,7 @@
 #define pmp_hart_has_privs pmp_hart_has_privs_riscv32
 #define pmp_get_num_rules pmp_get_num_rules_riscv32
 #define pmp_is_range_in_tlb pmp_is_range_in_tlb_riscv32
+#define pmp_priv_to_page_prot pmp_priv_to_page_prot_riscv32
 #define pmp_update_rule_nums pmp_update_rule_nums_riscv32
 #define pmpaddr_csr_read pmpaddr_csr_read_riscv32
 #define pmpaddr_csr_write pmpaddr_csr_write_riscv32

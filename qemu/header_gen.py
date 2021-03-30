@@ -7313,6 +7313,7 @@ riscv_symbols = (
     'pmp_hart_has_privs',
     'pmp_get_num_rules',
     'pmp_is_range_in_tlb',
+    'pmp_priv_to_page_prot',
     'pmp_update_rule_nums',
     'pmpaddr_csr_read',
     'pmpaddr_csr_write',
