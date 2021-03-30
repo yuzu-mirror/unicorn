@@ -3527,7 +3527,7 @@ static void do_reduce(DisasContext *s, arg_rpr_esz *a,
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
     unsigned vsz = vec_full_reg_size(s);
     unsigned p2vsz = pow2ceil(vsz);
-    TCGv_i32 t_desc = tcg_const_i32(tcg_ctx, simd_desc(vsz, p2vsz, 0));
+    TCGv_i32 t_desc = tcg_const_i32(tcg_ctx, simd_desc(vsz, vsz, p2vsz));
     TCGv_ptr t_zn, t_pg, status;
     TCGv_i64 temp;
 
