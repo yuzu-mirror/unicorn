@@ -2377,11 +2377,10 @@ static void find_last_active(DisasContext *s, TCGv_i32 ret, int esz, int pg)
     TCGContext *tcg_ctx = s->uc->tcg_ctx;
     TCGv_ptr t_p = tcg_temp_new_ptr(tcg_ctx);
     TCGv_i32 t_desc;
-    unsigned vsz = pred_full_reg_size(s);
-    unsigned desc;
+    unsigned desc = 0;
 
-    desc = vsz - 2;
-    desc = deposit32(desc, SIMD_DATA_SHIFT, 2, esz);
+    desc = FIELD_DP32(desc, PREDDESC, OPRSZ, pred_full_reg_size(s));
+    desc = FIELD_DP32(desc, PREDDESC, ESZ, esz);
 
     tcg_gen_addi_ptr(tcg_ctx, t_p, tcg_ctx->cpu_env, pred_full_reg_offset(s, pg));
     t_desc = tcg_const_i32(tcg_ctx, desc);
