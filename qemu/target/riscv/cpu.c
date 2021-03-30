@@ -313,6 +313,7 @@ static void riscv_cpu_reset(CPUState *cs)
     env->mstatus &= ~(MSTATUS_MIE | MSTATUS_MPRV);
     env->mcause = 0;
     env->pc = env->resetvec;
+    env->two_stage_lookup = false;
 #endif
     cs->exception_index = EXCP_NONE;
     env->load_res = -1;
