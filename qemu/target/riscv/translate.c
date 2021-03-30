@@ -68,22 +68,6 @@ typedef struct DisasContext {
 } DisasContext;
 
 #ifdef TARGET_RISCV64
-/* convert riscv funct3 to qemu memop for load/store */
-static const int tcg_memop_lookup[8] = {
-    [0 ... 7] = -1,
-    [0] = MO_SB,
-    [1] = MO_TESW,
-    [2] = MO_TESL,
-    [4] = MO_UB,
-    [5] = MO_TEUW,
-#ifdef TARGET_RISCV64
-    [3] = MO_TEQ,
-    [6] = MO_TEUL,
-#endif
-};
-#endif
-
-#ifdef TARGET_RISCV64
 #define CASE_OP_32_64(X) case X: case glue(X, W)
 #else
 #define CASE_OP_32_64(X) case X
@@ -394,50 +378,6 @@ static void gen_jal(DisasContext *ctx, int rd, target_ulong imm)
     ctx->base.is_jmp = DISAS_NORETURN;
 }
 
-#ifdef TARGET_RISCV64
-static void gen_load_c(DisasContext *ctx, uint32_t opc, int rd, int rs1,
-        target_long imm)
-{
-    TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
-    TCGv t0 = tcg_temp_new(tcg_ctx);
-    TCGv t1 = tcg_temp_new(tcg_ctx);
-    gen_get_gpr(ctx, t0, rs1);
-    tcg_gen_addi_tl(tcg_ctx, t0, t0, imm);
-    int memop = tcg_memop_lookup[(opc >> 12) & 0x7];
-
-    if (memop < 0) {
-        gen_exception_illegal(ctx);
-        return;
-    }
-
-    tcg_gen_qemu_ld_tl(ctx->uc, t1, t0, ctx->mem_idx, memop);
-    gen_set_gpr(ctx, rd, t1);
-    tcg_temp_free(tcg_ctx, t0);
-    tcg_temp_free(tcg_ctx, t1);
-}
-
-static void gen_store_c(DisasContext *ctx, uint32_t opc, int rs1, int rs2,
-        target_long imm)
-{
-    TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
-    TCGv t0 = tcg_temp_new(tcg_ctx);
-    TCGv dat = tcg_temp_new(tcg_ctx);
-    gen_get_gpr(ctx, t0, rs1);
-    tcg_gen_addi_tl(tcg_ctx, t0, t0, imm);
-    gen_get_gpr(ctx, dat, rs2);
-    int memop = tcg_memop_lookup[(opc >> 12) & 0x7];
-
-    if (memop < 0) {
-        gen_exception_illegal(ctx);
-        return;
-    }
-
-    tcg_gen_qemu_st_tl(ctx->uc, dat, t0, ctx->mem_idx, memop);
-    tcg_temp_free(tcg_ctx, t0);
-    tcg_temp_free(tcg_ctx, dat);
-}
-#endif
-
 #ifndef CONFIG_USER_ONLY
 /* The states of mstatus_fs are:
  * 0 = disabled, 1 = initial, 2 = clean, 3 = dirty
@@ -470,85 +410,6 @@ static void mark_fs_dirty(DisasContext *ctx)
 static inline void mark_fs_dirty(DisasContext *ctx) { }
 #endif
 
-#if !defined(TARGET_RISCV64)
-static void gen_fp_load(DisasContext *ctx, uint32_t opc, int rd,
-        int rs1, target_long imm)
-{
-    TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
-    TCGv t0;
-
-    if (ctx->mstatus_fs == 0) {
-        gen_exception_illegal(ctx);
-        return;
-    }
-
-    t0 = tcg_temp_new(tcg_ctx);
-    gen_get_gpr(ctx, t0, rs1);
-    tcg_gen_addi_tl(tcg_ctx, t0, t0, imm);
-
-    switch (opc) {
-    case OPC_RISC_FLW:
-        if (!has_ext(ctx, RVF)) {
-            goto do_illegal;
-        }
-        tcg_gen_qemu_ld_i64(ctx->uc, tcg_ctx->cpu_fpr_risc[rd], t0, ctx->mem_idx, MO_TEUL);
-        /* RISC-V requires NaN-boxing of narrower width floating point values */
-        tcg_gen_ori_i64(tcg_ctx, tcg_ctx->cpu_fpr_risc[rd], tcg_ctx->cpu_fpr_risc[rd], 0xffffffff00000000ULL);
-        break;
-    case OPC_RISC_FLD:
-        if (!has_ext(ctx, RVD)) {
-            goto do_illegal;
-        }
-        tcg_gen_qemu_ld_i64(ctx->uc, tcg_ctx->cpu_fpr_risc[rd], t0, ctx->mem_idx, MO_TEQ);
-        break;
-    do_illegal:
-    default:
-        gen_exception_illegal(ctx);
-        break;
-    }
-    tcg_temp_free(tcg_ctx, t0);
-
-    mark_fs_dirty(ctx);
-}
-
-static void gen_fp_store(DisasContext *ctx, uint32_t opc, int rs1,
-        int rs2, target_long imm)
-{
-    TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
-    TCGv t0;
-
-    if (ctx->mstatus_fs == 0) {
-        gen_exception_illegal(ctx);
-        return;
-    }
-
-    t0 = tcg_temp_new(tcg_ctx);
-    gen_get_gpr(ctx, t0, rs1);
-    tcg_gen_addi_tl(tcg_ctx, t0, t0, imm);
-
-    switch (opc) {
-    case OPC_RISC_FSW:
-        if (!has_ext(ctx, RVF)) {
-            goto do_illegal;
-        }
-        tcg_gen_qemu_st_i64(ctx->uc, tcg_ctx->cpu_fpr_risc[rs2], t0, ctx->mem_idx, MO_TEUL);
-        break;
-    case OPC_RISC_FSD:
-        if (!has_ext(ctx, RVD)) {
-            goto do_illegal;
-        }
-        tcg_gen_qemu_st_i64(ctx->uc, tcg_ctx->cpu_fpr_risc[rs2], t0, ctx->mem_idx, MO_TEQ);
-        break;
-    do_illegal:
-    default:
-        gen_exception_illegal(ctx);
-        break;
-    }
-
-    tcg_temp_free(tcg_ctx, t0);
-}
-#endif
-
 static void gen_set_rm(DisasContext *ctx, int rm)
 {
     TCGContext *tcg_ctx = ctx->uc->tcg_ctx;
@@ -561,49 +422,6 @@ static void gen_set_rm(DisasContext *ctx, int rm)
     t0 = tcg_const_i32(tcg_ctx, rm);
     gen_helper_set_rounding_mode(tcg_ctx, tcg_ctx->cpu_env, t0);
     tcg_temp_free_i32(tcg_ctx, t0);
-}
-
-static void decode_RV32_64C0(DisasContext *ctx)
-{
-    uint8_t funct3 = extract32(ctx->opcode, 13, 3);
-    uint8_t rd_rs2 = GET_C_RS2S(ctx->opcode);
-    uint8_t rs1s = GET_C_RS1S(ctx->opcode);
-
-    switch (funct3) {
-    case 3:
-#if defined(TARGET_RISCV64)
-        /* C.LD(RV64/128) -> ld rd', offset[7:3](rs1')*/
-        gen_load_c(ctx, OPC_RISC_LD, rd_rs2, rs1s,
-                 GET_C_LD_IMM(ctx->opcode));
-#else
-        /* C.FLW (RV32) -> flw rd', offset[6:2](rs1')*/
-        gen_fp_load(ctx, OPC_RISC_FLW, rd_rs2, rs1s,
-                    GET_C_LW_IMM(ctx->opcode));
-#endif
-        break;
-    case 7:
-#if defined(TARGET_RISCV64)
-        /* C.SD (RV64/128) -> sd rs2', offset[7:3](rs1')*/
-        gen_store_c(ctx, OPC_RISC_SD, rs1s, rd_rs2,
-                  GET_C_LD_IMM(ctx->opcode));
-#else
-        /* C.FSW (RV32) -> fsw rs2', offset[6:2](rs1')*/
-        gen_fp_store(ctx, OPC_RISC_FSW, rs1s, rd_rs2,
-                     GET_C_LW_IMM(ctx->opcode));
-#endif
-        break;
-    }
-}
-
-static void decode_RV32_64C(DisasContext *ctx)
-{
-    uint8_t op = extract32(ctx->opcode, 0, 2);
-
-    switch (op) {
-    case 0:
-        decode_RV32_64C0(ctx);
-        break;
-    }
 }
 
 static int ex_plus_1(DisasContext *ctx, int nf)
@@ -802,8 +620,7 @@ static void decode_opc(DisasContext *ctx)
         } else {
             ctx->pc_succ_insn = ctx->base.pc_next + 2;
             if (!decode_insn16(ctx, ctx->opcode)) {
-                /* fall back to old decoder */
-                decode_RV32_64C(ctx);
+                gen_exception_illegal(ctx);
             }
         }
     } else {
