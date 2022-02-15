@@ -1528,7 +1528,7 @@ elif test "$ARCH" = "ppc64" ; then
 elif test "$ARCH" = "riscv32" || test "$ARCH" = "riscv64" ; then
   QEMU_INCLUDES="-I\$(SRC_PATH)/tcg/riscv $QEMU_INCLUDES"
 else
-  QEMU_INCLUDES="-I\$(SRC_PATH)/tcg/\$(ARCH) $QEMU_INCLUDES"
+  QEMU_INCLUDES="-I\$(SRC_PATH)/tcg/$ARCH $QEMU_INCLUDES"
 fi
 QEMU_INCLUDES="-I\$(SRC_PATH)/tcg $QEMU_INCLUDES"
 
